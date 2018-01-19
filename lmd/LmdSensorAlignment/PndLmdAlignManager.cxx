@@ -538,98 +538,6 @@ void PndLmdAlignManager::alignAllSensors() {
 	cout << "all aligners done.\n";
 }
 
-//TODO: remove
-//void PndLmdAlignManager::writeDebugInfoOnAllSensors() {
-//
-//	if (_pretend) {
-//		cout << "pretending to align all sensors...\n";
-//		ofstream of;
-//		of.open(outFilename.c_str());
-//		if (of.fail()) {
-//			cout << "can't write to file \n";
-//			return;
-//		}
-//
-//		of << "merely pretending.";
-//		of.close();
-//		return;
-//	}
-//
-//	//some checks still
-//
-//	ofstream of;
-//	of.open(outFilename.c_str());
-//	if (of.fail()) {
-//		cout << "can't write to file \n";
-//		return;
-//	}
-//	of << std::setprecision(16);
-//
-//	// csv types: 6 Fields
-//	// moduleID, overlapID, nP, alpha, x, y
-//
-//	int cur, tot;
-//	cur = 0;
-//	tot = aligners.size();
-//
-//	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
-//
-//		loadBar(cur++, tot, 1000, 30);
-//
-//		it->second.calculateMatrix();
-//
-//		if (it->second.successful()) {
-//			int id1, id2;
-//			id1 = it->second.getId1();
-//			id2 = it->second.getId2();
-//
-//			Matrix result = it->second.getResultMatrix();
-//			Matrix real = getMatrixSensorToSensor(id1, id2, true);
-//			Matrix dif = real - transformMatrixFromPixelsToCm(result);
-//
-//			stringstream matrixfilename;
-//			matrixfilename << _matrixOutDir << "/m" << id1 << "to" << id2 << ".mat";
-//			writeMatrix(result, matrixfilename.str());
-//
-//			int overlapID, nPairs;
-//			double sinAlphaAbs, sinAlphaRel, xAbs, xRel, yAbs, yRel;
-//
-//			overlapID = it->second.getOverlapId();
-//			nPairs = it->second.getNoOfPairs();
-//			sinAlphaRel = -dif.val[0][1] / 2.0 + dif.val[1][0] / 2.0;
-//			sinAlphaRel = asin(sinAlphaRel);
-//			xRel = dif.val[0][3];
-//			yRel = dif.val[1][3];
-//
-//			sinAlphaAbs = -result.val[0][1] / 2.0 + result.val[1][0] / 2.0;
-//			sinAlphaAbs = asin(sinAlphaAbs);
-//			xAbs = result.val[0][3];
-//			yAbs = result.val[1][3];
-//
-//			/*
-//			 * scheme is overlapID, moduleID, id1, id2, nPairs, sinAlphaAbs, xAbs, yAbs, sinAlphaRel, xRel, yRel
-//			 *
-//			 * that means:
-//			 *
-//			 * nPairs = 4
-//			 * aAbs = 5
-//			 * xAbs = 6
-//			 * yAbs = 7
-//			 * aRel = 8
-//			 * xRel = 9
-//			 * yRel = 10
-//			 */
-//
-//			of << overlapID << "," << "," << id1 << "," << id2 << "," << nPairs;
-//			of << "," << sinAlphaAbs << "," << xAbs << "," << yAbs << ",";
-//			of << sinAlphaRel << "," << xRel << "," << yRel << "\n";
-//		} else {
-//			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
-//		}
-//	}
-//	of.close();
-//}
-
 //these parameters depend on sensor geometry. Use with caution!
 Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
 
@@ -674,29 +582,6 @@ Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
 	result = newPixelsToSensorInCm * input * newSensorInCmToPixels;
 	return result;
 }
-
-/*
- * get transformation matrix of fromSensor -> toSensor (LMD local reference frame)
- * ATTENTION! set aligned flag true for perfect geometry, else use false!
- */
-/*
- Matrix PndLmdAlignManager::getMatrixSensorToSensor(int fromSensor, int toSensor, bool aligned) {
-
- int fhalf, fplane, fmodule, fside, fdie, fsensor;
- int bhalf, bplane, bmodule, bside, bdie, bsensor;
-
- dimension->Get_sensor_by_id(fromSensor, fhalf, fplane, fmodule, fside, fdie, fsensor);
- dimension->Get_sensor_by_id(toSensor, bhalf, bplane, bmodule, bside, bdie, bsensor);
-
- const TGeoHMatrix& matrixSen1ToLmd = dimension->Get_transformation_sensor_to_lmd_local(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
- const TGeoHMatrix& matrixLmdToSen2 = dimension->Get_transformation_lmd_local_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
-
- Matrix matSen1ToLmd = castTGeoHMatrixToMatrix(matrixSen1ToLmd);
- Matrix matLmdToSen2 = castTGeoHMatrixToMatrix(matrixLmdToSen2);
- return matLmdToSen2 * matSen1ToLmd;
-
- }
- */
 
 /*
  * get transformation matrix of fromSensor -> toSensor (PANDA global reference frame)
@@ -977,83 +862,7 @@ void PndLmdAlignManager::setZasTimestamp(bool timestamp) {
 		it->second.setZasTimetamp(_zIsTimestamp);
 	}
 }
-//TODO: remove with PndLmdDim Dependency
-/*
- void PndLmdAlignManager::transformGlobalToLmd(Matrix& matrix) {
 
- cerr << "WARNING. You are using transformGlobalToLmd. This should not be needed anymore!\n";
-
- //make temp copy
- Matrix tempmatrix = Matrix(matrix);
-
- //get appropriate matrices
- TGeoHMatrix lmdToGlobal = dimension->Get_transformation_lmd_local_to_global(true);
- TGeoHMatrix globalToLmd = dimension->Get_transformation_global_to_lmd_local(true);
-
- //use existing casting function
- Matrix lToG = castTGeoHMatrixToMatrix(lmdToGlobal);
- Matrix gToL = castTGeoHMatrixToMatrix(globalToLmd);
-
- //return result
- matrix = lToG * tempmatrix * gToL;
- }
- */
-/*
- void PndLmdAlignManager::transformFromSensorToLmdLocal(Matrix& matrix, int sensorId, bool aligned) {
- //create local copy
- Matrix tempmatrix = Matrix(matrix);
-
- int half, plane, module, side, die, sensor;
- dimension->Get_sensor_by_id(sensorId, half, plane, module, side, die, sensor);
-
- TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, aligned);
- Matrix matSensorToLmd = castTGeoHMatrixToMatrix(sensorToLmd);
- Matrix matLmdToSensor = Matrix::inv(matSensorToLmd);
-
- matrix = matLmdToSensor * matrix * matSensorToLmd;
- }
-
- void PndLmdAlignManager::transformFromLmdLocalToSensor(Matrix& matrix, int sensorId, bool aligned) {
- //create local copy
- Matrix tempmatrix = Matrix(matrix);
-
- int half, plane, module, side, die, sensor;
- dimension->Get_sensor_by_id(sensorId, half, plane, module, side, die, sensor);
-
- TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, aligned);
- Matrix matSensorToLmd = castTGeoHMatrixToMatrix(sensorToLmd);
- Matrix matLmdToSensor = Matrix::inv(matSensorToLmd);
-
- matrix = matSensorToLmd * matrix * matLmdToSensor;
- }
- */
-
-/*
- * returns the matrix needed to transform the position measured by the MISALIGNED lumi (aka measured position)
- * to the real position of a hit (as seen by a perfectly aligned lumi). It is therefore dubbed "correction matrix"
- * (see interim reports).
- * This is in lmd local frame of reference
- */
-//TODO: remove, will be replaced with new alignment system
-//Matrix PndLmdAlignManager::getCorrectionMatrix(int id) {
-//
-//	int half, plane, module, side, die, sensor;
-//	dimension->Get_sensor_by_id(id, half, plane, module, side, die, sensor);
-//
-//	TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, true);
-//	TGeoHMatrix lmdToSensor = dimension->Get_transformation_lmd_local_to_sensor(half, plane, module, side, die, sensor, false);
-//
-//	Matrix sensorToLmdMat = castTGeoHMatrixToMatrix(sensorToLmd);
-//	Matrix lmdToSensorMat = castTGeoHMatrixToMatrix(lmdToSensor);
-//
-//	return lmdToSensorMat * sensorToLmdMat;
-//}
-//TODO: remove, will be replaced with new alignment system
-//Matrix PndLmdAlignManager::getCorrectionMatrix(int id1, int id2) {
-//	Matrix corrId1 = getCorrectionMatrix(id1);
-//	Matrix corrId2 = getCorrectionMatrix(id2);
-//	return corrId2 * Matrix::inv(corrId1);
-//}
 Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 
 	//allocate memory for matrix elements
@@ -1123,29 +932,6 @@ Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 	return result;
 
 }
-
-//Matrix PndLmdAlignManager::castTVector3toMatrix(const TVector3& vec) {
-//	Matrix result(4, 1);
-//	double values[3];
-//	vec.GetXYZ(values);
-//	result.val[0][0] = values[0];
-//	result.val[1][0] = values[1];
-//	result.val[2][0] = values[2];
-//	result.val[3][0] = 1.0;
-//	return result;
-//}
-
-//TVector3 PndLmdAlignManager::castMatrixToTVector3(const Matrix& vec) {
-//
-//	TVector3 result;
-//	if (vec.val[3][0] < 1e-11) {
-//		cout << "ERROR: castMatrixToTVector3: matrix can not be dehomogenized.\n";
-//
-//	} else {
-//		result.SetXYZ(vec.val[0][0] / vec.val[3][0], vec.val[1][0] / vec.val[3][0], vec.val[2][0] / vec.val[3][0]);
-//	}
-//	return result;
-//}
 
 bool PndLmdAlignManager::checkForBinaryFiles() {
 
@@ -1262,11 +1048,6 @@ std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentime
 	}
 	return matrixName.str();
 }
-
-//std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters) {
-//	int overlapId = helper->getOverlapIdFromSensorIDs(sensorOne, sensorTwo);
-//	return makeMatrixFileName(overlapId, incentimeters);
-//}
 
 Matrix PndLmdAlignManager::combineCyclicMatrix(int id) {
 
@@ -1671,9 +1452,9 @@ void PndLmdAlignManager::waitForCompletion() {
 		}
 	}
 	cout << notStarted << " aligners remained.\n";
-
 	cout << "jobs queue size : " << alignerThreadGroup.size() << "/360\n";
 	cout << "waiting for all aligners to finish...";
+
 	//wait for all threads to complete
 	alignerThreadGroup.join_all();
 	cout << "done!\n";
@@ -1732,20 +1513,11 @@ Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
 	return result;
 }
 
-//Matrix PndLmdAlignManager::makeFourVector(double x, double y, double z) {
-//	Matrix result(4, 1);
-//	result.val[0][0] = x;
-//	result.val[1][0] = y;
-//	result.val[2][0] = z;
-//	result.val[3][0] = 1.0;
-//	return result;
-//}
-
 bool PndLmdAlignManager::writePairsToBinaryFiles() {
 
 	if (_binaryPairFileDirectory == "") {
-		cout
-		        << "error: binary pair file directory not set. use PndLmdAlignManager::setBinaryPairFileDirectory()\n";
+		cout << "error: binary pair file directory not set.\n";
+		cout << "use PndLmdAlignManager::setBinaryPairFileDirectory()\n";
 		return false;
 	}
 
@@ -1772,8 +1544,8 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 	bool success = false;
 
 	if (_binaryPairFileDirectory == "") {
-		cout
-		        << "error: binary pair file directory not set. use PndLmdAlignManager::setBinaryPairFileDirectory()\n";
+		cout << "error: binary pair file directory not set.\n";
+		cout << "use PndLmdAlignManager::setBinaryPairFileDirectory()\n";
 		return false;
 	}
 
