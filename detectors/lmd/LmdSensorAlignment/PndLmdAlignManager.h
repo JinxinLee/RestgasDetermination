@@ -50,7 +50,7 @@ private:
 	std::map<int, PndLmdSensorAligner> aligners;
 	std::map<int, bool> alignersFull;
 
-	bool _allFilesAdded, _pretend, allAlignersDone, debug;
+	bool _allFilesAdded, allAlignersDone;
 	std::vector<std::string> fileNames;
 	bool useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp,
 	        startAlignerWhenFull;
@@ -149,11 +149,6 @@ public:
 	void setOutFilename(const std::string& filename) {
 		outFilename = filename;
 		checkIOpaths();
-	}
-
-	//don't do any real work, just check all parameters
-	void setPretend(bool pretend) {
-		_pretend = pretend;
 	}
 
 	static std::stringstream* readFile(std::string filename);
