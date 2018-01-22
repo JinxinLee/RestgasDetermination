@@ -32,22 +32,18 @@ private:
 
 	friend class PndLmdAlignQA;
 
-	bool forceInstant, reshapePointClouds, debug;
+	bool forceInstant, debug;
 	int _maxNoOfPairs, numberOfPairs, lastNoOfPairs;
 	std::string _inputFilename;
 	int _moduleID, overlapID;
-	int nonSanePairs, skippedPairs, swappedPairs, _verbose;
+	int nonSanePairs, skippedPairs, swappedPairs, verbose;
 
-	std::vector<double> simpleSensorOneX;
-	std::vector<double> simpleSensorOneY;
-	std::vector<double> simpleSensorOneZ;
-	std::vector<double> simpleSensorTwoX;
-	std::vector<double> simpleSensorTwoY;
-	std::vector<double> simpleSensorTwoZ;
+	std::vector<double> simpleSensorOneX, simpleSensorOneY, simpleSensorOneZ;
+	std::vector<double> simpleSensorTwoX, simpleSensorTwoY, simpleSensorTwoZ;
 
-	bool _simpleStorage, _inCentimeters, _success, _numericCorrection, _zIsTimestamp;
+	bool _inCentimeters, _success, _zIsTimestamp;
 
-	Matrix resultMatrix, _helperMatrix, Mreshape;
+	Matrix resultMatrix;
 
 public:
 
@@ -59,10 +55,10 @@ public:
 	void init();
 
 	// add simplified pair, for size and performance reasons, return false if aligner has enough pairs, return true if successful
-	bool addSimplePair(PndLmdHitPair &pair);
+	bool addSimplePair(const PndLmdHitPair &pair);
 
-	bool writePairsToBinary(std::string directory);
-	bool readPairsFromBinary(std::string directory);
+	bool writePairsToBinary(const std::string directory);
+	bool readPairsFromBinary(const std::string directory);
 
 	//set how many pairs the aligner should use, if higher than available in file, it will use all available
 	void setMaximumNumberOfHitPairs(Int_t maxPais) {
@@ -109,9 +105,6 @@ public:
 	const Matrix& getResultMatrix() const {
 		return resultMatrix;
 	}
-	void setHelperMatrix(const Matrix& helperMatrix) {
-		_helperMatrix = helperMatrix;
-	}
 
 	//true in cm, false in pixels
 	void setInCentimeters(bool inCentimeters) {
@@ -124,21 +117,9 @@ public:
 		return _success;
 	}
 
-	void setNumericCorrection(bool numericCorrection) {
-		_numericCorrection = numericCorrection;
-	}
-
 	void setZasTimetamp(bool value) {
 		_zIsTimestamp = value;
 	}
-
-	void setReshapePointClouds(bool value) {
-		reshapePointClouds = value;
-	}
-
-	Matrix computeReshapeMatrix(double* pointCloud, int nPairs, int dim);
-
-	void reshapePointCloud(double* pointcloud, int nPairs, int dim, Matrix reshapeMatrix);
 
 };
 

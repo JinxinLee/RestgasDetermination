@@ -8,7 +8,6 @@
 #ifndef LMDPAIRFINDERTASK_H_
 #define LMDPAIRFINDERTASK_H_
 
-//#include "PndLmdAlignManager.h"
 #include "PndLmdAlignStructs.h"
 #include <PndLmdHitPair.h>
 #include <PndSdsHit.h>
@@ -52,30 +51,7 @@ private:
 
 	boost::property_tree::ptree config;
 
-	/*
-	std::vector<double> distancesAbsolute;
-	std::vector<double> distanceVAll;
-	std::vector<double> distanceVSm250;
-	std::vector<double> distanceVBi250;
-	std::vector<double> distancesVFront;
-	std::vector<double> distancesVBack;
-	std::vector<double> distanceVArea0;
-	std::vector<double> distanceVArea1;
-	std::vector<double> distanceVArea2;
-	std::vector<double> distanceVArea3;
-	std::vector<double> distanceVArea4;
-	std::vector<double> distanceVArea5;
-	std::vector<double> distanceVArea6;
-	std::vector<double> distanceVArea7;
-	std::vector<double> distanceVArea8;
-	std::vector<double> distanceVArea9;
-	*/
-
 public:
-
-	void version(){
-		std::cout << "hello, is it me you're looking for?\n";
-	}
 
 	void SetParContainers();
 
@@ -136,8 +112,6 @@ protected:
 
 	void Register();
 	void Reset();
-
-	//void transformToLMDlocal(PndLmdHitPair &pair);
 
 	//function to return result of all checks, distance cut etc.
 	void getStatistics(PndLmdHitPair &candidate);

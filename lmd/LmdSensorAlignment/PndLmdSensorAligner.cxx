@@ -36,14 +36,11 @@ void PndLmdSensorAligner::init() {
 	swappedPairs = 0;
 //	ID1 = -1;
 //	ID2 = -1;
-	_verbose = 0;
-	_simpleStorage = true;
+	verbose = 0;
 	overlapID = -1;
 	_inCentimeters = true;
 	_success = false;
 	_zIsTimestamp = true;
-	_numericCorrection = false;
-	_helperMatrix = Matrix::eye(3);
 
 	debug = false;
 
@@ -59,7 +56,7 @@ PndLmdSensorAligner::~PndLmdSensorAligner() {
 }
 
 PndLmdSensorAligner::PndLmdSensorAligner(const PndLmdSensorAligner&) { // other //FIXME [R.K.03/2017] unused variable(s)
-	std::cout << "PndLmdSensorAligner::Warning! Unnecessary copy-construction." << "\n";
+	std::cerr << "PndLmdSensorAligner::Warning! Unnecessary copy-construction." << "\n";
 	init();
 }
 
@@ -67,34 +64,27 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	int nPairs;
 
-	if (_simpleStorage) {
+	//check if all vectors have the same size
+	int s1 = simpleSensorOneX.size();
+	int s2 = simpleSensorOneY.size();
+	int s3 = simpleSensorOneZ.size();
 
-		//check if all vectors have the same size
-		int s1 = simpleSensorOneX.size();
-		int s2 = simpleSensorOneY.size();
-		int s3 = simpleSensorOneZ.size();
+	int s4 = simpleSensorTwoX.size();
+	int s5 = simpleSensorTwoY.size();
+	int s6 = simpleSensorTwoZ.size();
 
-		int s4 = simpleSensorTwoX.size();
-		int s5 = simpleSensorTwoY.size();
-		int s6 = simpleSensorTwoZ.size();
-
-		if (s1 == s2 && s2 == s3 && s3 == s4 && s4 == s5 && s5 == s6) {
-			nPairs = simpleSensorOneX.size();
-		} else {
-			cout
-			        << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
-			cout << "s1: " << s1 << "\n";
-			cout << "s2: " << s2 << "\n";
-			cout << "s3: " << s3 << "\n";
-			cout << "s4: " << s4 << "\n";
-			cout << "s5: " << s5 << "\n";
-			cout << "s6: " << s6 << "\n";
-			exit(1);
-		}
+	if (s1 == s2 && s2 == s3 && s3 == s4 && s4 == s5 && s5 == s6) {
+		nPairs = simpleSensorOneX.size();
 	} else {
-		//nPairs=pairs.size();
-		cout << "WARNING! non-simpleStorage no longer supported!\n";
-		return;
+		cout
+		        << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
+		cout << "s1: " << s1 << "\n";
+		cout << "s2: " << s2 << "\n";
+		cout << "s3: " << s3 << "\n";
+		cout << "s4: " << s4 << "\n";
+		cout << "s5: " << s5 << "\n";
+		cout << "s6: " << s6 << "\n";
+		exit(1);
 	}
 
 	if (skippedPairs > 0) {
@@ -110,7 +100,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 	int dim = 2;
 	bool eventTimeCheck = true;
 	double minDelta = 1e-6;
-	reshapePointClouds = false;
 	_zIsTimestamp = true;
 
 	// only allow max Pairs!
@@ -131,7 +120,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	double* Model = new double[dim * nPairs];
 	double* Template = new double[dim * nPairs];
 
-	if (_verbose == 3)
+	if (verbose == 3)
 		cout << "arranging pairs...\n";
 
 	if (dim == 2) {
@@ -153,51 +142,17 @@ void PndLmdSensorAligner::calculateMatrix() {
 			Template[ipair * dim + 2] = (double) ipair;
 		}
 
-		Mreshape = computeReshapeMatrix(Model, nPairs, dim);
-
-		if (reshapePointClouds) {
-			reshapePointCloud(Model, nPairs, dim, Mreshape);
-			reshapePointCloud(Template, nPairs, dim, Mreshape);
-
-			if (_verbose == 3) {
-				cout << "Mreshapre before reshape:\n" << Mreshape << "\n";
-				cout << "Mreshapre (Model) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim)
-				        << "\n";
-				cout << "Mreshapre (Templ) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim)
-				        << "\n";
-			}
-		}
-
 		//artificial z component, only really relevant if using cm coordinate system
 		// UPDATE: well that's not exactly true. If using CM coordinates, the z is artificial
 		// as well. So to get comparable results of CM vs PX, we should use this in BOTH cases
 
 		if (_zIsTimestamp) {
-			if (_verbose == 3)
+			if (verbose == 3)
 				cout << "applying artificial Z coordinate...\n";
 
 			for (int ipair = 0; ipair < nPairs; ipair++) {
 				Model[ipair * dim + 2] = ((2.0 * ipair / (double) nPairs - 1.0) * 1e4);
 				Template[ipair * dim + 2] = ((2.0 * ipair / (double) nPairs - 1.0) * 1e4);
-			}
-		}
-
-		if (_numericCorrection) {
-
-			if (_verbose == 3)
-				cout << "applying numeric correction matrix...\n";
-
-			//rotation matrix for numerical stability
-			for (int ipairs = 0; ipairs < nPairs; ipairs++) {
-				Matrix vec(4, 1);
-				vec.val[0][0] = Template[ipairs * 3 + 0];
-				vec.val[1][0] = Template[ipairs * 3 + 1];
-				vec.val[2][0] = Template[ipairs * 3 + 2];
-				vec.val[3][0] = 1;
-				vec = _helperMatrix * vec;
-				Template[ipairs * 3 + 0] = vec.val[0][0];
-				Template[ipairs * 3 + 1] = vec.val[1][0];
-				Template[ipairs * 3 + 2] = vec.val[2][0];
 			}
 		}
 
@@ -211,7 +166,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		 * could still be useful.
 		 */
 
-		if (_verbose == 3)
+		if (verbose == 3)
 			cout << "checking for zero values...\n";
 
 		for (int iCheck = 0; iCheck < dim * nPairs; iCheck++) {
@@ -282,7 +237,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		}
 	}
 
-	if (_verbose == 3) {
+	if (verbose == 3) {
 		cout << "creating ICP...\n";
 	}
 
@@ -295,7 +250,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	//attention! dim * nPairs must equal size of model!
 	IcpPointToPoint icp(Model, nPairs, dim);
 
-	if (_verbose == 3)
+	if (verbose == 3)
 		cout << "ICP and model created...\n";
 
 	//TODO: clean this up!
@@ -311,7 +266,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	icp.forceInstantResult(forceInstant);
 	icp.fit(Template, nPairs, Rotation, translation, -1);
 
-	if (_verbose == 3)
+	if (verbose == 3)
 		cout << "ICP fit step done.\n";
 
 	if (dim == 2) {
@@ -396,18 +351,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 		_success = true;
 
-		//save matrix!
-		//resultMatrix.setVal(4,4,finalMatrix);
-
-		if (reshapePointClouds) {
-			resultMatrix = Matrix::inv(Mreshape) * resultMatrix * Mreshape;
-		}
-
-		if (!_inCentimeters) {
-			//store matrix file already transformed to cm!
-			resultMatrix = PndLmdAlignManager::transformMatrixFromPixelsToCm(resultMatrix);
-		}
-
 		//and say a few words for the log
 		alignlog << "\n";
 		alignlog << "====================================================\n";
@@ -439,7 +382,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		} else {
 			alignlog << "off\n";
 		}
-		if (_verbose == 3)
+		if (verbose == 3)
 			cout << "ICP convergence ok.\n";
 	} else {
 		alignlog << "\n";
@@ -448,33 +391,23 @@ void PndLmdSensorAligner::calculateMatrix() {
 		alignlog << "no convergence for overlapID " << overlapID << "." << "\n";
 		alignlog << "====================================================\n";
 		alignlog << "\n";
-		if (_verbose == 3)
+		if (verbose == 3)
 			cout << "ICP did not converge!\n";
 		_success = false;
 	}
-	if (_verbose == 3)
+	if (verbose == 3)
 		cout << alignlog.str();
 
 	delete[] Model;
 	delete[] Template;
 
 	//aligner is done, pairs can be cleared.
-	simpleSensorOneX.clear();
-	simpleSensorOneY.clear();
-	simpleSensorOneZ.clear();
-	simpleSensorTwoX.clear();
-	simpleSensorTwoY.clear();
-	simpleSensorTwoZ.clear();
+	clearPairs();
 
 	return;
 }
 
-bool PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair) {
-
-	//only one kind of pairs is allowed
-	if (!_simpleStorage) {
-		return false;
-	}
+bool PndLmdSensorAligner::addSimplePair(const PndLmdHitPair &pair) {
 
 	if ((int) simpleSensorOneX.size() >= _maxNoOfPairs) {
 		// add no more
@@ -515,37 +448,31 @@ bool PndLmdSensorAligner::isValid(double val) {
 	return true;
 }
 
-bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
+bool PndLmdSensorAligner::writePairsToBinary(const std::string directory) {
 
 	string filename;					//target directory
 	double* pdata;						//array with pairs
 	int doublesPerPair = 6;				//well, doubles per Pair
 	int nPairs = 0;
 
-	if (_simpleStorage) {
+	if (simpleSensorOneX.size() == 0) {
+		nPairs = 0;
+	}
 
-		if (simpleSensorOneX.size() == 0) {
-			nPairs = 0;
-		}
-
-		if (simpleSensorOneX.size() == simpleSensorOneY.size()
-		        && simpleSensorOneX.size() == simpleSensorOneZ.size()
-		        && simpleSensorOneX.size() == simpleSensorTwoX.size()
-		        && simpleSensorOneX.size() == simpleSensorTwoY.size()
-		        && simpleSensorOneX.size() == simpleSensorTwoZ.size()) {
-			nPairs = simpleSensorOneX.size();
-		} else {
-			cout << "PndLmdSensorAligner::ERROR: x, y and z have different amounts of entries!\n";
-			cout << "oneX: " << simpleSensorOneX.size() << "\n";
-			cout << "oneY: " << simpleSensorOneY.size() << "\n";
-			cout << "oneZ: " << simpleSensorOneZ.size() << "\n";
-			cout << "twoX: " << simpleSensorTwoX.size() << "\n";
-			cout << "twoY: " << simpleSensorTwoY.size() << "\n";
-			cout << "twoZ: " << simpleSensorTwoZ.size() << "\n";
-		}
+	if (simpleSensorOneX.size() == simpleSensorOneY.size()
+	        && simpleSensorOneX.size() == simpleSensorOneZ.size()
+	        && simpleSensorOneX.size() == simpleSensorTwoX.size()
+	        && simpleSensorOneX.size() == simpleSensorTwoY.size()
+	        && simpleSensorOneX.size() == simpleSensorTwoZ.size()) {
+		nPairs = simpleSensorOneX.size();
 	} else {
-		cout << "FATAL: non simple pair storage is no longer supported!\n";
-		exit(1);
+		cout << "PndLmdSensorAligner::ERROR: x, y and z have different amounts of entries!\n";
+		cout << "oneX: " << simpleSensorOneX.size() << "\n";
+		cout << "oneY: " << simpleSensorOneY.size() << "\n";
+		cout << "oneZ: " << simpleSensorOneZ.size() << "\n";
+		cout << "twoX: " << simpleSensorTwoX.size() << "\n";
+		cout << "twoY: " << simpleSensorTwoY.size() << "\n";
+		cout << "twoZ: " << simpleSensorTwoZ.size() << "\n";
 	}
 
 	if (nPairs == 0) {
@@ -610,14 +537,7 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	return true;
 }
 
-bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
-
-	//check if this aligner is using simpleStorage
-	if (!_simpleStorage) {
-		cout << "ERROR. reading binary pairs and storing in legacy mode is no longer supported.\n";
-		exit(1);
-		return false;
-	}
+bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 
 	string filename;				//binary pair file
 	//size_t length;				//number of raw doubles, remember pairs have 6 doubles
@@ -684,7 +604,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		is.close();
 
 		//check header
-		if (_verbose == 3) {
+		if (verbose == 3) {
 			cout << "file version: " << header[0] << "\n";
 			cout << "doubles / pair: " << header[1] << "\n";
 			cout << "no of pairs: " << header[2] << "\n";
@@ -714,7 +634,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		}
 
 		if (filesizeMust == filesize) {
-			if (_verbose == 3)
+			if (verbose == 3)
 				cout << "file seems okay!\n";
 		} else {
 			cout << "file is corrupt!\n";
@@ -798,11 +718,9 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 	}
 
 	if (!error) {
-		if (_verbose == 3) {
+		if (verbose == 3) {
 			cout << "file check successful, everything okay!\n";
 		}
-		//from here on, only simpleStorage is supported
-		_simpleStorage = true;
 	}
 
 	//delete array!
@@ -815,7 +733,6 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
 void PndLmdSensorAligner::clearPairs() {
 
-	//	if(_simpleStorage){
 	lastNoOfPairs = simpleSensorOneX.size();
 
 	//call destructors of the member objects (well, they're doubles, so... yeah.)
@@ -834,98 +751,4 @@ void PndLmdSensorAligner::clearPairs() {
 	vector<double>().swap(simpleSensorTwoY);
 	vector<double>().swap(simpleSensorTwoZ);
 
-}
-
-Matrix PndLmdSensorAligner::computeReshapeMatrix(double* pointCloud, int nPairs, int dim) {
-
-	Matrix result;
-
-	if (_verbose == 3) {
-		cout << "calculating reshape matrix...\n";
-	}
-
-	if (dim == 2) {
-		//TODO: skip for now
-	}
-
-	else if (dim == 3) {
-
-		//measure xmin, xmax, ymin, ymax;
-		double xmin = pointCloud[0];
-		double xmax = xmin;
-		double ymin = pointCloud[1];
-		double ymax = ymin;
-		double zmin = pointCloud[2];
-		double zmax = zmin;
-
-		//TODO: dowe really need all pairs? isn't e.g. 1/10th enough?
-		for (int iPair = 1; iPair < nPairs; iPair++) {
-			xmin = min(xmin, pointCloud[iPair * dim + 0]);
-			xmax = max(xmax, pointCloud[iPair * dim + 0]);
-			ymin = min(ymin, pointCloud[iPair * dim + 1]);
-			ymax = max(ymax, pointCloud[iPair * dim + 1]);
-			zmin = min(zmin, pointCloud[iPair * dim + 2]);
-			zmax = max(zmax, pointCloud[iPair * dim + 2]);
-		}
-
-		double xSpan = xmax - xmin;
-		double ySpan = ymax - ymin;
-		double zSpan = zmax - zmin;
-
-		if (_verbose == 3) {
-			cout << "reshape parameters:\n";
-			cout << "xmin, xmax: " << xmin << "," << xmax << "\n";
-			cout << "ymin, ymax: " << ymin << "," << ymax << "\n";
-			cout << "zmin, zmax: " << zmin << "," << zmax << "\n";
-			cout << "xSpan, ySpan, zSpan: " << xSpan << "," << ySpan << "," << zSpan << "\n";
-		}
-
-		//create scaling matrix, translation matrix and complete reshaping matrix here
-
-		Matrix Mshift = Matrix::eye(4);
-		Matrix Mscale = Matrix::eye(4);
-
-		Mshift.val[0][3] -= (xmin + xmax) / 2.0;	//x shift
-		Mshift.val[1][3] -= (ymin + ymax) / 2.0;	//y shift
-		Mshift.val[2][3] -= (zmin + zmax) / 2.0;	//z shift
-
-		result = Mscale * Mshift;
-	}
-
-	return result;
-
-}
-
-//TODO: complete this for z dimension!
-void PndLmdSensorAligner::reshapePointCloud(double* pointcloud, int nPairs, int dim,
-        Matrix reshapeMatrix) {
-
-	if (_verbose == 3) {
-		cout << "reshaping point cloud...\n";
-	}
-
-	if (dim == 2) {
-		//TODO: skip for now
-	}
-
-	else if (dim == 3) {
-
-		//reshape point clouds
-		//TODO: this can be optimized by calculating on the values directly and not creating a Matrix object.
-		Matrix p1 = Matrix(4, 1);
-
-		for (int iPair = 0; iPair < nPairs; iPair++) {
-
-			p1.val[0][0] = pointcloud[iPair * dim + 0];
-			p1.val[1][0] = pointcloud[iPair * dim + 1];
-			p1.val[2][0] = pointcloud[iPair * dim + 2];
-			p1.val[3][0] = 1.0;
-
-			p1 = reshapeMatrix * p1;
-
-			pointcloud[iPair * dim + 0] = p1.val[0][0] / p1.val[3][0];
-			pointcloud[iPair * dim + 1] = p1.val[1][0] / p1.val[3][0];
-			pointcloud[iPair * dim + 2] = p1.val[2][0] / p1.val[3][0];
-		}
-	}
 }

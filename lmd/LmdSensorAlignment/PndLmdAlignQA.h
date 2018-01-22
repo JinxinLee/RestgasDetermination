@@ -50,7 +50,7 @@ private:
 	void histPixelDistances(int sen1, int sen2, bool aligned=true);
 	double calculateOverlappingArea(int id1, int id2, bool aligned=true);
 
-	int noOfPairs(int id1, int id2);
+	int noOfPairs(int overlapID);
 
 public:
 
@@ -59,7 +59,7 @@ public:
 	void init();
 
 	// ========== QA functions
-
+	//TODO: reimplement these with new geometry
 	void checkCyclicMatrices(bool inCentimeters=true);
 	void checkCombinedMatrices(bool inCentimeters=true);
 	void plotCMvsPXmatrices();

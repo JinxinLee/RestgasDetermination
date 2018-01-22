@@ -123,7 +123,6 @@ void PndLmdAlignManager::init() {
 		PndLmdSensorAligner tempAligner;
 		tempAligner.setOverlapId(overlapId);
 		tempAligner.setZasTimetamp(_zIsTimestamp);
-		tempAligner.setNumericCorrection(_enableHelperMatrix);
 		tempAligner.setInCentimeters(_inCentimeters);
 		aligners[overlapId] = tempAligner;
 	}
@@ -495,49 +494,49 @@ void PndLmdAlignManager::alignAllSensors() {
 }
 
 //these parameters depend on sensor geometry. Use with caution!
-Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
-
-	/*
-	 * in principle, there should also be a matrix that transforms from sensor active to sensor,
-	 * but inactive area is already accounted for in pixelsX and pixelsY!
-	 */
-
-	//very important, because I still don't know how pixel number corresponds to active area
-	double pixelsX = 247.5;			//guard ring removes part of active area
-	double pixelsY = 242.5;			//guard ring removes part of active area
-	double pixelSize = 80e-4;		//in cm!
-
-	//center of pixel correction matrices
-	Matrix matrixPixelEdgeToCenter;
-	Matrix matrixActiveEdgeToCenter;
-	Matrix matrixScaleActiveToSensor;
-	Matrix newPixelsToSensorInCm, newSensorInCmToPixels;
-
-	//measure pixels in their center, not their corner
-	matrixPixelEdgeToCenter = Matrix::eye(4);
-	matrixPixelEdgeToCenter.val[0][3] += 0.5;
-	matrixPixelEdgeToCenter.val[1][3] += 0.5;
-
-	//move from sensor edge (pixel [0,0] to center of sensor)
-	//KEEP IN MIND! This matrix also takes inactive area into account!!
-	matrixActiveEdgeToCenter = Matrix::eye(4);
-	matrixActiveEdgeToCenter.val[0][3] -= pixelsX / 2;
-	matrixActiveEdgeToCenter.val[1][3] -= pixelsY / 2;
-
-	//scaling must be applied after translations
-	matrixScaleActiveToSensor = Matrix::eye(4);
-	matrixScaleActiveToSensor.val[0][0] = pixelSize;
-	matrixScaleActiveToSensor.val[1][1] = pixelSize;
-
-	newPixelsToSensorInCm = matrixScaleActiveToSensor * matrixActiveEdgeToCenter
-	        * matrixPixelEdgeToCenter;
-	newSensorInCmToPixels = Matrix(newPixelsToSensorInCm);
-	newSensorInCmToPixels.inv();
-
-	Matrix result;
-	result = newPixelsToSensorInCm * input * newSensorInCmToPixels;
-	return result;
-}
+//Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
+//
+//	/*
+//	 * in principle, there should also be a matrix that transforms from sensor active to sensor,
+//	 * but inactive area is already accounted for in pixelsX and pixelsY!
+//	 */
+//
+//	//very important, because I still don't know how pixel number corresponds to active area
+//	double pixelsX = 247.5;			//guard ring removes part of active area
+//	double pixelsY = 242.5;			//guard ring removes part of active area
+//	double pixelSize = 80e-4;		//in cm!
+//
+//	//center of pixel correction matrices
+//	Matrix matrixPixelEdgeToCenter;
+//	Matrix matrixActiveEdgeToCenter;
+//	Matrix matrixScaleActiveToSensor;
+//	Matrix newPixelsToSensorInCm, newSensorInCmToPixels;
+//
+//	//measure pixels in their center, not their corner
+//	matrixPixelEdgeToCenter = Matrix::eye(4);
+//	matrixPixelEdgeToCenter.val[0][3] += 0.5;
+//	matrixPixelEdgeToCenter.val[1][3] += 0.5;
+//
+//	//move from sensor edge (pixel [0,0] to center of sensor)
+//	//KEEP IN MIND! This matrix also takes inactive area into account!!
+//	matrixActiveEdgeToCenter = Matrix::eye(4);
+//	matrixActiveEdgeToCenter.val[0][3] -= pixelsX / 2;
+//	matrixActiveEdgeToCenter.val[1][3] -= pixelsY / 2;
+//
+//	//scaling must be applied after translations
+//	matrixScaleActiveToSensor = Matrix::eye(4);
+//	matrixScaleActiveToSensor.val[0][0] = pixelSize;
+//	matrixScaleActiveToSensor.val[1][1] = pixelSize;
+//
+//	newPixelsToSensorInCm = matrixScaleActiveToSensor * matrixActiveEdgeToCenter
+//	        * matrixPixelEdgeToCenter;
+//	newSensorInCmToPixels = Matrix(newPixelsToSensorInCm);
+//	newSensorInCmToPixels.inv();
+//
+//	Matrix result;
+//	result = newPixelsToSensorInCm * input * newSensorInCmToPixels;
+//	return result;
+//}
 
 /*
  * get transformation matrix of fromSensor -> toSensor (PANDA global reference frame)

@@ -65,9 +65,9 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	// -----   Actual Task   --------------------------------------------------
 
 	//use dynamic cut parameters
-	LmdPairFinderTask* lmdPairFinder = new LmdPairFinderTask();
-	lmdPairFinder->useDynamicCut(true, cutParameterfile.Data() );
-	fRun->AddTask(lmdPairFinder);
+	PndLmdPairFinderTask* pndLmdPairFinder = new PndLmdPairFinderTask();
+	pndLmdPairFinder->useDynamicCut(true, cutParameterfile.Data() );
+	fRun->AddTask(pndLmdPairFinder);
 
 	rtdb->setOutput(parInput1);
 	rtdb->print();

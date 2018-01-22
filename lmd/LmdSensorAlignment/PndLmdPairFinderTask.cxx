@@ -5,10 +5,8 @@
  *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
-//#include "PndLmdAlignManager.h"
-#include "LmdPairFinderTask.h"
-
 #include <PndGeoHandling.h>
+#include <PndLmdAlignManager.h>
 #include <PndLmdContFact.h>
 #include <PndLmdHitPair.h>
 #include <PndLmdGeometryHelper.h>
@@ -26,6 +24,7 @@
 #include <algorithm>
 #include <sstream>
 #include <vector>
+#include "PndLmdPairFinderTask.h"
 
 using std::cout;
 using std::cerr;
@@ -119,20 +118,16 @@ InitStatus LmdPairFinderTask::Init() {
 
 	if (!_findDynamicCutParameters && _useDynamicCut) {
 
-		//cout << "PndLmdSensorAligner: getting available overlap IDs... ";
-		//std::vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
-		const std::vector<int> &overlapIDs = helper->getAvailableOverlapIDs();
+		const std::vector<int> overlapIDs = helper->getAvailableOverlapIDs();
 
 		cout << "PndLmdSensorAligner: reading dynamic cut Parameters from file... ";
-		//FIXME : reinstate this!
-		//if (!PndLmdAlignManager::exists(_cutParameterFile)) {
-		if (false) {
+		if (!PndLmdAlignManager::exists(_cutParameterFile)) {
 			cout << "cut parameter file does not exist! using static cut instead.\n";
 			_useDynamicCut = false;
 		} else {
-			//config = PndLmdAlignManager::readConfigFile(_cutParameterFile);
+			config = PndLmdAlignManager::readConfigFile(_cutParameterFile);
 
-			for (auto i = 0; i < overlapIDs.size(); i++) {
+			for (unsigned int i = 0; i < overlapIDs.size(); i++) {
 				int overlapID = overlapIDs[i];
 				dynamicCutHandler &handler = cutHandlers[overlapID];
 				handler._overlapID = overlapIDs[i];
@@ -147,8 +142,6 @@ InitStatus LmdPairFinderTask::Init() {
 					cerr << "PndLmdSensorAligner: ERROR! Parameter not found in config file!\n";
 				}
 				handler._ready = true;
-
-				//cout << "reading for aligner " << handler._overlapID << ": min: " << handler._minDist << ", max: " << handler._maxDist << "\n";
 			}
 			cout << "done.\n";
 		}
@@ -213,16 +206,12 @@ void LmdPairFinderTask::Exec(Option_t*) {
 	//Int_t nPixels = digiArray->GetEntriesFast();
 	noOfEvents++;
 
-	//make firing pixels to clusters
-	//vector<pixelCluster> clusters;
-
 	//display some kind of progress
 	if ((noOfEvents % 10000) == 0) {
 		cout << "processed " << noOfEvents << "\n";
 	}
 
 	// ========== loop over recos in recoArray =========
-
 	Int_t nRecos = recoArray->GetEntriesFast();
 
 	Int_t storedPairsPerEvent = 0;
@@ -277,140 +266,6 @@ void LmdPairFinderTask::Exec(Option_t*) {
 			pairCanditate.calculateDistance();
 			pairCanditate.check();
 
-			/*
-			 if (pairCanditate.getDistance() <= 0.025 && false) {
-
-			 cout << std::setprecision(12);
-
-			 PndLmdHitPair candGlobal = PndLmdHitPair(vecOneGlobal, vecTwoGlobal, id1, id2);
-			 PndLmdHitPair candlocal = PndLmdHitPair(vecOneLocal, vecTwoLocal, id1, id2);
-
-			 candGlobal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
-			 pixelHitTwo._row);
-			 candlocal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
-			 pixelHitTwo._row);
-
-			 candGlobal.setOverlapId(overlapId);
-			 candlocal.setOverlapId(overlapId);
-
-			 candGlobal.check();
-			 candGlobal.calculateDistance();
-			 candlocal.check();
-			 candlocal.calculateDistance();
-
-			 auto hitOneInSensorOne = helper->transformPndGlobalToSensor(vecOneGlobal, id1);
-			 auto hitTwoInSensorTwo = helper->transformPndGlobalToSensor(vecTwoGlobal, id2);
-
-			 cout << "local point 1:\n";
-			 hitOneInSensorOne.Print();
-			 cout << "global position:\n";
-			 vecOneGlobal.Print();
-			 cout << "hit back in sensor:\n";
-			 hitOneInSensorOne.Print();
-			 cout << "local point 2:\n";
-			 hitTwoInSensorTwo.Print();
-			 cout << "global position:\n";
-			 vecTwoGlobal.Print();
-			 cout << "hit back in sensor:\n";
-			 hitTwoInSensorTwo.Print();
-			 }
-			 */
-
-			/*
-			 //calculate z position in sensor frame
-			 if (false) {
-			 PndLmdHitPair candGlobal = PndLmdHitPair(vecOneGlobal, vecTwoGlobal, id1, id2);
-			 PndLmdHitPair candlocal = PndLmdHitPair(vecOneLocal, vecTwoLocal, id1, id2);
-
-			 candGlobal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
-			 pixelHitTwo._row);
-			 candlocal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
-			 pixelHitTwo._row);
-
-			 candGlobal.setOverlapId(overlapId);
-			 candlocal.setOverlapId(overlapId);
-
-			 candGlobal.check();
-			 candGlobal.calculateDistance();
-			 candlocal.check();
-			 candlocal.calculateDistance();
-
-			 auto hitOneInSensorOne = helper->transformPndGlobalToSensor(vecOneGlobal, id1);
-			 auto hitTwoInSensorTwo = helper->transformPndGlobalToSensor(vecTwoGlobal, id2);
-
-			 //convert to micron
-			 double zFront = hitOneInSensorOne.z() * 1e4;
-			 double zBack = hitTwoInSensorTwo.z() * 1e4;
-
-			 // distAll gets all
-			 distanceVAll.push_back(zFront);
-			 distanceVAll.push_back(zBack);
-
-			 //sort by front and back
-			 distancesVFront.push_back(zFront);
-			 distancesVBack.push_back(zBack);
-
-			 double distAbs = candGlobal.getDistance() * 1e4;
-
-			 if (distAbs < 270) {
-			 distancesAbsolute.push_back(distAbs);
-			 }
-
-			 if (distAbs < 250) {
-			 distanceVSm250.push_back(zFront);
-			 distanceVSm250.push_back(zBack);
-			 } else {
-			 distanceVBi250.push_back(zFront);
-			 distanceVBi250.push_back(zBack);
-			 }
-
-			 switch (overlapId) {
-			 case 0:
-			 distanceVArea0.push_back(zFront);
-			 distanceVArea0.push_back(zBack);
-			 break;
-			 case 1:
-			 distanceVArea1.push_back(zFront);
-			 distanceVArea1.push_back(zBack);
-			 break;
-			 case 2:
-			 distanceVArea2.push_back(zFront);
-			 distanceVArea2.push_back(zBack);
-			 break;
-			 case 3:
-			 distanceVArea3.push_back(zFront);
-			 distanceVArea3.push_back(zBack);
-			 break;
-			 case 4:
-			 distanceVArea4.push_back(zFront);
-			 distanceVArea4.push_back(zBack);
-			 break;
-			 case 5:
-			 distanceVArea5.push_back(zFront);
-			 distanceVArea5.push_back(zBack);
-			 break;
-			 case 6:
-			 distanceVArea6.push_back(zFront);
-			 distanceVArea6.push_back(zBack);
-			 break;
-			 case 7:
-			 distanceVArea7.push_back(zFront);
-			 distanceVArea7.push_back(zBack);
-			 break;
-			 case 8:
-			 distanceVArea8.push_back(zFront);
-			 distanceVArea8.push_back(zBack);
-			 break;
-			 case 9:
-			 distanceVArea9.push_back(zFront);
-			 distanceVArea9.push_back(zBack);
-			 break;
-			 }
-
-			 }
-
-			 */
-
 			if (!pairCanditate.isSane()) {
 				pairCanditate.PrintPair();
 				cerr << "====              WARNING:                 ====" << "\n";
@@ -425,12 +280,12 @@ void LmdPairFinderTask::Exec(Option_t*) {
 			if (_findDynamicCutParameters) {
 				dynamicCutHandler &handler = cutHandlers[pairCanditate.getOverlapId()];
 				handler.addToSamples(pairCanditate);
+				//we don't want to store the pair, we only need it's distance
 				continue;
 			}
 
 			//choose whether to apply dynamic cut or simple cut.
 			if (!_useDynamicCut) {
-				//cout << "using static cut.\n";
 				if (!applyStaticDistanceCut(pairCanditate)) {
 					unsuitable++;
 					continue;
@@ -442,25 +297,20 @@ void LmdPairFinderTask::Exec(Option_t*) {
 				//is the cutHandler ready for this overlapID? if not, something went wrong.
 				dynamicCutHandler &handler = cutHandlers[pairCanditate.getOverlapId()];
 				if (!handler.ready()) {
-					//cout << "handler not ready.\n";
 					continue;
 				}
-				//cout << "applying cut.\n";
 				//the cutHandler is ready, apply distance cut
 				if (!applyDynamicDistanceCut(pairCanditate)) {
-
 					distanceTooHigh++;
 					continue;
 				}
 				//pair survived distance cut? great, store!
-				//cout << "pair survived.\n";
 			}
 
 			// if the pair survived to this point, it's valid. store!
 			getStatistics(pairCanditate);
 			new ((*hitPairArray)[storedPairsPerEvent]) PndLmdHitPair(pairCanditate);
 			storedPairsPerEvent++;
-
 		}
 	}
 
@@ -501,12 +351,11 @@ void LmdPairFinderTask::FinishTask() {
 		if (notReady > 0) {
 			cout << "PndLmdSensorAligner: Attention! " << notReady
 			        << " handlers don't have enough pairs.\n";
-
 		}
 
-		//if (PndLmdAlignManager::writeConfigFile(config, _cutParameterFile, true)) {
-		//	cout << "PndLmdSensorAligner: Successfully written cutParameters to " << _cutParameterFile << "\n";
-		//}
+		if (PndLmdAlignManager::writeConfigFile(config, _cutParameterFile, true)) {
+			cout << "PndLmdSensorAligner: Successfully written cutParameters to " << _cutParameterFile << "\n";
+		}
 		else {
 			cout << "PndLmdSensorAligner: could not write cut parameters to disk!\n";
 		}
@@ -542,127 +391,15 @@ void LmdPairFinderTask::FinishTask() {
 	printf("----------------------------\n");
 	printf("good pairs: %d \n", noOfGoodPairs);
 	printf("good pairs per event: %.2f \n", goodPairsPerEvent);
-	//printf("good pairs per event and plane (indicator for track multiplicity): %.2f \n", goodPairsPerEvent/4);
 	printf("----------------------------\n");
 	printf("hits on plane 0: %.2f %% \n", plane0Percent);
 	printf("hits on plane 1: %.2f %%\n", plane1Percent);
 	printf("hits on plane 2: %.2f %%\n", plane2Percent);
 	printf("hits on plane 3: %.2f %%\n", plane3Percent);
-	printf("hits on all planes: %.2f %% (should be 100%\!) \n", allPlanesPercent);
+	printf("hits on all planes: %.2f %% (should be 100%%!) \n", allPlanesPercent);
 	cout << "\n";
 	cout << "*************************************************************" << "\n";
 
-	/*
-	 if (false) {
-	 cout << "Writing histograms.\n";
-
-	 int nBins = 50;
-
-	 TH1D distancesAbsoluteH("distances front to back", "distances front to back", 100, -1, -1);
-	 TH1D distancesAll("all", "all", nBins, -1, -1);
-	 TH1D distancesSmallerThan250("smaller than 250", "smaller than 250", nBins, -1, -1);
-	 TH1D distancesBiggerThan250("bigger than 250", "bigger than 250", nBins, -1, -1);
-	 TH1D distancesFront("front", "front", nBins, -1, -1);
-	 TH1D distancesBack("back", "back", nBins, -1, -1);
-	 TH1D distancesArea0("area0", "area0", nBins, -1, -1);
-	 TH1D distancesArea1("area1", "area1", nBins, -1, -1);
-	 TH1D distancesArea2("area2", "area2", nBins, -1, -1);
-	 TH1D distancesArea3("area3", "area3", nBins, -1, -1);
-	 TH1D distancesArea4("area4", "area4", nBins, -1, -1);
-	 TH1D distancesArea5("area5", "area5", nBins, -1, -1);
-	 TH1D distancesArea6("area6", "area6", nBins, -1, -1);
-	 TH1D distancesArea7("area7", "area7", nBins, -1, -1);
-	 TH1D distancesArea8("area8", "area8", nBins, -1, -1);
-	 TH1D distancesArea9("area9", "area9", nBins, -1, -1);
-
-	 for (auto &value : distancesAbsolute) {
-	 distancesAbsoluteH.Fill(value);
-	 }
-	 for (auto &value : distanceVAll) {
-	 distancesAll.Fill(value);
-	 }
-	 for (auto &value : distanceVSm250) {
-	 distancesSmallerThan250.Fill(value);
-	 }
-	 for (auto &value : distanceVBi250) {
-	 distancesBiggerThan250.Fill(value);
-	 }
-	 for (auto &value : distancesVFront) {
-	 distancesFront.Fill(value);
-	 }
-	 for (auto &value : distancesVBack) {
-	 distancesBack.Fill(value);
-	 }
-	 for (auto &value : distanceVArea0) {
-	 distancesArea0.Fill(value);
-	 }
-	 for (auto &value : distanceVArea1) {
-	 distancesArea1.Fill(value);
-	 }
-	 for (auto &value : distanceVArea2) {
-	 distancesArea2.Fill(value);
-	 }
-	 for (auto &value : distanceVArea3) {
-	 distancesArea3.Fill(value);
-	 }
-	 for (auto &value : distanceVArea4) {
-	 distancesArea4.Fill(value);
-	 }
-	 for (auto &value : distanceVArea5) {
-	 distancesArea5.Fill(value);
-	 }
-	 for (auto &value : distanceVArea6) {
-	 distancesArea6.Fill(value);
-	 }
-	 for (auto &value : distanceVArea7) {
-	 distancesArea7.Fill(value);
-	 }
-	 for (auto &value : distanceVArea8) {
-	 distancesArea8.Fill(value);
-	 }
-	 for (auto &value : distanceVArea9) {
-	 distancesArea9.Fill(value);
-	 }
-
-	 TCanvas canvas("name", "name", 800, 600);
-	 canvas.cd();
-
-	 distancesAbsoluteH.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distFrontToBack.pdf");
-	 distancesAll.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distAll.pdf");
-	 distancesSmallerThan250.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distSmallerThan250.pdf");
-	 distancesBiggerThan250.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distBiggerThan250.pdf");
-	 distancesFront.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distancesFront.pdf");
-	 distancesBack.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distancesBack.pdf");
-	 distancesArea0.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea0.pdf");
-	 distancesArea0.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea0.pdf");
-	 distancesArea1.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea1.pdf");
-	 distancesArea2.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea2.pdf");
-	 distancesArea3.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea3.pdf");
-	 distancesArea4.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea4.pdf");
-	 distancesArea5.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea5.pdf");
-	 distancesArea6.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea6.pdf");
-	 distancesArea7.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea7.pdf");
-	 distancesArea8.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea8.pdf");
-	 distancesArea9.Draw();
-	 canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea9.pdf");
-	 }
-	 */
 	return;
 }
 
@@ -675,8 +412,6 @@ bool LmdPairFinderTask::applyDynamicDistanceCut(PndLmdHitPair &candidate) {
 
 	double distance = candidate.getDistance();
 	dynamicCutHandler &handler = cutHandlers[overlapID];
-
-	//cout << "dist: " << distance << ", min: " << handler.getMinDist() << " max: " << handler.getMaxDist() << "\n";
 
 	if (distance < handler.getMinDist() || distance > handler.getMaxDist()) {
 		return false;
@@ -733,10 +468,7 @@ pixelHit LmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 
 	int clusterIndex = sdsHit->GetClusterIndex();
 
-	//cout << "Cluster index: " << clusterIndex << "\n";
-
 	std::vector<pixelCluster> clusters;
-
 	PndSdsClusterPixel *clusterPixelCand = (PndSdsClusterPixel*) clusterCandidateArray->At(clusterIndex);
 
 	int noOfClusters = clusterPixelCand->GetClusterSize();
@@ -762,8 +494,6 @@ pixelHit LmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 			clusters.push_back(pixelCluster(pixelHit(hitSensorId, col, row)));
 		}
 	}
-
-	//cout << "There are " << clusters.size() << " pixel hits.\n";
 
 	//all hits are present in clusters
 
@@ -797,8 +527,6 @@ pixelHit LmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 		}
 	}
 
-	//cout << "There are still " << clusters.size() << " clusters left before discarding large clusters.\n";
-
 	//calculate cluster centers and discard large clusters
 	//for statistis: count cluster ratio
 	for (size_t i = 0; i < clusters.size(); i++) {
@@ -823,9 +551,6 @@ pixelHit LmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 			hitsSinglePixel++;
 		}
 	}
-
-	//cout << "There are " << clusters.size() << ". clusters left after discarding large clusters. Should be only one!\n";
-
 	return pixelHit(hitSensorId, clusters[0].centerCol, clusters[0].centerRow);
 
 }
@@ -840,85 +565,7 @@ bool LmdPairFinderTask::candHitsOverlappingArea(const PndLmdHitPair &candidate) 
 		return false;
 	}
 
-	int fhalf, fplane, fmodule, fside, fsensor;
-	int bhalf, bplane, bmodule, bside, bsensor;
-
-	auto &infoOne = helper->getHitLocationInfo(firstSensorId);
-	auto &infoTwo = helper->getHitLocationInfo(secondSensorId);
-
-	fhalf = infoOne.detector_half;
-	bhalf = infoTwo.detector_half;
-
-	//the necessities for overlapping, must be on same half, plane, module and other side
-	if (bhalf != fhalf) {
-		return false;
-	}
-
-	fside = infoOne.module_side;
-	bside = infoTwo.module_side;
-
-	//sort them that hit0 is always upstream
-	if (bside < fside) {
-		cout << "WARNING. HitTwo is upstream, but this should never happen!\n";
-	}
-
-	fplane = infoOne.plane;
-	bplane = infoTwo.plane;
-
-	fmodule = infoOne.module;
-	bmodule = infoTwo.module;
-
-	fsensor = infoOne.module_sensor_id;
-	bsensor = infoTwo.module_sensor_id;
-
-	if (bplane != fplane) {
-		return false;
-	}
-	if (bmodule != fmodule) {
-		return false;
-	}
-	if (bside == fside) {
-		return false;
-	}
-
-	//0to5
-	if (fsensor == 0 && bsensor == 5) {
-		return true;
-	}
-	//3to8
-	if (fsensor == 3 && bsensor == 8) {
-		return true;
-	}
-	//4to9
-	if (fsensor == 4 && bsensor == 9) {
-		return true;
-	}
-	//3to6
-	if (fsensor == 3 && bsensor == 6) {
-		return true;
-	}
-	//1to8
-	if (fsensor == 1 && bsensor == 8) {
-		return true;
-	}
-	//2to8
-	if (fsensor == 2 && bsensor == 8) {
-		return true;
-	}
-	//2to9
-	if (fsensor == 2 && bsensor == 9) {
-		return true;
-	}
-	//3to7
-	if (fsensor == 3 && bsensor == 7) {
-		return true;
-	}
-	//4to7
-	if (fsensor == 4 && bsensor == 7) {
-		return true;
-	}
-	//all other checks are negative? then the sensors don't overlap!
-	return false;
+	return helper->isOverlappingArea(firstSensorId, secondSensorId);
 }
 
 void LmdPairFinderTask::Reset() {

@@ -7,7 +7,7 @@
 #pragma link off all functions;
 
 //pair Finder
-#pragma link C++ class LmdPairFinderTask+;
+#pragma link C++ class PndLmdPairFinderTask+;
 #pragma link C++ class PndLmdHitPair+;
 
 #endif

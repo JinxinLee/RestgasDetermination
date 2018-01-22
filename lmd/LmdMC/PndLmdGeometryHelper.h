@@ -90,6 +90,8 @@ public:
 	TVector3 transformPndGlobalToLmdLocal(const TVector3 &vec);
 	TVector3 transformPndGlobalToSensor(const TVector3 &vec, int sensorId);
 
+	bool isOverlappingArea(const int id1, const int id2);
+
 	const TGeoHMatrix getMatrixPndGlobalToSensor(const int sensorId);
 	const TGeoHMatrix getMatrixSensorToPndGlobal(const int sensorId);
 

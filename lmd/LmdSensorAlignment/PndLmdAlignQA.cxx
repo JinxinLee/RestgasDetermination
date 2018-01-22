@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 
-//#include <PndLmdAlignManager.h>
 #include <TCanvas.h>
 #include <TH1D.h>
 #include <TGraph.h>
@@ -28,7 +27,6 @@
 
 using std::make_pair;
 using std::string;
-using std::stringstream;
 using std::vector;
 
 PndLmdAlignQA::PndLmdAlignQA() {
@@ -321,7 +319,7 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters) {
 	for (int i = 0; i < 400; i++) {
 
 		// does not matter if in LMC local or sensor local, should always be identity matrix!
-		//cycle = manager.combineCyclicMatrix(i, alignOptionBool);
+		cycle = manager.combineCyclicMatrix(i);
 
 		//store this residual tuple to data
 		std::vector<double> result;
@@ -459,7 +457,7 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 	double coverage = (double) valid / (250.0 * 250.0) * 100;
 	cout << "overlap: " << coverage << "\n";
 
-	stringstream ss;
+	std::stringstream ss;
 	ss << "Pixel Distances Area " << sensorID1 << " to " << sensorID2 << ", " << coverage
 	        << "% coverage.";
 	hist.SetTitle(ss.str().c_str());
@@ -470,7 +468,7 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 	ss << "Entries";
 	hist.GetYaxis()->SetTitle(ss.str().c_str());
 
-	stringstream filename;
+	std::stringstream filename;
 	filename << pdfOutPath << "/AreaPixelDistances" << sensor1 << "to" << sensor2 << ".pdf";
 	TCanvas canvas;
 	canvas.cd();
@@ -531,11 +529,7 @@ void PndLmdAlignQA::readMatrixInfo() {
 		filename = LMDMatPath + "/info-px.txt";
 	}
 
-	stringstream *info = manager.readFile(filename);
-
-	//parser: first, find line aligner n (n is overlap id)
-	// then find no of pairs: x
-	// save to map: n->x
+	std::stringstream *info = manager.readFile(filename);
 
 	string line;
 	std::vector<string> values;
@@ -561,11 +555,11 @@ void PndLmdAlignQA::readMatrixInfo() {
 			}
 		}
 	}
+	delete info;
 }
 
-int PndLmdAlignQA::noOfPairs(int id1, int id2) {
-	int overlapId = helper->getOverlapIdFromSensorIDs(id1, id2);
-	return matrixInfo[overlapId];
+int PndLmdAlignQA::noOfPairs(int overlapID) {
+	return matrixInfo[overlapID];
 }
 
 bool PndLmdAlignQA::checkForMatrixFiles() {
@@ -627,7 +621,7 @@ void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParam
 		histogram.Fill(dataPoint);
 	}
 
-	stringstream pathname;
+	std::stringstream pathname;
 	pathname << parameters.path;
 
 	if (parameters.printCMPXinPathName) {
