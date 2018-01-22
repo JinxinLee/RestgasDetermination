@@ -65,9 +65,9 @@ void PndLmdAlignQA::calculateOverlapingAreas() {
 	double areaPercent = 0;
 
 	//get id1 and id2 from them and calc
-	for (int i = 0; i < overlapIDs.size(); i++) {
-		id1 = helper->getID1fromOverlapID(overlapIDs[i]);
-		id2 = helper->getID2fromOverlapID(overlapIDs[i]);
+	for (auto i = 0; i < overlapIDs.size(); i++) {
+		//id1 = helper->getID1fromOverlapID(overlapIDs[i]);
+		//id2 = helper->getID2fromOverlapID(overlapIDs[i]);
 
 		areaPercent = calculateOverlappingArea(id1, id2, false);
 		cout << "\\AtoB{" << id1 << "}{" << id2 << "} & " << areaPercent << "\n";
@@ -124,19 +124,19 @@ void PndLmdAlignQA::plotCMvsPXmatrices() {
 
 		if (false) { //transform both to lmd local and compare there
 			//transform matrixPX to lmd local
-			manager.transformFromSensorToLmdLocal(matrixPX, id1);
+			//manager.transformFromSensorToLmdLocal(matrixPX, id1);
 			Matrix senToSen = manager.getMatrixSensorToSensor(id1, id2);
 			Matrix senToSenWithCorr = matrixCM * senToSen; //this is now the total matrix from sen1 to sen2
 			matrixDif = senToSenWithCorr - matrixPX;
 		} else { //transform noth to sensor and compare there
 		         //transform matrixPX to lmd local
 		         //manager.transformFromSensorToLmdLocal(matrixPX, id1);
-			Matrix senToSen = manager.getMatrixOfficialGeometry(overlapID, true);
-			Matrix senToSenWithCorr = matrixCM * senToSen; //this is now the total matrix from sen1 to sen2
+			//Matrix senToSen = manager.getMatrixOfficialGeometry(overlapID, true);
+			//Matrix senToSenWithCorr = matrixCM * senToSen; //this is now the total matrix from sen1 to sen2
 
-			manager.transformFromLmdLocalToSensor(senToSenWithCorr, id1);
+			//manager.transformFromLmdLocalToSensor(senToSenWithCorr, id1);
 
-			matrixDif = senToSenWithCorr - matrixPX;
+			//matrixDif = senToSenWithCorr - matrixPX;
 		}
 
 		//store this residual tuple to data
@@ -223,20 +223,20 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters) {
 	string pdfdir = pdfOutPath;
 	manager.setMatrixOutDir(path);
 
-	for (size_t id1 = 0; id1 < 400; id1 += 10) {
+	for (auto id1 = 0; id1 < 400; id1 += 10) {
 
-		for (int id2 = id1 + 1; id2 < id1 + 10; id2++) {
+		for (auto id2 = id1 + 1; id2 < id1 + 10; id2++) {
 
 			Matrix matrixDif;
 			if (inCentimeters) {
 				Matrix mCombined = manager.combineMatrix(id1, id2);
-				Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2);
-				matrixDif = mCombined - senToSenOneStep;
+				//Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2);
+				//matrixDif = mCombined - senToSenOneStep;
 			} else {
 				Matrix mCombined = manager.combineMatrix(id1, id2);
-				manager.transformFromSensorToLmdLocal(mCombined, id1);
-				Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2);
-				matrixDif = mCombined - senToSenOneStep;
+				//manager.transformFromSensorToLmdLocal(mCombined, id1);
+				//Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2);
+				//matrixDif = mCombined - senToSenOneStep;
 			}
 
 			//store this residual tuple to data
@@ -321,7 +321,7 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters) {
 	for (int i = 0; i < 400; i++) {
 
 		// does not matter if in LMC local or sensor local, should always be identity matrix!
-		cycle = manager.combineCyclicMatrix(i, alignOptionBool);
+		//cycle = manager.combineCyclicMatrix(i, alignOptionBool);
 
 		//store this residual tuple to data
 		std::vector<double> result;
@@ -386,9 +386,9 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 
 	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
 	Matrix CMtoPX = Matrix::inv(PXtoCM);
-	Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, aligned);
-	manager.transformFromLmdLocalToSensor(sen1ToSen2, sensorID1, aligned);
-	Matrix matSensorOneToSensorTwo = CMtoPX * sen1ToSen2 * PXtoCM;
+	//Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, aligned);
+	//manager.transformFromLmdLocalToSensor(sen1ToSen2, sensorID1, aligned);
+	//Matrix matSensorOneToSensorTwo = CMtoPX * sen1ToSen2 * PXtoCM;
 
 	//histogram those distances
 	double colTest2 = 0, rowTest2 = 0;
@@ -404,10 +404,10 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 		for (int rowTest1 = 0; rowTest1 < 250; rowTest1++) {
 
 			//create hit on sensor1 and compute corresponding hit on sensor2
-			Matrix hit1 = manager.makeFourVector(colTest1, rowTest1, 0);
-			Matrix hit2 = matSensorOneToSensorTwo * hit1;
-			colTest2 = hit2.val[0][0];
-			rowTest2 = hit2.val[1][0];
+			//Matrix hit1 = manager.makeFourVector(colTest1, rowTest1, 0);
+			//Matrix hit2 = matSensorOneToSensorTwo * hit1;
+//			colTest2 = hit2.val[0][0];
+//			rowTest2 = hit2.val[1][0];
 
 			//also, check if overlap pixel even exists. must be row elem [0,250], col elem [0,250]
 			//are we still overlapping area?
@@ -427,35 +427,23 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 			double rowTest2Floor = floor(rowTest2);
 			double rowTest2Ceil = ceil(rowTest2);
 
-			//only in verbose mode
-			if (false) {
-				cout << "=== h1: ===\n" << hit1 << "\n";
-				cout << "=== h2: ===\n" << hit2 << "\n";
-				cout << "c1: " << colTest1 << "\n";
-				cout << "r1: " << rowTest1 << "\n";
-				cout << "c2: " << colTest2 << ", floor: " << colTest2Floor << ", ceil: " << colTest2Ceil
-				        << "\n";
-				cout << "r2: " << rowTest2 << ", floor: " << rowTest2Floor << ", ceil: " << rowTest2Ceil
-				        << "\n";
-			}
-
 			//make all possible hit2's:
 			vector<Matrix> hit2Candidates;
-			hit2Candidates.push_back(manager.makeFourVector(colTest2Floor, rowTest2Floor, -0.025));
-			hit2Candidates.push_back(manager.makeFourVector(colTest2Ceil, rowTest2Floor, -0.025));
-			hit2Candidates.push_back(manager.makeFourVector(colTest2Floor, rowTest2Ceil, -0.025));
-			hit2Candidates.push_back(manager.makeFourVector(colTest2Ceil, rowTest2Ceil, -0.025));
+//			hit2Candidates.push_back(manager.makeFourVector(colTest2Floor, rowTest2Floor, -0.025));
+//			hit2Candidates.push_back(manager.makeFourVector(colTest2Ceil, rowTest2Floor, -0.025));
+//			hit2Candidates.push_back(manager.makeFourVector(colTest2Floor, rowTest2Ceil, -0.025));
+//			hit2Candidates.push_back(manager.makeFourVector(colTest2Ceil, rowTest2Ceil, -0.025));
 
 			//OR use matrices directly. actually, maybe use matrix directly
 
 			//now, transform everything to cm in sensor coordinate system
-			hit1 = PXtoCM * hit1;
+			//hit1 = PXtoCM * hit1;
 
 			//cout << "=== start ===\n";
 			for (size_t i = 0; i < hit2Candidates.size(); i++) {
 				double distance;
-				hit2Candidates[i] = PXtoCM * Matrix::inv(matSensorOneToSensorTwo) * hit2Candidates[i];
-				distance = (hit1 - hit2Candidates[i]).l2norm() * 1e4;		//convert to microns
+				//hit2Candidates[i] = PXtoCM * Matrix::inv(matSensorOneToSensorTwo) * hit2Candidates[i];
+				//distance = (hit1 - hit2Candidates[i]).l2norm() * 1e4;		//convert to microns
 
 				//if(distance > 100){
 				//continue;
@@ -496,11 +484,11 @@ double PndLmdAlignQA::calculateOverlappingArea(int sensor1, int sensor2, bool al
 
 	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
 	Matrix CMtoPX = Matrix::inv(PXtoCM);
-	Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, aligned);
-	manager.transformFromLmdLocalToSensor(sen1ToSen2, sensorID1, aligned);
-	Matrix matSensorOneToSensorTwo = CMtoPX * sen1ToSen2 * PXtoCM;
+	//Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, aligned);
+	//manager.transformFromLmdLocalToSensor(sen1ToSen2, sensorID1, aligned);
+	//Matrix matSensorOneToSensorTwo = CMtoPX * sen1ToSen2 * PXtoCM;
 
-	Matrix sen2toSen1 = PXtoCM * Matrix::inv(matSensorOneToSensorTwo);
+	//Matrix sen2toSen1 = PXtoCM * Matrix::inv(matSensorOneToSensorTwo);
 
 	//histogram those distances
 	double colTest2 = 0, rowTest2 = 0;
@@ -511,10 +499,10 @@ double PndLmdAlignQA::calculateOverlappingArea(int sensor1, int sensor2, bool al
 		for (int rowTest1 = 0; rowTest1 < 242; rowTest1++) {
 
 			//create hit on sensor1 and compute corresponding hit on sensor2
-			Matrix hit1 = manager.makeFourVector(colTest1, rowTest1, 0);
-			Matrix hit2 = matSensorOneToSensorTwo * hit1;
-			colTest2 = hit2.val[0][0];
-			rowTest2 = hit2.val[1][0];
+			//Matrix hit1 = manager.makeFourVector(colTest1, rowTest1, 0);
+			//Matrix hit2 = matSensorOneToSensorTwo * hit1;
+			//colTest2 = hit2.val[0][0];
+			//rowTest2 = hit2.val[1][0];
 
 			//also, check if overlap pixel even exists. must be row elem [0,250], col elem [0,250]
 			//are we still overlapping area?
@@ -559,7 +547,7 @@ void PndLmdAlignQA::readMatrixInfo() {
 			//cout << "found aligner line\n";
 			values = manager.findRegex(line, "aligner (\\d{1,4})");
 			if (values.size() > 1) {
-				overlapid = boost::lexical_cast<int>(values[1]);
+				overlapid = std::stoi(values[1]);
 				//cout << "aligner: " << overlapid << endl;
 				alignerComplete = false;
 			}
@@ -567,7 +555,7 @@ void PndLmdAlignQA::readMatrixInfo() {
 			//cout << "found pairs line\n";
 			values = manager.findRegex(line, "no of pairs. (\\d{1,6})");
 			if (values.size() > 1) {
-				noPairs = boost::lexical_cast<int>(values[1]);
+				noPairs = std::stoi(values[1]);
 				matrixInfo[overlapid] = noPairs;
 				alignerComplete = true;
 			}
@@ -576,7 +564,7 @@ void PndLmdAlignQA::readMatrixInfo() {
 }
 
 int PndLmdAlignQA::noOfPairs(int id1, int id2) {
-	int overlapId = dimension->makeOverlapID(id1, id2);
+	int overlapId = helper->getOverlapIdFromSensorIDs(id1, id2);
 	return matrixInfo[overlapId];
 }
 
@@ -602,7 +590,7 @@ bool PndLmdAlignQA::checkForMatrixFiles() {
 
 		//reset counter
 		tempfilefound = false;
-		matrixName = manager.makeMatrixFileName(availableIds[i], _inCentimeters, false);
+		matrixName = manager.makeMatrixFileName(availableIds[i], _inCentimeters);
 
 		for (size_t j = 0; j < files.size(); j++) {
 			if (files[j].find(matrixName) != string::npos) {
@@ -645,8 +633,6 @@ void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParam
 	if (parameters.printCMPXinPathName) {
 		_inCentimeters ? pathname << "/inCm/" : pathname << "/inPx/";
 	}
-
-	_enableHelperMatrix ? pathname << "corrFull-" : pathname << "";
 
 	PndLmdAlignManager::mkdir(pathname.str());
 
@@ -695,13 +681,13 @@ void PndLmdAlignQA::plotPXvsCMmatricesResiduals() {
 		int id2 = idPairs[i].second;
 
 		//only select overlap areas with more than 2e5 pairs
-		int overlapID = dimension->makeOverlapID(id1, id2);
+		int overlapID = helper->getOverlapIdFromSensorIDs(id1, id2);
 		if (matrixInfo[overlapID] < pairsRequired) {
 			continue;
 		}
 
 		//prepare
-		string matrixNameCM = manager.makeMatrixFileName(id1, id2, true, false);
+		string matrixNameCM = manager.makeMatrixFileName(overlapID, true);
 		string path = LMDMatPath;
 		matrixNameCM = path + matrixNameCM;
 
@@ -713,21 +699,21 @@ void PndLmdAlignQA::plotPXvsCMmatricesResiduals() {
 		if (alignOptionBool) {
 			senToSenCorrTarget = Matrix::eye(4);
 		} else {
-			senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
+			//senToSenCorrTarget = manager.getCorrectionMatrix(overlapID);
 		}
 
 		//transform both correction matrices to full sensor to sensor matrices
-		Matrix senToSenIdeal = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
+		//Matrix senToSenIdeal = manager.getMatrixSensorToSensor(overlapID)
 
-		Matrix matrixDif = (matrixCM * senToSenIdeal) - (senToSenCorrTarget * senToSenIdeal);
+		//Matrix matrixDif = (matrixCM * senToSenIdeal) - (senToSenCorrTarget * senToSenIdeal);
 
 		//store this residual tuple to data
 		std::vector<double> resultCM;
 		resultCM.push_back(id1);
 		resultCM.push_back(id2);
-		resultCM.push_back(matrixDif.val[0][1]);		// sin(alpha)
-		resultCM.push_back(matrixDif.val[0][3]);		// tx
-		resultCM.push_back(matrixDif.val[1][3]);		// ty
+//		resultCM.push_back(matrixDif.val[0][1]);		// sin(alpha)
+//		resultCM.push_back(matrixDif.val[0][3]);		// tx
+//		resultCM.push_back(matrixDif.val[1][3]);		// ty
 		dataCM.push_back(resultCM);
 	}
 
@@ -738,29 +724,29 @@ void PndLmdAlignQA::plotPXvsCMmatricesResiduals() {
 		int id2 = idPairs[i].second;
 
 		//only select overlap areas with more than 2e5 pairs
-		int overlapID = dimension->makeOverlapID(id1, id2);
+		int overlapID = helper->getOverlapIdFromSensorIDs(id1, id2);
 		if (matrixInfo[overlapID] < pairsRequired) {
 			continue;
 		}
 
 		//prepare
-		Matrix target = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool); //true = aligned, false = misaligned
-		string matrixNamePX = manager.makeMatrixFileName(id1, id2, false, false);
+		//Matrix target = manager.getMatrixSensorToSensor(overlapID) //true = aligned, false = misaligned
+		string matrixNamePX = manager.makeMatrixFileName(overlapID, false);
 		string path = LMDMatPath;
 		matrixNamePX = path + matrixNamePX;
 
 		//read matrices from disk
 		Matrix matrixPX = manager.readMatrix(matrixNamePX);
-		manager.transformFromSensorToLmdLocal(matrixPX, id1, alignOptionBool); // false = misaligned geometry
-		Matrix matrixDif = matrixPX - target;
+		//manager.transformFromSensorToLmdLocal(matrixPX, id1, alignOptionBool); // false = misaligned geometry
+		//Matrix matrixDif = matrixPX - target;
 
 		//store this residual tuple to data
 		std::vector<double> resultPX;
-		resultPX.push_back(id1);
-		resultPX.push_back(id2);
-		resultPX.push_back(matrixDif.val[0][1]);		// sin(alpha)
-		resultPX.push_back(matrixDif.val[0][3]);		// tx
-		resultPX.push_back(matrixDif.val[1][3]);		// ty
+//		resultPX.push_back(id1);
+//		resultPX.push_back(id2);
+//		resultPX.push_back(matrixDif.val[0][1]);		// sin(alpha)
+//		resultPX.push_back(matrixDif.val[0][3]);		// tx
+//		resultPX.push_back(matrixDif.val[1][3]);		// ty
 		dataPX.push_back(resultPX);
 	}
 
@@ -867,7 +853,7 @@ void PndLmdAlignQA::plotMatrixresiduals(bool inCentimeters) {
 		int id2 = idPairs[i].second;
 
 		//only select overlap areas with more than 2e5 pairs
-		int overlapID = dimension->makeOverlapID(id1, id2);
+		int overlapID = helper->getOverlapIdFromSensorIDs(id1, id2);
 		if (matrixInfo[overlapID] < pairsRequired) {
 			continue;
 		}
@@ -875,7 +861,7 @@ void PndLmdAlignQA::plotMatrixresiduals(bool inCentimeters) {
 		//in CM
 		if (inCentimeters) {
 			//prepare
-			string matrixNameCM = manager.makeMatrixFileName(id1, id2, true, false);
+			string matrixNameCM = manager.makeMatrixFileName(overlapID, true);
 			string path = LMDMatPath;
 			matrixNameCM = path + matrixNameCM;
 
@@ -883,7 +869,7 @@ void PndLmdAlignQA::plotMatrixresiduals(bool inCentimeters) {
 			Matrix matrixCM = manager.readMatrix(matrixNameCM);
 
 			//transform both correction matrices to full sensor to sensor matrices
-			Matrix senToSenIdeal = manager.getMatrixOfficialGeometry(id1, id2, true);
+			Matrix senToSenIdeal = manager.getMatrixSensorToSensor(id1, id2);
 
 			if (false) {	//this one uses get Correction Matrix, tested and works
 
@@ -891,18 +877,18 @@ void PndLmdAlignQA::plotMatrixresiduals(bool inCentimeters) {
 				if (alignOptionBool) {
 					senToSenCorrTarget = Matrix::eye(4);
 				} else {
-					senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
+					//senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
 				}
 				matrixDif = (matrixCM * senToSenIdeal) - (senToSenCorrTarget * senToSenIdeal);
 			}
 
 			else {		//this one uses the complete matrix and works as well
 
-				Matrix senToSen = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
+				Matrix senToSen = manager.getMatrixSensorToSensor(id1, id2);
 
 				//next try, I think I'm onto it...
-				manager.transformFromLmdLocalToSensor(senToSenIdeal, id1, true);// THIS IS THE MAGIC BEAN
-				manager.transformFromSensorToLmdLocal(senToSenIdeal, id1, alignOptionBool);
+				//manager.transformFromLmdLocalToSensor(senToSenIdeal, id1, true);// THIS IS THE MAGIC BEAN
+				//manager.transformFromSensorToLmdLocal(senToSenIdeal, id1, alignOptionBool);
 
 				Matrix ICPcomplete = matrixCM * senToSenIdeal;
 
@@ -912,16 +898,17 @@ void PndLmdAlignQA::plotMatrixresiduals(bool inCentimeters) {
 		// in PX
 		else {
 			//prepare
-			Matrix target = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool); //true = aligned, false = misaligned
-			string matrixNamePX = manager.makeMatrixFileName(id1, id2, false, false);
+			//Matrix target = manager.getMatrixSensorToSensor(overlapID) //true = aligned, false = misaligned
+
+			string matrixNamePX = manager.makeMatrixFileName(overlapID, false);
 			string path = LMDMatPath;
 			matrixNamePX = path + matrixNamePX;
 
 			//read matrices from disk
 			Matrix matrixPX = manager.readMatrix(matrixNamePX);
-			manager.transformFromSensorToLmdLocal(matrixPX, id1, alignOptionBool); // false = misaligned geometry
+			//manager.transformFromSensorToLmdLocal(matrixPX, id1, alignOptionBool); // false = misaligned geometry
 
-			matrixDif = matrixPX - target;
+			//matrixDif = matrixPX - target;
 		}
 		//store this residual tuple to data
 		std::vector<double> result;

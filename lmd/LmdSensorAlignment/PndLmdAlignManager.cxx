@@ -95,14 +95,10 @@ void PndLmdAlignManager::incrementMTLB() {
 }
 
 PndLmdAlignManager::PndLmdAlignManager() {
-	_firstInitDone = false;
 	init();
 }
 
 void PndLmdAlignManager::init() {
-
-	debug = false;
-	//dimension = PndLmdDim::Instance();
 
 	_info << "info for aligned areas\n";
 
@@ -110,7 +106,6 @@ void PndLmdAlignManager::init() {
 	_allFilesAdded = false;
 	useSimpleStorage = true;
 	_singleAligner = true;
-	_pretend = false;
 	_inCentimeters = false;
 	_enableHelperMatrix = false;
 	_multithreaded = true;
@@ -197,7 +192,6 @@ bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair) {
 
 	//if pair could not be added, aligner is full. start thread directly.
 	if (!success) {
-		//cout << "Aligner " << pair.getOverlapId() << " full. starting!\n";
 		alignerThreadGroup.create_thread(
 		        boost::bind(&PndLmdAlignManager::alignOne, this,
 		                boost::ref(aligners[pair.getOverlapId()])));
@@ -228,10 +222,6 @@ void PndLmdAlignManager::validate() {
 
 bool PndLmdAlignManager::addFile(std::string filename) {
 
-	if (_pretend) {
-		return true;
-	}
-
 	if (_allFilesAdded) {
 		return false;
 	} else {
@@ -241,10 +231,6 @@ bool PndLmdAlignManager::addFile(std::string filename) {
 }
 
 int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFiles) {
-
-	if (_pretend) {
-		return -1;
-	}
 
 	if (_allFilesAdded) {
 		return fileNames.size();
@@ -266,15 +252,6 @@ int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFile
 }
 
 void PndLmdAlignManager::readFiles() {
-
-	if (!_firstInitDone) {
-		init();
-	}
-
-	if (_pretend) {
-		cout << "pretending to read files...\n";
-		return;
-	}
 
 	_allFilesAdded = true;
 
@@ -326,15 +303,6 @@ void PndLmdAlignManager::readFiles() {
 }
 
 void PndLmdAlignManager::readFilesAndAlign() {
-
-	if (!_firstInitDone) {
-		init();
-	}
-
-	if (_pretend) {
-		cout << "pretending to read files...\n";
-		return;
-	}
 
 	_allFilesAdded = true;
 
@@ -388,9 +356,6 @@ void PndLmdAlignManager::readFilesAndAlign() {
 }
 
 void PndLmdAlignManager::alignOne(PndLmdSensorAligner &aligner) {
-
-	//cout << "Aligner " << aligner.getOverlapId() << " starting.\n";
-	//cout << "Saving binaries to: " << _binaryPairFileDirectory << "!\n";
 
 	//start aligner, this can be done concurrently
 	aligner.calculateMatrix();
@@ -459,10 +424,6 @@ void PndLmdAlignManager::alignMT() {
 		nThreads = 4;
 	}
 
-	if (debug) {
-		nThreads = 1;
-	}
-
 	//create worker threads
 	for (int i = 0; i < nThreads; i++) {
 		worker_threads.create_thread(boost::bind(&WorkerThread, io_service));
@@ -505,11 +466,6 @@ void PndLmdAlignManager::alignMT() {
 }
 
 void PndLmdAlignManager::alignAllSensors() {
-
-	if (_pretend) {
-		cout << "merely pretending\n";
-		return;
-	}
 
 	if (!_inCentimeters && _enableHelperMatrix) {
 		_enableHelperMatrix = false;
@@ -942,8 +898,6 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 	searchFiles(_binaryPairFileDirectory, files, "bin", false);
 	int foundFiles = 0;
 
-	//cout << "looking for binary files in " << _binaryPairFileDirectory << "\n";
-
 	//no binary files at all!
 	if (files.size() == 0) {
 		return false;
@@ -955,14 +909,10 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 	//check for every ID that should be there if there is a corresponding file
 	for (size_t i = 0; i < availableIds.size(); i++) {
 
-		//reset counter
 		tempfilefound = false;
 		matrixName = makeBinaryPairFileName(availableIds[i], _inCentimeters);
-
 		for (size_t j = 0; j < files.size(); j++) {
 			if (files[j].find(matrixName) != string::npos) {
-				//file is present
-				//cout << "file: " << files[j] << ", id: " << availableIds[i] << "\n";
 				tempfilefound = true;
 				foundFiles++;
 			}
@@ -973,7 +923,6 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 			return tempfilefound;
 		}
 	}
-	//cout << "found " << foundFiles << "\n";
 	return true;
 }
 
