@@ -23,6 +23,8 @@ using namespace std;
 #include "G4ios.hh"
 #include <fstream>
 #include <iomanip>
+#include "G4RunManager.hh"
+#include "G4VUserPhysicsList.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Material.hh"
@@ -115,6 +117,19 @@ using namespace std;
 #include "TStopwatch.h"
 #include "TParticle.h"
 
+#include "TG4RunConfiguration.h"
+#include "TGeant4.h"
+
+#include "TG4StateManager.h"
+#include "TG4GeometryManager.h"
+#include "TG4SDManager.h"
+#include "TG4PhysicsManager.h"
+
+#include "PndG4DummyPhysicsList.h"
+#include "PndG4DummyDetectorConstruction.h"
+#include "PndG4DummyActionInitialization.h"
+
+
 
 // -----   Default constructor   ------------------------------------------
 PndFtfDirect::PndFtfDirect() :
@@ -124,6 +139,8 @@ fMode(0.),
 fSeed(0.),
 fRsigma(0.),
 fThtMin(0.),
+fG4RunManager(0),
+fG4VUserPhysicsList(0),
 fin(0),
 fmate(0),
 fphys(0),
@@ -179,6 +196,8 @@ fMode(other.fMode),
 fSeed(other.fSeed),
 fRsigma(other.fRsigma),
 fThtMin(other.fThtMin),
+fG4RunManager(0),
+fG4VUserPhysicsList(0),
 fin(0),
 fmate(0),
 fphys(0),
@@ -236,6 +255,8 @@ fMode(0.),
 fSeed(0.),
 fRsigma(0.),
 fThtMin(0.),
+fG4RunManager(0),
+fG4VUserPhysicsList(0),
 fin(0),
 fmate(0),
 fphys(0),
@@ -323,6 +344,8 @@ fMode(0.),
 fSeed(0.),
 fRsigma(0.),
 fThtMin(0.),
+fG4RunManager(0),
+fG4VUserPhysicsList(0),
 fin(0),
 fmate(0),
 fphys(0),
@@ -448,11 +471,80 @@ PndFtfDirect::~PndFtfDirect() {
   if(dParticle) delete dParticle; // RK
                                   //f1.Write();
 
+  if(fG4VUserPhysicsList != 0) delete fG4VUserPhysicsList;
+  if(fG4RunManager != 0) delete fG4RunManager;
+  //if(fG4 !=0) = delete fG4;
   G4cout << "###### End of PndFtfDirect #####" << G4endl;
 
 }
 // ------------------------------------------------------------------------
 
+void PndFtfDirect::LoadG4()
+{
+  fG4RunManager = new G4RunManager();
+//std::cout<<"  ####  MARKE 1 ####  "<<std::endl;
+  //TG4RunConfiguration* runConfiguration = new TG4RunConfiguration("geomRoot", "QGSP_BERT_EMV", "stepLimiter+specialCuts+specialControls");
+//std::cout<<"  ####  MARKE 2 ####  "<<std::endl;
+  //// create state manager - thread local
+  //TG4StateManager* fStateManager = new TG4StateManager();
+  //fStateManager->SetNewState(kPreInit);
+//std::cout<<"  ####  MARKE 3 ####  "<<std::endl;
+  ////TG4GeometryManager* fGeometryManager = new TG4GeometryManager(runConfiguration->GetUserGeometry());
+//std::cout<<"  ####  MARKE 4 ####  "<<std::endl;
+  //TG4SDManager* fSDManager = new TG4SDManager();
+//std::cout<<"  ####  MARKE 5 ####  "<<std::endl;
+  //TG4PhysicsManager* fPhysicsManager = new TG4PhysicsManager();
+//std::cout<<"  ####  MARKE 6 ####  "<<std::endl;
+  //fG4RunManager->SetUserInitialization(runConfiguration->CreateDetectorConstruction());
+//std::cout<<"  ####  MARKE 7 ####  "<<std::endl;
+  ////fG4RunManager->SetUserInitialization(runConfiguration->CreatePhysicsList());
+//std::cout<<"  ####  MARKE 8 ####  "<<std::endl;
+  ////fG4RunManager->Initialize();
+//std::cout<<"  ####  MARKE 9 ####  "<<std::endl;
+//std::cout<<"  ####  MARKE 2 ####  "<<std::endl;
+  fG4RunManager-> SetUserInitialization(new  PndG4DummyDetectorConstruction());
+//std::cout<<"  ####  MARKE 3 ####  "<<std::endl;
+  fG4RunManager->SetUserInitialization(new  PndG4DummyPhysicsList());
+//std::cout<<"  ####  MARKE 4 ####  "<<std::endl;
+  fG4RunManager->SetUserInitialization(new PndG4DummyActionInitialization());
+//std::cout<<"  ####  MARKE 5 ####  "<<std::endl;
+  fG4RunManager->Initialize();
+//std::cout<<"  ####  MARKE 6 ####  "<<std::endl;
+
+
+  //////fG4VUserPhysicsList =new G4VUserPhysicsList();
+  ////fG4RunManager->SetUserInitialization(new G4VUserPhysicsList());
+  ////TG4RunConfiguration* runConfiguration = new TG4RunConfiguration("geomRoot", "QGSP_BERT_EMV","stepLimiter+specialCuts+specialControls");
+  ////fRunManager->SetUserInitialization(runConfiguration->CreatePhysicsList());
+  ////Text_t buffer[50];
+  ////sprintf(buffer,"/random/setSeeds %i  %i ",gRandom->GetSeed(), gRandom->GetSeed());
+  ////geant4->ProcessGeantCommand(buffer);
+
+  //// set mandatory initialization classes
+  //fG4RunManager->SetUserInitialization(new DetectorConstruction());
+  //fG4RunManager->SetUserInitialization(new PhysicsList());
+  //// set mandatory user action class
+  //fG4RunManager->SetUserAction(new PrimaryGeneratorAction());
+
+
+  //TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
+  //cout << "Geant4 has been created." << endl;
+  ////TString configm(gSystem->Getenv("VMCWORKDIR"));
+  ////configm = configm + "/gconfig/g4config.in";
+  ////cout << " -I g4Config() using g4conf  macro: " << configm << endl;
+  ////geant4->SetMaxNStep(10000);  // default is 30000
+  ////Text_t buffer[50];
+  ////sprintf(buffer,"/random/setSeeds %i  %i ",gRandom->GetSeed(), gRandom->GetSeed());
+  ////geant4->ProcessGeantCommand(buffer);
+  ////geant4->ProcessGeantMacro(configm.Data());
+  //TG4StateManager
+  //TG4GeometryManager
+  //TG4SDManager
+  //TG4PhysicsManager
+
+}
+
+// ------------------------------------------------------------------------
 
 void PndFtfDirect::InitZero()
 {

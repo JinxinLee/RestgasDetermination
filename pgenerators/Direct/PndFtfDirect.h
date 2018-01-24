@@ -45,6 +45,8 @@ class Test30Material;
 class Test30Physics;
 
 //class G4ThreeVector;
+class G4RunManager;
+class G4VUserPhysicsList;
 class G4DynamicParticle;
 class G4VProcess;
 class G4Step;
@@ -81,6 +83,7 @@ public:
   Bool_t ProcessEvent(FairPrimaryGenerator* primGen);
   void SetVerbose(int v=1) {fverbose=v;};
   void SetNoElastic(bool n=true){fNoElastics=n;};
+  void LoadG4();
 
 private:
   void InitZero(); // initialize numbers etc. to defaults
@@ -100,8 +103,8 @@ private:
   double fRsigma;
   float  fThtMin;
 
-
-
+  G4RunManager* fG4RunManager;              //!
+  G4VUserPhysicsList* fG4VUserPhysicsList;  //!
   std::ifstream* fin;                       //!
   Test30Material*  fmate;                   //!
   Test30Physics*   fphys;                   //!

@@ -64,31 +64,31 @@ Bool_t PndMasterRunSim::Setup(TString outprefix)
     inputName = fInput;
     inputName.ToLower();
   }
-  
+
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   inputName.ReplaceAll(":","_");
-  
+
   PndFileNameCreator creator(inputName.Data());
   SetOutputFile(creator.GetSimFileName().data());
   fOutFile = creator.GetSimFileName().data();
   SetParamRootFile(creator.GetParFileName().data());
   SetMaterials("media_pnd.geo");
-  SetGenerateRunInfo(kFALSE);  
+  SetGenerateRunInfo(kFALSE);
   SetUseFairLinks(kTRUE);
 
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
   allDigiFile += fParamAsciiFile;
-  
+
   fRtdb = this->GetRuntimeDb();
   Bool_t kParameterMerged=kFALSE; // No use until now
   FairParRootFileIo* parOutput = new FairParRootFileIo(kParameterMerged);
   parOutput->open(fParamRootFile,"RECREATE");
-  
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-        
+
   fRtdb->setFirstInput(parIo1);
   fRtdb->setOutput(parOutput);
 
@@ -252,7 +252,7 @@ void PndMasterRunSim::CreateGeometryDay1()
   FairDetector *FTof = new PndFtof("FTOF",kTRUE);
   FTof->SetGeometryFileName("ftofwall.root");
   AddModule(FTof);
-   
+
   if (fOptions.Contains("gem2"))
     {
       //-------------------------  GEM       -----------------
@@ -260,7 +260,7 @@ void PndMasterRunSim::CreateGeometryDay1()
       Gem->SetGeometryFileName("gem_2Stations_realistic_v2.root");
       AddModule(Gem);
     }
-  
+
   else if (fOptions.Contains("gem3"))
   {
 	  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
@@ -289,10 +289,10 @@ void PndMasterRunSim::AddSimTasks()
 {
   // -----   Event Counter   --------------------------------
   AddTask(new PndEventCounterTask("Event Counter", fNEvents, fEventCounterRate));
-  
+
   PndMasterSimTask *sim = new PndMasterSimTask();
   AddTask(sim);
-  
+
   return;
 }
 
@@ -342,11 +342,11 @@ void PndMasterRunSim::SetGenerator()
     default:
       LOG(INFO) << "Unkwown target mode - Using no vertex smearing" << FairLogger::endl;
     }
-   
+
   TString input = fInput;
   input.ToLower();
-  
-  if (input.EndsWith(".dec") || input.Contains(".dec:")) 
+
+  if (input.EndsWith(".dec") || input.Contains(".dec:"))
     {
       UseEvtGenGenerator(fInput);
     }
@@ -366,11 +366,11 @@ void PndMasterRunSim::SetGenerator()
   {
 	  UsePiPiGenerator(fInput);
   }
-  else 
+  else
     {
       LOG(FATAL)<< "Generator could not be identified from input '"<<fInput.Data()<<"'!!" <<  FairLogger::endl;
     }
-  
+
 }
 
 void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
@@ -385,26 +385,26 @@ void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
   Double_t BoxPhiMax  = 360.;   // maximum   "       "
   Bool_t   BoxCosTht  = false;  // isotropic in cos(theta) instead theta
   Bool_t   BoxPt	  = false;  // is pt given instead of p
-  
+
   Int_t    BoxType    = 13;     // default particle muon
   Int_t    BoxMult    = 1;      // default particle multiplicity
   Double_t type=0,mult=0;       // ref. parameters for range function
-  
+
   BoxConfig.ToLower();
-  
+
   if (BoxConfig!="box")
   {
     BoxConfig.ReplaceAll("box","");
     BoxConfig.ReplaceAll(" ","");
     BoxConfig += ":";
-    
+
     while (BoxConfig.Contains(":"))
     {
       TString curpar = BoxConfig(0,BoxConfig.Index(":"));
       BoxConfig = BoxConfig(BoxConfig.Index(":")+1,1000);
       curpar.ReplaceAll("[","(");
       curpar.ReplaceAll("]",")");
-      
+
       if (curpar.BeginsWith("type(")) {GetRange(curpar,type,mult); BoxType = (Int_t)type; BoxMult = (Int_t)mult; }
       if (curpar.BeginsWith("p("))    GetRange(curpar,BoxMomMin,BoxMomMax);
       if (curpar.BeginsWith("pt("))    {GetRange(curpar,BoxMomMin,BoxMomMax); BoxPt = true;}
@@ -416,7 +416,7 @@ void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
 
   PndBoxGenerator* boxGen = new PndBoxGenerator(BoxType, BoxMult);
   boxGen->SetDebug(0);
-  
+
   if (BoxPt == true){
 	  boxGen->SetPtRange(BoxMomMin, BoxMomMax);
   } else {
@@ -424,16 +424,16 @@ void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
   }
   boxGen->SetPhiRange(BoxPhiMin, BoxPhiMax);   // Azimuth angle range [degree]
   boxGen->SetThetaRange(BoxThtMin, BoxThtMax); // Polar angle in lab system range [degree]
-  
+
   if (BoxCosTht) boxGen->SetCosTheta();
-  
+
   boxGen->SetXYZ(0., 0., 0.); //cm
-		
+
   LOG(INFO) << "Using PndBoxGenerator(" << GetBeamMom() <<", pdg="<<BoxType<<" mult="<<BoxMult
 	    <<" ) generator with range p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]" << FairLogger::endl;
-  
+
   //  cout <<"BOX generator range: p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
-  
+
   fGen->AddGenerator(boxGen);
 }
 
@@ -528,7 +528,7 @@ void PndMasterRunSim::UseLepLepGenerator(TString leplepConfig)
   fGen = new FairFilteredPrimaryGenerator();
   fGen->AddGenerator(boxGen);
 }
- 
+
 // -----   SetGenerator   --------------------------------------------------
 void PndMasterRunSim::SetGenerator(FairBoxGenerator *boxGen)
  {
@@ -544,7 +544,7 @@ void PndMasterRunSim::UseDpmGenerator()
   PndDpmDirect *Dpm= new PndDpmDirect(GetBeamMom(), fDpmFlag);
   fGen->AddGenerator(Dpm);
 }
- 
+
 // -----   UseFtfGenerator   -----------------------------------------------
 void PndMasterRunSim::UseFtfGenerator(TString ftfData)
 {
@@ -556,6 +556,10 @@ void PndMasterRunSim::UseFtfGenerator(TString ftfData)
   } else {
 	  LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() <<", "<<fFtfFlag<< ") generator" << FairLogger::endl;
 	  PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed(), fFtfFlag);
+    if ( strncmp(fName,"TGeant3",7 ) == 0 ) {
+      LOG(INFO) << "We use GEANT3 and want to use FtfDirect: loading a Geant4 Manager for FTF now." << FairLogger::endl;
+      Ftf->LoadG4();
+    }
 	  fGen->AddGenerator(Ftf);
   }
 }
@@ -563,21 +567,21 @@ void PndMasterRunSim::UseFtfGenerator(TString ftfData)
 // -----   UseEvtGenGenerator   --------------------------------------------
 void PndMasterRunSim::UseEvtGenGenerator(TString EvtGenFile)
 {
-  
+
   TString IniRes="";
-  
+
   if (EvtGenFile.Contains(":")) // is the initial resonance provide as <decfile>.dec:iniRes ?
   {
     IniRes = EvtGenFile(EvtGenFile.Index(":")+1,1000);
     EvtGenFile = EvtGenFile(0,EvtGenFile.Index(":"));
   }
-  
+
   if (IniRes=="") // we need to search the decay file
   {
     TString fnamepath=fInputDir+EvtGenFile;
-    std::ifstream fs(fnamepath.Data());	
+    std::ifstream fs(fnamepath.Data());
     char line[250];
-  
+
     while (fs)
     {
       fs.getline(line,249);
@@ -589,8 +593,8 @@ void PndMasterRunSim::UseEvtGenGenerator(TString EvtGenFile)
         s.ReplaceAll("Decay ","");
         s.ReplaceAll(" ","");
         IniRes = s;
-      }	 
-    } 
+      }
+    }
     fs.close();
   }
   /*
@@ -598,29 +602,29 @@ void PndMasterRunSim::UseEvtGenGenerator(TString EvtGenFile)
   // state as the following string
   FILE *dec = fopen(fInputDir+EvtGenFile,"r");
   if (dec==NULL) LOG(FATAL) << "The EvtGen dec file does not exist!! " << EvtGenFile << FairLogger::endl;
-  
+
   char temp[6], particle[20];
   Bool_t found = kFALSE;
   while(fgets(temp, 6, dec) !=NULL)
     {
       if((strstr(temp, "Decay")) != NULL)
-	{	
+	{
 	  fscanf(dec, "%s",particle);
 	  LOG(INFO) << "It was found a " << particle << " as initial state." << FairLogger::endl;
 	  found = kTRUE;
 	  break;
-	}    
+	}
     }
   */
   if (IniRes=="") LOG(FATAL) << "The input file is not a proper .dec!! " << FairLogger::endl;
-  
+
     //   TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
   //   EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
   LOG(INFO) << "Using PndEvtGenDirect(" <<IniRes << ", " << (fInputDir+EvtGenFile).Data() << ", " << GetBeamMom() << ") generator" << FairLogger::endl;
   PndEvtGenDirect *EvtGen = new PndEvtGenDirect(IniRes, (fInputDir+EvtGenFile).Data(), GetBeamMom());
   EvtGen->SetStoreTree(kTRUE);
   fGen->AddGenerator(EvtGen);
-  
+
 }
 
 // -----   Finish   ---------------------------------------------------------
@@ -629,10 +633,10 @@ void PndMasterRunSim::Finish()
   fRtdb->saveOutput();
 
   // write the summary of event filter to output root file
-  ((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile();   
+  ((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile();
 
   cout << endl;
-  
+
   // Extract the maximal used memory an add is as Dart measurement
   // This line is filtered by CTest and the value send to CDash
   FairSystemInfo sysInfo;
@@ -640,16 +644,16 @@ void PndMasterRunSim::Finish()
   cout << "<DartMeasurement name=\"MaxMemory\" type=\"numeric/double\">";
   cout << maxMemory;
   cout << "</DartMeasurement>" << endl;
-  
+
   fTimer.Stop();
   Double_t rtime = fTimer.RealTime();
   Double_t ctime = fTimer.CpuTime();
-  
+
   Float_t cpuUsage=ctime/rtime;
   cout << "<DartMeasurement name=\"CpuLoad\" type=\"numeric/double\">";
   cout << cpuUsage;
   cout << "</DartMeasurement>" << endl;
-  
+
   cout << endl;
   cout << "Output file is\t\t"    << fOutFile << endl;
   cout << "Parameter ROOT file is\t" << fParamRootFile << endl;
@@ -658,9 +662,9 @@ void PndMasterRunSim::Finish()
 	    << "s" << endl;
   cout << "CPU usage " << cpuUsage*100. << "%" << endl;
   cout << "Max Memory " << maxMemory << " MB" << endl;
-   
+
   cout << "Macro finished successfully." << endl;
-  
+
 }
 
 // -----Helper function for parameter parsing  ---------------------------------------------------------
@@ -670,15 +674,15 @@ void PndMasterRunSim::GetRange(TString par, double &min, double &max)
 {
 	par.ReplaceAll(" ","");
 	par = par(par.Index("(")+1, par.Length()-par.Index("(")-2);
-	
+
 	TString smin=par, smax=par;
-	
-	if (par.Contains(",")) 
+
+	if (par.Contains(","))
 	{
 		smin = par(0,par.Index(","));
 		smax = par(par.Index(",")+1,1000);
 	}
-	
+
 	min = smin.Atof();
 	max = smax.Atof();
 }
