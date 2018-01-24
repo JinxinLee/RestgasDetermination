@@ -556,10 +556,6 @@ void PndMasterRunSim::UseFtfGenerator(TString ftfData)
   } else {
 	  LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() <<", "<<fFtfFlag<< ") generator" << FairLogger::endl;
 	  PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed(), fFtfFlag);
-    if ( strncmp(fName,"TGeant3",7 ) == 0 ) {
-      LOG(INFO) << "We use GEANT3 and want to use FtfDirect: loading a Geant4 Manager for FTF now." << FairLogger::endl;
-      Ftf->LoadG4();
-    }
 	  fGen->AddGenerator(Ftf);
   }
 }
