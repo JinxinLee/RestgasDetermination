@@ -269,8 +269,8 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	std::map < std::string, TGeoHMatrix > matrices;
 	matrices[examplePath] = exampleMatrix;
 
-	//Lum->SetMisalignmentMatrices(matrices);
-	//Lum->ModifiyGeometry();
+	Lum->SetMisalignmentMatrices(matrices);
+	Lum->ModifiyGeometry();
 
 	cout << "geometry modified!\n";
 
