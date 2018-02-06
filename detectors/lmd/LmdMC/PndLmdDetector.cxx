@@ -4,6 +4,8 @@
 #include "TGeoPhysicalNode.h"
 #include "TVirtualMC.h"
 
+#include <iostream>
+
 // -----   Default constructor   -------------------------------------------
 PndLmdDetector::PndLmdDetector() { SetDetectorID(kLUMI); }
 
@@ -44,6 +46,9 @@ void PndLmdDetector::ModifiyGeometry() {
     LOG(INFO) << "Misalign using full path." << FairLogger::endl;
     ModifyGeometryByFullPath();
   }
+
+  std::cout << "PndLmdDetector:modifyGeometry: success!\n";
+
 }
 
 void PndLmdDetector::ModifyGeometryByFullPath() {
