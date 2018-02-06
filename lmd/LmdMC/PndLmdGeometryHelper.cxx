@@ -2,6 +2,7 @@
 #include "PndGeoHandling.h"
 
 #include <regex>
+#include <iostream>
 
 PndLmdGeometryHelper::~PndLmdGeometryHelper() {
 }
@@ -21,7 +22,7 @@ PndLmdGeometryHelper::~PndLmdGeometryHelper() {
  *    2x (modules per side). Counting starts on front (w.r.t. beam direction)
  */
 PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo(
-    const std::string &volume_path) const {
+        const std::string &volume_path) const {
 	PndLmdHitLocationInfo hit_info;
 	std::stringstream reg_exp;
 	for (auto const &nav_path : navigation_paths) {
@@ -39,7 +40,7 @@ PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo
 		hit_info.module_sensor_id = sensor_id;
 
 		unsigned int sensors_per_module_side = geometry_properties.get<unsigned int>(
-		    "general.sensors_per_module_side");
+		        "general.sensors_per_module_side");
 
 		if (sensor_id > sensors_per_module_side - 1) {
 			hit_info.module_side = 1;
@@ -53,10 +54,10 @@ PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo
 		TString actPath = fGeoManager->GetPath();
 		fGeoManager->cd(volume_path.c_str());
 		PndGeoHandling::Instance()->cd(fGeoManager->GetCurrentNode());
-		if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
+		if (actPath != "" && actPath != " ")
+			fGeoManager->cd(actPath);
 
-	}
-	else {
+	} else {
 		throw std::runtime_error("PndLmdGeometryHelper::translateVolumePathToHitLocationInfo: geometry "
 				"navigation paths mismatch!"
 				" Seems like you used a different lmd geo config file to create a lmd "
@@ -94,8 +95,7 @@ const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(const std:
 	auto const &result = volume_path_to_hit_info_mapping.find(volume_path);
 	if (result != volume_path_to_hit_info_mapping.end()) {
 		return result->second;
-	}
-	else {
+	} else {
 		return createMappingEntry(volume_path);
 	}
 }
@@ -104,8 +104,7 @@ const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(int sensor
 	auto const &result = sensor_id_to_hit_info_mapping.find(sensor_id);
 	if (result != sensor_id_to_hit_info_mapping.end()) {
 		return result->second;
-	}
-	else {
+	} else {
 		return createMappingEntry(sensor_id);
 	}
 }
@@ -162,7 +161,8 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sen
 	fGeoManager->CdUp();
 
 	TGeoHMatrix matrix = *fGeoManager->GetCurrentMatrix();
-	if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
+	if (actPath != "" && actPath != " ")
+		fGeoManager->cd(actPath);
 
 	return matrix;
 }
@@ -258,7 +258,8 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToLmdLocal() {
 	fGeoManager->cd(lmd_root_path.c_str());
 	TGeoHMatrix *matrix = (TGeoHMatrix *) (fGeoManager->GetCurrentNode()->GetMatrix());
 
-	if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
+	if (actPath != "" && actPath != " ")
+		fGeoManager->cd(actPath);
 
 	return *matrix;
 }

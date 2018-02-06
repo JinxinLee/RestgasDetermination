@@ -755,6 +755,7 @@ bool PndLmdAlignManager::exists(std::string path) {
 	return false;
 }
 
+//TODO: replcae with c++11 regex instead of boost
 vector<string> PndLmdAlignManager::findRegex(std::string source, std::string regex) {
 
 	boost::regex expression(regex);

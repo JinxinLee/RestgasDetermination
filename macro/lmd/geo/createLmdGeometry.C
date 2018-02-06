@@ -43,4 +43,8 @@ void createLmdGeometry(std::string output_filename = "Luminosity-Detector.root",
 
 	top->Write();
 	file.Close();
+	
+	gGeoMan->SetVisLevel(20);
+	top->Draw("ogle");
+	
 }
