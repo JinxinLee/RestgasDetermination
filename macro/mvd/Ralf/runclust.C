@@ -2,7 +2,7 @@
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   Int_t nEvents = 10000;
-
+// this is a test comment
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
