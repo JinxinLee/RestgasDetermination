@@ -48,7 +48,7 @@ class PndLmdDetector : public PndSdsDetector {
   virtual void Initialize() { PndSdsDetector::Initialize(); };
   // virtual void ConstructASCIIGeometry();
 
-  void ModifiyGeometry();
+  void ModifyGeometry();
   void SetMisalignmentMatrices(
       const std::map<std::string, TGeoHMatrix>& alignmentMatrices);
   void ModifyGeometryByFullPath();
