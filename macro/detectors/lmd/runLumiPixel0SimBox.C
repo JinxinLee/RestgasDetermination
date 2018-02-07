@@ -225,6 +225,20 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	else
 		fRun->SetStoreTraj(kFALSE);
 
+
+	// Misalign geometry
+	std::string examplePath = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/";
+
+	TGeoHMatrix exampleMatrix;
+	double vec[3] = { 1.0, 1.0, 0.0 };
+	exampleMatrix.SetTranslation(vec);
+	cout << "matrix created\n";
+
+	std::map < std::string, TGeoHMatrix > matrices;
+	matrices[examplePath] = exampleMatrix;
+	Lum->SetMisalignmentMatrices(matrices);
+	cout << "matrix set!\n";
+
 	// fRun->SetStoreTraj(kTRUE);
 	fRun->Init();
 
@@ -254,21 +268,6 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	Par->setInputVersion(fRun->GetRunId(), 1);
 	Par->setChanged();
 
-	//PndLmdGeometryHelper &helper = PndLmdGeometryHelper::getInstance();
-	//helper.getMatrixPndGlobalToSensor(0);
-
-	// Misalign geometry
-	std::string examplePath = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/";
-
-	TGeoHMatrix exampleMatrix;
-	double vec[3] = { 1, 1, 0 };
-	exampleMatrix.SetTranslation(vec);
-
-	cout << "matrix created\n";
-	std::map < std::string, TGeoHMatrix > matrices;
-	matrices[examplePath] = exampleMatrix;
-	Lum->SetMisalignmentMatrices(matrices);
-	cout << "geometry modified!\n";
 
 	// Transport nEvents
 	// -----------------
