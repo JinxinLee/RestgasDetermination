@@ -415,7 +415,7 @@ void PndSimpleCombinerTask::Exec(Option_t*)
 
 			  qa.qaP4("beam", fIni, vntp[i]);
 
-			  // store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+			  // store information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 			  qa.qaComp("x", l1[j], vntp[i]);
 			  // also optional for reco info
 			  if (fQaRecoInfo==1) qa.qaRecoShortTree("x", l1[j], vntp[i]);

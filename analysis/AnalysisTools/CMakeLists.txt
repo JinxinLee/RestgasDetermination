@@ -12,18 +12,15 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
-  ${CMAKE_SOURCE_DIR}/rho
-  ${CMAKE_SOURCE_DIR}/rho/RhoBase
-  ${CMAKE_SOURCE_DIR}/rho/RhoTools
-  ${CMAKE_SOURCE_DIR}/rho/RhoSelector
-  ${CMAKE_SOURCE_DIR}/rho/RhoMath
-  ${CMAKE_SOURCE_DIR}/rho/RhoHistogram
-  ${CMAKE_SOURCE_DIR}/rho/RhoFitter
-  ${CMAKE_SOURCE_DIR}/rho/DecayTreeFitter
-  ${CMAKE_SOURCE_DIR}/PndTools/PndParticleFitters
-  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
-  #${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
-  #${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/DecayTreeFitter
+  ${CMAKE_SOURCE_DIR}/analysis/rho
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoTools
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoMath
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoHistogram
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
+  ${CMAKE_SOURCE_DIR}/analysis/rho/DecayTreeFitter
+  ${CMAKE_SOURCE_DIR}/analysis/AnalysisTools
   ${CMAKE_SOURCE_DIR}/softrig
   ${CMAKE_SOURCE_DIR}/geane
 )
@@ -67,17 +64,6 @@ PndParticleQATask.cxx
 PndSimpleCombiner.cxx
 PndSimpleCombinerTask.cxx
 PndSimpleNtuple.cxx
-##Fitter/PndVtxFitterParticle.cxx
-##Fitter/PndVtxFitter_Init.cxx
-##Fitter/PndVtxFitterError.cxx
-##Fitter/PndVtxFitter.cxx
-#Fitter/Pnd4CFitter.cxx
-#Fitter/PndDecayTreeFitter.cxx
-#Fitter/PndKinVtxFitter.cxx
-#Fitter/PndKinFitter.cxx
-#Fitter/PndVtxPoca.cxx
-#Fitter/PndVtxPRG.cxx
-#Fitter/PndKalmanVtxFitter.cxx
 StrTok.cxx
 )
 

@@ -13,10 +13,10 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/FastSim
   ${CMAKE_SOURCE_DIR}/FastSim/scrut
   ${CMAKE_SOURCE_DIR}/pid
-  ${CMAKE_SOURCE_DIR}/rho
-  ${CMAKE_SOURCE_DIR}/rho/RhoBase
-  ${CMAKE_SOURCE_DIR}/rho/RhoSelector
-  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
+  ${CMAKE_SOURCE_DIR}/analysis/rho
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
+  ${CMAKE_SOURCE_DIR}/analysis/AnalysisTools
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

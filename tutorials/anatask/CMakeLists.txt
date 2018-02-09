@@ -13,12 +13,11 @@ ${CMAKE_SOURCE_DIR}/lhetrack
 ${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/fastsim
-${CMAKE_SOURCE_DIR}/rho
-${CMAKE_SOURCE_DIR}/rho/RhoBase
-${CMAKE_SOURCE_DIR}/rho/RhoSelector
+${CMAKE_SOURCE_DIR}/analysis/rho
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/tutorials/anatask
-${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
-${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+${CMAKE_SOURCE_DIR}/analysis/AnalysisTools
 ${CMAKE_SOURCE_DIR}/genfit
 )
 

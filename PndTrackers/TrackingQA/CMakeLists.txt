@@ -17,8 +17,8 @@ Set(INCLUDE_DIRECTORIES
 #  ${CMAKE_SOURCE_DIR}/PndMCMatch
   ${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
   ${CMAKE_SOURCE_DIR}/PndTrackers/TrackingQA
-  ${CMAKE_SOURCE_DIR}/rho
-  ${CMAKE_SOURCE_DIR}/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/analysis/rho
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

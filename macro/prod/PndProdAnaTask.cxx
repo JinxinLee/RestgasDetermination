@@ -158,7 +158,7 @@ void PndProdAnaTask::Exec(Option_t*)
 		// store beam info
 		qa.qaP4("beam", fIni, ntp);
 			
-		// store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// store information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		qa.qaComp("x", D0[j], ntp);
 	
 		// store the 4-vector of the truth matched candidate (or a dummy, if not matched to keep ntuple consistent)

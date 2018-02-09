@@ -149,8 +149,8 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/PndEventdisplay \
                 -I$(PANDADIR)/PndMCMatch \
                 -I$(PANDADIR)/PndMCMatch/examples \
-                -I$(PANDADIR)/PndTools/AnalysisTools \
-                -I$(PANDADIR)/PndTools/AnalysisTools/Fitter \
+                -I$(PANDADIR)/analysis/AnalysisTools \
+                -I$(PANDADIR)/analysis/AnalysisTools/Fitter \
                 -I$(PANDADIR)/PndTools/buffers \
                 -I$(PANDADIR)/PndTools/generalTools \
                 -I$(PANDADIR)/PndPropagators/HelixPropagator \
@@ -164,13 +164,13 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/PndTrackers/riemannfit \
                 -I$(PANDADIR)/PndTrackers/SttCellTrackFinder \
                 -I$(PANDADIR)/PndTrackers/TrackingQA \
-                -I$(PANDADIR)/rho \
-                -I$(PANDADIR)/rho/RhoBase \
-                -I$(PANDADIR)/rho/RhoConstraints \
-                -I$(PANDADIR)/rho/RhoHistogram \
-                -I$(PANDADIR)/rho/RhoMath \
-                -I$(PANDADIR)/rho/RhoSelector \
-                -I$(PANDADIR)/rho/RhoTools \
+                -I$(PANDADIR)/analysis/rho \
+                -I$(PANDADIR)/analysis/rho/RhoBase \
+                -I$(PANDADIR)/analysis/rho/RhoConstraints \
+                -I$(PANDADIR)/analysis/rho/RhoHistogram \
+                -I$(PANDADIR)/analysis/rho/RhoMath \
+                -I$(PANDADIR)/analysis/rho/RhoSelector \
+                -I$(PANDADIR)/analysis/rho/RhoTools \
                 -I$(PANDADIR)/rich \
                 -I$(PANDADIR)/scitil/SciTMC \
                 -I$(PANDADIR)/sds \

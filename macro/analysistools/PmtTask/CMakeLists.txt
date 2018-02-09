@@ -6,12 +6,12 @@ ${BASE_INCLUDE_DIRECTORIES}
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pnddata
-${CMAKE_SOURCE_DIR}/rho
-${CMAKE_SOURCE_DIR}/rho/RhoBase
-${CMAKE_SOURCE_DIR}/rho/RhoMath
-${CMAKE_SOURCE_DIR}/rho/RhoTools
-${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
-${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+${CMAKE_SOURCE_DIR}/analysis/rho
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoMath
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoTools
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
+${CMAKE_SOURCE_DIR}/analysis//AnalysisTools
 ${CMAKE_SOURCE_DIR}/macro/analysistools/PmtTask
 )
 

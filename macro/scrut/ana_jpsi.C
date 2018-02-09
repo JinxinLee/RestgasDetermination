@@ -103,7 +103,7 @@ int ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.23
 			// store info about initial 4-vector
 			qa.qaP4("beam", ini, ntp1);
 			
-			// store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+			// store information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 			qa.qaComp("j", jpsi[j], ntp1);
 			
 			// store info about event shapes
@@ -148,7 +148,7 @@ int ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.23
 			// store info about initial 4-vector
 			qa.qaP4("beam", ini, ntp2);
 			
-			// store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+			// store information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 			qa.qaComp("psi", psi2s[j], ntp2);
 			qa.qaComp("fpsi",psifit, ntp2);
 			

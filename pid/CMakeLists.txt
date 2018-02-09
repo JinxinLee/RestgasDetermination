@@ -37,9 +37,9 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/fts
   ${CMAKE_SOURCE_DIR}/geane
   ${CMAKE_SOURCE_DIR}/trackrep
-  ${CMAKE_SOURCE_DIR}/rho
-  ${CMAKE_SOURCE_DIR}/rho/RhoBase
-  ${CMAKE_SOURCE_DIR}/rho/RhoTools
+  ${CMAKE_SOURCE_DIR}/analysis/rho
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoTools
   ${CMAKE_SOURCE_DIR}/pid
   ${CMAKE_SOURCE_DIR}/pid/PidData
   ${CMAKE_SOURCE_DIR}/pid/PidCorr

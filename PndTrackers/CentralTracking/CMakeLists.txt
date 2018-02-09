@@ -22,12 +22,11 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/gem 
   ${CMAKE_SOURCE_DIR}/pnddata/GemData 
   ${CMAKE_SOURCE_DIR}/geane 
-  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
-  ${CMAKE_SOURCE_DIR}/PndTools/PndParticleFitters 
-  ${CMAKE_SOURCE_DIR}/rho
-  ${CMAKE_SOURCE_DIR}/rho/RhoBase
-  ${CMAKE_SOURCE_DIR}/rho/RhoMath
-  ${CMAKE_SOURCE_DIR}/rho/RhoFitter
+  ${CMAKE_SOURCE_DIR}/analysis/AnalysisTools
+  ${CMAKE_SOURCE_DIR}/analysis/rho
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoMath
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
   ${CMAKE_SOURCE_DIR}/PndTrackers/CentralTracking
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
   ${CMAKE_SOURCE_DIR}/tracking/TrkSecondary

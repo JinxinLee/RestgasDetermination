@@ -13,14 +13,14 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/pnddata # put FairRecoCandidate to fairbase at some point
   ${CMAKE_SOURCE_DIR}/pnddata/PidData # CAUTION we have a PANDA specific access: RhoGoodPhotonSelector auses PndPidCandidate
-  ${CMAKE_SOURCE_DIR}/rho/RhoBase
-  ${CMAKE_SOURCE_DIR}/rho/RhoMath
-  ${CMAKE_SOURCE_DIR}/rho/RhoFitter
-  ${CMAKE_SOURCE_DIR}/rho/RhoSelector
-  ${CMAKE_SOURCE_DIR}/rho/RhoConstraints
-  ${CMAKE_SOURCE_DIR}/rho/RhoTools
-  ${CMAKE_SOURCE_DIR}/rho/RhoHistogram
-  ${CMAKE_SOURCE_DIR}/rho
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoMath
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoConstraints
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoTools
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoHistogram
+  ${CMAKE_SOURCE_DIR}/analysis/rho
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

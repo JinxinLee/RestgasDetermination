@@ -11,14 +11,14 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
-  ${CMAKE_SOURCE_DIR}/rho
-  ${CMAKE_SOURCE_DIR}/rho/RhoBase
-  ${CMAKE_SOURCE_DIR}/rho/RhoTools
-  ${CMAKE_SOURCE_DIR}/rho/RhoSelector
-  ${CMAKE_SOURCE_DIR}/rho/RhoMath
-  ${CMAKE_SOURCE_DIR}/rho/RhoFitter
-  ${CMAKE_SOURCE_DIR}/rho/RhoHistogram
-  ${CMAKE_SOURCE_DIR}/rho/DecayTreeFitter
+  ${CMAKE_SOURCE_DIR}/analysis/rho
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoTools
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoMath
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoHistogram
+  ${CMAKE_SOURCE_DIR}/analysis/rho/DecayTreeFitter
   ${CMAKE_SOURCE_DIR}/PndTools/PndParticleFitters
 )
 

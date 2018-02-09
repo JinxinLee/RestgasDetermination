@@ -30,7 +30,6 @@ Set(INCLUDE_DIRECTORIES
 #${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 #${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 #${CMAKE_SOURCE_DIR}/geane
-${CMAKE_SOURCE_DIR}/rho
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

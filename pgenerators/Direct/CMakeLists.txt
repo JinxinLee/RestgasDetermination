@@ -17,9 +17,9 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
   ${CMAKE_SOURCE_DIR}/pnddata
-  ${CMAKE_SOURCE_DIR}/rho
-  ${CMAKE_SOURCE_DIR}/rho/RhoBase
-  ${CMAKE_SOURCE_DIR}/rho/RhoSelector
+  ${CMAKE_SOURCE_DIR}/analysis/rho
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
   ${CMAKE_SOURCE_DIR}/fairtools
 )
 

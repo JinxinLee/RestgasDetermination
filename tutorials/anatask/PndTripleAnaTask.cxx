@@ -269,7 +269,7 @@ void PndTripleAnaTask::JpsiAnalysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp1);
 			
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("j", jpsi[j], ntp1);
 		fQA->qaCand("fj",jfit,    ntp1);
 		ntp1->Column("fchi2", (Float_t) chi2);
@@ -314,7 +314,7 @@ void PndTripleAnaTask::JpsiAnalysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp2);
 		
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ppb", ppb[j], ntp2);
 		fQA->qaComp("fppb",ppbfit, ntp2);
 		ntp2->Column("fchi2", (Float_t) chi2);
@@ -385,7 +385,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp1);
 			
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ds", ds[j], ntp1);
 		fQA->qaCand("fds",dsfit,    ntp1);
 		ntp1->Column("fchi2", (Float_t) chi2);
@@ -454,7 +454,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp2);
 			
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ds0", ds0[j], ntp2);
 		fQA->qaCand("fds0",ds0fit,    ntp2);
 		ntp2->Column("fchi2", (Float_t) chi2);
@@ -498,7 +498,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp3);
 		
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ppb", ppb[j], ntp3);
 		fQA->qaComp("fppb",ppbfit, ntp3);
 		ntp3->Column("fchi2", (Float_t) chi2);
@@ -569,7 +569,7 @@ void PndTripleAnaTask::ThreePiAnalysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp2);
 		
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ppb", ppb[j], ntp2);
 		fQA->qaComp("fppb",ppbfit, ntp2);
 		ntp2->Column("fchi2", (Float_t) chi2);

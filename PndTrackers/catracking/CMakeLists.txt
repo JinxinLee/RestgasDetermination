@@ -33,8 +33,8 @@ ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
 ${CMAKE_SOURCE_DIR}/PndTrackers/TrackingQA
-${CMAKE_SOURCE_DIR}/rho
-${CMAKE_SOURCE_DIR}/rho/RhoBase
+${CMAKE_SOURCE_DIR}/analysis/rho
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

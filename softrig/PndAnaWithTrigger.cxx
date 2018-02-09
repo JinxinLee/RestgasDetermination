@@ -205,7 +205,7 @@ void PndAnaWithTrigger::Exec(Option_t*)
 		// store info about initial 4-vector
 		qa.qaP4("beam", fIni, ntp1);
 			
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		qa.qaComp("j", jpsi[j], ntp1);
 		
 		// dump info about event shapes
@@ -255,7 +255,7 @@ void PndAnaWithTrigger::Exec(Option_t*)
 		// store info about initial 4-vector
 		qa.qaP4("beam", fIni, ntp2);
 		
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		qa.qaComp("psi", psi2s[j], ntp2);
 		qa.qaComp("fpsi",psifit, ntp2);
 		ntp2->Column("fchi2", (Float_t) kinfit.GetChi2());

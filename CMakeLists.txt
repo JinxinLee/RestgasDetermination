@@ -394,11 +394,14 @@ add_subdirectory (macro)
 add_subdirectory (GenfitTools)
 #add_subdirectory(hypGe)
 add_subdirectory (fastsim)
-add_subdirectory (rho)
-add_subdirectory (PndTools/AnalysisTools)
-add_subdirectory (PndTools/PndParticleFitters)
+
+add_subdirectory (analysis/rho)
+add_subdirectory (analysis/kfparticle)
+add_subdirectory (analysis/AnalysisTools)
+
 add_subdirectory (PndTools/master)
 add_subdirectory (PndTools/TimeBasedTools)
+
 add_subdirectory (PndTrackers/sttmvdtracking)
 add_subdirectory (PndTrackers/CentralTracking)
 add_subdirectory (PndTrackers/SecondariesTracking)
@@ -449,7 +452,6 @@ add_subdirectory (PndMCMatchNewLinks)
 add_subdirectory (global)
 
 add_subdirectory (softrig)
-#add_subdirectory (kfparticle)
 
 if(RULE_CHECKER_FOUND)
 

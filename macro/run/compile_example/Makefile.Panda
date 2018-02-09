@@ -105,11 +105,11 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/pnddata/TrackData \
                 -I$(PANDADIR)/recotasks \
                 -I$(PANDADIR)/recotasks/demo \
-                -I$(PANDADIR)/rho \
-                -I$(PANDADIR)/rho/RhoBase \
-                -I$(PANDADIR)/rho/RhoMath \
-                -I$(PANDADIR)/rho/RhoSelector \
-                -I$(PANDADIR)/rho/RhoTools \
+                -I$(PANDADIR)/analysis/rho \
+                -I$(PANDADIR)/analysis/rho/RhoBase \
+                -I$(PANDADIR)/analysis/rho/RhoMath \
+                -I$(PANDADIR)/analysis/rho/RhoSelector \
+                -I$(PANDADIR)/analysis/rho/RhoTools \
                 -I$(PANDADIR)/rpc \
                 -I$(PANDADIR)/stt \
                 -I$(PANDADIR)/stt/sttreco \
@@ -140,8 +140,8 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/GenfitTools/trackrep/LSLtrackRep \
                 -I$(PANDADIR)/GenfitTools/trackrep/RKtrackRep \
                 -I$(PANDADIR)/PndEventdisplay \
-                -I$(PANDADIR)/PndTools/AnalysisTools \
-                -I$(PANDADIR)/PndTools/AnalysisTools/Fitter \
+                -I$(PANDADIR)/analysis/AnalysisTools \
+                -I$(PANDADIR)/analysis/rho/RhoFitter \
                 -I$(PANDADIR)/PndTools/MVA \
                 -I$(PANDADIR)/PndTools/MVA/GenInputTree/genInputTree_old \
                 -I$(PANDADIR)/PndTools/MVA/GenInputTree/makeTrainFile \
