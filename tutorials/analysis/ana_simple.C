@@ -23,7 +23,7 @@ void ana_simple(TString infile, TString cfgfile="analysis.cfg",int nevts=0,TStri
   //gSystem->Load("libPndData");
   //gSystem->Load("libGen");
   gSystem->Load("libRho");
-  gSystem->Load("libfsim");*/
+  gSystem->Load("libfastsim");*/
  
   if (outfile=="") outfile=infile+"_ana.root";
 

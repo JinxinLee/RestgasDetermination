@@ -10,8 +10,8 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/passive
-  ${CMAKE_SOURCE_DIR}/fsim
-  ${CMAKE_SOURCE_DIR}/fsim/scrut
+  ${CMAKE_SOURCE_DIR}/FastSim
+  ${CMAKE_SOURCE_DIR}/FastSim/scrut
   ${CMAKE_SOURCE_DIR}/pid
   ${CMAKE_SOURCE_DIR}/rho
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
@@ -64,7 +64,7 @@ PndFsmIdealPid.cxx
 
 
 set(LINKDEF fsimLinkDef.h)
-set(LIBRARY_NAME fsim)
+set(LIBRARY_NAME fastsim)
 
 set(DEPENDENCIES Base ParBase PndData AnalysisTools)
 

@@ -36,7 +36,7 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/eventdisplay \
                 -I$(PANDADIR)/fairtools \
                 -I$(PANDADIR)/field \
-                -I$(PANDADIR)/fsim \
+                -I$(PANDADIR)/fastsim \
                 -I$(PANDADIR)/ftof \
                 -I$(PANDADIR)/fts \
                 -I$(PANDADIR)/fts/FtsTracking \

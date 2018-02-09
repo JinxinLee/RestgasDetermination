@@ -7,7 +7,7 @@ ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
-${CMAKE_SOURCE_DIR}/fsim
+${CMAKE_SOURCE_DIR}/fastsim
 ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/rho/RhoSelector
@@ -33,7 +33,7 @@ PndScrutAnaTask.cxx
 set(LINKDEF scrutLinkDef.h)
 set(LIBRARY_NAME Scrut)
 
-set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase fsim)
+set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase fastsim)
 
 GENERATE_LIBRARY()
 

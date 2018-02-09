@@ -15,7 +15,7 @@ void simfast_cmp(TString infile="dsdsj20k.evt",int nevts=0,TString outfile="")
 
   // Load this example libraries
   gSystem->Load("libRho");
-  gSystem->Load("libfsim");
+  gSystem->Load("libfastsim");
  
   if (outfile=="") outfile=infile+".fast.root";
 
