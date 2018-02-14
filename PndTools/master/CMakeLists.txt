@@ -23,30 +23,30 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
   ${CMAKE_SOURCE_DIR}/pgenerators/Direct
   ${CMAKE_SOURCE_DIR}/pgenerators/EMFFgenerators
-  ${CMAKE_SOURCE_DIR}/stt
-  ${CMAKE_SOURCE_DIR}/sds/SdsMC
-  ${CMAKE_SOURCE_DIR}/mvd/MvdMC
-  ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
-  ${CMAKE_SOURCE_DIR}/mvd/MvdReco
-  ${CMAKE_SOURCE_DIR}/emc/EmcMC	
-  ${CMAKE_SOURCE_DIR}/emc/EmcDigi
-  ${CMAKE_SOURCE_DIR}/emc/EmcData
-  ${CMAKE_SOURCE_DIR}/emc/EmcTools
-  ${CMAKE_SOURCE_DIR}/emc/EmcReco
-  ${CMAKE_SOURCE_DIR}/emc/EmcCorr
-  ${CMAKE_SOURCE_DIR}/scitil/SciTMC		
-  ${CMAKE_SOURCE_DIR}/scitil/SciTDigi
-  ${CMAKE_SOURCE_DIR}/mdt/MdtMC
-  ${CMAKE_SOURCE_DIR}/mdt/MdtDigi
-  ${CMAKE_SOURCE_DIR}/mdt/MdtReco
-  ${CMAKE_SOURCE_DIR}/drc
-  ${CMAKE_SOURCE_DIR}/dsk/DskMC
-  ${CMAKE_SOURCE_DIR}/gem
-  ${CMAKE_SOURCE_DIR}/fts
-  ${CMAKE_SOURCE_DIR}/ftof
-  ${CMAKE_SOURCE_DIR}/rich
+  ${CMAKE_SOURCE_DIR}/detectors/stt
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsMC
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMC
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdDigi
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdReco
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcMC	
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcDigi
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcTools
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcReco
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcCorr
+  ${CMAKE_SOURCE_DIR}/detectors/scitil/SciTMC		
+  ${CMAKE_SOURCE_DIR}/detectors/scitil/SciTDigi
+  ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtMC
+  ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtDigi
+  ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtReco
+  ${CMAKE_SOURCE_DIR}/detectors/drc
+  ${CMAKE_SOURCE_DIR}/detectors/dsk/DskMC
+  ${CMAKE_SOURCE_DIR}/detectors/gem
+  ${CMAKE_SOURCE_DIR}/detectors/fts
+  ${CMAKE_SOURCE_DIR}/detectors/ftof
+  ${CMAKE_SOURCE_DIR}/detectors/rich
   ${CMAKE_SOURCE_DIR}/field
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/SciTData
   ${CMAKE_SOURCE_DIR}/pnddata/MdtData	
@@ -58,9 +58,9 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/FtsData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/pnddata/RichData
-  ${CMAKE_SOURCE_DIR}/fts/FtsTracking
+  ${CMAKE_SOURCE_DIR}/detectors/fts/FtsTracking
   ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
-  ${CMAKE_SOURCE_DIR}/GenfitTools/recotasks
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recotasks
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/pid/PidCorr
   ${CMAKE_SOURCE_DIR}/pid/PidClassifier

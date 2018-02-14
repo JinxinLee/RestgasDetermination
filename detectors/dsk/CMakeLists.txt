@@ -12,8 +12,8 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/DskData
-  ${CMAKE_SOURCE_DIR}/dsk
-  ${CMAKE_SOURCE_DIR}/dsk/DskMC
+  ${CMAKE_SOURCE_DIR}/detectors/dsk
+  ${CMAKE_SOURCE_DIR}/detectors/dsk/DskMC
 
 )
 

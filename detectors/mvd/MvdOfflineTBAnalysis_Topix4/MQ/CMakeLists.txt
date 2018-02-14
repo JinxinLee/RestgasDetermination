@@ -6,24 +6,24 @@
  #                  copied verbatim in the file "LICENSE"                       #
  ################################################################################
 
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/TopixChain.json ${CMAKE_BINARY_DIR}/bin/config/TopixChain.json)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/CombineChain.json ${CMAKE_BINARY_DIR}/bin/config/CombineChain.json)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/MQ/TopixChain.json ${CMAKE_BINARY_DIR}/bin/config/TopixChain.json)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/MQ/CombineChain.json ${CMAKE_BINARY_DIR}/bin/config/CombineChain.json)
 
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll.sh.in ${CMAKE_BINARY_DIR}/bin/startAll.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE2.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE2.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE3.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE3.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE4.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE4.sh)
-#configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startMvdClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdClusterTask.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll.sh.in ${CMAKE_BINARY_DIR}/bin/startAll.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE2.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE2.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE3.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE3.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE4.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE4.sh)
+#configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/macro/startMvdClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdClusterTask.sh)
 
 
 
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/combineAll.sh.in ${CMAKE_BINARY_DIR}/bin/combineAll.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/combineAllRamDisk.sh.in ${CMAKE_BINARY_DIR}/bin/combineAllRamDisk.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/macro/combineAll.sh.in ${CMAKE_BINARY_DIR}/bin/combineAll.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/macro/combineAllRamDisk.sh.in ${CMAKE_BINARY_DIR}/bin/combineAllRamDisk.sh)
 
 Set(INCLUDE_DIRECTORIES
   ${BASE_INCLUDE_DIRECTORIES}
-  ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
-  ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4/MQ
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -46,11 +46,11 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
-  ${CMAKE_SOURCE_DIR}/sds/SdsDigi
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsDigi
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 
-  ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4
 
     ${CMAKE_SOURCE_DIR}/fairmq/zeromq
   )

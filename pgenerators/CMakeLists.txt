@@ -20,6 +20,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
   ${CMAKE_SOURCE_DIR}/fairtools
+  ${CMAKE_SOURCE_DIR}/detectors/hyp
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

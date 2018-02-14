@@ -11,7 +11,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/fairtools
   ${CMAKE_SOURCE_DIR}/field
   ${CMAKE_SOURCE_DIR}/pnddata 
-  ${CMAKE_SOURCE_DIR}/drc/
+  ${CMAKE_SOURCE_DIR}/detectors/drc/
   ${CMAKE_SOURCE_DIR}/pnddata/DrcData
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools 
 

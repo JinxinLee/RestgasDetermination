@@ -10,14 +10,14 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils
   ${CMAKE_SOURCE_DIR}/field
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
-  ${CMAKE_SOURCE_DIR}/emc/EmcMC
-  ${CMAKE_SOURCE_DIR}/emc/EmcData
-  ${CMAKE_SOURCE_DIR}/emc/EmcReco
-  ${CMAKE_SOURCE_DIR}/emc/EmcTools
-  ${CMAKE_SOURCE_DIR}/emc/EmcCorr
-  ${CMAKE_SOURCE_DIR}/gem
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcMC
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcReco
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcTools
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcCorr
+  ${CMAKE_SOURCE_DIR}/detectors/gem
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
@@ -31,10 +31,10 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
-  ${CMAKE_SOURCE_DIR}/ftof
-  ${CMAKE_SOURCE_DIR}/stt
-  ${CMAKE_SOURCE_DIR}/stt/sttreco
-  ${CMAKE_SOURCE_DIR}/fts
+  ${CMAKE_SOURCE_DIR}/detectors/ftof
+  ${CMAKE_SOURCE_DIR}/detectors/stt
+  ${CMAKE_SOURCE_DIR}/detectors/stt/sttreco
+  ${CMAKE_SOURCE_DIR}/detectors/fts
   ${CMAKE_SOURCE_DIR}/geane
   ${CMAKE_SOURCE_DIR}/trackrep
   ${CMAKE_SOURCE_DIR}/analysis/rho
@@ -44,14 +44,14 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pid/PidData
   ${CMAKE_SOURCE_DIR}/pid/PidCorr
   ${CMAKE_SOURCE_DIR}/pid/PidClassifier
-  ${CMAKE_SOURCE_DIR}/GenfitTools/recotasks
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recotasks
   ${CMAKE_SOURCE_DIR}/PndTools/MVA
   ${CMAKE_SOURCE_DIR}/PndTools/MVA/KNN
   ${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ
   ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
   ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_MCL
 # ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_PDE_FOAM
-  ${CMAKE_SOURCE_DIR}/rich
+  ${CMAKE_SOURCE_DIR}/detectors/rich
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

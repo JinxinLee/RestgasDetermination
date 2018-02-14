@@ -8,7 +8,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/passive
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

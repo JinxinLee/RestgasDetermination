@@ -12,9 +12,9 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field
-  ${CMAKE_SOURCE_DIR}/passive
-  ${CMAKE_SOURCE_DIR}/mvd/MvdTestBeam/Tools
-  ${CMAKE_SOURCE_DIR}/mvd/MvdTestBeam/PastaTB
+  ${CMAKE_SOURCE_DIR}/detectors/passive
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTestBeam/Tools
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTestBeam/PastaTB
   ${CMAKE_SOURCE_DIR}/trackbase
 )
 

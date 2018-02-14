@@ -8,19 +8,19 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/pnddata 
-  ${CMAKE_SOURCE_DIR}/emc/EmcData
-  ${CMAKE_SOURCE_DIR}/emc/EmcDigi
-  ${CMAKE_SOURCE_DIR}/emc/EmcDigi/PndEmcPSAFPGA
-  ${CMAKE_SOURCE_DIR}/emc/EmcMC
-  ${CMAKE_SOURCE_DIR}/emc/EmcReco
-  ${CMAKE_SOURCE_DIR}/emc/EmcTools
-  ${CMAKE_SOURCE_DIR}/emc/EmcProtoTools
-  ${CMAKE_SOURCE_DIR}/emc/EmcCorr
-  ${CMAKE_SOURCE_DIR}/emc/EmcTimeBased
-  ${CMAKE_SOURCE_DIR}/emc
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcDigi
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcDigi/PndEmcPSAFPGA
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcMC
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcReco
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcTools
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcProtoTools
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcCorr
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcTimeBased
+  ${CMAKE_SOURCE_DIR}/detectors/emc
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

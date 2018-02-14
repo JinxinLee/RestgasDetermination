@@ -11,25 +11,25 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/pnddata
-  ${CMAKE_SOURCE_DIR}/mvd/MvdData
-  ${CMAKE_SOURCE_DIR}/mvd/MvdTools
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdData
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTools
   ${CMAKE_SOURCE_DIR}/pnddata/MvdData
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
-  ${CMAKE_SOURCE_DIR}/stt
-  ${CMAKE_SOURCE_DIR}/stt/sttreco
+  ${CMAKE_SOURCE_DIR}/detectors/stt
+  ${CMAKE_SOURCE_DIR}/detectors/stt/sttreco
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
-  ${CMAKE_SOURCE_DIR}/gem
+  ${CMAKE_SOURCE_DIR}/detectors/gem
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/recotasks
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
-  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-  ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/trackrep/LSLtrackRep
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/trackrep/GeaneTrackRep
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recohits
   ${CMAKE_SOURCE_DIR}/geane
   ${CMAKE_SOURCE_DIR}/tracking/PndMvdGemTrackFinderOnHits
 )

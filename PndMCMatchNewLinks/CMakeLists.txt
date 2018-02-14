@@ -22,9 +22,9 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/geane
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/tracking/riemannfit
-  ${CMAKE_SOURCE_DIR}/emc/EmcData
-  ${CMAKE_SOURCE_DIR}/emc/EmcReco
-  ${CMAKE_SOURCE_DIR}/stt
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcReco
+  ${CMAKE_SOURCE_DIR}/detectors/stt
   ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
 )
 

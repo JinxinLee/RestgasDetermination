@@ -13,28 +13,28 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/PndTools/
   ${CMAKE_SOURCE_DIR}/PndTools/buffers
   ${CMAKE_SOURCE_DIR}/tracking/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
-  ${CMAKE_SOURCE_DIR}/sds/SdsMC
-  ${CMAKE_SOURCE_DIR}/sds/SdsDigi
-  ${CMAKE_SOURCE_DIR}/sds/SdsReco
-  ${CMAKE_SOURCE_DIR}/sds/SdsTools
-  ${CMAKE_SOURCE_DIR}/sds/SdsFEModel
-  ${CMAKE_SOURCE_DIR}/sds
-  ${CMAKE_SOURCE_DIR}/lmd/LmdMC
-  ${CMAKE_SOURCE_DIR}/lmd/LmdDigi
-  ${CMAKE_SOURCE_DIR}/lmd/LmdSensorAlignment
-  ${CMAKE_SOURCE_DIR}/lmd/LmdSensorAlignment/icp
-  ${CMAKE_SOURCE_DIR}/lmd/LmdSensorAlignment/SensorAligner
-  ${CMAKE_SOURCE_DIR}/lmd/LmdReco
-  ${CMAKE_SOURCE_DIR}/lmd/LmdTrack
-  ${CMAKE_SOURCE_DIR}/lmd/LmdTools
-  ${CMAKE_SOURCE_DIR}/lmd/LmdQA
-  ${CMAKE_SOURCE_DIR}/lmd
-#  ${CMAKE_SOURCE_DIR}/mvd/MvdDigi # to do: get rid of that dependency!
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsMC
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsDigi
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsReco
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsTools
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsFEModel
+  ${CMAKE_SOURCE_DIR}/detectors/sds
+  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdMC
+  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdDigi
+  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdSensorAlignment
+  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdSensorAlignment/icp
+  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdSensorAlignment/SensorAligner
+  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdReco
+  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdTrack
+  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdTools
+  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdQA
+  ${CMAKE_SOURCE_DIR}/detectors/lmd
+#  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdDigi # to do: get rid of that dependency!
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/geane
 )

@@ -13,7 +13,7 @@
 #include "TLorentzVector.h"
 #include "TTree.h"
 #include "TVector3.h"
-#include "../hyp/THParticle.h"
+#include "THParticle.h" //detectors/hyp
 #include "PndHypBupGenerator.h"
 #include "FairPrimaryGenerator.h"
 

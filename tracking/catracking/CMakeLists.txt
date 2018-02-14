@@ -23,7 +23,7 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/field
-${CMAKE_SOURCE_DIR}/stt
+${CMAKE_SOURCE_DIR}/detectors/stt
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
 ${CMAKE_SOURCE_DIR}/tracking/catracking

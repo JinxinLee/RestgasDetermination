@@ -14,8 +14,8 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
-  ${CMAKE_SOURCE_DIR}/passive
-  ${CMAKE_SOURCE_DIR}/gem
+  ${CMAKE_SOURCE_DIR}/detectors/passive
+  ${CMAKE_SOURCE_DIR}/detectors/gem
   ${CMAKE_SOURCE_DIR}/recotasks
   ${CMAKE_SOURCE_DIR}/trackbase
 #  ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks

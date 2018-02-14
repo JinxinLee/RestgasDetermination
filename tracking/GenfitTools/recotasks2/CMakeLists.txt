@@ -18,8 +18,8 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/genfit2/trackReps/include
   ${CMAKE_SOURCE_DIR}/genfit2/fields/include
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/stt
-  ${CMAKE_SOURCE_DIR}/fts
+  ${CMAKE_SOURCE_DIR}/detectors/stt
+  ${CMAKE_SOURCE_DIR}/detectors/fts
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/MdtData
@@ -29,9 +29,9 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/FtsData
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/geane
-  ${CMAKE_SOURCE_DIR}/GenfitTools/adapters2
-  ${CMAKE_SOURCE_DIR}/GenfitTools/recohits2
-  ${CMAKE_SOURCE_DIR}/GenfitTools/recotasks2
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/adapters2
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recohits2
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recotasks2
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

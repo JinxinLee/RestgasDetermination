@@ -15,13 +15,13 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/MvdData
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/tracking/riemannfit
-  ${CMAKE_SOURCE_DIR}/sds/SdsMC
-  ${CMAKE_SOURCE_DIR}/sds/SdsTools
-  ${CMAKE_SOURCE_DIR}/sds/SdsDigi
-  ${CMAKE_SOURCE_DIR}/sds
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsMC
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsTools
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsDigi
+  ${CMAKE_SOURCE_DIR}/detectors/sds
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/tracking/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/buffers

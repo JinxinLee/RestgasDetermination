@@ -14,12 +14,12 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/SciTData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/field 
-  ${CMAKE_SOURCE_DIR}/stt
-  ${CMAKE_SOURCE_DIR}/fts
+  ${CMAKE_SOURCE_DIR}/detectors/stt
+  ${CMAKE_SOURCE_DIR}/detectors/fts
   ${CMAKE_SOURCE_DIR}/tracking/sttmvdtracking
-  ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTracking
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
-  ${CMAKE_SOURCE_DIR}/gem 
+  ${CMAKE_SOURCE_DIR}/detectors/gem 
   ${CMAKE_SOURCE_DIR}/pnddata/GemData 
   ${CMAKE_SOURCE_DIR}/geane 
   ${CMAKE_SOURCE_DIR}/analysis/AnalysisTools

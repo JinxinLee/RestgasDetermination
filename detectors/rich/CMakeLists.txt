@@ -11,7 +11,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/rich	
+  ${CMAKE_SOURCE_DIR}/detectors/rich	
   ${CMAKE_SOURCE_DIR}/field
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/RichData

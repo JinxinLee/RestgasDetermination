@@ -18,7 +18,7 @@
 #ifndef PNDHYPBUPGENERATOR_H
 #define PNDHYPBUPGENERATOR_H 1
 
-#include "../hyp/THParticle.h"
+#include "THParticle.h" //detectors/hyp
 
 
 #include "FairGenerator.h"

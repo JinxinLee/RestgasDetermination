@@ -50,10 +50,10 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/passive
+${CMAKE_SOURCE_DIR}/detectors/passive
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
-${CMAKE_SOURCE_DIR}/stt
+${CMAKE_SOURCE_DIR}/detectors/stt
 ${CMAKE_SOURCE_DIR}/tracking/sttmvdtracking
 ${CMAKE_SOURCE_DIR}/tracking/SttCellTrackFinder
 ${CMAKE_SOURCE_DIR}/tracking/riemannfit

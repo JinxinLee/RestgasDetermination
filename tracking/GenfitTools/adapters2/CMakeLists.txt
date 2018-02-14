@@ -22,7 +22,7 @@ set(INCLUDE_DIRECTORIES
   #${CMAKE_SOURCE_DIR}/genfit/fitters/include
   #${CMAKE_SOURCE_DIR}/genfit/fields/include
   #${CMAKE_SOURCE_DIR}/genfit/finitePlanes/include
-  ${CMAKE_SOURCE_DIR}/GenfitTools
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData

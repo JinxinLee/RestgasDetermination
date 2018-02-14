@@ -10,9 +10,9 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
-  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/trackrep
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/trackrep/GeaneTrackRep
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/trackrep/RKTrackRep
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/pnddata
@@ -22,11 +22,11 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
   ${CMAKE_SOURCE_DIR}/pnddata/FtsData
-  ${CMAKE_SOURCE_DIR}/stt
-  ${CMAKE_SOURCE_DIR}/fts
+  ${CMAKE_SOURCE_DIR}/detectors/stt
+  ${CMAKE_SOURCE_DIR}/detectors/fts
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/geane
-  ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recohits
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

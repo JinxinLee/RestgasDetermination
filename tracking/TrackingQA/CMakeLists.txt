@@ -8,7 +8,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/stt
+  ${CMAKE_SOURCE_DIR}/detectors/stt
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/pnddata/SttData

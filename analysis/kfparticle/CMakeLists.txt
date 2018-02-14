@@ -13,8 +13,8 @@ ${CMAKE_SOURCE_DIR}/pnddata/TrackData/
 ${CMAKE_SOURCE_DIR}/trackbase/
 ${CMAKE_SOURCE_DIR}/pnddata/
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
-${CMAKE_SOURCE_DIR}/emc/
-${CMAKE_SOURCE_DIR}/emc/EmcData/
+${CMAKE_SOURCE_DIR}/detectors/emc/
+${CMAKE_SOURCE_DIR}/detectors/emc/EmcData/
 ${CMAKE_SOURCE_DIR}/analysis/kfparticle/
 ${CMAKE_SOURCE_DIR}/analysis/kfparticle/KFParticle/
 ${CMAKE_SOURCE_DIR}/analysis/kfparticle/KFParticlePerformance/

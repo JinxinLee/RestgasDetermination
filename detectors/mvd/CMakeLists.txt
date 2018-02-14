@@ -19,28 +19,28 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/tracking/sttmvdtracking
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/PndTools/buffers
 #  ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
-  ${CMAKE_SOURCE_DIR}/mvd/MvdMC
-  ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
-  ${CMAKE_SOURCE_DIR}/mvd/MvdReco
-  ${CMAKE_SOURCE_DIR}/mvd/MvdTools
-  ${CMAKE_SOURCE_DIR}/mvd/MvdDAQ
-  ${CMAKE_SOURCE_DIR}/mvd/MvdPid
-  ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
-  ${CMAKE_SOURCE_DIR}/mvd/MvdTracking/LinFit
-  ${CMAKE_SOURCE_DIR}/mvd/transport
-  ${CMAKE_SOURCE_DIR}/mvd
-  ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
-  ${CMAKE_SOURCE_DIR}/sds/SdsMC
-  ${CMAKE_SOURCE_DIR}/sds/SdsTools
-  ${CMAKE_SOURCE_DIR}/sds/SdsDigi
-  ${CMAKE_SOURCE_DIR}/sds/SdsReco
-  ${CMAKE_SOURCE_DIR}/sds/SdsFEModel
-  ${CMAKE_SOURCE_DIR}/sds
-  ${CMAKE_SOURCE_DIR}/stt
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMC
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdDigi
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdReco
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTools
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdDAQ
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdPid
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTracking
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTracking/LinFit
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/transport
+  ${CMAKE_SOURCE_DIR}/detectors/mvd
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsMC
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsTools
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsDigi
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsReco
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsFEModel
+  ${CMAKE_SOURCE_DIR}/detectors/sds
+  ${CMAKE_SOURCE_DIR}/detectors/stt
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/geane
   ${CMAKE_SOURCE_DIR}/tracking/riemannfit

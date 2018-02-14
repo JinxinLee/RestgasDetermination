@@ -13,22 +13,22 @@ set(MVDMQ_FILE_LOCATION ${CMAKE_SOURCE_DIR})
 set(MVDMQ_BIN_LOCATION  ${CMAKE_BINARY_DIR}/bin)
 set(EXAMPLE9_BIN_LOCATION ${FAIRROOTPATH}/bin)
 
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdClusterTask.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdFileSamplerBursts.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdFileSamplerBursts.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdStripClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdStripClusterTask.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startCombinedClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startCombinedClusterTask.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdPixelProcessor.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdPixelProcessor.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ/run/scripts/startMvdClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdClusterTask.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ/run/scripts/startMvdFileSamplerBursts.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdFileSamplerBursts.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ/run/scripts/startMvdStripClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdStripClusterTask.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ/run/scripts/startCombinedClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startCombinedClusterTask.sh)
+configure_file(${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ/run/scripts/startMvdPixelProcessor.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdPixelProcessor.sh)
 
 set(INCLUDE_DIRECTORIES
     ${BASE_INCLUDE_DIRECTORIES}
-    ${CMAKE_SOURCE_DIR}/mvd/MvdMQ
-    ${CMAKE_SOURCE_DIR}/mvd/MvdMQ/src
-    ${CMAKE_SOURCE_DIR}/mvd/MvdMQ/src/devices
-    ${CMAKE_SOURCE_DIR}/mvd/MvdReco
-    ${CMAKE_SOURCE_DIR}/sds
-    ${CMAKE_SOURCE_DIR}/sds/SdsReco
-    ${CMAKE_SOURCE_DIR}/sds/SdsFEModel
-    ${CMAKE_SOURCE_DIR}/sds/SdsTools
+    ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ
+    ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ/src
+    ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ/src/devices
+    ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdReco
+    ${CMAKE_SOURCE_DIR}/detectors/sds
+    ${CMAKE_SOURCE_DIR}/detectors/sds/SdsReco
+    ${CMAKE_SOURCE_DIR}/detectors/sds/SdsFEModel
+    ${CMAKE_SOURCE_DIR}/detectors/sds/SdsTools
     ${CMAKE_SOURCE_DIR}/pnddata/SdsData
     ${CMAKE_SOURCE_DIR}/PndTools/MQ
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -51,14 +51,14 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
-  ${CMAKE_SOURCE_DIR}/sds/SdsDigi
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsDigi
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
-  ${CMAKE_SOURCE_DIR}/mvd/MvdTools
-  ${CMAKE_SOURCE_DIR}/mvd/MvdReco
-  ${CMAKE_SOURCE_DIR}/mvd/MvdMQ/src/algorithms
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTools
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdReco
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ/src/algorithms
 
-  ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4
 
     ${CMAKE_SOURCE_DIR}/fairmq/zeromq
   )

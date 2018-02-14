@@ -8,7 +8,7 @@ endif(COMMAND cmake_policy)
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
-${CMAKE_SOURCE_DIR}/hyp/razhyp
+${CMAKE_SOURCE_DIR}/detectors/hyp/razhyp
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

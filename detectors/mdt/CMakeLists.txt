@@ -11,13 +11,13 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/pnddata 
-  ${CMAKE_SOURCE_DIR}/mdt 
-  ${CMAKE_SOURCE_DIR}/mdt/MdtMC
+  ${CMAKE_SOURCE_DIR}/detectors/mdt 
+  ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtMC
   ${CMAKE_SOURCE_DIR}/pnddata/MdtData 
-  ${CMAKE_SOURCE_DIR}/mdt/MdtDigi
-  ${CMAKE_SOURCE_DIR}/mdt/MdtTool
-  ${CMAKE_SOURCE_DIR}/mdt/MdtReco
-  ${CMAKE_SOURCE_DIR}/mdt/MdtTimebased
+  ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtDigi
+  ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtTool
+  ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtReco
+  ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtTimebased
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/geane

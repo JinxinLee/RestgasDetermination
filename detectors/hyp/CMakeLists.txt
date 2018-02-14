@@ -14,21 +14,21 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata 
   ${CMAKE_SOURCE_DIR}/pnddata/HypData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
-  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/tracking/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
-  ${CMAKE_SOURCE_DIR}/hyp
-  ${CMAKE_SOURCE_DIR}/hyp/hypData
-  ${CMAKE_SOURCE_DIR}/hyp/hypDigi
-  ${CMAKE_SOURCE_DIR}/hyp/hypTools
-  ${CMAKE_SOURCE_DIR}/hyp/hypReco
-#${CMAKE_SOURCE_DIR}/hyp/hypTracking
-#${CMAKE_SOURCE_DIR}/hyp/hypFullAna
+  ${CMAKE_SOURCE_DIR}/detectors/hyp
+  ${CMAKE_SOURCE_DIR}/detectors/hyp/hypData
+  ${CMAKE_SOURCE_DIR}/detectors/hyp/hypDigi
+  ${CMAKE_SOURCE_DIR}/detectors/hyp/hypTools
+  ${CMAKE_SOURCE_DIR}/detectors/hyp/hypReco
+#${CMAKE_SOURCE_DIR}/detectors/hyp/hypTracking
+#${CMAKE_SOURCE_DIR}/detectors/hyp/hypFullAna
 #${CMAKE_SOURCE_DIR}/genfit
 #${CMAKE_SOURCE_DIR}/recotasks
 #${CMAKE_SOURCE_DIR}/trackbase
-#${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-#${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+#${CMAKE_SOURCE_DIR}/tracking/GenfitTools/trackrep/GeaneTrackRep
+#${CMAKE_SOURCE_DIR}/tracking/GenfitTools/trackrep/LSLtrackRep
 #${CMAKE_SOURCE_DIR}/geane
 )
 

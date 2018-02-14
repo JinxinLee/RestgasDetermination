@@ -25,11 +25,11 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
   ${CMAKE_SOURCE_DIR}/pnddata/FtsData
-  ${CMAKE_SOURCE_DIR}/stt
-  ${CMAKE_SOURCE_DIR}/fts
+  ${CMAKE_SOURCE_DIR}/detectors/stt
+  ${CMAKE_SOURCE_DIR}/detectors/fts
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/geane
-  ${CMAKE_SOURCE_DIR}/GenfitTools/recohits2
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recohits2
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

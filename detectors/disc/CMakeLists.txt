@@ -16,7 +16,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/pnddata/DiscData
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/disc
+  ${CMAKE_SOURCE_DIR}/detectors/disc
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

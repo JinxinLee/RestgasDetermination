@@ -15,7 +15,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/field 
-  ${CMAKE_SOURCE_DIR}/stt
+  ${CMAKE_SOURCE_DIR}/detectors/stt
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

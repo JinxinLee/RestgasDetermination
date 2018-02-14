@@ -13,7 +13,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/pnddata 
 #${CMAKE_SOURCE_DIR}/pnddata/FtofData
-  ${CMAKE_SOURCE_DIR}/ftof
+  ${CMAKE_SOURCE_DIR}/detectors/ftof
   ${CMAKE_SOURCE_DIR}/genfit
 )
 

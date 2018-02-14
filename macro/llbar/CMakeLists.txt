@@ -12,11 +12,11 @@ ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
-${CMAKE_SOURCE_DIR}/passive
+${CMAKE_SOURCE_DIR}/detectors/passive
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/lhetrack
-${CMAKE_SOURCE_DIR}/emc/EmcData
-${CMAKE_SOURCE_DIR}/emc/EmcReco
+${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
+${CMAKE_SOURCE_DIR}/detectors/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/fastsim
 ${CMAKE_SOURCE_DIR}/analysis/rho
 ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase

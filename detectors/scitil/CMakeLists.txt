@@ -14,9 +14,9 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/pnddata 
   ${CMAKE_SOURCE_DIR}/pnddata/SciTData
-  ${CMAKE_SOURCE_DIR}/scitil
-  ${CMAKE_SOURCE_DIR}/scitil/SciTMC
-  ${CMAKE_SOURCE_DIR}/scitil/SciTDigi
+  ${CMAKE_SOURCE_DIR}/detectors/scitil
+  ${CMAKE_SOURCE_DIR}/detectors/scitil/SciTMC
+  ${CMAKE_SOURCE_DIR}/detectors/scitil/SciTDigi
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
