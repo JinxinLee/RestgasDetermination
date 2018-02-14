@@ -428,18 +428,21 @@ add_subdirectory (tracking/riemannfit)
 #add_subdirectory(online)
 #add_subdirectory(tracking/online/CircleHough)
 #add_subdirectory(PndTools/MQ)
+add_subdirectory (PndTools/MVA)
+add_subdirectory (PndPropagators/HelixPropagator)
+add_subdirectory (pid)
+add_subdirectory (PndMCMatchNewLinks)
+add_subdirectory (softrig)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
   ${SIMPATH}/include/root
   NO_DEFAULT_PATH
 )
-
 If(TEvePath)
 #find_package(OpenGL)
 #If (OPENGL_FOUND AND OPENGL_GLU_FOUND)
   Message("Found TEve, so the eventdisplay will be compiled.")
-
 IF(NOT FAIRROOT_FOUND)
   add_subdirectory (eventdisplay)
 ENDIF(NOT FAIRROOT_FOUND)
@@ -447,13 +450,6 @@ ENDIF(NOT FAIRROOT_FOUND)
   add_subdirectory(PndEventdisplay)
 #EndIf (OPENGL_FOUND AND OPENGL_GLU_FOUND)
 EndIf(TEvePath)
-
-add_subdirectory (PndTools/MVA)
-add_subdirectory (PndPropagators/HelixPropagator)
-add_subdirectory (pid)
-add_subdirectory (PndMCMatchNewLinks)
-
-add_subdirectory (softrig)
 
 if(RULE_CHECKER_FOUND)
 
