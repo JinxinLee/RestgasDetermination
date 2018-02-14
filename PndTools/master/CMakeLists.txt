@@ -13,10 +13,10 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTools/master
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
-  ${CMAKE_SOURCE_DIR}/PndTrackers/PndTrackingTools
-  ${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
-  ${CMAKE_SOURCE_DIR}/PndTrackers/CentralTracking
-  ${CMAKE_SOURCE_DIR}/PndTrackers/sttmvdtracking
+  ${CMAKE_SOURCE_DIR}/tracking/PndTrackingTools
+  ${CMAKE_SOURCE_DIR}/tracking/PndIdealTrackFinder
+  ${CMAKE_SOURCE_DIR}/tracking/CentralTracking
+  ${CMAKE_SOURCE_DIR}/tracking/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/pgenerators
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00	

@@ -54,10 +54,10 @@ ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/stt
-${CMAKE_SOURCE_DIR}/PndTrackers/sttmvdtracking
-${CMAKE_SOURCE_DIR}/PndTrackers/SttCellTrackFinder
-${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
-${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
+${CMAKE_SOURCE_DIR}/tracking/sttmvdtracking
+${CMAKE_SOURCE_DIR}/tracking/SttCellTrackFinder
+${CMAKE_SOURCE_DIR}/tracking/riemannfit
+${CMAKE_SOURCE_DIR}/tracking/PndIdealTrackFinder
 )
 
 If (DO_THE_CUDA_DANCE)

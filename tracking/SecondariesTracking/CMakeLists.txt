@@ -16,7 +16,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/stt
   ${CMAKE_SOURCE_DIR}/fts
-  ${CMAKE_SOURCE_DIR}/PndTrackers/sttmvdtracking
+  ${CMAKE_SOURCE_DIR}/tracking/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/gem 
@@ -27,12 +27,12 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoMath
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
-  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking
+  ${CMAKE_SOURCE_DIR}/tracking/SecondariesTracking
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
-  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking/TrkSecondary
-  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking/TrkStructure
-  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking/TrkAlgo
-  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking/TrkData
+  ${CMAKE_SOURCE_DIR}/tracking/SecondariesTracking/TrkSecondary
+  ${CMAKE_SOURCE_DIR}/tracking/SecondariesTracking/TrkStructure
+  ${CMAKE_SOURCE_DIR}/tracking/SecondariesTracking/TrkAlgo
+  ${CMAKE_SOURCE_DIR}/tracking/SecondariesTracking/TrkData
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

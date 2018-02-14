@@ -31,7 +31,8 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
   ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
   ${CMAKE_SOURCE_DIR}/geane
-  ${CMAKE_SOURCE_DIR}/PndTrackers/PndMvdGemTrackFinderOnHits
+  ${CMAKE_SOURCE_DIR}/global
+  ${CMAKE_SOURCE_DIR}/tracking/PndBarrelTrackFinder
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -45,11 +46,11 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-PndMvdGemTrackFinderOnHits.cxx
+PndBarrelTrackFinder.cxx
 )
 
-set(LINKDEF  MvdGemTrackFinderOnHitsLinkDef.h)
-set(LIBRARY_NAME MvdGemTrackFinderOnHits)
+set(LINKDEF  BarrelTrackFinderLinkDef.h)
+set(LIBRARY_NAME BarrelTrackFinder)
 
 set(DEPENDENCIES Base ParBase PndData TrkBase Gem Stt Geane)
 

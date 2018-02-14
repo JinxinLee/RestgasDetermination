@@ -16,7 +16,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/PndTools/
   ${CMAKE_SOURCE_DIR}/PndTools/buffers
-  ${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
+  ${CMAKE_SOURCE_DIR}/tracking/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/sds/SdsMC
   ${CMAKE_SOURCE_DIR}/sds/SdsDigi

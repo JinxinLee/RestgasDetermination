@@ -1,18 +1,24 @@
-# Create a library called "libMCMatch" which includes the source files given in
+# Create a library called "tpcreco" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${CLHEP_INCLUDE_DIR} 
   ${BASE_INCLUDE_DIRECTORIES} 
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/pndbase 
   ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/pnddata/SttData
+  ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/stt
+  ${CMAKE_SOURCE_DIR}/field 
+  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/PndTrackers/PndTrackingTools
+  ${CMAKE_SOURCE_DIR}/tracking/riemannfit
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -26,12 +32,14 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-PndMissingPzCleanerTask.cxx
+PndRiemannHit.cxx
+PndRiemannTrack.cxx
+PndRiemannTrackFinder.cxx
 )
 
-set(LINKDEF  PndTrackingToolsLinkDef.h)
-set(LIBRARY_NAME TrackingTools)
+set(LINKDEF  riemannfitLinkDef.h)
+set(LIBRARY_NAME riemann)
 
-set(DEPENDENCIES Base ParBase PndData)
+set(DEPENDENCIES Base PndData TrkBase Stt)
 
 GENERATE_LIBRARY()

@@ -161,9 +161,9 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/PndTools/MVA/TMVAkd_KNN \
                 -I$(PANDADIR)/PndTools/MVA/TMVA_MCL \
                 -I$(PANDADIR)/PndTools/MVA/TMVA_PDE_FOAM \
-                -I$(PANDADIR)/PndTrackers/riemannfit \
-                -I$(PANDADIR)/PndTrackers/SttCellTrackFinder \
-                -I$(PANDADIR)/PndTrackers/TrackingQA \
+                -I$(PANDADIR)/tracking/riemannfit \
+                -I$(PANDADIR)/tracking/SttCellTrackFinder \
+                -I$(PANDADIR)/tracking/TrackingQA \
                 -I$(PANDADIR)/analysis/rho \
                 -I$(PANDADIR)/analysis/rho/RhoBase \
                 -I$(PANDADIR)/analysis/rho/RhoConstraints \
@@ -181,14 +181,14 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/sds/SdsTools \
                 -I$(PANDADIR)/softrig \
                 -I$(PANDADIR)/stt \
-                -I$(PANDADIR)/PndTrackers/sttmvdtracking \
+                -I$(PANDADIR)/tracking/sttmvdtracking \
                 -I$(PANDADIR)/stt/sttreco \
                 -I$(PANDADIR)/trackbase \
-                -I$(PANDADIR)/PndTrackers/SecondariesTracking \
-                -I$(PANDADIR)/PndTrackers/SecondariesTracking/TrkAlgo \
-                -I$(PANDADIR)/PndTrackers/SecondariesTracking/TrkData \
-                -I$(PANDADIR)/PndTrackers/SecondariesTracking/TrkSecondary \
-                -I$(PANDADIR)/PndTrackers/SecondariesTracking/TrkStructure 
+                -I$(PANDADIR)/tracking/SecondariesTracking \
+                -I$(PANDADIR)/tracking/SecondariesTracking/TrkAlgo \
+                -I$(PANDADIR)/tracking/SecondariesTracking/TrkData \
+                -I$(PANDADIR)/tracking/SecondariesTracking/TrkSecondary \
+                -I$(PANDADIR)/tracking/SecondariesTracking/TrkStructure 
 
 #FAIRPATH	= /d/pndint02/carsten/fairsoft_mar15/buildFairRoot
 #FAIRPATH	= $(FAIRROOTPATH)

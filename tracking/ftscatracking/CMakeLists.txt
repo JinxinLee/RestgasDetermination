@@ -23,10 +23,10 @@ ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/FtsData
 ${CMAKE_SOURCE_DIR}/fts
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
-${CMAKE_SOURCE_DIR}/PndTrackers/ftscatracking
-${CMAKE_SOURCE_DIR}/PndTrackers/ftscatracking/code
-${CMAKE_SOURCE_DIR}/PndTrackers/ftscatracking/code/Performance
-${CMAKE_SOURCE_DIR}/PndTrackers/ftscatracking/code/KFParticle
+${CMAKE_SOURCE_DIR}/tracking/ftscatracking
+${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code
+${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code/Performance
+${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code/KFParticle
 #${CMAKE_SOURCE_DIR}/ftscatracking/code/Common
 )
 

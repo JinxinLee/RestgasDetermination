@@ -12,7 +12,7 @@
 #include "PndSciTAnaIdeal.h"
 #include "PndSciTPoint.h"
 
-#include "../PndTrackers/riemannfit/PndRiemannHit.h"
+#include "../tracking/riemannfit/PndRiemannHit.h"
 
 #include "RhoBase/RhoCandidate.h"
 #include "PndPidCandidate.h"

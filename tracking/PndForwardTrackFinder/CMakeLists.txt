@@ -20,10 +20,10 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
-  ${CMAKE_SOURCE_DIR}/PndTrackers/SttCellTrackFinder
-  ${CMAKE_SOURCE_DIR}/PndTrackers/PndForwardTrackFinder
-  ${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
+  ${CMAKE_SOURCE_DIR}/tracking/riemannfit
+  ${CMAKE_SOURCE_DIR}/tracking/SttCellTrackFinder
+  ${CMAKE_SOURCE_DIR}/tracking/PndForwardTrackFinder
+  ${CMAKE_SOURCE_DIR}/tracking/PndIdealTrackFinder
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
