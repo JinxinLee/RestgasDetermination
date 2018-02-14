@@ -180,7 +180,7 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o ) : FairMultiLinkedData_Inter
 // This is the special constructor to bring a RhoCandidate into
 // life from the MicroCandidate
 
-RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n) :
+RhoCandidate::RhoCandidate ( PndRecoCandidate& a, Int_t n) :
   fFastMode ( kFALSE ),
   fLocked ( kFALSE ),
   fTheMother ( 0 ),
@@ -221,7 +221,7 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n) :
 }
 
 
-RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err& vp, Bool_t fast ) :
+RhoCandidate::RhoCandidate ( PndRecoCandidate& a, Int_t n, RhoVector3Err& vp, Bool_t fast ) :
   fFastMode ( fast ),
   fLocked ( kFALSE ),
   fTheMother ( 0 ),

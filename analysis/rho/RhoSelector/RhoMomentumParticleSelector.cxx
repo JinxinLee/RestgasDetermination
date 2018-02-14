@@ -16,7 +16,7 @@
 
 #include "RhoSelector/RhoMomentumParticleSelector.h"
 #include "RhoBase/RhoCandidate.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 
 
@@ -39,7 +39,7 @@ Bool_t RhoMomentumParticleSelector::Accept ( RhoCandidate* b )
   return ( fabs ( b->P()-fCentralValue ) <fWindow );
 }
 
-Bool_t RhoMomentumParticleSelector::Accept ( FairRecoCandidate* b )
+Bool_t RhoMomentumParticleSelector::Accept ( PndRecoCandidate* b )
 {
   if ( b == 0 ) { return kFALSE; }
   return ( fabs ( b->GetMomentum().Mag()-fCentralValue ) <fWindow );

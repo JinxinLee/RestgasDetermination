@@ -52,7 +52,7 @@ void PndGoodTrackSelector::SetCriterion ( const char* c )
 
 
 
-Bool_t PndGoodTrackSelector::Accept(FairRecoCandidate& frecoc)
+Bool_t PndGoodTrackSelector::Accept(PndRecoCandidate& frecoc)
 {
   Bool_t rc = RhoGoodTrackSelector::Accept(frecoc);
   if (rc==kFALSE) { return kFALSE; }

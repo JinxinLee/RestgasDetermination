@@ -15,7 +15,7 @@
 
 #include <assert.h>
 
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 #include "TArrayI.h"
 #include "TMatrixD.h"
 #include "TVector3.h"
@@ -27,7 +27,7 @@
 //  ===== PndPidCandidate - Class definig the AOD interface           ====
 //  ========================================================================
 
-class PndPidCandidate : public FairRecoCandidate  //FairMultiLinkedData
+class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
 {
 
  public:

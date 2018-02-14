@@ -13,7 +13,7 @@ of J/Psi: Dipak
 // Rho
 #include "RhoCandidate.h"
 #include "RhoCandList.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 #include "Fitter/Rho4CFitter.h"
 #include "RhoMassParticleSelector.h"

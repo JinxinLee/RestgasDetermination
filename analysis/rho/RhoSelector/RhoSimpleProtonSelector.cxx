@@ -16,7 +16,7 @@
 
 #include "RhoSelector/RhoSimpleProtonSelector.h"
 #include "RhoBase/RhoCandidate.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 
 
@@ -61,7 +61,7 @@ Bool_t RhoSimpleProtonSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t RhoSimpleProtonSelector::Accept ( FairRecoCandidate*  )
+Bool_t RhoSimpleProtonSelector::Accept ( PndRecoCandidate*  )
 {
   return kFALSE;
 }

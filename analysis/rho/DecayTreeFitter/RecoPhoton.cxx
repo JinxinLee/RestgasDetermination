@@ -93,7 +93,7 @@ DecayTreeFitter::RecoPhoton::updCache()
   // FIXME: Welche Parameter hat das?
   // Parameters: X, Y, of Cluster (in crystal plane?), E
   // FIXME: LHCb is a fixed-target experiment, all detectors line up along Z!
-  FairRecoCandidate* rec = particle()->GetRecoCandidate();
+  PndRecoCandidate* rec = particle()->GetRecoCandidate();
   m_m(0) = rec->GetLastHit().X(); // x
   m_m(1) = rec->GetLastHit().Y(); // y
   m_z    = rec->GetLastHit().Z(); // z

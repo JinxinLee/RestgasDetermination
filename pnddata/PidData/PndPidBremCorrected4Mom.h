@@ -16,7 +16,7 @@
 
 #include <assert.h>
 
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 #include "TArrayI.h"
 #include "TMatrixD.h"
 #include "TVector3.h"

@@ -16,7 +16,7 @@
 
 #include "RhoSelector/RhoMassParticleSelector.h"
 #include "RhoBase/RhoCandidate.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 
 
@@ -39,7 +39,7 @@ Bool_t RhoMassParticleSelector::Accept ( RhoCandidate* b )
   return ( fabs ( b->GetMass()-fCentralValue ) <fWindow );
 }
 
-Bool_t RhoMassParticleSelector::Accept ( FairRecoCandidate* b )
+Bool_t RhoMassParticleSelector::Accept ( PndRecoCandidate* b )
 {
   if ( b == 0 ) { return kFALSE; }
   return ( fabs ( b->GetLorentzVector().Mag()-fCentralValue ) <fWindow );

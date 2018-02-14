@@ -31,7 +31,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/trackrep/GeaneTrackRep
   ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recohits
   ${CMAKE_SOURCE_DIR}/geane
-  ${CMAKE_SOURCE_DIR}/global
+#  ${CMAKE_SOURCE_DIR}/global
   ${CMAKE_SOURCE_DIR}/tracking/PndBarrelTrackFinder
 )
 

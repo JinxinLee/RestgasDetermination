@@ -35,7 +35,7 @@ for Hypernuclei.
 //RHO stuff
 #include "RhoCandidate.h"
 #include "PndPidCandidate.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 #include "RhoCandList.h"
 #include "RhoCandListIterator.h"
 #include "RhoFactory.h"

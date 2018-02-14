@@ -395,7 +395,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 	{
 		if((truepiplus[j]->GetMcTruth()->TheMother()->PdgCode())!=-3122) continue;	//Only Pi+ from Lambdabar
 		piplusfromlam = kTRUE;
-		FairRecoCandidate* recopiplus;	//Get Reco- and PID info
+		PndRecoCandidate* recopiplus;	//Get Reco- and PID info
 		PndPidCandidate* pidpiplus;
 		TLorentzVector piplus4=truepiplus[j]->P4();	//Construct ROOT TLorentzVectors
 		TLorentzVector mctruthpiplus4=truepiplus[j]->GetMcTruth()->P4();
@@ -421,7 +421,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 	{
 		if((truepiminus[j]->GetMcTruth()->TheMother()->PdgCode())!=3122) continue;	//Only Pi- from Lambda
 		piminusfromlam = kTRUE;
-		FairRecoCandidate* recopiminus;
+		PndRecoCandidate* recopiminus;
 		PndPidCandidate* pidpiminus;
 		TLorentzVector piminus4=truepiminus[j]->P4();
 		TLorentzVector mctruthpiminus4=truepiminus[j]->GetMcTruth()->P4();
@@ -448,7 +448,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 	{
 		if((truep[j]->GetMcTruth()->TheMother()->PdgCode())!=3122) continue;	//Only select P from Lambda
 		pfromlam = kTRUE;
-		FairRecoCandidate* recop;
+		PndRecoCandidate* recop;
 		PndPidCandidate* pidp;
 		TLorentzVector p4=truep[j]->P4();
 		TLorentzVector mctruthp4=truep[j]->GetMcTruth()->P4();
@@ -475,7 +475,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 	{
 		if((truepbar[j]->GetMcTruth()->TheMother()->PdgCode())!=-3122) continue;	//Only Pbar from Lambdabar
 		pbarfromlam = kTRUE;
-		FairRecoCandidate* recopbar;
+		PndRecoCandidate* recopbar;
 		PndPidCandidate* pidpbar;
 		TLorentzVector pbar4=truepbar[j]->P4();
 		TLorentzVector mctruthpbar4=truepbar[j]->GetMcTruth()->P4();

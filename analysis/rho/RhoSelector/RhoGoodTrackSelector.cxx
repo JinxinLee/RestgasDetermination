@@ -14,7 +14,7 @@
 #include "RhoSelector/RhoGoodTrackSelector.h"
 
 #include "RhoBase/RhoCandidate.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 ClassImp( RhoGoodTrackSelector )
 
@@ -53,7 +53,7 @@ Bool_t RhoGoodTrackSelector::Accept ( RhoCandidate& b )
   return kTRUE;
 }
 
-Bool_t RhoGoodTrackSelector::Accept ( FairRecoCandidate& cand )
+Bool_t RhoGoodTrackSelector::Accept ( PndRecoCandidate& cand )
 {
   // The GoodTrackSelector does a selection based on the
   // quality of a reconstructed charged track

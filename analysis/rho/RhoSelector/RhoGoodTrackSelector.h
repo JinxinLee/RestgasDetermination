@@ -57,7 +57,7 @@ class RhoGoodTrackSelector : public RhoParticleSelectorBase
     //operations
     virtual void SetCriterion ( const char*  ) {}; // crit //[R.K.03/2017] unused variable(s)
     virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( FairRecoCandidate& b );
+    virtual Bool_t Accept ( PndRecoCandidate& b );
  
   private:
 //    Int_t fNHitsMin;  // Number of hits: total

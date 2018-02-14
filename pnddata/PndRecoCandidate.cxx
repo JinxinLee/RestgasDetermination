@@ -10,20 +10,20 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TVector3.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
-ClassImp(FairRecoCandidate);
+ClassImp(PndRecoCandidate);
 
-TBuffer &operator>>(TBuffer &buf, FairRecoCandidate *&obj)
+TBuffer &operator>>(TBuffer &buf, PndRecoCandidate *&obj)
 {
-   obj = (FairRecoCandidate *) buf.ReadObject(FairRecoCandidate::Class());
+   obj = (PndRecoCandidate *) buf.ReadObject(PndRecoCandidate::Class());
    return buf;
 }
 
 #include <iostream>
 using namespace std;
 
-void FairRecoCandidate::PrintOn(std::ostream &o) const 
+void PndRecoCandidate::PrintOn(std::ostream &o) const 
 {
     o << " ======= Fit Params ======= " << endl; 
     TVector3 r = GetPosition();
@@ -42,4 +42,4 @@ void FairRecoCandidate::PrintOn(std::ostream &o) const
           
 } 
 
-std::ostream&  operator << (std::ostream& o, const FairRecoCandidate& a) { a.PrintOn(o); return o; }
+std::ostream&  operator << (std::ostream& o, const PndRecoCandidate& a) { a.PrintOn(o); return o; }

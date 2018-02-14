@@ -44,72 +44,72 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/gem \
                 -I$(PANDADIR)/generators \
                 -I$(PANDADIR)/genfit \
-                -I$(PANDADIR)/GenfitTools/adapters \
-                -I$(PANDADIR)/GenfitTools/recohits \
-                -I$(PANDADIR)/GenfitTools/recotasks \
-                -I$(PANDADIR)/GenfitTools/trackrep \
-                -I$(PANDADIR)/GenfitTools/trackrep/GeaneTrackRep \
-                -I$(PANDADIR)/GenfitTools/trackrep/GeaneTrackRep2 \
-                -I$(PANDADIR)/GenfitTools/trackrep/LSLtrackRep \
-                -I$(PANDADIR)/GenfitTools/trackrep/RKTrackRep \
+                -I$(PANDADIR)/tracking/GenfitTools/adapters \
+                -I$(PANDADIR)/tracking/GenfitTools/recohits \
+                -I$(PANDADIR)/tracking/GenfitTools/recotasks \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep/GeaneTrackRep \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep/GeaneTrackRep2 \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep/LSLtrackRep \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep/RKTrackRep \
                 -I$(PANDADIR)/geobase \
-                -I$(PANDADIR)/global \
-                -I$(PANDADIR)/hyp \
-                -I$(PANDADIR)/hypGe \
-                -I$(PANDADIR)/hyp/hypData \
-                -I$(PANDADIR)/hyp/hypDigi \
-                -I$(PANDADIR)/hyp/hypFullAna \
-                -I$(PANDADIR)/hyp/hypPID \
-                -I$(PANDADIR)/hyp/hypReco \
-                -I$(PANDADIR)/hyp/hypTools \
-                -I$(PANDADIR)/hyp/hypTracking \
-                -I$(PANDADIR)/lmd \
-                -I$(PANDADIR)/lmd/LmdDigi \
-                -I$(PANDADIR)/lmd/LmdDigiSingle \
-                -I$(PANDADIR)/lmd/LmdFit/LumiImpl \
-                -I$(PANDADIR)/lmd/LmdFit/LumiImpl/data \
-                -I$(PANDADIR)/lmd/LmdFit/LumiImpl/fit \
-                -I$(PANDADIR)/lmd/LmdFit/LumiImpl/model \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/core \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/fit \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/fit/data \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/fit/data/ROOT \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/fit/estimatorImpl \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/fit/minimizerImpl/ROOT \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/models1d \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/models2d \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/operators1d \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/operators1d/convolution \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/operators1d/integration \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/operators2d \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/visualization \
-                -I$(PANDADIR)/lmd/LmdFit/ModelFramework/visualization/ROOT \
-                -I$(PANDADIR)/lmd/LmdMC \
-                -I$(PANDADIR)/lmd/LmdQA \
-                -I$(PANDADIR)/lmd/LmdReco \
-                -I$(PANDADIR)/lmd/LmdTools \
-                -I$(PANDADIR)/lmd/LmdTrack \
-                -I$(PANDADIR)/lumi \
-                -I$(PANDADIR)/lumi/LumiData \
-                -I$(PANDADIR)/lumi/LumiDigi \
-                -I$(PANDADIR)/lumi/LumiMC \
-                -I$(PANDADIR)/lumi/LumiReco \
-                -I$(PANDADIR)/lumi/LumiTools \
-                -I$(PANDADIR)/lumi/LumiTracking \
+#                -I$(PANDADIR)/global \
+                -I$(PANDADIR)/detectors/hyp \
+                -I$(PANDADIR)/detectors/hypGe \
+                -I$(PANDADIR)/detectors/hyp/hypData \
+                -I$(PANDADIR)/detectors/hyp/hypDigi \
+                -I$(PANDADIR)/detectors/hyp/hypFullAna \
+                -I$(PANDADIR)/detectors/hyp/hypPID \
+                -I$(PANDADIR)/detectors/hyp/hypReco \
+                -I$(PANDADIR)/detectors/hyp/hypTools \
+                -I$(PANDADIR)/detectors/hyp/hypTracking \
+                -I$(PANDADIR)/detectors/lmd \
+                -I$(PANDADIR)/detectors/lmd/LmdDigi \
+                -I$(PANDADIR)/detectors/lmd/LmdDigiSingle \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/LumiImpl \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/LumiImpl/data \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/LumiImpl/fit \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/LumiImpl/model \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/core \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit/data \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit/data/ROOT \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit/estimatorImpl \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit/minimizerImpl/ROOT \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/models1d \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/models2d \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/operators1d \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/operators1d/convolution \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/operators1d/integration \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/operators2d \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/visualization \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/visualization/ROOT \
+                -I$(PANDADIR)/detectors/lmd/LmdMC \
+                -I$(PANDADIR)/detectors/lmd/LmdQA \
+                -I$(PANDADIR)/detectors/lmd/LmdReco \
+                -I$(PANDADIR)/detectors/lmd/LmdTools \
+                -I$(PANDADIR)/detectors/lmd/LmdTrack \
+                -I$(PANDADIR)/detectors/lumi \
+                -I$(PANDADIR)/detectors/lumi/LumiData \
+                -I$(PANDADIR)/detectors/lumi/LumiDigi \
+                -I$(PANDADIR)/detectors/lumi/LumiMC \
+                -I$(PANDADIR)/detectors/lumi/LumiReco \
+                -I$(PANDADIR)/detectors/lumi/LumiTools \
+                -I$(PANDADIR)/detectors/lumi/LumiTracking \
                 -I$(PANDADIR)/MbsAPI \
-                -I$(PANDADIR)/mdt \
-                -I$(PANDADIR)/mdt/MdtDigi \
-                -I$(PANDADIR)/mdt/MdtMC \
-                -I$(PANDADIR)/mdt/MdtReco \
-                -I$(PANDADIR)/mvd \
-                -I$(PANDADIR)/mvd/MvdDAQ \
-                -I$(PANDADIR)/mvd/MvdDigi \
-                -I$(PANDADIR)/mvd/MvdMC \
-                -I$(PANDADIR)/mvd/MvdPid \
-                -I$(PANDADIR)/mvd/MvdReco \
-                -I$(PANDADIR)/mvd/MvdTools \
-                -I$(PANDADIR)/mvd/MvdTracking \
-                -I$(PANDADIR)/mvd/MvdTracking/LinFit \
+                -I$(PANDADIR)/detectors/mdt \
+                -I$(PANDADIR)/detectors/mdt/MdtDigi \
+                -I$(PANDADIR)/detectors/mdt/MdtMC \
+                -I$(PANDADIR)/detectors/mdt/MdtReco \
+                -I$(PANDADIR)/detectors/mvd \
+                -I$(PANDADIR)/detectors/mvd/MvdDAQ \
+                -I$(PANDADIR)/detectors/mvd/MvdDigi \
+                -I$(PANDADIR)/detectors/mvd/MvdMC \
+                -I$(PANDADIR)/detectors/mvd/MvdPid \
+                -I$(PANDADIR)/detectors/mvd/MvdReco \
+                -I$(PANDADIR)/detectors/mvd/MvdTools \
+                -I$(PANDADIR)/detectors/mvd/MvdTracking \
+                -I$(PANDADIR)/detectors/mvd/MvdTracking/LinFit \
                 -I$(PANDADIR)/ora \
                 -I$(PANDADIR)/parbase \
                 -I$(PANDADIR)/parbase/dbIO \
@@ -171,18 +171,18 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/analysis/rho/RhoMath \
                 -I$(PANDADIR)/analysis/rho/RhoSelector \
                 -I$(PANDADIR)/analysis/rho/RhoTools \
-                -I$(PANDADIR)/rich \
-                -I$(PANDADIR)/scitil/SciTMC \
-                -I$(PANDADIR)/sds \
-                -I$(PANDADIR)/sds/SdsDigi \
-                -I$(PANDADIR)/sds/SdsFEModel \
-                -I$(PANDADIR)/sds/SdsMC \
-                -I$(PANDADIR)/sds/SdsReco \
-                -I$(PANDADIR)/sds/SdsTools \
+                -I$(PANDADIR)/detectors/rich \
+                -I$(PANDADIR)/detectors/scitil/SciTMC \
+                -I$(PANDADIR)/detectors/sds \
+                -I$(PANDADIR)/detectors/sds/SdsDigi \
+                -I$(PANDADIR)/detectors/sds/SdsFEModel \
+                -I$(PANDADIR)/detectors/sds/SdsMC \
+                -I$(PANDADIR)/detectors/sds/SdsReco \
+                -I$(PANDADIR)/sdetectors/ds/SdsTools \
                 -I$(PANDADIR)/softrig \
-                -I$(PANDADIR)/stt \
+                -I$(PANDADIR)/detectors/stt \
                 -I$(PANDADIR)/tracking/sttmvdtracking \
-                -I$(PANDADIR)/stt/sttreco \
+                -I$(PANDADIR)/detectors/stt/sttreco \
                 -I$(PANDADIR)/trackbase \
                 -I$(PANDADIR)/tracking/SecondariesTracking \
                 -I$(PANDADIR)/tracking/SecondariesTracking/TrkAlgo \

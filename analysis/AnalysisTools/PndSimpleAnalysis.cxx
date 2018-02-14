@@ -924,7 +924,7 @@ void PndSimpleAnalysis::FillGenericLists()
   // read the charged candidates
   if (fChargedArray)
     for (i=0; i<fChargedArray->GetEntriesFast(); i++) {
-      FairRecoCandidate* mic = (FairRecoCandidate*)fChargedArray->At(i);
+      PndRecoCandidate* mic = (PndRecoCandidate*)fChargedArray->At(i);
       RhoCandidate tcc(*mic,uid++);
 
       // are pid data available?
@@ -944,7 +944,7 @@ void PndSimpleAnalysis::FillGenericLists()
   // read the neutral candidates
   if (fNeutralArray)
     for (i=0; i<fNeutralArray->GetEntriesFast(); i++) {
-      FairRecoCandidate* mic = (FairRecoCandidate*)fNeutralArray->At(i);
+      PndRecoCandidate* mic = (PndRecoCandidate*)fNeutralArray->At(i);
       RhoCandidate tcn(*mic,uid++);
 
       // are pid data available?

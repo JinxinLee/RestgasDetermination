@@ -14,7 +14,7 @@
 #include "TDatabasePDG.h"
 #include "RhoBase/RhoParticleSelectorBase.h"
 #include "RhoBase/RhoCandidate.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 #include "RhoBase/RhoCandList.h"
 
 ClassImp ( RhoParticleSelectorBase )

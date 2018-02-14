@@ -1,5 +1,5 @@
-#ifndef FAIRRECOCANDIDATE_H
-#define FAIRRECOCANDIDATE_H
+#ifndef PNDRECOCANDIDATE_H
+#define PNDRECOCANDIDATE_H
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
 // VAbsMicroCandidate	                                                //
@@ -27,13 +27,13 @@
 //  ===== VAbsMicroCandidate - Abstract Class definig the AOD interface  ====
 //  ========================================================================
 
-class FairRecoCandidate : public FairMultiLinkedData_Interface
+class PndRecoCandidate : public FairMultiLinkedData_Interface
 {
 
  public:
 
-  FairRecoCandidate() {}
-  virtual ~FairRecoCandidate() {}
+  PndRecoCandidate() {}
+  virtual ~PndRecoCandidate() {}
 
   // ************************
   // basic properties:
@@ -70,10 +70,10 @@ class FairRecoCandidate : public FairMultiLinkedData_Interface
 
  
 	
-  ClassDef(FairRecoCandidate,1) // Abstract base class for MicroDST candidates
+  ClassDef(PndRecoCandidate,1) // Abstract base class for MicroDST candidates
     };
 
-std::ostream&  operator << (std::ostream& o, const FairRecoCandidate&);
+std::ostream&  operator << (std::ostream& o, const PndRecoCandidate&);
 
 #endif                                           
 

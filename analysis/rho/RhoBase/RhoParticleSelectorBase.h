@@ -19,7 +19,7 @@
 
 class RhoCandidate;
 class RhoCandList;
-class FairRecoCandidate;
+class PndRecoCandidate;
 class TParticlePDG;
 
 enum criterion {best,veryLoose,loose,tight,veryTight,variable,all};
@@ -36,7 +36,7 @@ class RhoParticleSelectorBase : public TNamed
 
     //operations
     virtual Bool_t Accept ( RhoCandidate* ) = 0;
-    virtual Bool_t Accept ( FairRecoCandidate* ) = 0;
+    virtual Bool_t Accept ( PndRecoCandidate* ) = 0;
 
     virtual void SetCriterion ( const char* crit );
     void SetCriterion ( criterion crit );

@@ -16,7 +16,7 @@
 
 #include "RhoSelector/RhoSimpleMuonSelector.h"
 #include "RhoBase/RhoCandidate.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 
 ClassImp ( RhoSimpleMuonSelector )
@@ -58,7 +58,7 @@ Bool_t RhoSimpleMuonSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t RhoSimpleMuonSelector::Accept ( FairRecoCandidate*  )
+Bool_t RhoSimpleMuonSelector::Accept ( PndRecoCandidate*  )
 {
   return kFALSE;
 }

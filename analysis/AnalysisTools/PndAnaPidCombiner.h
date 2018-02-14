@@ -15,7 +15,7 @@
 
 class RhoCandidate;
 class RhoCandList;
-class FairRecoCandidate;
+class PndRecoCandidate;
 class TClonesArray;
 class PndPidProbability;
 class TString;

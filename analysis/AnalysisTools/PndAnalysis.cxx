@@ -18,7 +18,7 @@ using std::endl;
 #include "TParticlePDG.h"
 
 #include "RhoParticleSelectorBase.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 //RHO stuff
 #include "RhoFactory.h"
@@ -401,7 +401,7 @@ void PndAnalysis::ReadRecoCandidates()
   fNeutralCandList.Cleanup();
   if ( fNeutralCands ) {
     for ( Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++ ) {
-        FairRecoCandidate* mic = ( FairRecoCandidate* ) fNeutralCands->At ( i1 );
+        PndRecoCandidate* mic = ( PndRecoCandidate* ) fNeutralCands->At ( i1 );
         _uid++; // uid will start from 1
         RhoCandidate tc ( *mic,_uid );
         tc.SetTrackNumber ( -1 );//(i1);
@@ -431,7 +431,7 @@ void PndAnalysis::ReadRecoCandidates()
     if ( fChargedCands) {
       for ( Int_t i2=0; i2<fChargedCands->GetEntriesFast(); i2++ ) {
         _uid++; // uid will start from (n_neutrals + 1)
-        FairRecoCandidate* mic = ( FairRecoCandidate* ) fChargedCands->At ( i2 );
+        PndRecoCandidate* mic = ( PndRecoCandidate* ) fChargedCands->At ( i2 );
         RhoCandidate tc ( *mic,_uid );
         tc.SetTrackNumber ( i2 );
         tc.SetType( tc.Charge()*211 );  // default PDG code for charged is pi = +-211
@@ -498,7 +498,7 @@ void PndAnalysis::BuildMcCands()
   for(int icand=0;icand<fAllCandList.GetLength();icand++){
     RhoCandidate* currentcand=fAllCandList.Get(icand);
     //   get reco candidate
-    FairRecoCandidate* reco = currentcand->GetRecoCandidate();
+    PndRecoCandidate* reco = currentcand->GetRecoCandidate();
     if(!reco) {
       if (fVerbose) Info("BuildMcCands","reco object to candidate %i (%p) missing.",icand,currentcand);
       continue;

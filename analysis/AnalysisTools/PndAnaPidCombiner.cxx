@@ -17,7 +17,7 @@
 #include "RhoBase/RhoCandidate.h"
 #include "RhoBase/RhoCandList.h"
 
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 #include "TClonesArray.h"
 #include "TPRegexp.h"

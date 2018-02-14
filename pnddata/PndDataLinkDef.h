@@ -111,8 +111,8 @@
 #pragma link C++ class PndPidProbability+;
 #pragma link C++ class PndPidBremCorrected4Mom+;
 
-#pragma link C++ class FairRecoCandidate;
-#pragma link C++ function operator << ( ostream &, const FairRecoCandidate & );
+#pragma link C++ class PndRecoCandidate;
+#pragma link C++ function operator << ( ostream &, const PndRecoCandidate & );
 
 #endif
 

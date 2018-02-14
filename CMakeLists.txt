@@ -452,7 +452,6 @@ add_subdirectory (PndTools/MVA)
 add_subdirectory (PndPropagators/HelixPropagator)
 add_subdirectory (pid)
 add_subdirectory (PndMCMatchNewLinks)
-add_subdirectory (global)
 
 add_subdirectory (softrig)
 

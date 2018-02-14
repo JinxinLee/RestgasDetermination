@@ -14,7 +14,7 @@
 
 #include "RhoSelector/RhoChargedParticleSelector.h"
 #include "RhoBase/RhoCandidate.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 
 ClassImp ( RhoChargedParticleSelector )
@@ -38,7 +38,7 @@ Bool_t RhoChargedParticleSelector::Accept ( RhoCandidate& b )
   return kTRUE;
 }
 
-Bool_t RhoChargedParticleSelector::Accept ( FairRecoCandidate& b )
+Bool_t RhoChargedParticleSelector::Accept ( PndRecoCandidate& b )
 {
   Bool_t decision = kFALSE;
   if ( &b == 0 ) { return kFALSE; }

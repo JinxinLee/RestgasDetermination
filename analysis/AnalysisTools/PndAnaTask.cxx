@@ -22,7 +22,7 @@ using std::endl;
 #include "RhoCandidate.h"
 #include "RhoCandList.h"
 #include "RhoParticleSelectorBase.h"
-#include "FairRecoCandidate.h"
+#include "PndRecoCandidate.h"
 
 #include "PndPidCandidate.h"
 #include "PndPidProbability.h"
@@ -138,7 +138,7 @@ bool PndAnaTask::FillList(RhoCandList& l, std::string listkey)
     // removed now compatibility to RhoCandidate readin ... instead read PndPidCandidates
     if (fNeutralCands && fLNeutralCands.GetLength()==0)
       for (int i1=0; i1<fNeutralCands->GetEntriesFast(); i1++) {
-        FairRecoCandidate* mic = (FairRecoCandidate*)fNeutralCands->At(i1);
+        PndRecoCandidate* mic = (PndRecoCandidate*)fNeutralCands->At(i1);
         RhoCandidate tc(*mic,uid++);
 
         // TODO: Do we want to set something here? It is neutrals anyway.
@@ -157,7 +157,7 @@ bool PndAnaTask::FillList(RhoCandList& l, std::string listkey)
 
     if (fChargedCands && fLChargedCands.GetLength()==0) {
       for (int i1=0; i1<fChargedCands->GetEntriesFast(); i1++) {
-        FairRecoCandidate* mic = (FairRecoCandidate*)fChargedCands->At(i1);
+        PndRecoCandidate* mic = (PndRecoCandidate*)fChargedCands->At(i1);
         RhoCandidate tc(*mic,uid++);
 
         if(0!=fChargedProbability && i1<fChargedProbability->GetEntriesFast()) {
