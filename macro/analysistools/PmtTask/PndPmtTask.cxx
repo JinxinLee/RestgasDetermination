@@ -13,9 +13,9 @@ Author: Ralf Kliemt (GSI,2013)
 #include "RhoCandidate.h"
 #include "RhoCalculationTools.h"
 #include "PndAnalysisCalcTools.h"
-#include "PndVtxPoca.h"
-#include "PndVtxPRG.h"
-#include "PndKinVtxFitter.h"
+#include "RhoVtxPoca.h"
+#include "RhoKalmanVtxFitter.h"
+#include "RhoKinVtxFitter.h"
 
 #include "PndPmtTask.h"
 #include <string>
@@ -418,7 +418,7 @@ void PndPmtTask::Exec(Option_t*) {
     }
 
     // ********** POCA
-    PndVtxPoca vPoca;
+    RhoVtxPoca vPoca;
     vertexPoc=vertexMC; //seed
     if(fVerbose>0) cout<<"poca "<<flush;
     fSwPoca.Start(kFALSE);
@@ -441,7 +441,7 @@ void PndPmtTask::Exec(Option_t*) {
     fHVtxPullPocaZ->Fill(vertexDiff.Z()/dist);
 
     // ********** FAST FIT
-    PndVtxPRG vFastter(combiCand);
+    RhoKalmanVtxFitter vFastter(combiCand);
     vFastter.SetSilent();
     //vFastter.SetDebug();
     //PndAnalysisCalcTools::SetVerbose(3);
@@ -480,7 +480,7 @@ void PndPmtTask::Exec(Option_t*) {
     //PndAnalysisCalcTools::SetVerbose(0);
 
     // ********** FULL FIT
-    PndVtxPRG vFitter(combiCand1);
+    RhoKalmanVtxFitter vFitter(combiCand1);
     vFitter.SetSilent();
     //PndAnalysisCalcTools::SetVerbose(5);
     //if(laut)vFitter.SetDebug(true);
@@ -554,7 +554,7 @@ void PndPmtTask::Exec(Option_t*) {
     }
 
     // ********** Kin FIT
-    PndKinVtxFitter kFitter(combiCand2);
+    RhoKinVtxFitter kFitter(combiCand2);
     kFitter.SetNIterationsExact(2);
     vertexFit=nullpunkt; //seed
     if(fVerbose>0)  cout<<"kin  "<<flush;

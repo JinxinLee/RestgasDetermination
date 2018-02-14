@@ -8,15 +8,15 @@
 #include "PndEventShape.h"
 #include "PndAnalysis.h"
 #include "PndPidCandidate.h"
-#include "PndVtxPoca.h"
-#include "PndVtxPRG.h"
+#include "RhoVtxPoca.h"
+#include "RhoKalmanVtxFitter.h"
 #include "TVector.h"
 #include <iostream>
 
 PndRhoTupleQA::PndRhoTupleQA(PndAnalysis *ana, double pbarmom)
 {
   fAnalysis = ana;
-  fVtxPoca = new PndVtxPoca();
+  fVtxPoca = new RhoVtxPoca();
   double mp=0.938272;
   fIniP4.SetXYZT(0,0,pbarmom, sqrt(pbarmom*pbarmom+mp*mp)+mp);
 }
@@ -260,7 +260,7 @@ void PndRhoTupleQA::qaPRG(TString pre, RhoCandidate *c, RhoTuple *n)
 {
   if (n==0) return;
 
-  PndVtxPRG vtxPRG(c);
+  RhoKalmanVtxFitter vtxPRG(c);
   vtxPRG.SetSilent();
 
   // *** PRG vtx finder
@@ -361,7 +361,7 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool covs,
       // recursive call of qaComp
       qaComp(name, dau, n, covs, pulls);
     }
-    // only charged final state daughters -> Vtx info with PndVtxPoca
+    // only charged final state daughters -> Vtx info with RhoVtxPoca
     if (nchrgfs > 1)
     {
       qaPoca(pre, c, n);

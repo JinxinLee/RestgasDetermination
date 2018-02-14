@@ -98,7 +98,7 @@ int QAmacro_fastsim_2(int nevts=0)
 			ppmass->Fill(pp[j]->M());
 
 			//do the 4C fit on the pbar p System
-			Pnd4CFitter fitter(pp[j],ini);
+			Rho4CFitter fitter(pp[j],ini);
 
 			fitter.FitConserveMasses();
 

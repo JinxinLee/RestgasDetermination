@@ -53,9 +53,9 @@ using namespace std;
 //#include "AnalysisTools/PndMcTruthMatch.h"
 #include "AnalysisTools/PndAnalysis.h"
 
-#include "AnalysisTools/Fitter/Pnd4CFitter.h"
-#include "AnalysisTools/Fitter/PndKinVtxFitter.h"
-#include "AnalysisTools/Fitter/PndKinFitter.h"
+#include "AnalysisTools/Fitter/Rho4CFitter.h"
+#include "AnalysisTools/Fitter/RhoKinVtxFitter.h"
+#include "AnalysisTools/Fitter/RhoKinFitter.h"
 
 #include "AnalysisTools/PndAnaPidCombiner.h"
 #include "AnalysisTools/PndAnaPidSelector.h"

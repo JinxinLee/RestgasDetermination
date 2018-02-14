@@ -437,7 +437,7 @@ for (j=0;j<dmmsel.GetLength();++j) {
 //POCA test
 
 for (j=0; j < dpmsel.GetLength(); ++j) {
-	PndVtxPoca vtxfinder(dpmsel[j]);
+	RhoVtxPoca vtxfinder(dpmsel[j]);
 	TVector3 pocavertex(0,0,0);
 	double distval=-4444;
 	distval = vtxfinder.GetPocaVtx(pocavertex);
@@ -452,7 +452,7 @@ for (j=0; j < dpmsel.GetLength(); ++j) {
 	hdpvertexzpocareso->Fill(vertexdisp.z());
 }
 for (j=0; j < dmmsel.GetLength(); ++j) {
-	PndVtxPoca vtxfinder(dmmsel[j]);
+	RhoVtxPoca vtxfinder(dmmsel[j]);
 	TVector3 pocavertex(0,0,0);
 	double distval=-4444;
 	distval = vtxfinder.GetPocaVtx(pocavertex);
@@ -477,7 +477,7 @@ int bestfitindex;
 Double_t bestfitchi2 = dvtxfitchi2limit;
 Double_t bestfitmass = 0;
 for (j=0; j < dpmsel.GetLength(); ++j) {
-	PndKinVtxFitter vtxfitter(dpmsel[j]);
+	RhoKinVtxFitter vtxfitter(dpmsel[j]);
 	//vtxfitter.AddMassConstraint(TRho::Instance()->GetPDG()->GetParticle(411)->Mass());
 	vtxfitter.Fit();
 	TCandidate fitcand=*(vtxfitter.FittedCand(dpmsel[j]));
@@ -496,7 +496,7 @@ for (j=0; j < dpmsel.GetLength(); ++j) {
 }
 //process best candidate
 if (bestfitchi2 < dvtxfitchi2limit) {
-	PndKinVtxFitter vtxfitter(dpmsel[bestfitindex]);
+	RhoKinVtxFitter vtxfitter(dpmsel[bestfitindex]);
 	//vtxfitter.AddMassConstraint(TRho::Instance()->GetPDG()->GetParticle(411)->Mass());
 	vtxfitter.Fit();
 	TCandidate fitcand=*(vtxfitter.FittedCand(dpmsel[bestfitindex]));
@@ -528,7 +528,7 @@ if (bestfitchi2 < dvtxfitchi2limit) {
 
 bestfitchi2 = dvtxfitchi2limit;
 for (j=0; j<dmmsel.GetLength(); ++j) {
-	PndKinVtxFitter vtxfitter(dmmsel[j]);
+	RhoKinVtxFitter vtxfitter(dmmsel[j]);
 	//vtxfitter.AddMassConstraint(TRho::Instance()->GetPDG()->GetParticle(411)->Mass());
 	vtxfitter.Fit();
 	TCandidate fitcand=*(vtxfitter.FittedCand(dmmsel[j]));
@@ -547,7 +547,7 @@ for (j=0; j<dmmsel.GetLength(); ++j) {
 }
 //process best candidate
 if (bestfitchi2 < dvtxfitchi2limit) {
-	PndKinVtxFitter vtxfitter(dmmsel[bestfitindex]);
+	RhoKinVtxFitter vtxfitter(dmmsel[bestfitindex]);
 	//vtxfitter.AddMassConstraint(TRho::Instance()->GetPDG()->GetParticle(411)->Mass());
 	vtxfitter.Fit();
 	TCandidate fitcand=*(vtxfitter.FittedCand(dmmsel[bestfitindex]));
@@ -779,7 +779,7 @@ for (j=0;j<ptselpsivtx.GetLength();++j) {
 // Make Psi Vertex Fit
 
 for (j=0;j<ptselpsivtx.GetLength();++j) {
-	PndKinVtxFitter fitter(ptselpsivtx[j]);
+	RhoKinVtxFitter fitter(ptselpsivtx[j]);
 	fitter.Fit();
 	TCandidate fitcand=*(fitter.FittedCand(ptselpsivtx[j]));
 	TCandidate dpfit=*(fitter.FittedCand(*(ptselpsivtx[j].Daughter(0))));

@@ -139,7 +139,7 @@ int ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.23
 			ntp2->Column("ncand",   (Float_t) psi2s.GetLength());
 			ntp2->Column("nmct",    (Float_t) npsimct);
 			
-			PndKinFitter kinfit(psi2s[j]);
+			RhoKinFitter kinfit(psi2s[j]);
 			kinfit.Add4MomConstraint(ini);
 			kinfit.Fit();
 			

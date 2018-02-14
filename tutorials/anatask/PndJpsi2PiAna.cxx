@@ -15,7 +15,7 @@ of J/Psi: Dipak
 #include "RhoCandList.h"
 #include "FairRecoCandidate.h"
 
-#include "Fitter/Pnd4CFitter.h"
+#include "Fitter/Rho4CFitter.h"
 #include "RhoMassParticleSelector.h"
 
 // Root
@@ -109,7 +109,7 @@ void PndJpsi2PiAna::Exec(Option_t*)
 			ppmass->Fill(pp[j]->M());
 			
 			//do the 4C fit on the pbar p System
-			Pnd4CFitter fitter(pp[j],ini);
+			Rho4CFitter fitter(pp[j],ini);
 			
 			fitter.FitConserveMasses();
 			

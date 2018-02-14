@@ -181,7 +181,7 @@ int ana_check(int nevts=0)
 	  TCandidate *ccfit;// = new TCandidate();
 	  double m_phi1, m_phi2;
 	  for (l=0;l<etac.GetLength();++l) {
-	    Pnd4CFitter fitter(etac[l],ini);
+	    Rho4CFitter fitter(etac[l],ini);
 	    fitter.FitConserveMasses();
 	    double chi2=fitter.GetChi2();
 	    if (chi2<best_chi2)
@@ -257,7 +257,7 @@ int ana_check(int nevts=0)
 	  Float_t etacvtx_mass;
 	  for (j=0;j<etac_vtx.GetLength();++j)
 	    {
-	      PndKinVtxFitter vtxfitter(etac_vtx[j]);        // instantiate a vertex fitter
+	      RhoKinVtxFitter vtxfitter(etac_vtx[j]);        // instantiate a vertex fitter
 	      vtxfitter.Fit();                          // do the vertex fit
 
 	      TCandidate *etacfit=vtxfitter.FittedCand(etac_vtx[j]);  // request the fitted EtaC candidate

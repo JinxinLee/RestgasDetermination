@@ -92,7 +92,7 @@ void tut_ana_d0_qahelper(TString pref="pid_complete.root", int min=-1, int max=1
 	TString pidsel = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts";
 	
 	RhoMassParticleSelector *fD0Sel = new RhoMassParticleSelector("D0Sel",   1.864, 1.0);
-	PndVtxPoca fVtxPoca;
+	RhoVtxPoca fVtxPoca;
 	
 	RhoTuple *nd0 = new RhoTuple("nd0","my D0 tuple");
 	

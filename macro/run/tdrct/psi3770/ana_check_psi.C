@@ -263,7 +263,7 @@ int ana_check_psi(int nevts=0)
 	  TCandidate *ccfit;// = new TCandidate();
 	  double m_D1, m_D2;
 	  for (l=0;l<psi.GetLength();++l) {
-	    Pnd4CFitter fitter(psi[l],ini);
+	    Rho4CFitter fitter(psi[l],ini);
 	    fitter.FitConserveMasses();
 	    double chi2=fitter.GetChi2();
 	    if (chi2<best_chi2)
@@ -349,7 +349,7 @@ int ana_check_psi(int nevts=0)
 	    Float_t D1vtx_mass, pre_m_D1;
 	    for (j=0;j<D1_vtx.GetLength();++j)
 	      {
-		PndKinVtxFitter vtxfitter(D1_vtx[j]);        // instantiate a vertex fitter
+		RhoKinVtxFitter vtxfitter(D1_vtx[j]);        // instantiate a vertex fitter
 		vtxfitter.Fit();                          // do the vertex fit
 		
 		TCandidate *D1fit=vtxfitter.FittedCand(D1_vtx[j]);  // request the fitted Psi candidate
@@ -402,7 +402,7 @@ int ana_check_psi(int nevts=0)
 	    Float_t D2vtx_mass, pre_m_D2;
 	    for (j=0;j<D2_vtx.GetLength();++j)
 	      {
-		PndKinVtxFitter vtxfitter(D2_vtx[j]);        // instantiate a vertex fitter
+		RhoKinVtxFitter vtxfitter(D2_vtx[j]);        // instantiate a vertex fitter
 		vtxfitter.Fit();                          // do the vertex fit
 		
 		TCandidate *D2fit=vtxfitter.FittedCand(D2_vtx[j]);  // request the fitted Psi candidate

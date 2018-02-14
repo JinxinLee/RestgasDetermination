@@ -389,7 +389,7 @@ int poormantracks(int nevt=250, int laut=0, int seed=-1)
     }
 
     // ********** POCA
-    PndVtxPoca vPoca;
+    RhoVtxPoca vPoca;
     vertexPoc=vertexMC; //seed
     if(fVerbose>0) cout<<"poca "<<flush;
     double dist = vPoca.GetPocaVtx(vertexPoc,combiCand);
@@ -508,7 +508,7 @@ int poormantracks(int nevt=250, int laut=0, int seed=-1)
     }
 
     // ********** Kin FIT
-    PndKinVtxFitter kFitter(combiCand2);
+    RhoKinVtxFitter kFitter(combiCand2);
     vertexFit=nullpunkt; //seed
     if(fVerbose>0)  cout<<"kin  "<<flush;
     bool test = kFitter.Fit();

@@ -396,7 +396,7 @@ add_subdirectory (GenfitTools)
 add_subdirectory (fastsim)
 
 add_subdirectory (analysis/rho)
-add_subdirectory (analysis/kfparticle)
+#add_subdirectory (analysis/kfparticle)
 add_subdirectory (analysis/AnalysisTools)
 
 add_subdirectory (PndTools/master)

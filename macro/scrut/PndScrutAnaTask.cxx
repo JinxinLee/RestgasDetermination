@@ -44,10 +44,10 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 #include "PndRhoTupleQA.h"
 #include "PndEventShape.h"
 		
@@ -227,7 +227,7 @@ void PndScrutAnaTask::Exec(Option_t*)
 		ntp2->Column("ncand",   (Float_t) psi2s.GetLength());
 		ntp2->Column("nmct",    (Float_t) npsimct);
 		
-		PndKinFitter kinfit(psi2s[j]);
+		RhoKinFitter kinfit(psi2s[j]);
 		kinfit.Add4MomConstraint(fIni);
 		kinfit.Fit();
 		

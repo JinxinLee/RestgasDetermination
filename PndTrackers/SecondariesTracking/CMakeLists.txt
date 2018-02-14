@@ -81,6 +81,6 @@ TrkSecondary/PndTrkGemCombiTask.cxx
 set(LINKDEF  SecondariesTrackingLinkDef.h)
 set(LIBRARY_NAME SecondariesTracking)
 
-set(DEPENDENCIES Base ParBase PndData Stt Fts TrkBase ParticleFitters)
+set(DEPENDENCIES Base ParBase PndData Stt Fts TrkBase )
 
 GENERATE_LIBRARY()

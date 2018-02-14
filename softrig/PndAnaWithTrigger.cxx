@@ -44,10 +44,10 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 #include "PndRhoTupleQA.h"
 #include "PndEventShape.h"
 
@@ -247,7 +247,7 @@ void PndAnaWithTrigger::Exec(Option_t*)
 			ntp2->Column("stn201",   (Int_t) stInfo->GetNTag(201));   // number of triggered candidates from J/psi->mu+ mu- line
 		}
 		
-		PndKinFitter kinfit(psi2s[j]);
+		RhoKinFitter kinfit(psi2s[j]);
 		kinfit.Add4MomConstraint(fIni);
 		kinfit.Fit();
 		

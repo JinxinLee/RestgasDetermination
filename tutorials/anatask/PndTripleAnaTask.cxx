@@ -45,10 +45,10 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 #include "PndRhoTupleQA.h"
 #include "PndEventShape.h"
 
@@ -252,7 +252,7 @@ void PndTripleAnaTask::JpsiAnalysis()
 	// *** write ntuple for the jpsi reconstruction
 	for (j=0;j<jpsi.GetLength();++j) 
 	{
-		PndKinVtxFitter vtxfit(jpsi[j]);
+		RhoKinVtxFitter vtxfit(jpsi[j]);
 		//vtxfit.AddMassConstraint(fPdg->GetParticle("J/psi")->Mass());
 		vtxfit.Fit();
 		
@@ -297,7 +297,7 @@ void PndTripleAnaTask::JpsiAnalysis()
 	// *** write ntuple for the psi(2S) reconstruction
 	for (j=0;j<ppb.GetLength();++j) 
 	{
-		PndKinFitter kinfit(ppb[j]);
+		RhoKinFitter kinfit(ppb[j]);
 		kinfit.Add4MomConstraint(fIni);
 		kinfit.Fit();
 		
@@ -368,7 +368,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 	// *** write ntuple for the ds reconstruction
 	for (j=0;j<ds.GetLength();++j) 
 	{
-		PndKinVtxFitter vtxfit(ds[j]);
+		RhoKinVtxFitter vtxfit(ds[j]);
 		//vtxfit.AddMassConstraint(fPdg->GetParticle("D_s+")->Mass());
 		vtxfit.Fit();
 		
@@ -437,7 +437,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 	// *** write ntuple for the ds reconstruction
 	for (j=0;j<ds0.GetLength();++j) 
 	{
-		PndKinFitter kinfit(ds0[j]);
+		RhoKinFitter kinfit(ds0[j]);
 		kinfit.AddMassConstraint(2.3178);
 		kinfit.Fit();
 		
@@ -481,7 +481,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 	// *** write ntuple for the psi(2S) reconstruction
 	for (j=0;j<ppb.GetLength();++j) 
 	{
-		PndKinFitter kinfit(ppb[j]);
+		RhoKinFitter kinfit(ppb[j]);
 		kinfit.Add4MomConstraint(fIni);
 		kinfit.Fit();
 		
@@ -552,7 +552,7 @@ void PndTripleAnaTask::ThreePiAnalysis()
 	// *** write ntuple for the psi(2S) reconstruction
 	for (j=0;j<ppb.GetLength();++j) 
 	{
-		PndKinFitter kinfit(ppb[j]);
+		RhoKinFitter kinfit(ppb[j]);
 		kinfit.Add4MomConstraint(fIni);
 		kinfit.Fit();
 		

@@ -39,10 +39,10 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 #include "PndRhoTupleQA.h"
 		
 		
@@ -168,7 +168,7 @@ void PndProdAnaTask::Exec(Option_t*)
 		qa.qaP4("trx", lv, ntp);
 				
 		// do a vertex fit
-		PndKinVtxFitter vtxfitter(D0[j]);          // *** instantiate the vertex fitter; input is the object to be fitted      
+		RhoKinVtxFitter vtxfitter(D0[j]);          // *** instantiate the vertex fitter; input is the object to be fitted      
 		vtxfitter.Fit();                           // *** perform fit
 
 		RhoCandidate *cfit = D0[j]->GetFit();      // *** get the fitted candidate

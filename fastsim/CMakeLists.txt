@@ -1,4 +1,4 @@
-# Create a library called "libfsim"
+# Create a library called "libfastsim"
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES}
@@ -63,7 +63,7 @@ PndFsmIdealPid.cxx
 
 
 
-set(LINKDEF fsimLinkDef.h)
+set(LINKDEF fastsimLinkDef.h)
 set(LIBRARY_NAME fastsim)
 
 set(DEPENDENCIES Base ParBase PndData AnalysisTools)

@@ -70,6 +70,6 @@ StrTok.cxx
 set(LINKDEF AnalysisToolsLinkDef.h)
 set(LIBRARY_NAME AnalysisTools)
 
-set(DEPENDENCIES Base PndData Rho RhoFitter ParticleFitters TrkBase Geane)
+set(DEPENDENCIES Base PndData Rho RhoFitter TrkBase Geane)
 
 GENERATE_LIBRARY()

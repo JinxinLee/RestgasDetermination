@@ -84,7 +84,7 @@ int ana_fast_psi2s(TString fname="sim_fast.root", int nevts=0)
 			ppmass->Fill(pp[j].M());
 			
 			//do the 4C fit on the pbar p System
-			Pnd4CFitter fitter(pp[j],ini);
+			Rho4CFitter fitter(pp[j],ini);
 			
 			fitter.FitConserveMasses();
 			

@@ -314,7 +314,7 @@ int run_ana_eta_c_stt(int nevts=0, bool usePID=true)
 		TCandidate *ccfit = new TCandidate();
 		double m_phi1, m_phi2;
 		for (l=0;l<etac.GetLength();++l) {
-			Pnd4CFitter fitter(etac[l],ini);
+			Rho4CFitter fitter(etac[l],ini);
 			fitter.FitConserveMasses();
 			double chi2=fitter.GetChi2();
 			if (chi2<best_chi2)
@@ -387,7 +387,7 @@ int run_ana_eta_c_stt(int nevts=0, bool usePID=true)
 		Float_t etacvtx_mass;
 		for (j=0;j<etac_vtx.GetLength();++j)
 		{
-			PndKinVtxFitter vtxfitter(etac_vtx[j]);        // instantiate a vertex fitter
+			RhoKinVtxFitter vtxfitter(etac_vtx[j]);        // instantiate a vertex fitter
 			vtxfitter.Fit();                          // do the vertex fit
 
 			TCandidate *etacfit=vtxfitter.FittedCand(etac_vtx[j]);  // request the fitted EtaC candidate
@@ -476,7 +476,7 @@ int run_ana_eta_c_stt(int nevts=0, bool usePID=true)
 		
 		if (etacprefit_best!=0)
 		{
-			PndKinVtxFitter vtxfitter(*etacprefit_best);        // instantiate a vertex fitter
+			RhoKinVtxFitter vtxfitter(*etacprefit_best);        // instantiate a vertex fitter
 			vtxfitter.Fit();                          // do the vertex fit
 			TCandidate *etacfit=vtxfitter.FittedCand(*etacprefit_best);
 			k1prefit_best=vtxfitter.FittedCand(*(etacfit->Daughter(0)));
@@ -504,7 +504,7 @@ int run_ana_eta_c_stt(int nevts=0, bool usePID=true)
 ///////////////////////////////////////////////////////////////////
 		////////////// phi mass fit /////////////
 // 		for (l=0;l<phi1_pid.GetLength();++l) {
-// 			PndKinFitter kinfitter(phi1_pid[l]);
+// 			RhoKinFitter kinfitter(phi1_pid[l]);
 // 			// set it's mass constraint to phi mass
 // 			kinfitter.AddMassConstraint(1.02);       
 // 			kinfitter.Fit();                  

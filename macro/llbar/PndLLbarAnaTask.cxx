@@ -28,10 +28,10 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 		
 		
 using std::cout;
@@ -310,7 +310,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 	//Loop over all possible ppbar (lam0+lam0bar) systems
 	for (j=0;j<ppbarsystem.GetLength();++j)
 	{
-		Pnd4CFitter fitter(ppbarsystem[j],init);	// instantiate the 4C fitter
+		Rho4CFitter fitter(ppbarsystem[j],init);	// instantiate the 4C fitter
 		bool check = fitter.FitConserveMasses();	// perform the fit
 
 		double chi2_4c = fitter.GetChi2();	// access the chi2 of the fit
@@ -346,7 +346,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 		hlam0_tm_M_all->Fill(lam0_tm[j]->M());
 		hlam0_tm_cosTheta_all->Fill(lam04.CosTheta());
 
-		PndKinVtxFitter vtxfitter(lam0_tm[j]);	//Instantiate a vertex fitter
+		RhoKinVtxFitter vtxfitter(lam0_tm[j]);	//Instantiate a vertex fitter
 		vtxfitter.Fit();
 		RhoCandidate *jfit = lam0_tm[j]->GetFit();
 		double chi2_vtx = vtxfitter.GetChi2();	// access chi2 of fit
@@ -373,7 +373,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 		hlam0bar_tm_M_all->Fill(lam0bar_tm[j]->M());
 		hlam0bar_tm_cosTheta_all->Fill(lam0bar4.CosTheta());
 
-		PndKinVtxFitter vtxfitter(lam0bar_tm[j]);        //Instantiate a vertex fitter
+		RhoKinVtxFitter vtxfitter(lam0bar_tm[j]);        //Instantiate a vertex fitter
 		vtxfitter.Fit();
 		RhoCandidate *jfit = lam0bar_tm[j]->GetFit();
 		double chi2_vtx = vtxfitter.GetChi2();  // access chi2 of fit

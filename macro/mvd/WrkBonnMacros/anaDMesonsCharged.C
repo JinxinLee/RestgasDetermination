@@ -181,8 +181,8 @@ int anaDMesonsCharged(TString filename="data/dpdm", int nevts=0)
       if(verbose>1) recocand->Print();
       //PndVtxFitter fitter(*recocand); //D. Mishra 2008
       //PndChiVtxFitter fitter(*recocand); //V. Jha 2010 defunc-gives zeros?
-      PndKinVtxFitter fitter(*recocand); //V. Jha 2010 to be tested
-      //PndKinFitter fitter(*recocand); //V. Jha 2010
+      RhoKinVtxFitter fitter(*recocand); //V. Jha 2010 to be tested
+      //RhoKinFitter fitter(*recocand); //V. Jha 2010
       //fitter.SetVerbose();
       fitter.Fit();
       recocand=fitter.FittedCand(*recocand);
@@ -211,8 +211,8 @@ int anaDMesonsCharged(TString filename="data/dpdm", int nevts=0)
       if(verbose>1) recocand->Print();
       //PndVtxFitter fitter(*recocand); //D. Mishra 2008
       //PndChiVtxFitter fitter(*recocand); //V. Jha 2010 defunc-gives zeros?
-      PndKinVtxFitter fitter(*recocand); //V. Jha 2010 to be tested
-      //PndKinFitter fitter(*recocand); //V. Jha 2010
+      RhoKinVtxFitter fitter(*recocand); //V. Jha 2010 to be tested
+      //RhoKinFitter fitter(*recocand); //V. Jha 2010
       //fitter.SetVerbose();
       fitter.Fit();
       recocand=fitter.FittedCand(*recocand);

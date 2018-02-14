@@ -106,7 +106,7 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 			RhoCandidate *true_jpsi = jpsi[j]->GetMcTruth();
 			
 			// perform vertex fitter
-			PndKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
+			RhoKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
 			vtxfitter.Fit();
 			
 			RhoCandidate *fitvtx_jpsi = jpsi[j]->GetFit();
@@ -116,7 +116,7 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 			if (fitvtx_jpsi) vtxpos = fitvtx_jpsi->Daughter(0)->Pos();
 			
 			// perform mass fit
-			PndKinFitter mfitter(jpsi[j]);		// instantiate the PndKinFitter in psi(2S)
+			RhoKinFitter mfitter(jpsi[j]);		// instantiate the RhoKinFitter in psi(2S)
 			mfitter.AddMassConstraint(m0_jpsi);	// add the mass constraint
 			mfitter.Fit();						// do fit
 			
@@ -181,7 +181,7 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 			RhoCandidate *true_psi = psi2s[j]->GetMcTruth();
 			
 			// do 4C fit
-			PndKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
+			RhoKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
 			fitter.Add4MomConstraint(ini);	// set 4 constraint
 			fitter.Fit();		            // do fit
 			RhoCandidate *fit4c_jpsi = psi2s[j]->Daughter(0)->GetFit();	// get fitted J/psi

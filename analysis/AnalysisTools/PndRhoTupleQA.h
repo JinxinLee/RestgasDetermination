@@ -5,7 +5,7 @@
 #include "TVector3.h"
 #include "TString.h"
 #include "RhoCandList.h"
-#include "PndVtxPoca.h"
+#include "RhoVtxPoca.h"
 
 class RhoCandidate;
 class RhoTuple;
@@ -83,7 +83,7 @@ public:
 
 private:
 
-	PndVtxPoca  *fVtxPoca;
+	RhoVtxPoca  *fVtxPoca;
 	PndAnalysis *fAnalysis;
 
 	TLorentzVector fIniP4;    // initial 4-momentum

@@ -30,9 +30,9 @@
 #include "PndAnalysis.h"
 
 // Fitters
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
 
 
 using std::cout;
@@ -198,7 +198,7 @@ void PndMyAnalysisTask::Exec(Option_t*)
 
   // *** do vertex fitting (J/psi)
   for (j=0; j<jpsi.GetLength(); ++j) {
-    PndKinVtxFitter vtxfitter(jpsi[j]);        // instantiate a vertex fitter
+    RhoKinVtxFitter vtxfitter(jpsi[j]);        // instantiate a vertex fitter
 
     vtxfitter.Fit();
     const RhoCandidate* jfit = jpsi[j]->GetFit();  // access the fitted cand
@@ -276,7 +276,7 @@ void PndMyAnalysisTask::Exec(Option_t*)
 
   // *** do 4c fit (initial psi(2S) system)
   for (j=0; j<psi2s.GetLength(); ++j) {
-    Pnd4CFitter fitter(psi2s[j],ini);
+    Rho4CFitter fitter(psi2s[j],ini);
     fitter.FitConserveMasses();
 
     double chi2_4c=fitter.GetChi2();
@@ -356,7 +356,7 @@ void PndMyAnalysisTask::Exec(Option_t*)
 
   // do mass constraint fit
   for (j=0; j<jpsi.GetLength(); ++j) {
-    PndKinFitter mfitter(jpsi[j]);
+    RhoKinFitter mfitter(jpsi[j]);
     mfitter.AddMassConstraint(3.0965);
     mfitter.Fit();
     double chi2_m = mfitter.GetChi2();

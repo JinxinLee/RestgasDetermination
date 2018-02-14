@@ -51,10 +51,10 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 #include "PndRhoTupleQA.h"
 #include "PndEventShape.h"
 #include "PndSimpleCombiner.h"
@@ -374,7 +374,7 @@ void PndSimpleCombinerTask::Exec(Option_t*)
 			  // for the last list we perform a 4C fit
 			  if (fFit4C && i==fNntp-1)
 			  {
-				  PndKinFitter fit4c(l1[j]);
+				  RhoKinFitter fit4c(l1[j]);
 				  fit4c.Add4MomConstraint(fIni);
 				  fit4c.Fit();
 
@@ -441,7 +441,7 @@ void PndSimpleCombinerTask::Exec(Option_t*)
 			  // shall we do a vertex fit?
 			  if (fFitVtx && ncdau>1)
 			  {
-				  PndKinVtxFitter vtxfitter(l1[j]);        // *** instantiate the vertex fitter; input is the object to be fitted      
+				  RhoKinVtxFitter vtxfitter(l1[j]);        // *** instantiate the vertex fitter; input is the object to be fitted      
 				  vtxfitter.Fit();                           // *** perform fit
 
 				  RhoCandidate *cfit = l1[j]->GetFit();      // *** get the fitted candidate

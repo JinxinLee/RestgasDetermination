@@ -47,7 +47,7 @@ int n_reco=0;
  TH2F *hvpos = new TH2F("hvpos","(x,y) projection of fitted decay vertex",100,-5,5,100,-5,5);
  TH1F *hvzpos = new TH1F("hvzpos","z position of fitted decay vertex",100,-4,4);
  
-  TH1F *chivtx=new TH1F("chivtx","Chi Square PndKinVtxFitter; Chi Square/N_{df}",100,0,8);
+  TH1F *chivtx=new TH1F("chivtx","Chi Square RhoKinVtxFitter; Chi Square/N_{df}",100,0,8);
  
   TH1F *hvtxresX = new TH1F("hvtxresX","X resolution of fitted decay vertex",100,-0.3,0.3);
   TH1F *hvtxresY = new TH1F("hvtxresY","Y resolution of fitted decay vertex",100,-0.3,0.3);
@@ -195,7 +195,7 @@ int n_reco=0;
     TVector3 bestPos;
   for (y=0;y<pipiwithpid.GetLength();++y){
 
-      PndKinVtxFitter vtxfitter(pipiwithpid[y]);
+      RhoKinVtxFitter vtxfitter(pipiwithpid[y]);
       vtxfitter.Fit();
       TCandidate *pipifit=vtxfitter.FittedCand(pipiwithpid[y]);
           

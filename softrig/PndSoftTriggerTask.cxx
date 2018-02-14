@@ -47,11 +47,11 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndVtxPRG.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKalmanVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 #include "PndPidCandidate.h"
 #include "PndEventShape.h"
 #include "PndRhoTupleQA.h"
@@ -293,7 +293,7 @@ InitStatus PndSoftTriggerTask::Init()
 	fEnergySel   = new RhoEnergyParticleSelector("ESel",50.+fGammaMinE,100.);
 	
 	// *** the poca vertexer
-	fPocaVertexer = new PndVtxPoca();
+	fPocaVertexer = new RhoVtxPoca();
 		
 	// *** read selection from configuration file
 	fSTencode.clear();

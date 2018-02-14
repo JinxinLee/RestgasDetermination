@@ -72,6 +72,6 @@ PndTrkSttClusterFinder.cxx
 set(LINKDEF  CentralTrackingLinkDef.h)
 set(LIBRARY_NAME CentralTracking)
 
-set(DEPENDENCIES Base ParBase PndData Stt Fts TrkBase ParticleFitters)
+set(DEPENDENCIES Base ParBase PndData Stt Fts TrkBase )
 
 GENERATE_LIBRARY()

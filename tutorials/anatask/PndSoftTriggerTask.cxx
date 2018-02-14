@@ -31,10 +31,10 @@
 #include "PndAnalysis.h"
 
 // Fitters
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 		
 		
 using std::cout;
@@ -356,7 +356,7 @@ void PndSoftTriggerTask::Exec(Option_t*)
 		double gamma = Dpm[j]->P4().Gamma();
 		
 		// determine pseudo vertex
-		PndVtxPoca poca;
+		RhoVtxPoca poca;
 		TVector3 vtx;
 		double pocaquality = poca.GetPocaVtx(vtx,Dpm.Get(j));
 		

@@ -9,7 +9,7 @@
 #include "TLorentzVector.h"
 #include "RhoCandList.h"
 #include "TDatabasePDG.h"
-#include "PndVtxPoca.h"
+#include "RhoVtxPoca.h"
 
 class TClonesArray;
 class TObjectArray;
@@ -181,7 +181,7 @@ class PndSoftTriggerTask : public FairTask
 	TLorentzVector fIniP4;
 	double fEcm;
 	double fPbarMom;
-	TVector3 fPrimVtx;   // primary vertex estimate of all charged tracks by PndVtxPoca
+	TVector3 fPrimVtx;   // primary vertex estimate of all charged tracks by RhoVtxPoca
 	double   fPrimVtxQa; // and primary vtx quality
 
     // ----------------------------
@@ -266,7 +266,7 @@ class PndSoftTriggerTask : public FairTask
 	PndRhoTupleQA *fQA;
 	
 	// *** Poca vertexer
-	PndVtxPoca *fPocaVertexer;
+	RhoVtxPoca *fPocaVertexer;
 	
 	// PDG database object
 	TDatabasePDG  *fPdg;
