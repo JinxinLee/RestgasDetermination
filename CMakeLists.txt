@@ -288,8 +288,6 @@ Else()
   )
 EndIf()
 
-Generate_Version_Info()
-
 SET(CBMLIBDIR ${CMAKE_BINARY_DIR}/lib)
 SET(LD_LIBRARY_PATH  ${CBMLIBDIR} ${LD_LIBRARY_PATH})
 
