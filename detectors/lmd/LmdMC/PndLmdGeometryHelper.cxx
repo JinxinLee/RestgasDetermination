@@ -182,8 +182,7 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 
 	int smalloverlap = -1;
 
-	fhalf = infoOne.detector_half;
-	bhalf = infoTwo.detector_half;
+	fhalf = infoOne.detector_half; bhalf = infoTwo.detector_half;
 
 	if (bhalf != fhalf) {
 		return -1;

@@ -230,7 +230,7 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	std::string examplePath = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/";
 
 	TGeoHMatrix exampleMatrix;
-	double vec[3] = { 1.0, 1.0, 0.0 };
+	double vec[3] = { 0.5, 0.5, 0.0 };
 	exampleMatrix.SetTranslation(vec);
 	cout << "matrix created\n";
 
