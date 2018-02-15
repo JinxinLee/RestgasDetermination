@@ -139,18 +139,18 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/GenfitTools/trackrep/GeaneTrackRep2 \
                 -I$(PANDADIR)/GenfitTools/trackrep/LSLtrackRep \
                 -I$(PANDADIR)/GenfitTools/trackrep/RKtrackRep \
-                -I$(PANDADIR)/PndEventdisplay \
+                -I$(PANDADIR)/eventdisplay \
                 -I$(PANDADIR)/analysis/AnalysisTools \
                 -I$(PANDADIR)/analysis/rho/RhoFitter \
-                -I$(PANDADIR)/PndTools/MVA \
-                -I$(PANDADIR)/PndTools/MVA/GenInputTree/genInputTree_old \
-                -I$(PANDADIR)/PndTools/MVA/GenInputTree/makeTrainFile \
-                -I$(PANDADIR)/PndTools/MVA/KNN \
-                -I$(PANDADIR)/PndTools/MVA/LVQ1 \
-                -I$(PANDADIR)/PndTools/MVA/ProjectedKNN \
-                -I$(PANDADIR)/PndTools/MVA/TMVAkd_KNN \
-                -I$(PANDADIR)/PndTools/MVA/kd_KNN \
-                -I$(PANDADIR)/PndTools/riemannfit
+                -I$(PANDADIR)/tools/MVA \
+                -I$(PANDADIR)/tools/MVA/GenInputTree/genInputTree_old \
+                -I$(PANDADIR)/tools/MVA/GenInputTree/makeTrainFile \
+                -I$(PANDADIR)/tools/MVA/KNN \
+                -I$(PANDADIR)/tools/MVA/LVQ1 \
+                -I$(PANDADIR)/tools/MVA/ProjectedKNN \
+                -I$(PANDADIR)/tools/MVA/TMVAkd_KNN \
+                -I$(PANDADIR)/tools/MVA/kd_KNN \
+                -I$(PANDADIR)/tools/riemannfit
 
 # Add extra ROOT libraries needed for PandaRoot.
 LIBS         += -lEG -lGenVector -lGeom -lGeomPainter -lMinuit \

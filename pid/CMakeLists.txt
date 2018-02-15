@@ -11,7 +11,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/detectors/passive
-  ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/tools
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcMC
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcReco
@@ -45,12 +45,12 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pid/PidCorr
   ${CMAKE_SOURCE_DIR}/pid/PidClassifier
   ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recotasks
-  ${CMAKE_SOURCE_DIR}/PndTools/MVA
-  ${CMAKE_SOURCE_DIR}/PndTools/MVA/KNN
-  ${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ
-  ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
-  ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_MCL
-# ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_PDE_FOAM
+  ${CMAKE_SOURCE_DIR}/tools/MVA
+  ${CMAKE_SOURCE_DIR}/tools/MVA/KNN
+  ${CMAKE_SOURCE_DIR}/tools/MVA/LVQ
+  ${CMAKE_SOURCE_DIR}/tools/MVA/TMVAkd_KNN
+  ${CMAKE_SOURCE_DIR}/tools/MVA/TMVA_MCL
+# ${CMAKE_SOURCE_DIR}/tools/MVA/TMVA_PDE_FOAM
   ${CMAKE_SOURCE_DIR}/detectors/rich
 )
 

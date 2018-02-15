@@ -8,8 +8,8 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/PndTools/generalTools 
-  ${CMAKE_SOURCE_DIR}/PndPropagators/HelixPropagator
+  ${CMAKE_SOURCE_DIR}/tools 
+  ${CMAKE_SOURCE_DIR}/tracking/HelixPropagator
  # ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/geane
@@ -26,7 +26,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/stt
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcTools
-  ${CMAKE_SOURCE_DIR}/PndEventdisplay
+  ${CMAKE_SOURCE_DIR}/eventdisplay
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

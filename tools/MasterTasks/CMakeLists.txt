@@ -11,8 +11,8 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/PndTools/master
-  ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/tools/MasterTasks
+  ${CMAKE_SOURCE_DIR}/tools
   ${CMAKE_SOURCE_DIR}/tracking/PndTrackingTools
   ${CMAKE_SOURCE_DIR}/tracking/PndIdealTrackFinder
   ${CMAKE_SOURCE_DIR}/tracking/CentralTracking

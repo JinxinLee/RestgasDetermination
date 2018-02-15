@@ -24,7 +24,7 @@ set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
   ${CMAKE_SOURCE_DIR}/pnddata/FtsData
-  ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/tools
   ${CMAKE_SOURCE_DIR}/geane
   ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/adapters
   ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recohits

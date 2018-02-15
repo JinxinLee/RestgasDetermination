@@ -20,7 +20,7 @@ source /lustre/nyx/panda/carsten/fairsoft_nov15/pandaroot/buildPanda/config.sh
 
 #
 OPTIND=1 
-SCR="/lustre/nyx/panda/carsten/fairsoft_nov15/pandaroot/PndTools/RadMapTool/Scripts"
+SCR="/lustre/nyx/panda/carsten/fairsoft_nov15/pandaroot/tools/RadMapTool/Scripts"
 # Initialize our own variables:
 number=2 
 process="analysis"

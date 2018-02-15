@@ -13,11 +13,11 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/detectors/passive
-${CMAKE_SOURCE_DIR}/PndTools/
-${CMAKE_SOURCE_DIR}/PndTools/buffers
+${CMAKE_SOURCE_DIR}/tools/
+${CMAKE_SOURCE_DIR}/tools/buffers
 ${CMAKE_SOURCE_DIR}/tracking/riemannfit
-${CMAKE_SOURCE_DIR}/PndTools/generalTools
-${CMAKE_SOURCE_DIR}/PndTools/
+${CMAKE_SOURCE_DIR}/tools
+${CMAKE_SOURCE_DIR}/tools/
 ${CMAKE_SOURCE_DIR}/detectors/mvd
 ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTracking
 ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMC

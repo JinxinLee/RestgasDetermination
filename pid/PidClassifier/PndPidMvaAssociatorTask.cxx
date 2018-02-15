@@ -61,7 +61,7 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
     fManager(0),
     fVarNames  (std::vector<std::string>()),
     fClassNames(std::vector<std::string>()),
-    fWeightsFileName(std::string(getenv("VMCWORKDIR")) + std::string("/PndTools/MVA/PndMVAWeights/")),
+    fWeightsFileName(std::string(getenv("VMCWORKDIR")) + std::string("/tools/MVA/PndMVAWeights/")),
     fNumNeigh(200),
     fScFact(0.8),
     fWeight(1.00),
@@ -88,7 +88,7 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(char const* name)
     fManager(0),
     fVarNames  (std::vector<std::string>()),
     fClassNames(std::vector<std::string>()),
-    fWeightsFileName(std::string(getenv("VMCWORKDIR")) + std::string("/PndTools/MVA/PndMVAWeights/")),
+    fWeightsFileName(std::string(getenv("VMCWORKDIR")) + std::string("/tools/MVA/PndMVAWeights/")),
     fNumNeigh(200),
     fScFact(0.8),
     fWeight(1.00),
@@ -112,7 +112,7 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(char const* name)
 void PndPidMvaAssociatorTask::SetDefaultWeightsPath()
 {
   fWeightsFileName  = std::string(getenv("VMCWORKDIR"));
-  fWeightsFileName += std::string("/PndTools/MVA/PndMVAWeights/");
+  fWeightsFileName += std::string("/tools/MVA/PndMVAWeights/");
   std::cout<<"<INFO> Default Weights path is set to "
 	   << fWeightsFileName
 	   << '\n';

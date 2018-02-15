@@ -7,7 +7,7 @@ SCRATCH         /scratch/johan
 MOVECMD         $HOME/bin/movefiles
 #
 RUNID 0
-JOB 100 /home/panda/pandaroot/trunk/PndTools/mpiTools/scripts/fittest.sh NULL /daq/panda/johan/fittest 7 10000 200 8 50 500 kTRUE LQN
+JOB 100 /home/panda/pandaroot/trunk/tools/mpiTools/scripts/fittest.sh NULL /daq/panda/johan/fittest 7 10000 200 8 50 500 kTRUE LQN
 
 BARRIER
 RUNID 10000

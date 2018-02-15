@@ -28,7 +28,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoMath
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
   ${CMAKE_SOURCE_DIR}/tracking/CentralTracking
-  ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
+  ${CMAKE_SOURCE_DIR}/tools/
   ${CMAKE_SOURCE_DIR}/tracking/TrkSecondary
   ${CMAKE_SOURCE_DIR}/tracking/TrkStructure
   ${CMAKE_SOURCE_DIR}/tracking/TrkAlgo

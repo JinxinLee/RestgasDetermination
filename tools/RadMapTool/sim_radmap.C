@@ -97,7 +97,7 @@ int main(int argc, char ** argv){
   unsigned nevt = 2;
   string out = "RadMap_Out_Sim.root";
   string tra = "TGeant4";
-  string geofile = "/lustre/nyx/panda/carsten/fairsoft_nov15/pandaroot/PndTools/RadMapTool/detectors.dat";
+  string geofile = "/lustre/nyx/panda/carsten/fairsoft_nov15/pandaroot/tools/RadMapTool/detectors.dat";
   // std::vector<std::pair<std::string, std::string> > geometryfiles;
   std::vector<std::string> geometryfiles;
   while ((c = getopt(argc, argv, "n:o:t:g:h")) != -1)

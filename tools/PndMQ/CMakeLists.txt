@@ -33,8 +33,8 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/detectors/passive
-  ${CMAKE_SOURCE_DIR}/PndTools/generalTools
-  ${CMAKE_SOURCE_DIR}/PndTools/MQ
+  ${CMAKE_SOURCE_DIR}/tools
+  ${CMAKE_SOURCE_DIR}/tools/PndMQ
   )
   
   Set(SYSTEM_INCLUDE_DIRECTORIES

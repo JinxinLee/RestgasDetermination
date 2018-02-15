@@ -201,7 +201,7 @@ PndTrackCand PndFtsHoughTrackCand::getPndTrackCand() {
 
 
 
-// for conversion to PndTrack, compare to PndTools/riemannfit/PndRiemannTrack.cxx, line 1104
+// for conversion to PndTrack, compare to tools/riemannfit/PndRiemannTrack.cxx, line 1104
 //--------------------------------------------------------------------------------------------
 // getNumHits is called getNHits in PndTrackCand (which I use to store the hits belonging to this track candidate)
 // I don't need the B field to calculate the parameters

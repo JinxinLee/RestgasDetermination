@@ -11,7 +11,7 @@
 
  This class takes care of geometric calculations for tracklets.
 
- Loosely modeled after PndTools/riemannfit/PndRiemannTrack.h
+ Loosely modeled after tools/riemannfit/PndRiemannTrack.h
 
  TODO
  Maybe it would be better not to derive from PndTrackCand, but to contain an object of PndTrackCand

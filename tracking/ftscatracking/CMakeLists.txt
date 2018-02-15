@@ -22,7 +22,7 @@ ${CMAKE_SOURCE_DIR}/detectors/stt
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/FtsData
 ${CMAKE_SOURCE_DIR}/detectors/fts
-${CMAKE_SOURCE_DIR}/PndTools/generalTools/
+${CMAKE_SOURCE_DIR}/tools/
 ${CMAKE_SOURCE_DIR}/tracking/ftscatracking
 ${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code
 ${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code/Performance

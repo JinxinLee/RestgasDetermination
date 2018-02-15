@@ -19,7 +19,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoHistogram
   ${CMAKE_SOURCE_DIR}/analysis/rho/DecayTreeFitter
-  ${CMAKE_SOURCE_DIR}/PndTools/PndParticleFitters
+  ${CMAKE_SOURCE_DIR}/tools/PndParticleFitters
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

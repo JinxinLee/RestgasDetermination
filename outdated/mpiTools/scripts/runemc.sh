@@ -26,15 +26,15 @@ PANDAROOTBUILD=$VMCWORKDIR/../build/
 #
 # Get the configuration files for G3 and G4 from own gconfig directory
 #
-export CONFIG_DIR=$PANDAROOTHOME/PndTools/mpiTools/macros/gconfig/
+export CONFIG_DIR=$PANDAROOTHOME/tools/mpiTools/macros/gconfig/
 #
 source $PANDAROOTBUILD/config.sh > logfile
 #
 # Copy ROOT scripts to local path
 #
-cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/emc.C .
-cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/reco_analys.C .
-cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/rootlogon.C .
+cp $PANDAROOTHOME/tools/mpiTools/macros/emc/emc.C .
+cp $PANDAROOTHOME/tools/mpiTools/macros/emc/reco_analys.C .
+cp $PANDAROOTHOME/tools/mpiTools/macros/emc/rootlogon.C .
 #
 # Run the scripts
 #

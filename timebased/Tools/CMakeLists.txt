@@ -10,9 +10,17 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/PndTools/PndBurstBuilder
-  #${CMAKE_SOURCE_DIR}/recotasks
-  #${CMAKE_SOURCE_DIR}/trackbase
+  ${CMAKE_SOURCE_DIR}/field
+  ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+  ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+  ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/pnddata/SciTData
+  ${CMAKE_SOURCE_DIR}/detectors/passive
+  ${CMAKE_SOURCE_DIR}/tools
+  ${CMAKE_SOURCE_DIR}/timebased/Tools
+  ${CMAKE_SOURCE_DIR}/recotasks
+  ${CMAKE_SOURCE_DIR}/trackbase
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -29,17 +37,18 @@ link_directories( ${LINK_DIRECTORIES})
 ########################### create libSds ######################################
 set(SRCS
 
-PndBranchBurstBuilder.cxx
-PndBranchBurstBuilder_eventBased.cxx
-PndBranchBurstBuilder_timeCut_STB.cxx
-PndBranchBurstBuilder_timeCut.cxx
+PndGapEventBuilderTask.cxx
+PndTimeStructureAnaTask.cxx
+PndSolCorrTask.cxx
+PndT0CandidateTask.cxx
+PndT0CandidateDetermination.cxx
+
 )
 
-set(LINKDEF  PndBurstBuilderLinkDef.h)
-set(LIBRARY_NAME PndBurstBuilder)
+set(LINKDEF  TimeBasedToolsLinkDef.h)
+set(LIBRARY_NAME TimeBasedTools)
 
-set(DEPENDENCIES Base)
-#set(DEPENDENCIES Base GeoBase ParBase PndData generalTools)
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools)
 
 GENERATE_LIBRARY()
  

@@ -16,7 +16,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/RichData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
-  ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/tools
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

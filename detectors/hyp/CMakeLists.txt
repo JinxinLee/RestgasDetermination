@@ -16,7 +16,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/tracking/riemannfit
-  ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/tools
   ${CMAKE_SOURCE_DIR}/detectors/hyp
   ${CMAKE_SOURCE_DIR}/detectors/hyp/hypData
   ${CMAKE_SOURCE_DIR}/detectors/hyp/hypDigi

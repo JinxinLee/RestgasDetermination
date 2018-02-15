@@ -28,7 +28,7 @@ source $PANDAROOTBUILD/config.sh > logfile
 #
 # Copy treeMerge.C root-script
 #
-cp $PANDAROOTHOME/PndTools/mpiTools/macros/tools/treeMerge.C .
+cp $PANDAROOTHOME/tools/mpiTools/macros/tools/treeMerge.C .
 #
 # Create list of root files to merge
 #

@@ -18,7 +18,7 @@ source $PANDAROOTBUILD/config.sh > logfile
 #
 # Copy fittest.C
 #
-cp $VMCWORKDIR/PndTools/mpiTools/macros/tests/fittest.C .
+cp $VMCWORKDIR/tools/mpiTools/macros/tests/fittest.C .
 #
 # Run the scripts
 #

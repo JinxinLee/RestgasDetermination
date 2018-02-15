@@ -27,7 +27,7 @@ source $PANDAROOTBUILD/config.sh > logfile
 #
 # Copy hadd.C root-script
 #
-cp $PANDAROOTHOME/PndTools/mpiTools/macros/tools/hadd.C .
+cp $PANDAROOTHOME/tools/mpiTools/macros/tools/hadd.C .
 #
 # Create list of root files to merge
 #

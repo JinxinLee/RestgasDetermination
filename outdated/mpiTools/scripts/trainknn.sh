@@ -13,10 +13,10 @@ source $PANDAROOTBUILD/config.sh > logfile
 #
 # Copy programs to local path
 #
-cp $PANDAROOTHOME/PndTools/MVA/KNN/PndKnn* .
-cp $PANDAROOTHOME/PndTools/MVA/KNN/train.cpp .
-cp $PANDAROOTHOME/PndTools/MVA/KNN/classify.cpp .
-cp $PANDAROOTHOME/PndTools/MVA/KNN/Makefile.jgm .
+cp $PANDAROOTHOME/tools/MVA/KNN/PndKnn* .
+cp $PANDAROOTHOME/tools/MVA/KNN/train.cpp .
+cp $PANDAROOTHOME/tools/MVA/KNN/classify.cpp .
+cp $PANDAROOTHOME/tools/MVA/KNN/Makefile.jgm .
 #
 # Compile
 #

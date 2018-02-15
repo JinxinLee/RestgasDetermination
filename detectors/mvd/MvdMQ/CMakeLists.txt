@@ -30,7 +30,7 @@ set(INCLUDE_DIRECTORIES
     ${CMAKE_SOURCE_DIR}/detectors/sds/SdsFEModel
     ${CMAKE_SOURCE_DIR}/detectors/sds/SdsTools
     ${CMAKE_SOURCE_DIR}/pnddata/SdsData
-    ${CMAKE_SOURCE_DIR}/PndTools/MQ
+    ${CMAKE_SOURCE_DIR}/tools/MQ
     ${CMAKE_CURRENT_BINARY_DIR}
     ${FAIRROOT_INCLUDE_DIR}
 )
@@ -53,7 +53,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/detectors/sds/SdsDigi
   ${CMAKE_SOURCE_DIR}/detectors/passive
-  ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/tools
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTools
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdReco
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMQ/src/algorithms

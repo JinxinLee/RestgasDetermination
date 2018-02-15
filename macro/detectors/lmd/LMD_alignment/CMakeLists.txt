@@ -18,10 +18,10 @@ ${CMAKE_SOURCE_DIR}/pnddata/FtsData
 ${CMAKE_SOURCE_DIR}/pnddata/SciTData
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/detectors/passive
-${CMAKE_SOURCE_DIR}/PndTools/
-${CMAKE_SOURCE_DIR}/PndTools/buffers
+${CMAKE_SOURCE_DIR}/tools/
+${CMAKE_SOURCE_DIR}/tools/buffers
 ${CMAKE_SOURCE_DIR}/tracking/riemannfit
-${CMAKE_SOURCE_DIR}/PndTools/generalTools
+${CMAKE_SOURCE_DIR}/tools
 ${CMAKE_SOURCE_DIR}/detectors/sds/SdsMC
 ${CMAKE_SOURCE_DIR}/detectors/sds/SdsDigi
 ${CMAKE_SOURCE_DIR}/detectors/sds/SdsReco
