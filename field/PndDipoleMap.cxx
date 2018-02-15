@@ -41,7 +41,7 @@ PndDipoleMap::PndDipoleMap(const char* mapName,
   NewName=mapName+Suffix;
   SetName(NewName.Data());
   TString dir = getenv("VMCWORKDIR");
-  fFileName = dir + "/input/" + NewName;
+  fFileName = dir + "/input/fieldmaps/" + NewName;
   if ( fileType[0] == 'R' ) fFileName += ".root";
   else                      fFileName += ".dat";
 
@@ -82,7 +82,7 @@ PndDipoleMap::PndDipoleMap(PndMapPar* fieldPar)
     fPosZ  = fieldPar->GetPositionZ();
     fScale = fieldPar->GetScale();
     TString dir = getenv("VMCWORKDIR");
-    fFileName = dir + "/input/" + fName + ".root";
+    fFileName = dir + "/input/fieldmaps/" + fName + ".root";
     fType = fieldPar->GetType();
   }
 
