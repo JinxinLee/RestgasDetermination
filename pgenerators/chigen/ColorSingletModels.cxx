@@ -56,7 +56,7 @@ EvtSpinDensity chigen::models::createSpinDensity(int spin, int projection) {
             matrix.set(1, 1, EvtComplex(1.0, 0.0));
             return matrix;
         default:
-            throw runtime_error("Not a valid polarization.");
+            throw std::runtime_error("Not a valid polarization.");
     }
 }
 

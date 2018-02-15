@@ -18,6 +18,11 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/tracking/CentralTracking
   ${CMAKE_SOURCE_DIR}/tracking/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/pgenerators
+  ${CMAKE_SOURCE_DIR}/pgenerators/Direct
+  ${CMAKE_SOURCE_DIR}/pgenerators/FileReaders
+  ${CMAKE_SOURCE_DIR}/pgenerators/particleguns
+  ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
+  ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00	
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect

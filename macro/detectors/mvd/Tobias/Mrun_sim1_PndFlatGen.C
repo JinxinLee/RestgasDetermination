@@ -102,7 +102,7 @@ Mrun_sim1_PndFlatGen(Int_t numevents, TString basefile)
   CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  PndFlatParticleGenerator pndFlatGen;
+  PndFixStepParticleGun pndFlatGen;
 pndFlatGen.SetPDGType(211);
 //pndFlatGen.SetMultiplicity(10);
 pndFlatGen.SetPRange(1, 1, 1);

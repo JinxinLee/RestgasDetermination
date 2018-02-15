@@ -133,7 +133,7 @@ namespace chigen {
 
         void ensure_evt_gen_is_inialized() {
             if (!evt_gen_is_loaded)
-                throw runtime_error("EvtGen is not loaded yet.");
+                throw std::runtime_error("EvtGen is not loaded yet.");
 
             if (evt_gen_ids_are_loaded)
                 return;

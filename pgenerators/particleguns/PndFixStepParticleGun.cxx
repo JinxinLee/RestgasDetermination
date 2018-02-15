@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----            PndFlatParticleGenerator source file                        -----
+// -----            PndFixStepParticleGun source file                        -----
 // -----          Created 10/30/08	by Tobias Stockmanns
 // -------------------------------------------------------------------------
 
 
-#include "PndFlatParticleGenerator.h"
+#include "PndFixStepParticleGun.h"
 
 #include "FairPrimaryGenerator.h"
 
@@ -14,7 +14,7 @@
 #include "TMath.h"
 
 // ------------------------------------------------------------------------
-PndFlatParticleGenerator::PndFlatParticleGenerator() :
+PndFixStepParticleGun::PndFixStepParticleGun() :
   fPDGType(0),fMult(0),fEvent(0), fPDGMass(0),
   fX(0),fY(0),fZ(0),
   fX1(0),fY1(0),fX2(0),fY2(0),
@@ -31,7 +31,7 @@ PndFlatParticleGenerator::PndFlatParticleGenerator() :
 }
 
 // ------------------------------------------------------------------------
-PndFlatParticleGenerator::PndFlatParticleGenerator(Int_t pdgid, Int_t mult) :
+PndFixStepParticleGun::PndFixStepParticleGun(Int_t pdgid, Int_t mult) :
   fPDGType(pdgid),fMult(mult), fEvent(0),fPDGMass(0),
   fX(0),fY(0),fZ(0),
   fX1(0),fY1(0),fX2(0),fY2(0),
@@ -50,34 +50,34 @@ PndFlatParticleGenerator::PndFlatParticleGenerator(Int_t pdgid, Int_t mult) :
 	SetPhiRange();
 }
 // ------------------------------------------------------------------------
-Bool_t PndFlatParticleGenerator::Init()
+Bool_t PndFixStepParticleGun::Init()
 {
   // Initialize generator
 
   if (fPhi.fStop-fPhi.fStart>360)
-    Fatal("Init()","PndFlatParticleGenerator: phi range is too wide: %f<phi<%f",
+    Fatal("Init()","PndFixStepParticleGun: phi range is too wide: %f<phi<%f",
 	  fPhi.fStop,fPhi.fStart);
   if (fPRangeIsSet && fPtRangeIsSet)
-    Fatal("Init()","PndFlatParticleGenerator: Cannot set P and Pt ranges simultaneously");
+    Fatal("Init()","PndFixStepParticleGun: Cannot set P and Pt ranges simultaneously");
   if (fPRangeIsSet && fYRangeIsSet)
-    Fatal("Init()","PndFlatParticleGenerator: Cannot set P and Y ranges simultaneously");
+    Fatal("Init()","PndFixStepParticleGun: Cannot set P and Y ranges simultaneously");
   if ( (fThetaRangeIsSet && fYRangeIsSet) ||
        (fThetaRangeIsSet && fEtaRangeIsSet) ||
        (fYRangeIsSet     && fEtaRangeIsSet) )
-    Fatal("Init()","PndFlatParticleGenerator: Cannot set Y, Theta or Eta ranges simultaneously");
+    Fatal("Init()","PndFixStepParticleGun: Cannot set Y, Theta or Eta ranges simultaneously");
   if (fPointVtxIsSet && fBoxVtxIsSet)
-    Fatal("Init()","PndFlatParticleGenerator: Cannot set point and box vertices simultaneously");
+    Fatal("Init()","PndFixStepParticleGun: Cannot set point and box vertices simultaneously");
 
   // Check for particle type
   TDatabasePDG* pdgBase = TDatabasePDG::Instance();
   TParticlePDG *particle = pdgBase->GetParticle(fPDGType);
-  if (! particle) Fatal("PndFlatParticleGenerator","PDG code %d not defined.",fPDGType);
+  if (! particle) Fatal("PndFixStepParticleGun","PDG code %d not defined.",fPDGType);
   fPDGMass = particle->Mass();
   return kTRUE;
 }
 
 // ------------------------------------------------------------------------
-Bool_t PndFlatParticleGenerator::ReadEvent(FairPrimaryGenerator* primGen)
+Bool_t PndFixStepParticleGun::ReadEvent(FairPrimaryGenerator* primGen)
 {
   // Generate one event: produce primary particles emitted from one vertex.
   // Primary particles are distributed uniformly along
@@ -162,7 +162,7 @@ Bool_t PndFlatParticleGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 
 }
 // ------------------------------------------------------------------------
-void PndFlatParticleGenerator::CalcActValues(PndRangeValues* val1, PndRangeValues* val2, PndRangeValues* val3)
+void PndFixStepParticleGun::CalcActValues(PndRangeValues* val1, PndRangeValues* val2, PndRangeValues* val3)
 {
 	if (val1 == 0)
 		val1 = new PndRangeValues();
@@ -190,4 +190,4 @@ void PndFlatParticleGenerator::CalcActValues(PndRangeValues* val1, PndRangeValue
 		std::cout << "End of range reached at EventNr: " << fEvent << std::endl;
 }
 
-ClassImp(PndFlatParticleGenerator)
+ClassImp(PndFixStepParticleGun)

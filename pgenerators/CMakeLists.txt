@@ -2,6 +2,15 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
+add_subdirectory (DpmEvtGen)
+add_subdirectory (FtfEvtGen)
+add_subdirectory (Direct)
+add_subdirectory (EvtGen)
+add_subdirectory (chigen)
+#add_subdirectory (PndFlukaGen)
+#add_subdirectory (EMFFgenerators)
+
+
 Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES}
   ${CLHEP_INCLUDE_DIR}
@@ -14,7 +23,10 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators
   ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
   ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
+  ${CMAKE_SOURCE_DIR}/pgenerators/GiBuuReader
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
+  ${CMAKE_SOURCE_DIR}/pgenerators/particleguns
+  ${CMAKE_SOURCE_DIR}/pgenerators/FileReaders
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/analysis/rho
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
@@ -37,24 +49,22 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 PndRestGas.cxx
-PndDpmGenerator.cxx
-PndFtfGenerator.cxx
-PndEvtGenGenerator.cxx
-PndDpmDirect.cxx
-#PndFtfDirect.cxx
-PndBoxGenerator.cxx
-PndUrqmdSmmGenerator.cxx
-PndJRGenerator.cxx
-PndPythia6Generator.cxx
 PndPythia8Generator.cxx
-PndFlatParticleGenerator.cxx
-PndFlukaGenerator.cxx
 PndGasGenerator.cxx
-PndHypBupGenerator.cxx
-PndGiBuuGenerator.cxx
-PndGiBuuTrack.cxx
-PndGiBuuDecayerAbs.cxx
-PndGiBuuJPsiEE.cxx
+particleguns/PndBoxGenerator.cxx
+particleguns/PndFixStepParticleGun.cxx
+FileReaders/PndDpmGenerator.cxx
+FileReaders/PndFtfGenerator.cxx
+FileReaders/PndEvtGenGenerator.cxx
+FileReaders/PndUrqmdSmmGenerator.cxx
+FileReaders/PndJRGenerator.cxx
+FileReaders/PndPythia6Generator.cxx
+FileReaders/PndFlukaGenerator.cxx
+FileReaders/PndHypBupGenerator.cxx
+GiBuuReader/PndGiBuuGenerator.cxx
+GiBuuReader/PndGiBuuTrack.cxx
+GiBuuReader/PndGiBuuDecayerAbs.cxx
+GiBuuReader/PndGiBuuJPsiEE.cxx
 eventFilter/FairFilteredPrimaryGenerator.cxx
 eventFilter/FairEvtFilterParams.cxx
 eventFilter/FairEvtFilter.cxx
@@ -66,16 +76,8 @@ eventFilter/PndEvtFilterOnInvMassCounts.cxx
 set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
-set(DEPENDENCIES Base DpmEvtGen pythia8)
+set(DEPENDENCIES Base pythia8)
 
 GENERATE_LIBRARY()
 
 
-
-################ FTF DIRECT ################### 
-#	 	set(SRCS PndFtfDirect.cxx) 
-#	 	set(LINKDEF  FtfLinkDef.h) 
-#	 	set(LIBRARY_NAME FtfGenDirect) 
-#	 	set(DEPENDENCIES G4clhep G4global G4geometry G4physicslists G4materials EG FtfEvtGen) 
-#	 	#Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1) # Is it really needed?? 
-#	 	GENERATE_LIBRARY() 

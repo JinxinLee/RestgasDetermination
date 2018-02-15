@@ -36,6 +36,7 @@ ${GEANT4VMC_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
+PndDpmDirect.cxx
 PndFtfDirect.cxx
 PndG4DummyPhysicsList.cxx
 PndG4DummyDetectorConstruction.cxx
@@ -44,6 +45,6 @@ PndG4DummyActionInitialization.cxx
 
 set(LINKDEF  FtfLinkDef.h)
 set(LIBRARY_NAME FtfGenDirect)
-set(DEPENDENCIES Base geant4vmc G4clhep G4global G4geometry G4physicslists G4materials EG  FtfEvtGen)
+set(DEPENDENCIES Base geant4vmc G4clhep G4global G4geometry G4physicslists G4materials EG  FtfEvtGen DpmEvtGen)
 #Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1) # Is it really needed??
 GENERATE_LIBRARY()

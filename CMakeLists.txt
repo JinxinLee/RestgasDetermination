@@ -369,12 +369,6 @@ add_subdirectory (pnddata)
 add_subdirectory (field)
 
 add_subdirectory (pgenerators)
-add_subdirectory (pgenerators/DpmEvtGen)
-add_subdirectory (pgenerators/FtfEvtGen)
-add_subdirectory (pgenerators/Direct)
-add_subdirectory (pgenerators/EvtGen)
-#add_subdirectory (pgenerators/PndFlukaGen)
-#add_subdirectory (pgenerators/EMFFgenerators)
 
 add_subdirectory (detectors/passive)
 add_subdirectory (detectors/stt)

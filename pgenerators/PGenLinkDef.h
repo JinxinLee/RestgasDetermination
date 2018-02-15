@@ -15,7 +15,7 @@
 #pragma link C++ class  PndJRGenerator+;
 #pragma link C++ class  PndPythia6Generator+;
 #pragma link C++ class  PndPythia8Generator+;
-#pragma link C++ class  PndFlatParticleGenerator+;
+#pragma link C++ class  PndFixStepParticleGun+;
 #pragma link C++ class  PndFlukaGenerator+;
 #pragma link C++ class  PndRangeValues+;
 #pragma link C++ class  PndGasGenerator+;

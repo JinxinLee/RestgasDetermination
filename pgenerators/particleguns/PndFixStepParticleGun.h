@@ -1,9 +1,9 @@
 // -------------------------------------------------------------------------
-// -----                PndFlatParticleGenerator header file                    -----
+// -----                PndFixStepParticleGun header file                    -----
 // -----          Created 30/10/08  by Tobias Stockmanns                      -----
 // -------------------------------------------------------------------------
 
-/**  PndFlatParticleGenerator.h
+/**  PndFixStepParticleGun.h
 */
 
 #ifndef Pnd_FLATPARTICLEGENERATOR_H
@@ -37,21 +37,21 @@ public :
 };
 
 
-class PndFlatParticleGenerator : public FairGenerator
+class PndFixStepParticleGun : public FairGenerator
 {
 public:
 
   /** Default constructor. **/
-  PndFlatParticleGenerator();
+  PndFixStepParticleGun();
 
   /** Constructor with PDG-ID, multiplicity
    **@param pdgid Particle type (PDG encoding)
    **@param mult  Multiplicity (default is 1)
    **/
-  PndFlatParticleGenerator(Int_t pdgid, Int_t mult=1);
+  PndFixStepParticleGun(Int_t pdgid, Int_t mult=1);
 
   /** Destructor **/
-  virtual ~PndFlatParticleGenerator() {};
+  virtual ~PndFixStepParticleGun() {};
 
   /** Modifiers **/
   void SetPDGType      (Int_t pdg)  {fPDGType = pdg;  };
@@ -130,7 +130,7 @@ private:
   Bool_t	 fDoit;					// Stop generating particles at the end of the range
   void CalcActValues(PndRangeValues* val1, PndRangeValues* val2, PndRangeValues* val3);
 
-  ClassDef(PndFlatParticleGenerator,1);
+  ClassDef(PndFixStepParticleGun,1);
 
 };
 
