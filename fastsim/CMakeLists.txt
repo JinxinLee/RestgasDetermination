@@ -10,8 +10,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/detectors/passive
-  ${CMAKE_SOURCE_DIR}/FastSim
-  ${CMAKE_SOURCE_DIR}/FastSim/scrut
+  ${CMAKE_SOURCE_DIR}/fastsim
   ${CMAKE_SOURCE_DIR}/pid
   ${CMAKE_SOURCE_DIR}/analysis/rho
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
