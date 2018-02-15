@@ -15,7 +15,7 @@ int sim_day1(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMo
   // FTF    -> "ftf_xxxxx"
   TString  inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  inputDir = gSystem->Getenv("VMCWORKDIR");
-  inputDir += "/macro/qa/day1/";
+  inputDir += "/macro/QA/day1/";
   gRandom->SetSeed(1234);
   //-------------------------------------------------------------------------
   // -----   Create the Simulation run manager ------------------------------

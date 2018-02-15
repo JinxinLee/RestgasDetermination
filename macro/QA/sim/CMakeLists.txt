@@ -1,9 +1,9 @@
-GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/sim/QAmacro_sim_G3.C)
-add_test(qa_sim_macro1 ${PANDAROOT_BINARY_DIR}/macro/qa/sim/QAmacro_sim_G3.sh)
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/QA/sim/QAmacro_sim_G3.C)
+add_test(qa_sim_macro1 ${PANDAROOT_BINARY_DIR}/macro/QA/sim/QAmacro_sim_G3.sh)
 SET_TESTS_PROPERTIES(qa_sim_macro1 PROPERTIES TIMEOUT "200")
 SET_TESTS_PROPERTIES(qa_sim_macro1 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
 
-GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/sim/QAmacro_sim_G4.C)
-add_test(qa_sim_macro2 ${PANDAROOT_BINARY_DIR}/macro/qa/sim/QAmacro_sim_G4.sh)
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/QA/sim/QAmacro_sim_G4.C)
+add_test(qa_sim_macro2 ${PANDAROOT_BINARY_DIR}/macro/QA/sim/QAmacro_sim_G4.sh)
 SET_TESTS_PROPERTIES(qa_sim_macro2 PROPERTIES TIMEOUT "200")
 SET_TESTS_PROPERTIES(qa_sim_macro2 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")

@@ -8,7 +8,7 @@ int QAmacro_evtgen_2()
   TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
   TString DECAYInput = BaseDir + "/pgenerators/EvtGen/EvtGen/Private/DECAY.DEC";
   TString PDLInput = BaseDir + "/pgenerators/EvtGen/EvtGen/Private/evt.pdl";
-  TString USERInput = BaseDir + "/macro/qa/evtgen/test.dec";
+  TString USERInput = BaseDir + "/macro/QA/evtgen/test.dec";
 
   Bool_t fTest=kFALSE;
   

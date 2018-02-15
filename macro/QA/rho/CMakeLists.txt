@@ -1,4 +1,4 @@
-GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/rho/QAmacro_rho_1.C)
-add_test(qa_rho_macro1 ${PANDAROOT_BINARY_DIR}/macro/qa/rho/QAmacro_rho_1.sh)
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/QA/rho/QAmacro_rho_1.C)
+add_test(qa_rho_macro1 ${PANDAROOT_BINARY_DIR}/macro/QA/rho/QAmacro_rho_1.sh)
 SET_TESTS_PROPERTIES(qa_rho_macro1 PROPERTIES TIMEOUT "100")
 SET_TESTS_PROPERTIES(qa_rho_macro1 PROPERTIES PASS_REGULAR_EXPRESSION "Test Failed;Not Ok")

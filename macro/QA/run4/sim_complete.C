@@ -15,7 +15,7 @@ int sim_complete(Int_t nEvents = 1000, TString  SimEngine ="TGeant4", Double_t B
   // FTF    -> "ftf_xxxxx"
   TString  inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  inputDir = gSystem->Getenv("VMCWORKDIR");
-  inputDir += "/macro/qa/run3/";
+  inputDir += "/macro/QA/run3/";
   gRandom->SetSeed(1234);
   //-------------------------------------------------------------------------
   // -----   Create the Simulation run manager ------------------------------
