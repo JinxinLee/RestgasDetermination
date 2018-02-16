@@ -35,7 +35,7 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	cout << "All libraries succsesfully loaded!" << endl;
 
 	//set the MC version used
-    fRun->SetName("TGeant4");
+	fRun->SetName("TGeant4");
 	//fRun->SetName("TGeant3");  //GEANE uses GEANT3!
 
 	fRun->SetOutputFile(simOutput);
@@ -225,6 +225,25 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	else
 		fRun->SetStoreTraj(kFALSE);
 
+	// generate all paths
+
+	// check if for each path a misalignment matrix exists
+
+	// generate a misalignment matrix for each missing step
+
+	// save them to json file
+
+	cout << "here be matrices:\n";
+
+	PndLmdAlignManager manager;
+	vector<string> paths = manager.getAllAlignPaths(true, true, true, true, true);
+
+	cout << "got paths\n";
+
+	for (auto &i : paths) {
+		cout << i << " \n";
+	}
+	return 0;
 
 	// Misalign geometry
 	std::string examplePath = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/";
@@ -268,7 +287,6 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	Par->setInputVersion(fRun->GetRunId(), 1);
 	Par->setChanged();
 
-
 	// Transport nEvents
 	// -----------------
 
@@ -281,6 +299,7 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	Double_t rtime = timer.RealTime();
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
+
 	return 0;
 }
 
