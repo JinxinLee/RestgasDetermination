@@ -199,7 +199,7 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
-  //exit(0);
+  //return 0;
   return 0;
   
 };

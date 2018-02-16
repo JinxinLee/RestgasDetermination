@@ -149,7 +149,7 @@ rad_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
-  exit(0);
+  return 0;
 
 }  
   

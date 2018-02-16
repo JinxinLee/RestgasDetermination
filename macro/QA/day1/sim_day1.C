@@ -40,7 +40,6 @@ int sim_day1(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMo
   fRun->Run(nEvents); 
   fRun->Finish();
   
-  //exit(0);  
   return 0;
 };
 

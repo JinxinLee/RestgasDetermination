@@ -49,6 +49,6 @@ int QAmacro_drc_4()
   //   cout << " Not Ok " << endl;         
   // }
 
-  exit(0); 
+  return 0; 
 }  
   

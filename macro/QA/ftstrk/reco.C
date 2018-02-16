@@ -123,6 +123,6 @@ int reco(Int_t nEvents = 5)
 
   // ------------------------------------------------------------------------
   cout << "Macro finished successfully." << endl;
-  //exit(0);
+  //return 0;
   return 0;
 }

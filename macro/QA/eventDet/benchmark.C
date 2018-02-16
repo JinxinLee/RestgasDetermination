@@ -205,5 +205,5 @@ void benchmark() {
 	cout << " Test passed" << endl;
 	cout << " All ok " << endl;
 	
-	// exit(0);
+	// return 0;
 }

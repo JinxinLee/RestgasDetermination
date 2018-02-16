@@ -140,7 +140,7 @@
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   delete fRun;
-  exit(0);
+  return 0;
 
 }  
   

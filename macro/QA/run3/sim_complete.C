@@ -39,7 +39,7 @@ int sim_complete(Int_t nEvents = 1000, TString  SimEngine ="TGeant3", Double_t B
   fRun->Run(nEvents); 
   fRun->Finish();
   
-  //exit(0);  
+  //return 0;  
   return 0;
 };
 

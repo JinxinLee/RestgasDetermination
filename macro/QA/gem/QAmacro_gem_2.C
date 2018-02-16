@@ -137,7 +137,7 @@ int QAmacro_gem_2()
     cout << " Not Ok " << endl;         
   }
 
-  exit(0); 
+  return 0; 
 
 }  
   

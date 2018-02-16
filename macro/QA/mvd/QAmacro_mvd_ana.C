@@ -44,7 +44,7 @@ int QAmacro_mvd_ana()
       geoMan = gGeoManager;
       if(!geoMan) {
         std::cout<<"Could not find valid GeoManager. Abort now!"<<std::endl;
-        exit(1);
+        return 1;
       }
     }
   }
@@ -66,7 +66,7 @@ int QAmacro_mvd_ana()
 
   if(!fGeoH){
     std::cout<<"No MvdGeoHandling existant. Abort now!"<<std::endl;
-    exit(1);
+    return 1;
   }
   fGeoH->FillSensorMap();
 //  fGeoH->PrintSensorNames();

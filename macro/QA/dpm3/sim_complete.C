@@ -36,7 +36,6 @@ int sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Double_t Bea
   fRun->Run(nEvents); 
   fRun->Finish();
   
-  //exit(0);  
   return 0;
 };
 

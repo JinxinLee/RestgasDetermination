@@ -203,7 +203,7 @@ void sim(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6.2)
   std::cout << " Test passed" << std::endl;
   std::cout << " All ok " << std::endl;
   
-  //exit(0);
+  //return 0;
   
 }  
 

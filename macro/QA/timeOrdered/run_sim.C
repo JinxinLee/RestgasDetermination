@@ -196,7 +196,7 @@ int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
-  //exit(0);
+  //return 0;
   return 0;
   
 };

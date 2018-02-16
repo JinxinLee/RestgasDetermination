@@ -50,6 +50,6 @@ int QAmacro_drc_3()
   //   cout << " Not Ok " << endl;         
   // }
 
-  exit(0); 
+  return 0; 
 }  
   

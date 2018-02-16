@@ -97,5 +97,5 @@ bool check_pid(TString fn="pid_plot.root", TString fn2="pid_target.root", double
     cout << " Not Ok " << endl;
   }
 
-    exit(fTest);
+    return fTest;
 }
