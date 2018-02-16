@@ -146,7 +146,7 @@ void PndRich::Initialize()
 
    // pde_dpc3200_22.dat
    std::string workdir(getenv( "VMCWORKDIR" ));
-   std::string effFileName(workdir+"/rich/pde_dpc3200_22.dat");
+   std::string effFileName(workdir+"/detectors/rich/pde_dpc3200_22.dat");
    std::ifstream from( effFileName.c_str() );
    Double_t wli, pdei;
    from >> wli >> pdei;

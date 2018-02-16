@@ -64,7 +64,7 @@ PndRichCalDb::PndRichCalDb(const char* mapName, const char* fileType)
 {
   SetName(mapName);
   TString dir = getenv("VMCWORKDIR");
-  fFileName = dir + "/rich/" + mapName;
+  fFileName = dir + "/detectors/rich/" + mapName;
   if ( fileType[0] == 'R' ) fFileName += ".root";
   else                      fFileName += ".dat";
   fType = 1;
@@ -95,7 +95,7 @@ PndRichCalDb::PndRichCalDb(PndRichCalDbPar* calDbPar)
     TString Name=GetName();
     calDbPar->MapName(Name);
     TString dir = getenv("VMCWORKDIR");
-    fFileName = dir + "/rich/" + Name + ".root";
+    fFileName = dir + "/detectors/rich/" + Name + ".root";
     fFileName = Name + ".root";
     fType = calDbPar->GetType();
   }
