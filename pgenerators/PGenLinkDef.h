@@ -8,8 +8,6 @@
 #pragma link C++ class  PndDpmGenerator+;
 #pragma link C++ class  PndFtfGenerator+;
 #pragma link C++ class  PndEvtGenGenerator+;
-#pragma link C++ class  PndDpmDirect+;
-//#pragma link C++ class  PndFtfDirect+;
 #pragma link C++ class  PndBoxGenerator+;
 #pragma link C++ class  PndUrqmdSmmGenerator+;
 #pragma link C++ class  PndJRGenerator+;
