@@ -51,7 +51,7 @@ PndRichGeo::PndRichGeo()
    Double_t keff;
    if (fPhDetDev==0)
    {
-      effFileName += "/rich/pde_dpc3200_22.dat";
+      effFileName += "/detectors/rich/pde_dpc3200_22.dat";
       fPhDetSizeX = 3.26;
       fPhDetSizeY = 3.26;
       fPhDetGapX = 0.01;
@@ -60,7 +60,7 @@ PndRichGeo::PndRichGeo()
    }
    if (fPhDetDev==1)
    {
-      effFileName += "/rich/pde_h12700.dat";
+      effFileName += "/detectors/rich/pde_h12700.dat";
       fPhDetSizeX = 5.2;
       fPhDetSizeY = 5.2;
       fPhDetGapX = 0.01;
