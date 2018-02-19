@@ -44,7 +44,7 @@ TGeoHMatrix createRandomMatrix(double angleSigma, double shiftSigma) {
 	return result;
 }
 
-void createPndLmdMisalignmentMatrices(bool debug = false) {
+int createPndLmdMisalignmentMatrices(bool debug = false) {
 
 	string misMatricesFilePath = "misalignMatrices-SensorsOnly.root";
 

@@ -114,7 +114,7 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	bool misalignedGeometry = true;
 	if (misalignedGeometry) {
 
-		string misMatricesFilePath = "misalignMatrices-Sensor0.root";
+		string misMatricesFilePath = "misalignMatrices-SensorsOnly.root";
 
 		// check if file exists, if true, try to read it
 		TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "READ");
