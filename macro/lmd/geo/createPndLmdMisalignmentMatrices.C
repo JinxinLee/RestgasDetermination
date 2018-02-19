@@ -90,6 +90,9 @@ int createPndLmdMisalignmentMatrices(bool debug = false) {
 
 	// for testing if ONE matrix works
 	if (debug) {
+
+		misMatricesFilePath = "misalignMatrices-Sensor-0.root";
+
 		// Misalign geometry
 		std::string examplePath = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/";
 
@@ -131,6 +134,5 @@ int createPndLmdMisalignmentMatrices(bool debug = false) {
 	} else {
 		cerr << "WARNING! Could not write to " << misMatricesFilePath << "\n";
 	}
-
 	return 0;
 }
