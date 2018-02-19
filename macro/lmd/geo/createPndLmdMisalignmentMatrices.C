@@ -12,15 +12,15 @@ TGeoHMatrix createRandomMatrix(double angleSigma, double shiftSigma) {
 
 	double mean = 0;
 
-	double angles[3];
+	double sigmaX, sigmaY, sigmaZ;
 	double shift[3];
 
 	// can only rotate about z
-	//angles[0] = PRNG->Gaus(mean, angleSigma);
-	//angles[1] = PRNG->Gaus(mean, angleSigma);
-	angles[0] = 0;
-	angles[1] = 0;
-	angles[2] = PRNG->Gaus(mean, angleSigma);
+	//sigmaX = PRNG->Gaus(mean, angleSigma);
+	//sigmaY = PRNG->Gaus(mean, angleSigma);
+	sigmaX = 0;
+	sigmaY = 0;
+	sigmaZ = PRNG->Gaus(mean, angleSigma);
 
 	// can't move in z
 	shift[0] = PRNG->Gaus(mean, shiftSigma);
@@ -36,7 +36,7 @@ TGeoHMatrix createRandomMatrix(double angleSigma, double shiftSigma) {
 //	cout << "rand val: " << shift[2] << "\n";
 
 	TGeoHMatrix result;
-	result.SetRotation(angles);
+	result.RotateZ(sigmaZ);
 	result.SetTranslation(shift);
 
 //	result.Print();
@@ -102,7 +102,11 @@ int createPndLmdMisalignmentMatrices(bool debug = false) {
 
 		for (auto &i : paths) {
 			// TODO: cerate sigma parameters another way
-			TGeoHMatrix tempMat = createRandomMatrix(1000e-6, 100e-4);
+
+			double shift = 100e-4;
+			double rot = TMath::RadToDeg() * 1000e-6;
+
+			TGeoHMatrix tempMat = createRandomMatrix(rot, shift);
 			matrices[i] = tempMat;
 		}
 	}
