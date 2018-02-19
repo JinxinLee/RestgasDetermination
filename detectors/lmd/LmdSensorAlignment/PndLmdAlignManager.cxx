@@ -114,7 +114,7 @@ void PndLmdAlignManager::init() {
 	fileNames.clear();
 	aligners.clear();
 
-	//helper = &PndLmdGeometryHelper::getInstance();
+	helper = &PndLmdGeometryHelper::getInstance();
 
 	vector<int> overlapIDs = helper->getAvailableOverlapIDs();
 	for (size_t i = 0; i < overlapIDs.size(); i++) {
