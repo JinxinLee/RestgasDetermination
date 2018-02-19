@@ -235,15 +235,14 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 
 	cout << "here be matrices:\n";
 
-	PndLmdAlignManager manager;
-	vector<string> paths = manager.getAllAlignPaths(true, true, true, true, true);
+	PndLmdGeometryHelper &helper = PndLmdGeometryHelper::getInstance();
+	vector<string> paths = helper.getAllAlignPaths(true, true, true, true, true);
 
 	cout << "got paths\n";
 
 	for (auto &i : paths) {
 		cout << i << " \n";
 	}
-	return 0;
 
 	// Misalign geometry
 	std::string examplePath = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/";
@@ -253,10 +252,31 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	exampleMatrix.SetTranslation(vec);
 	cout << "matrix created\n";
 
+	TFile *misalignmentMatrixRootfile = new TFile("misalignMatrices.root", "NEW");
+
 	std::map < std::string, TGeoHMatrix > matrices;
 	matrices[examplePath] = exampleMatrix;
 	Lum->SetMisalignmentMatrices(matrices);
 	cout << "matrix set!\n";
+
+	if ( misalignmentMatrixRootfile->IsOpen() ) {
+		printf("File opened successfully\n");
+
+		//misalignmentMatrixRootfile->Write(&matrices);
+		gDirectory->WriteObject(&matrices, "PndLmdMisalignMatrices");
+		misalignmentMatrixRootfile->Write();
+		misalignmentMatrixRootfile->Close();
+
+		cout << "data written to file.";
+
+	}
+	else{
+		cerr << "WARNING! Could not write matrices to file!\n";
+	}
+
+	// get misalignemt matrices with gDirectory->GetObject("PndLmdMisalignMatrices", &matrices)
+
+	return 0;
 
 	// fRun->SetStoreTraj(kTRUE);
 	fRun->Init();

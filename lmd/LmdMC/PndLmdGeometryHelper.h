@@ -105,6 +105,10 @@ public:
 	const TGeoHMatrix getMatrixPndGlobalToLmdLocal();
 	const TGeoHMatrix getMatrixLmdLocalToPndGlobal();
 
+	// returns all paths to alignable objects, filtered by bools
+	std::vector<std::string> getAllAlignPaths(bool sensors=true, bool modules=false, bool planes=false,
+	        bool halfs=false, bool detector=false);
+
 };
 
 #endif /* LMD_LMDMC_PNDLMDGEOMETRYHELPER_H_ */

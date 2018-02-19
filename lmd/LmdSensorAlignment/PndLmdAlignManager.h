@@ -197,10 +197,6 @@ public:
 	//read json config file
 	static boost::property_tree::ptree readConfigFile(std::string filename);
 
-	// returns all paths to alignable objects, filtered by bools
-	std::vector<std::string> getAllAlignPaths(bool sensors = true, bool modules = false, bool planes =
-	        false, bool halfs = false, bool detector = false);
-
 	void setBinaryPairFileDirectory(const std::string& binaryPairFileDirectory) {
 		_binaryPairFileDirectory = binaryPairFileDirectory;
 	}
