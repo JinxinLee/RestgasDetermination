@@ -4,6 +4,8 @@
 // a user defined seed value.
 unsigned int seed = 128;
 
+#include <TRandom3.h>
+
 // use Mersenne Twister
 TRandom3 *PRNG = new TRandom3(seed);
 
@@ -50,14 +52,13 @@ int createPndLmdMisalignmentMatrices(bool debug = false) {
 
 	cout << "creating dummy geometry...\n";
 
+	// the Geometry we want to use
 	TString geometryFile = "Luminosity-Detector.root";
 
+	// we have to setup a dummy simulation so the gGeoManager indexes the Geometry
 	TString simOutput = "./dummy.root";
 	FairRunSim *fRun = new FairRunSim();
-
-	//set the MC version used
 	fRun->SetName("TGeant4");
-
 	fRun->SetOutputFile(simOutput);
 	fRun->SetMaterials("media_pnd.geo");
 	FairModule *Cave = new PndCave("CAVE");
@@ -76,8 +77,10 @@ int createPndLmdMisalignmentMatrices(bool debug = false) {
 	Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
 	Lum->SetGeometryFileName(geometryFile);
 	fRun->AddModule(Lum);
-
 	fRun->Init();
+
+	// after init, the geometry can't be changed anymore, but that's okay.
+	// we only want to create a matrix file that can be used in a later step.
 
 	cout << "PndLmd: creating misalignment matrices.\n";
 
