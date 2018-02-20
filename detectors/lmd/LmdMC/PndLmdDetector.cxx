@@ -38,7 +38,7 @@ void PndLmdDetector::SetDefaultSensorNames() {
 void PndLmdDetector::ModifyGeometry() {
 	LOG(INFO) << "Modifying the geometry for the Lmd detector." << FairLogger::endl;
 
-	TString detStr = "lmd";
+	TString detStr = "lmd_root";
 
 	TGeoPNEntry* entry = gGeoManager->GetAlignableEntry(detStr.Data());
 	if (entry) {

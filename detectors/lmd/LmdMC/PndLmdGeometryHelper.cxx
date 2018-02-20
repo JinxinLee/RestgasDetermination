@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "TGeoPhysicalNode.h"
+
 using std::string;
 
 PndLmdGeometryHelper::~PndLmdGeometryHelper() {
@@ -26,25 +28,25 @@ PndLmdGeometryHelper::~PndLmdGeometryHelper() {
  *    2x (modules per side). Counting starts on front (w.r.t. beam direction)
  */
 PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo(
-        const std::string &volume_path) const {
+    const std::string &volume_path) const {
 	PndLmdHitLocationInfo hit_info;
 	std::stringstream reg_exp;
 	for (auto const &nav_path : navigation_paths) {
-		reg_exp << "/" << nav_path << "_(\\d+)";
+		reg_exp << "/" << nav_path.first << "_(\\d+)";
 	}
 
 	std::smatch match;
 
 	if (std::regex_search(volume_path, match, std::regex(reg_exp.str()))) {
-		hit_info.detector_half = (unsigned char) std::stoul(match[2]);
-		hit_info.plane = (unsigned char) std::stoul(match[3]);
-		hit_info.module = (unsigned char) std::stoul(match[4]);
-		unsigned char sensor_id((unsigned char) std::stoul(match[5]));
+		hit_info.detector_half = (unsigned char) std::stoul(match[1]);
+		hit_info.plane = (unsigned char) std::stoul(match[2]);
+		hit_info.module = (unsigned char) std::stoul(match[3]);
+		unsigned char sensor_id((unsigned char) std::stoul(match[4]));
 		hit_info.module_side = 0;
 		hit_info.module_sensor_id = sensor_id;
 
 		unsigned int sensors_per_module_side = geometry_properties.get<unsigned int>(
-		        "general.sensors_per_module_side");
+		    "general.sensors_per_module_side");
 
 		if (sensor_id > sensors_per_module_side - 1) {
 			hit_info.module_side = 1;
@@ -58,10 +60,10 @@ PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo
 		TString actPath = fGeoManager->GetPath();
 		fGeoManager->cd(volume_path.c_str());
 		PndGeoHandling::Instance()->cd(fGeoManager->GetCurrentNode());
-		if (actPath != "" && actPath != " ")
-			fGeoManager->cd(actPath);
+		if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
 
-	} else {
+	}
+	else {
 		throw std::runtime_error("PndLmdGeometryHelper::translateVolumePathToHitLocationInfo: geometry "
 				"navigation paths mismatch!"
 				" Seems like you used a different lmd geo config file to create a lmd "
@@ -108,7 +110,8 @@ const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(int sensor
 	auto const &result = sensor_id_to_hit_info_mapping.find(sensor_id);
 	if (result != sensor_id_to_hit_info_mapping.end()) {
 		return result->second;
-	} else {
+	}
+	else {
 		return createMappingEntry(sensor_id);
 	}
 }
@@ -351,68 +354,40 @@ bool PndLmdGeometryHelper::isOverlappingArea(const int id1, const int id2) {
 }
 
 std::vector<std::string> PndLmdGeometryHelper::getAllAlignPaths(bool sensors, bool modules, bool planes,
-        bool halfs, bool detector) {
+    bool halfs, bool detector) {
 
 	std::vector<std::string> result;
+	auto all_volume_paths = getAllAlignableVolumePaths();
 
-	// prototype:
-	// "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/";
-
-	//TODO: read parameters from parameter file
-	const string caveP = "/cave_1";
-	const string detectorP = "/lmd_root_0";
-	const string halfP = "/half_";
-	const string planeP = "/plane_";
-	const string moduleP = "/module_";
-	const string sensorP = "/sensor_";
-	string currentTopPath = "";
-
-	const int noOfHalfs = 2;
-	const int noOfPlanes = 4;
-	const int noOfModules = 5;
-	const int noOfSensors = 10;
-
-	currentTopPath = caveP + detectorP;
-
-	// this one loops over the entire geometry and adds every path to everything thats enabled
-
-	// get path to box
-	if (detector) {
-		result.push_back(currentTopPath);
+	std::vector<std::string> filter_strings;
+	if (!sensors && !modules && !planes && !halfs && !detector) {
+		sensors = true;
+		modules = true;
+		planes = true;
+		halfs = true;
+		detector = true;
 	}
-	for (int iHalf = 0; iHalf < noOfHalfs; iHalf++) {
+	if (detector) filter_strings.push_back(navigation_paths[0].first);
+	if (halfs) filter_strings.push_back(navigation_paths[1].first);
+	if (planes) filter_strings.push_back(navigation_paths[2].first);
+	if (modules) filter_strings.push_back(navigation_paths[3].first);
+	if (sensors) filter_strings.push_back(navigation_paths[4].first);
 
-		string halfPh = halfP + std::to_string(iHalf);
-		currentTopPath = caveP + detectorP + halfPh;
+	std::cout<<"total number of alignable volumes: "<<all_volume_paths.size()<<std::endl;
 
-		if (halfs) {
-			result.push_back(currentTopPath);
-		}
+	for (auto filter_string : filter_strings) {
+		auto found(all_volume_paths.begin());
+		while (found != all_volume_paths.end()) {
+			found = std::find_if(found, all_volume_paths.end(), [&](const std::string& s) {
+				std::stringstream reg_exp;
+				reg_exp<<"^.*/" << filter_string << "_(\\d+)/*$";
+				std::smatch match;
+				return std::regex_search(s, match, std::regex(reg_exp.str()));
+			});
 
-		for (int iPlane = 0; iPlane < noOfPlanes; iPlane++) {
-
-			string planePh = planeP + std::to_string(iPlane);
-			currentTopPath = caveP + detectorP + halfPh + planePh;
-			if (planes) {
-				result.push_back(currentTopPath);
-			}
-
-			for (int iModule = 0; iModule < noOfModules; iModule++) {
-
-				string modulePh = moduleP + std::to_string(iModule);
-				currentTopPath = caveP + detectorP + halfPh + planePh + modulePh;
-				if (modules) {
-					result.push_back(currentTopPath);
-				}
-
-				for (int iSensor = 0; iSensor < noOfSensors; iSensor++) {
-
-					string sensorPh = sensorP + std::to_string(iSensor);
-					currentTopPath = caveP + detectorP + halfPh + planePh + modulePh + sensorPh;
-					if (sensors) {
-						result.push_back(currentTopPath);
-					}
-				}
+			if (found != all_volume_paths.end()) {
+				result.push_back(*found);
+				++found;
 			}
 		}
 	}
@@ -422,3 +397,44 @@ std::vector<std::string> PndLmdGeometryHelper::getAllAlignPaths(bool sensors, bo
 
 	return result;
 }
+
+std::vector<std::string> PndLmdGeometryHelper::getAllAlignableVolumePaths() const {
+	TGeoNode* node = fGeoManager->GetTopNode();
+
+	std::vector<std::string> alignable_volumes;
+
+	if (fGeoManager->GetNAlignable() > 0) {
+		for (unsigned int i = 0; i < fGeoManager->GetNAlignable(); ++i) {
+			TGeoPNEntry* entry = fGeoManager->GetAlignableEntry(i);
+			if (entry) alignable_volumes.push_back(entry->GetPath());
+		}
+	}
+	else {
+		std::vector<std::pair<TGeoNode*, std::string> > current_paths;
+		current_paths.push_back(std::make_pair(node, fGeoManager->GetPath()));
+
+		while (current_paths.size() > 0) {
+			auto temp_current_paths = current_paths;
+			current_paths.clear();
+			for (auto const curpath : temp_current_paths) {
+				std::stringstream reg_exp;
+				for (auto nav_path : navigation_paths) {
+					reg_exp << "/" + nav_path.first << "_(\\d+)";
+					std::smatch match;
+					if (std::regex_search(curpath.second, match, std::regex(reg_exp.str() + "/*$"))) {
+						if (nav_path.second) alignable_volumes.push_back(curpath.second);
+						break;
+					}
+				}
+				for (int i = 0; i < curpath.first->GetNdaughters(); ++i) {
+					node = curpath.first->GetDaughter(i);
+					std::stringstream full_path;
+					full_path << curpath.second << "/" << node->GetName();
+					current_paths.push_back(std::make_pair(node, full_path.str()));
+				}
+			}
+		}
+	}
+	return alignable_volumes;
+}
+
