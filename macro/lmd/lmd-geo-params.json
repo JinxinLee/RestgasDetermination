@@ -2,7 +2,6 @@
   "general": {   
     "navigation_paths":
     [
-      {"name": "lmd_top", "is_alignable": false},
       {"name": "lmd_root", "is_alignable": true},
       {"name": "half", "is_alignable": true},
       {"name": "plane", "is_alignable": true},

@@ -37,7 +37,7 @@ struct PndLmdHitLocationInfo {
 
 class PndLmdGeometryHelper {
 	boost::property_tree::ptree geometry_properties;
-	std::vector<std::string> navigation_paths;
+	std::vector<std::pair<std::string, bool> > navigation_paths;
 
 	std::map<std::string, PndLmdHitLocationInfo> volume_path_to_hit_info_mapping;
 	std::map<int, PndLmdHitLocationInfo> sensor_id_to_hit_info_mapping;
@@ -51,17 +51,16 @@ class PndLmdGeometryHelper {
 		// load parameters
 		read_json(geo_params_config_file_url, geometry_properties);
 		auto pt_general = geometry_properties.get_child("general");
-		unsigned int counter(0);  // we need this to skip the first element
 		for (boost::property_tree::ptree::value_type &nav_path : pt_general.get_child("navigation_paths")) {
-			if (counter > 0)
-				navigation_paths.push_back(nav_path.second.get<std::string>("name"));
-			++counter;
+				navigation_paths.push_back(
+					      std::make_pair(nav_path.second.get<std::string>("name"),
+					                     nav_path.second.get<bool>("is_alignable")));
 		}
 
 		TString actPath = fGeoManager->GetPath();
 		std::stringstream lmd_path;
 		fGeoManager->CdTop();
-		lmd_path << fGeoManager->GetPath() << "/" << navigation_paths[0] << "_0";
+		lmd_path << fGeoManager->GetPath() << "/" << navigation_paths[0].first << "_0";
 		lmd_root_path = lmd_path.str();
 		if (actPath != "" && actPath != " ")
 			fGeoManager->cd(actPath);
@@ -108,6 +107,8 @@ public:
 	// returns all paths to alignable objects, filtered by bools
 	std::vector<std::string> getAllAlignPaths(bool sensors=true, bool modules=false, bool planes=false,
 	        bool halfs=false, bool detector=false);
+
+	std::vector<std::string> getAllAlignableVolumePaths() const;
 
 };
 

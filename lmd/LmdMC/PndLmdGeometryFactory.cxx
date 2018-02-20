@@ -111,12 +111,12 @@ TGeoVolumeAssembly* PndLmdGeometryFactory::generateLmdGeometry() const {
   // upstream_beampipe_connection_z_position
 
   TGeoVolumeAssembly* top =
-      new TGeoVolumeAssembly(navigation_paths[0].first.c_str());
+      new TGeoVolumeAssembly("lmd_top");
   gGeoMan->SetTopVolume(top);
 
   // create the reference system of the lmd
   TGeoVolumeAssembly* lmd_vol =
-      new TGeoVolumeAssembly(navigation_paths[1].first.c_str());
+      new TGeoVolumeAssembly(navigation_paths[0].first.c_str());
 
   // generate vacuum box
   lmd_vol->AddNode(generateLmdBox(), 0);
@@ -135,7 +135,7 @@ TGeoVolumeAssembly* PndLmdGeometryFactory::generateLmdGeometry() const {
 
   gGeoMan->CloseGeometry();
 
-  makeNodesAlignable(gGeoMan->GetTopNode(), 0);
+  makeNodesAlignable();
   std::cout << "Number of alignable volumes: " << gGeoMan->GetNAlignable()
             << std::endl;
 
@@ -451,7 +451,7 @@ TGeoVolume* PndLmdGeometryFactory::generateDetectorHalf(
   }
 
   TGeoVolumeAssembly* lmd_vol_half =
-      new TGeoVolumeAssembly(navigation_paths[2].first.c_str());
+      new TGeoVolumeAssembly(navigation_paths[1].first.c_str());
 
   // create a detector plane volume
   TGeoVolume* lmd_vol_plane = generateDetectorHalfPlane(is_bottom_half);
@@ -477,7 +477,7 @@ TGeoVolume* PndLmdGeometryFactory::generateDetectorHalf(
 TGeoVolume* PndLmdGeometryFactory::generateDetectorHalfPlane(
     bool is_bottom_half) const {
   TGeoVolumeAssembly* lmd_vol_plane =
-      new TGeoVolumeAssembly(navigation_paths[3].first.c_str());
+      new TGeoVolumeAssembly(navigation_paths[2].first.c_str());
 
   TGeoVolume* alu_cooling_half_ring = generateAluminumCoolingStructure();
   TGeoRotation* rot_alu_ring = new TGeoRotation();
@@ -553,7 +553,7 @@ TGeoVolume* PndLmdGeometryFactory::generateAluminumCoolingStructure() const {
 
 TGeoVolume* PndLmdGeometryFactory::generateSensorModule() const {
   TGeoVolumeAssembly* lmd_vol_module =
-      new TGeoVolumeAssembly(navigation_paths[4].first.c_str());
+      new TGeoVolumeAssembly(navigation_paths[3].first.c_str());
 
   // generate cvd cooling disk
   TGeoVolume* cvd_disc = generateCVDCoolingDisc();
@@ -717,7 +717,7 @@ TGeoVolume* PndLmdGeometryFactory::generateCVDCoolingDisc() const {
 
 TGeoVolume* PndLmdGeometryFactory::generateSensor() const {
   TGeoVolumeAssembly* lmd_vol_sensor =
-      new TGeoVolumeAssembly(navigation_paths[5].first.c_str());
+      new TGeoVolumeAssembly(navigation_paths[4].first.c_str());
 
   auto pt_sensors = geometry_property_tree.get_child("sensors");
   auto pt_active_part = pt_sensors.get_child("active_part");
@@ -756,7 +756,7 @@ TGeoVolume* PndLmdGeometryFactory::generateSensor() const {
   passive_sensor_volume->SetLineColor(30);
 
   TGeoVolume* active_sensor_volume =
-      new TGeoVolume(navigation_paths[6].first.c_str(), sensor_active_centered,
+      new TGeoVolume(navigation_paths[5].first.c_str(), sensor_active_centered,
                      gGeoMan->GetMedium("silicon"));
   active_sensor_volume->SetLineColor(kYellow);
 
@@ -839,15 +839,19 @@ void PndLmdGeometryFactory::recursiveNodeSubtraction(std::stringstream& ss,
   }
 }
 
+void PndLmdGeometryFactory::makeNodesAlignable() const {
+	TGeoNode* node = gGeoMan->GetTopNode();
+	gGeoMan->CdTop();
+	for (int i = 0; i < node->GetNdaughters(); ++i) {
+		makeNodesAlignable(node->GetDaughter(i), 0);
+	}
+}
+
 void PndLmdGeometryFactory::makeNodesAlignable(
     TGeoNode* node, unsigned int current_navigation_path_index) const {
   // make this volume alignable
   std::stringstream full_path;
-  full_path << gGeoMan->GetPath();
-  // if we are top node then no cd to node necessary
-  if (std::string(gGeoMan->GetPath()).find(node->GetName()) ==
-      std::string::npos)
-    full_path << "/" << node->GetName();
+  full_path << gGeoMan->GetPath() << "/" << node->GetName();
   gGeoMan->cd(full_path.str().c_str());
 
   bool found(false);

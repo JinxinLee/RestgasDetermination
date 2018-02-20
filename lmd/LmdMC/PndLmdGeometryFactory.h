@@ -40,6 +40,7 @@ class PndLmdGeometryFactory {
   TGeoVolume* generateBoxVacuum(const TGeoVolume* lmd_vol) const;
   void recursiveNodeSubtraction(std::stringstream& ss, TGeoNode* node) const;
 
+  void makeNodesAlignable() const;
   void makeNodesAlignable(TGeoNode* node,
                           unsigned int current_navigation_path_index) const;
 
