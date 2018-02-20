@@ -5,6 +5,8 @@
  *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
+#include "PndLmdPairFinderTask.h"
+
 #include <PndGeoHandling.h>
 #include <PndLmdAlignManager.h>
 #include <PndLmdContFact.h>
@@ -24,18 +26,17 @@
 #include <algorithm>
 #include <sstream>
 #include <vector>
-#include "PndLmdPairFinderTask.h"
 
 using std::cout;
 using std::cerr;
 using std::swap;
 
-ClassImp(LmdPairFinderTask);
+ClassImp(PndLmdPairFinderTask);
 
 /*
  * actually I don't need empty constructors, but fkn root crashes if no empty constructor is present
  */
-LmdPairFinderTask::LmdPairFinderTask() : // @suppress("Class members should be properly initialized")
+PndLmdPairFinderTask::PndLmdPairFinderTask() : // @suppress("Class members should be properly initialized")
 		PndSdsTask("pairfinder") {
 	digiArray = NULL;
 	recoArray = NULL;
@@ -49,7 +50,7 @@ LmdPairFinderTask::LmdPairFinderTask() : // @suppress("Class members should be p
 
 }
 
-LmdPairFinderTask::LmdPairFinderTask(const char* name) : // @suppress("Class members should be properly initialized")
+PndLmdPairFinderTask::PndLmdPairFinderTask(const char* name) : // @suppress("Class members should be properly initialized")
 		PndSdsTask("pairfinder with name") {
 	digiArray = NULL;
 	recoArray = NULL;
@@ -63,11 +64,11 @@ LmdPairFinderTask::LmdPairFinderTask(const char* name) : // @suppress("Class mem
 	_ignoreClusters = false;
 }
 
-LmdPairFinderTask::~LmdPairFinderTask() {
+PndLmdPairFinderTask::~PndLmdPairFinderTask() {
 	std::cout << "PairFinderTask destructor called." << "\n";
 }
 
-InitStatus LmdPairFinderTask::Init() {
+InitStatus PndLmdPairFinderTask::Init() {
 
 	noOfGoodPairs = 0;
 	noOfEvents = noOfCombos = 0;
@@ -84,6 +85,8 @@ InitStatus LmdPairFinderTask::Init() {
 	fInClusterCandidates = "LMDPixelClusterCand";
 
 	fFolderName = "cbmsim";
+
+	_maxDistance = 1250e-4;
 
 	SetBranchNames();
 
@@ -160,15 +163,15 @@ InitStatus LmdPairFinderTask::Init() {
 	return kSUCCESS;
 }
 
-void LmdPairFinderTask::SetBranchNames() {
+void PndLmdPairFinderTask::SetBranchNames() {
 	std::cout << "branch names set to " << fInBranchName << "\n";
 }
 
-InitStatus LmdPairFinderTask::ReInit() {
+InitStatus PndLmdPairFinderTask::ReInit() {
 	return InitStatus();
 }
 
-void LmdPairFinderTask::SetParContainers() {
+void PndLmdPairFinderTask::SetParContainers() {
 
 	FairRun* ana;
 	FairRuntimeDb* rtdb;
@@ -198,7 +201,7 @@ void LmdPairFinderTask::SetParContainers() {
  * The HitPair contains BOTH original row and col hits as well as LMD xyz Coordinates (as TVector3).
  * This consumes a lot of storage, but storage is cheap and for now we want the info.
  */
-void LmdPairFinderTask::Exec(Option_t*) {
+void PndLmdPairFinderTask::Exec(Option_t*) {
 
 	//clear temporary array for next event
 	hitPairArray->Clear();
@@ -317,10 +320,10 @@ void LmdPairFinderTask::Exec(Option_t*) {
 	return;
 }
 
-void LmdPairFinderTask::FinishEvent() {
+void PndLmdPairFinderTask::FinishEvent() {
 }
 
-void LmdPairFinderTask::FinishTask() {
+void PndLmdPairFinderTask::FinishTask() {
 
 	int notReady = 0;
 
@@ -403,10 +406,10 @@ void LmdPairFinderTask::FinishTask() {
 	return;
 }
 
-void LmdPairFinderTask::Register() {
+void PndLmdPairFinderTask::Register() {
 }
 
-bool LmdPairFinderTask::applyDynamicDistanceCut(PndLmdHitPair &candidate) {
+bool PndLmdPairFinderTask::applyDynamicDistanceCut(PndLmdHitPair &candidate) {
 
 	int overlapID = candidate.getOverlapId();
 
@@ -419,7 +422,7 @@ bool LmdPairFinderTask::applyDynamicDistanceCut(PndLmdHitPair &candidate) {
 	return true;
 }
 
-bool LmdPairFinderTask::applyStaticDistanceCut(PndLmdHitPair &candidate) {
+bool PndLmdPairFinderTask::applyStaticDistanceCut(PndLmdHitPair &candidate) {
 
 	//check distance squared
 	double distance = candidate.getDistance();
@@ -430,7 +433,7 @@ bool LmdPairFinderTask::applyStaticDistanceCut(PndLmdHitPair &candidate) {
 	return true;
 }
 
-void LmdPairFinderTask::getStatistics(PndLmdHitPair &candidate) {
+void PndLmdPairFinderTask::getStatistics(PndLmdHitPair &candidate) {
 
 	//check for overlap
 	int fplane;
@@ -460,7 +463,7 @@ void LmdPairFinderTask::getStatistics(PndLmdHitPair &candidate) {
 	noOfGoodPairs++;
 }
 
-pixelHit LmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
+pixelHit PndLmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 
 	pixelHit result;
 	int hitSensorId;
@@ -555,7 +558,7 @@ pixelHit LmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 
 }
 
-bool LmdPairFinderTask::candHitsOverlappingArea(const PndLmdHitPair &candidate) {
+bool PndLmdPairFinderTask::candHitsOverlappingArea(const PndLmdHitPair &candidate) {
 	int firstSensorId, secondSensorId;
 	firstSensorId = candidate.getId1();
 	secondSensorId = candidate.getId2();
@@ -568,6 +571,6 @@ bool LmdPairFinderTask::candHitsOverlappingArea(const PndLmdHitPair &candidate) 
 	return helper->isOverlappingArea(firstSensorId, secondSensorId);
 }
 
-void LmdPairFinderTask::Reset() {
+void PndLmdPairFinderTask::Reset() {
 }
 

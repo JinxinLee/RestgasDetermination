@@ -5,8 +5,8 @@
  *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
-#ifndef LMDPAIRFINDERTASK_H_
-#define LMDPAIRFINDERTASK_H_
+#ifndef PNDLMDPAIRFINDERTASK_H_
+#define PNDLMDPAIRFINDERTASK_H_
 
 #include "PndLmdAlignStructs.h"
 #include <PndLmdHitPair.h>
@@ -23,7 +23,7 @@
 
 class PndLmdGeometryHelper;
 
-class LmdPairFinderTask: public PndSdsTask {
+class PndLmdPairFinderTask: public PndSdsTask {
 
 private:
 
@@ -55,9 +55,9 @@ public:
 
 	void SetParContainers();
 
-	LmdPairFinderTask();
-	LmdPairFinderTask(const char* name);
-	virtual ~LmdPairFinderTask();
+	PndLmdPairFinderTask();
+	PndLmdPairFinderTask(const char* name);
+	virtual ~PndLmdPairFinderTask();
 
 	/** Take default naming **/
 	virtual void SetBranchNames();
@@ -125,7 +125,7 @@ protected:
 	//means two clusters can reasonably belong to a single track
 	bool candDistanceIsGood(PndLmdHitPair &candidate);
 
-	ClassDef(LmdPairFinderTask,18);
+	ClassDef(PndLmdPairFinderTask,19);
 };
 
 #endif /* PAIRFINDERTASK_H_ */
