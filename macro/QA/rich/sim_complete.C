@@ -17,7 +17,7 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom
   Bool_t UseEvtGenDirect      =kFALSE;
   Bool_t UseDpm 	      =kFALSE;
   Bool_t UseBoxGenerator      =kTRUE;
-  
+
   Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
   if (UseBoxGenerator)
   {
@@ -34,7 +34,7 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom
   TStopwatch timer;
   timer.Start();
   gRandom->SetSeed();
-  
+
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName(SimEngine.Data() );
@@ -45,29 +45,29 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom
   fRun->SetMaterials(MediaFile.Data());
   fRun->SetUseFairLinks(kTRUE);
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  
+
   // Set the parameters
   //-------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
   allDigiFile += digiFile;
-  
-  
+
+
   //-------Set the parameter output --------------------
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
   rtdb->setFirstInput(parIo1);
-  
+
   //---------------------Set Parameter output      ----------
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(ParOutputfile.Data());
   rtdb->setOutput(output);
-  
+
   // Create and add detectors
-  
+
   //-------------------------  CAVE      -----------------
-  
+
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
@@ -142,12 +142,12 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom
   //disc_dirc->SetGeometryFileName("DIRC_GEO_SIO2.root");
   //disc_dirc->SetFilterInterval(200., 800.);
   //fRun->AddModule(disc_dirc);
-  
+
   // Create and Set Event Generator
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-	 
+
   if(UseBoxGenerator){	// Box Generator
     FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
     boxGen->SetPRange(mom,mom); // GeV/c
@@ -168,22 +168,22 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom
   }
   if(UseEvtGenDirect){
     TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-    EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
+    EvtInput+="/macro/QA/rich/psi2s_Jpsi2pi_Jpsi_mumu.dec";
     PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
     EvtGen->SetStoreTree(kTRUE);
     primGen->AddGenerator(EvtGen);
   }
-  
+
   //---------------------Create and Set the Field(s)----------
   //PndMultiField *fField= new PndMultiField("FULL",BeamMomentum);
   PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
-  
+
   // EMC Hit producer
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
-  
+
   //-------------------------  Initialize the RUN  -----------------
   fRun->Init();
   //-------------------------  Run the Simulation  -----------------
@@ -195,12 +195,12 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  
+
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  
+
   //return 0;
   return 0;
-  
+
 };
 

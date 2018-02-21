@@ -1,11 +1,12 @@
 #include "PndMasterTask.h"
-
+#include "TGeoManager.h"
+#include "TROOT.h"
 #include <iostream>
 
 // -----   Default constructor   -------------------------------------------
 PndMasterTask::PndMasterTask() :
   PndBlackBoxTask("Master  Task")
-{ 
+{
 }
 
 // -----   Cconstructor -------  -------------------------------------------
@@ -15,7 +16,7 @@ PndMasterTask::PndMasterTask(const char* name) :
 }
 // -------------------------------------------------------------------------
 
-/** 
+/**
  * @bried Print the list of the task which are included in the list
  * @details This function print the task number, its title and its name. This can be important when it is needed to modify a particular task and the task number is needed. In any case, the use of enum should be preferred.
  * @remark The task names are not well defined in the classes, some of them are missing. We should define a better scheme.
@@ -34,7 +35,7 @@ void PndMasterTask::PrintTaskList()
 	std::cout << "Task #" << counter << "\tTitle: " << task->GetTitle() << "\tName: " << task->GetName() << std::endl;
       counter++;
     }
- 
+
   return;
 }
 
@@ -48,7 +49,7 @@ void PndMasterTask::SetVerbose(Int_t iVerbose)
     {
       task->SetVerbose(iVerbose);
     }
- 
+
   return;
 }
 
@@ -57,7 +58,7 @@ void PndMasterTask::SetVerbose(Int_t nTask, Int_t iVerbose)
 {
   TList* thistasks = this->GetListOfTasks();
   ((FairTask*)thistasks->At(nTask))->SetVerbose(iVerbose);
-  
+
   return;
 }
 
@@ -71,13 +72,18 @@ void PndMasterTask::SetPersistency(Bool_t ) // pers //[R.K.03/2017] unused varia
 FairTask* PndMasterTask::GetTask(Int_t nTask)
 {
   TList* thistasks = this->GetListOfTasks();
-  
+
   return ((FairTask*)thistasks->At(nTask));
 }
 
 // -----   Destructor   ----------------------------------------------------
 PndMasterTask::~PndMasterTask()
 {
+  if (gROOT->GetVersionInt() >= 60602 && gGeoManager!=NULL) {
+    gGeoManager->GetListOfVolumes()->Delete();
+    gGeoManager->GetListOfShapes()->Delete();
+    delete gGeoManager;
+  }
 }
 // -------------------------------------------------------------------------
 

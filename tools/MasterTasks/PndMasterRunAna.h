@@ -22,19 +22,24 @@ class PndMasterRunAna : public FairRunAna
  public:
 
   /**
-   * @brief Default constructor 
+   * @brief Default constructor
    */
   PndMasterRunAna();
-  
+
   /**
-   * @brief Initial setup 
+   * @brief Default destructor
+   */
+  virtual ~PndMasterRunAna();
+
+  /**
+   * @brief Initial setup
    * @details # Master Inital setup
    * This command set the source files, load the proper parameters,
    * and set the relevant flags. If something fails, it returns
    * a kFALSE value.
    */
   Bool_t Setup(TString outprefix="");
-  
+
   /**
    * @brief Final diagnostics
    * @details # Master Final diagnostics
@@ -42,7 +47,7 @@ class PndMasterRunAna : public FairRunAna
    * send the information to CDash
    */
   void Finish();
-  
+
   /**
    * @brief Add digitization tasks
    * @details # Add Master digi tasks
@@ -50,7 +55,7 @@ class PndMasterRunAna : public FairRunAna
    * It calls PndMasterDigiTask, adding all the standard digitization tasks
    */
   void AddDigiTasks(Bool_t pers = kTRUE);
-  
+
   /**
    * @brief Add reconstruction tasks
    * @details # Add Master reco tasks
@@ -74,24 +79,24 @@ class PndMasterRunAna : public FairRunAna
    * It calls PndMasterPidTask, adding all the standard pid tasks
    */
   void AddPidTasks(Bool_t pers = kTRUE);
-  
+
   /**
    * @brief Input of the macro
-   */  
+   */
   void SetInput(TString par)          { fInput          = par;}
 
   /**
    * @brief Tag of the output file of the macro
-   */  
+   */
   void SetOutput(TString par)         { fOutFile        = par;}
-  
+
   /**
    * @brief Setter of the parameter root file
    */
   void SetParamRootFile(TString par)  { fParamRootFile  = par;}
-  
+
   /**
-   * @brief Setter of the parameter ascii file 
+   * @brief Setter of the parameter ascii file
    */
   void SetParamAsciiFile(TString par) { fParamAsciiFile = par;}
 
@@ -104,33 +109,33 @@ class PndMasterRunAna : public FairRunAna
    * @brief Setter of the 2nd friend root file
    */
   void SetFriend2(TString par)        { fFriendFile2    = par;}
-  
+
   /**
-   * @brief Setter of the 3rd friend root file 
+   * @brief Setter of the 3rd friend root file
    */
   void SetFriend3(TString par)        { fFriendFile3    = par;}
-  
+
   /**
-   * @brief Setter of the 4th friend root file 
+   * @brief Setter of the 4th friend root file
    */
   void SetFriend4(TString par)        { fFriendFile4    = par;}
 
-  /** 
-   * @brief Setter of the reconstruction options 
+  /**
+   * @brief Setter of the reconstruction options
    * @detail This string can be:
    * ""     -> default settings
    * "day1" -> Setup for day1 experimentent, no GEM
    * "day1+GEM" -> Setup for day1 experimentent, 3 GEM planes
    */
   void SetOptions(TString par) { fOptions = par; fOptions.ToLower();}
-  
-  /** 
+
+  /**
    * @brief Setter of the event counter rate
    */
   void SetEventCounterRate(Int_t par) { fEventCounterRate = par;}
-  
+
  private:
-  
+
   TString fInput;            ///< Name of the input for the simulation
   TString fOutFile;          ///< Name of the output file
   TString fParamRootFile;    ///< Name of the parameter root file
@@ -138,18 +143,18 @@ class PndMasterRunAna : public FairRunAna
   TString fFriendFile1;      ///< Name of the 1st friend root file
   TString fFriendFile2;      ///< Name of the 2nd friend root file
   TString fFriendFile3;      ///< Name of the 3rd friend root file
-  TString fFriendFile4;      ///< Name of the 4th friend root file 
+  TString fFriendFile4;      ///< Name of the 4th friend root file
   TString fOptions;          ///< Options parsed to the reconstruction
- 
+
   Int_t fEventCounterRate;   ///< After how many events the counter will print
   Bool_t fNoGeane;           ///< Protect GEANE from being loaded twice
-  
-  TStopwatch fTimer;         ///< Timer 
-  
+
+  TStopwatch fTimer;         ///< Timer
+
   /** @cond CLASSIMP */
   ClassDef(PndMasterRunAna,2);  ///< 1st Implementation -> 1; day options -> 2
   /** @endcond */
-  
+
 };
 
 #endif /* PNDMASTERRUNANA_H */

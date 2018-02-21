@@ -41,6 +41,8 @@
 
 #include "TLorentzVector.h"
 #include "TDatabasePDG.h"
+#include "TGeoManager.h"
+#include "TROOT.h"
 
 #include <fstream>
 using std::cout;
@@ -51,6 +53,15 @@ PndMasterRunSim::PndMasterRunSim() :
   FairRunSim(), fInput(), fInputDir(""), fOutFile(), fParamRootFile(), fParamAsciiFile(), fOptions(), fDpmFlag(1), fFtfFlag(0), fNEvents(0), fEventCounterRate(100), fTargetMode(0), fRtdb(), fTimer()
 {
   fTimer.Start();
+}
+// -----   Default destructor   -------------------------------------------
+PndMasterRunSim::~PndMasterRunSim()
+{
+  if (gROOT->GetVersionInt() >= 60602 && gGeoManager!=NULL) {
+    gGeoManager->GetListOfVolumes()->Delete();
+    gGeoManager->GetListOfShapes()->Delete();
+    delete gGeoManager;
+  }
 }
 
 // -----   Setup   ---------------------------------------------------------

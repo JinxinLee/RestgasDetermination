@@ -186,7 +186,7 @@ int sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.2315
   }
   if(UseEvtGenDirect){
           TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-          EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
+          EvtInput+="/macro/QA/ftstrk/psi2s_Jpsi2pi_Jpsi_mumu.dec";
           PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
     EvtGen->SetStoreTree(kTRUE);
     primGen->AddGenerator(EvtGen);
@@ -238,7 +238,7 @@ int sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.2315
   cout << maxMemory;
   cout << "</DartMeasurement>" << endl;
   // done sending Info
-  
+
   cout << "Macro finished successfully." << endl;
 
   //return 0;

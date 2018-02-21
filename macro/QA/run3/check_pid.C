@@ -14,7 +14,7 @@ bool check_pid(TString fn="pid_plot.root", TString fn2="pid_target_G3.root", dou
         TStopwatch fTimer;
   bool fTest=kFALSE;
         TString templateFile = gSystem->Getenv("VMCWORKDIR");
-        templateFile += "/macro/run/";
+        templateFile += "/macro/QA/run3/";
         templateFile += fn2;
 
   TFile *f=new TFile(fn,"READ");
