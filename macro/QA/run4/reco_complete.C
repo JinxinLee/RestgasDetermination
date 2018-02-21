@@ -1,11 +1,12 @@
 // Macro for running Panda reconstruction tasks
 // to run the macro:
 // root  reco_complete.C  or in root session root>.x  reco_complete.C
+#include "../auxi.C"
 int reco_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  output         = "reco";
   TString  friend1        = "digi";
   TString  friend2        = "";
@@ -22,15 +23,16 @@ int reco_complete(Int_t nEvents = 0)
   fRun->SetFriend4(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup();
-  
+
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddRecoTasks();
-  
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();
   fRun->Run(0, nEvents);
   fRun->Finish();
 
+  CloseGeoManager();
   return 0;
 }

@@ -1,3 +1,4 @@
+#include "../auxi.C"
 int QAmacro_hyp_2()
 {
 	  cout << "QA module for the MVD Digitization and Hit Reconstruction." << endl;
@@ -21,9 +22,9 @@ int QAmacro_hyp_2()
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
   parInput1->open(parFile.Data());
 
- 
+
   rtdb->setFirstInput(parInput1);
-  
+
    // -----    HYP hit producer   --------------------------------------------
   PndHypIdealRecoTask* hypirec = new PndHypIdealRecoTask(0.01,0.01,0.005);
   hypirec->SetVerbose(iVerbose);
@@ -44,5 +45,6 @@ int QAmacro_hyp_2()
   cout << " DigiReco passed" << endl;
   cout << " All ok " << endl;
 
+  CloseGeoManager();
   return 0;
 }

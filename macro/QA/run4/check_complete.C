@@ -5,6 +5,7 @@
 #include <iostream>
 #include "TH1F.h"
 #include "TRandom.h"
+#include "../auxi.C"
 
 using std::cout;
 using std::endl;
@@ -99,5 +100,6 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root",
       cout << " Not Ok " << endl;
     }
 
+  CloseGeoManager();
   return fTest;
 }

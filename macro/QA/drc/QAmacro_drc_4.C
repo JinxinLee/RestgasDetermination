@@ -1,3 +1,4 @@
+#include "../auxi.C"
 int QAmacro_drc_4()
 {
   cout << "QA module for the DRC reconstruction." << endl;
@@ -13,7 +14,7 @@ int QAmacro_drc_4()
   TString outFile = "reco.root";
 
   gSystem->Load("libSpectrum");
-    
+
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetGenerateRunInfo(kFALSE);
@@ -30,25 +31,26 @@ int QAmacro_drc_4()
   rtdb->setFirstInput(parInput1);
 
   // -- Reconstruction using Look-up tables ---------------------------------
-  PndDrcLutReco* lutreco = new PndDrcLutReco(verbose+3, luttab);  
+  PndDrcLutReco* lutreco = new PndDrcLutReco(verbose+3, luttab);
   fRun->AddTask(lutreco);
-       
+
   // -----   Initialize and run  --------------------------------------------
   fRun->Init();
   fRun->Run(0,nEvents);
-  
+
   cout << " Test passed" << endl;
-  cout << " All ok " << endl;  
-  
+  cout << " All ok " << endl;
+
   // Bool_t fTest=kFALSE;
   // if (fTest){
   //   cout << " Test passed" << endl;
-  //   cout << " All ok " << endl;  
+  //   cout << " All ok " << endl;
   // }else{
   //   cout << " Test Failed" << endl;
-  //   cout << " Not Ok " << endl;         
+  //   cout << " Not Ok " << endl;
   // }
 
-  return 0; 
-}  
-  
+  CloseGeoManager();
+  return 0;
+}
+

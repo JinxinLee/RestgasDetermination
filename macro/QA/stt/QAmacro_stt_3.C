@@ -1,4 +1,5 @@
 // TEST 3: track finding
+#include "../auxi.C"
 int QAmacro_stt_3()
 {
   TStopwatch timer;
@@ -30,13 +31,13 @@ int QAmacro_stt_3()
   fRun->SetOutputFile(outFile);
   fRun->SetUseFairLinks(kTRUE);
   // ------------------------------------------------------------------------
- 
+
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
-  
+
   // Digitisation file (ascii)
   TString digiFile = "all.par";
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
@@ -52,13 +53,13 @@ int QAmacro_stt_3()
   tracking->SetInputBranchName("STTHit","MVDHitsPixel","MVDHitsStrip");
   tracking->NoMvdAloneTracking();
   fRun->AddTask(tracking);
-  
+
 //  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
 //  trackMC->SetTrackInBranchName("SttMvdTrack");
 //  trackMC->SetTrackOutBranchName("SttMvdTrackID");
 //  fRun->AddTask(trackMC);
 
- 
+
   // -----   Initialize and run   --------------------------------------------
   fRun->Init();
   fRun->Run();
@@ -68,18 +69,19 @@ int QAmacro_stt_3()
 
   if (fTest){
     cout << " Test Passed" << endl;
-    cout << " All Ok " << endl;  
+    cout << " All Ok " << endl;
   }else{
     cout << " Test Failed" << endl;
-    cout << " Not Ok " << endl;         
+    cout << " Not Ok " << endl;
   }
 
   delete fRun;
-  
+
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  CloseGeoManager();
   return 0;
-}  
-  
+}
+

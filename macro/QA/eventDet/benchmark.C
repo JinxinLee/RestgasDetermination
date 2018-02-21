@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <set>
+#include "../auxi.C"
 
 //#include "PndDetectorList.h"
 
@@ -204,6 +205,7 @@ void benchmark() {
 	// -----------
 	cout << " Test passed" << endl;
 	cout << " All ok " << endl;
-	
-	// return 0;
+
+	  CloseGeoManager();
+ return 0;
 }

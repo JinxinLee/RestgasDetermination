@@ -1,51 +1,52 @@
+#include "../auxi.C"
 int digi()
 {
   // Macro created 20/09/2006 by S.Spataro
-  // It loads a simulation file and digitize hits 
+  // It loads a simulation file and digitize hits
 
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
-  
+
   // Input file (MC events)
   TString inFile = "data/sim.root";
-  
+
   // Parameter file
   TString parFile = "data/simparams.root"; // at the moment you do not need it
-  
+
   // Digitisation file (ascii)
   TString digiFile = "all.par";
-  
+
   // Output file
   TString outFile = "data/digi.root";
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
-  
+
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->SetGenerateRunInfo(kFALSE);  
-  
+  fRun->SetGenerateRunInfo(kFALSE);
+
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
   allDigiFile += digiFile;
-  
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
-  
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-        
+
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  
+
   // -----   STT digi producers   ---------------------------------
   //PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   //fRun->AddTask(sttHitProducer);
-  
+
   // -----   MDV digi producers   ---------------------------------
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
@@ -127,7 +128,7 @@ int digi()
   cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
-  
+
   // Send cool info to the Dashboard
   cout << "<DartMeasurement name=\"Time\" type=\"numeric/double\">";
   cout << rtime;
@@ -142,9 +143,10 @@ int digi()
   cout << maxMemory;
   cout << "</DartMeasurement>" << endl;
   // done sending Info
-  
+
   // ------------------------------------------------------------------------
   cout << "Macro finished successfully." << endl;
 
+  CloseGeoManager();
   return 0;
 }

@@ -1,3 +1,4 @@
+#include "../auxi.C"
 int QAmacro_mvd_2()
 {
 	  cout << "QA module for the MVD Digitization and Hit Reconstruction." << endl;
@@ -50,5 +51,6 @@ int QAmacro_mvd_2()
   cout << " DigiReco passed" << endl;
   cout << " All ok " << endl;
 
-  return 0;
+   CloseGeoManager();
+ return 0;
 }

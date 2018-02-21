@@ -8,7 +8,7 @@
 
 #include "TGeoManager.h"
 
-void RemoveGeoManager()
+void CloseGeoManager()
 {
   if (gROOT->GetVersionInt() >= 60602) {
     gGeoManager->GetListOfVolumes()->Delete();

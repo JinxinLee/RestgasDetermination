@@ -1,3 +1,4 @@
+#include "../auxi.C"
 int QAmacro_drc_2()
 {
   cout << "QA module for the DRC digitization." << endl;
@@ -9,13 +10,13 @@ int QAmacro_drc_2()
   Int_t timeBased=1;
   Double_t eventRate=50;
   Double_t deadTime=5;
-  
+
   Int_t verbose = 0;
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
- 
+
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetGenerateRunInfo(kFALSE);
@@ -37,7 +38,7 @@ int QAmacro_drc_2()
     parInput->open(parFile.Data());
   }
   rtdb->setFirstInput(parInput);
- 
+
   // -----    DRC Digitization stage ----------------------------------------
   PndDrcDigiTask* drcdigi = new PndDrcDigiTask(0);
   drcdigi->SetChargeSharing(kFALSE);
@@ -45,23 +46,24 @@ int QAmacro_drc_2()
   drcdigi->SetTimeResolution(0.4); //0.4 ns
   if(timeBased) drcdigi->RunTimeBased();
   fRun->AddTask(drcdigi);
-     
+
   // -----   Initialize and run   -------------------------------------------
   fRun->Init();
   fRun->Run(0,nEvents);
-  
+
   cout << " Test passed" << endl;
-  cout << " All ok " << endl;  
-  
+  cout << " All ok " << endl;
+
   // Bool_t fTest=kFALSE;
   // if (fTest){
   //   cout << " Test passed" << endl;
-  //   cout << " All ok " << endl;  
+  //   cout << " All ok " << endl;
   // }else{
   //   cout << " Test Failed" << endl;
-  //   cout << " Not Ok " << endl;         
+  //   cout << " Not Ok " << endl;
   // }
 
-  return 0; 
-}  
-  
+   CloseGeoManager();
+ return 0;
+}
+

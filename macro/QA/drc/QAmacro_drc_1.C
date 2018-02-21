@@ -1,3 +1,4 @@
+#include "../auxi.C"
 int QAmacro_drc_1()
 {
   cout << "QA module for the DRC Simulation." << endl;
@@ -9,7 +10,7 @@ int QAmacro_drc_1()
   Double_t theta=130;
   Double_t phi=10.825;
   TString vmcdir=gSystem->Getenv("VMCWORKDIR");
-  
+
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName("TGeant4");
   fRun->SetGenerateRunInfo(kFALSE);
@@ -22,12 +23,12 @@ int QAmacro_drc_1()
   // Set the parameters
   //-------------------------------
   TString allDigiFile(vmcdir+"/macro/params/all.par");
-  
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);  
-      
-  Bool_t kParameterMerged=kTRUE;	
+  rtdb->setFirstInput(parIo1);
+
+  Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output = new FairParRootFileIo(kParameterMerged);
   output->open(parFile.Data());
   rtdb->setOutput(output);
@@ -36,19 +37,19 @@ int QAmacro_drc_1()
   //-------------------------
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
-  fRun->AddModule(Cave); 
+  fRun->AddModule(Cave);
 
   //-----------------------  Pipe  -----------------
   FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
-  
+
   //-----------------------  DRC  -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE);        // for fast sim Cherenkov -> kFALSE
-  Drc->SetMirrorReal(kFALSE);  
-  //Drc->StopChargedTrackAfterDIRC(kTRUE); 
-  Drc->StopSecondaries(kFALSE); 
+  Drc->SetMirrorReal(kFALSE);
+  //Drc->StopChargedTrackAfterDIRC(kTRUE);
+  Drc->StopSecondaries(kFALSE);
   Drc->SetTransportEffAtProduction(kTRUE);
   Drc->SetDetEffAtProduction(kTRUE);
   Drc->SetStopTime(150.);
@@ -56,7 +57,7 @@ int QAmacro_drc_1()
   Drc->SetBlackLensSides(kTRUE);
   Drc->SetOptionForLUT(kFALSE);
   Drc->SetGeometryFileName("dirc_e3_b3_l6_m40.root");
-  fRun->AddModule(Drc); 
+  fRun->AddModule(Drc);
 
   gRandom->SetSeed(0); // Set 0 for random
   cout<<"Seed for random number generation= "<<gRandom->GetSeed()<<endl;
@@ -71,11 +72,11 @@ int QAmacro_drc_1()
 
   boxGen->SetPRange(3,3);
   boxGen->SetPhiRange(phi, phi);      // Azimuth angle range [degree]
-  boxGen->SetThetaRange(theta,theta); // Polar a1ngle in lab system range [degree]  
+  boxGen->SetThetaRange(theta,theta); // Polar a1ngle in lab system range [degree]
   boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 
-  fRun->SetStoreTraj(kFALSE);         // to store particle trajectories  
+  fRun->SetStoreTraj(kFALSE);         // to store particle trajectories
 
   // Create and Set Magnetic Field
   //-------------------------------
@@ -84,24 +85,25 @@ int QAmacro_drc_1()
 
   fRun->Init();
 
-  fRun->Run(nEvents); 
+  fRun->Run(nEvents);
 
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
-  
+
   cout << " Test passed" << endl;
-  cout << " All ok " << endl; 
+  cout << " All ok " << endl;
 
   // Bool_t fTest=kFALSE;
   // if (fTest){
   //   cout << " Test passed" << endl;
-  //   cout << " All ok " << endl;  
+  //   cout << " All ok " << endl;
   // }else{
   //   cout << " Test Failed" << endl;
-  //   cout << " Not Ok " << endl;         
+  //   cout << " Not Ok " << endl;
   // }
 
+  CloseGeoManager();
   return 0;
-}  
-  
+}
+

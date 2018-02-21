@@ -1,37 +1,38 @@
+#include "../auxi.C"
 int QAmacro_emc_3()
 {
   // Macro loads a file after reconstruction and plots difference between initial direction of particle and angular position of cluster
 	////////////////////////////////////////////////////////////////////////////////
-	// The following part of macro access RunTimeDataBase and initialize PndEmcMapper from it 
+	// The following part of macro access RunTimeDataBase and initialize PndEmcMapper from it
 	////////////////////////////////////////////////////////////////////////////////
 	FairRunAna *fRun= new FairRunAna();
 	fRun->SetInputFile("sim_emc.root");
 	fRun->SetOutputFile("dummy_out.root");
-	
+
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	FairParRootFileIo* parInput1 = new FairParRootFileIo();
 	parInput1->open("simparams.root");
-	
+
   	TString emcAsciiPar = gSystem->Getenv("VMCWORKDIR");
 	emcAsciiPar += "/macro/params/";
 	emcAsciiPar += "emc.par";
-	
+
 	FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
 	parInput2->open(emcAsciiPar.Data(),"in");
-	
+
 	rtdb->setFirstInput(parInput1);
 	rtdb->setSecondInput(parInput2);
-	
+
 	PndEmcGeoPar *geoPar = (PndEmcGeoPar*) rtdb->getContainer("PndEmcGeoPar");
 	fRun->Init();
-	
+
 	geoPar->InitEmcMapper();
 	std::cout<<""<<std::endl;
 	/////////////////////////////////////////////////////////////////////////////////
-	
+
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
 	TTree *t=(TTree *) f->Get("cbmsim") ;
-         
+
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
 	t->SetBranchAddress("EmcCluster",&cluster_array);
 	TClonesArray* digi_array=new TClonesArray("PndEmcDigi");
@@ -39,10 +40,10 @@ int QAmacro_emc_3()
 
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
-	
+
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
-	
+
 	TVector3 photon_momentum;
 
 	double cluster_energy;
@@ -52,7 +53,7 @@ int QAmacro_emc_3()
 	double theta_diff, phi_diff;
 	int ndigi, npoint;
 	double max_energy=0;
-	
+
     TH1F *ht=new TH1F("ht","Theta distribution",200,0.,180);
 	TH1F *h1= new TH1F("h1","Theta difference",200,-5.,5.);
 	TH1F *h2= new TH1F("h2","Phi difference",200,-5.,5.);
@@ -62,13 +63,13 @@ int QAmacro_emc_3()
 	TH1F *hE1= new TH1F("hE1","E1",200,0.,1.05);
 	TH1F *hE1E9= new TH1F("hE1E9","E1 / E9",200,0.,1.05);
 	TH1F *hE9E25= new TH1F("hE9E25","E9 / E25",200,0.,1.05);
- 
+
 	// Cluster angular position
 	// Entrance point is determined by minimal time
-	
+
 	// Calibrartor version 3 corresponds to non-uniformity of light collection switched on
 	PndEmcAbsClusterCalibrator * calibrator1= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(1, 3);
-		
+
 	// Cluster energy
 	for (Int_t j=0; j< t->GetEntriesFast(); j++)
 	{
@@ -93,19 +94,19 @@ int QAmacro_emc_3()
 	{
 		t->GetEntry(j);
 		tsim->GetEntry(j);
-		
+
 		PndMCTrack *mctrack=(PndMCTrack *) mctrack_array->At(0);
 		photon_momentum=mctrack->GetMomentum();
 		theta=photon_momentum.Theta();
 		phi=photon_momentum.Phi();
-		
-	
+
+
 		// Loop over clusters
 		// If we have 1 initial particle and several cluster
 		// we can separate cluster from the first interaction by maximum energy
 
 		max_energy=0;
-		
+
 		for (Int_t i=0; i<cluster_array->GetEntriesFast(); i++)
 		{
 			PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
@@ -117,7 +118,7 @@ int QAmacro_emc_3()
 				cluster_theta=cluster_pos.Theta();
 				cluster_phi=cluster_pos.Phi();
 			}
-						
+
 		}
 		if (max_energy>0.6)
 		{
@@ -129,9 +130,9 @@ int QAmacro_emc_3()
 		    phi_diff=(cluster_phi-phi)*180./TMath::Pi();
 		    h2->Fill(phi_diff);
 		    h2phi->Fill(theta*TMath::RadToDeg(),phi_diff);
-		}   
+		}
 	}
-	
+
 Bool_t fTest=kTRUE;
 
 Double_t thetaCheckMean=h1->GetMean();
@@ -187,11 +188,12 @@ else
 
 if (fTest){
     cout << " Test passed" << endl;
-    cout << " All ok " << endl;  
+    cout << " All ok " << endl;
 }else{
     cout << " Test Failed" << endl;
-    cout << " Not Ok " << endl;         
+    cout << " Not Ok " << endl;
 }
+  CloseGeoManager();
   return 0;
 }
 

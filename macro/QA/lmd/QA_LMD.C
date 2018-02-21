@@ -1,5 +1,6 @@
 // QA macro for lmd
 // created 23/07/2015 by A.Karavdina
+#include "../auxi.C"
 
 int QA_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="", const int verboseLevel=0)
 {
@@ -11,12 +12,12 @@ int QA_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="",
   TString DigiFile = storePath+"Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
-  
+
   // Reco file
   TString GeaFile = storePath+"Lumi_Geane_";
   GeaFile += startEvent;
   GeaFile += ".root";
-  
+
 
   // Dummy file
   TString DumFile = storePath+"Lumi_IGNORE_";
@@ -31,7 +32,7 @@ int QA_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="",
   parFile += startEvent;
   parFile += ".root";
 
-    
+
   std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
   std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
   std::cout << "RecoFile: " << GeaFile.Data()<< std::endl;
@@ -73,6 +74,7 @@ int QA_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="",
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  CloseGeoManager();
   return 0;
 
 }

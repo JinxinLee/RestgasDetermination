@@ -22,7 +22,7 @@ PndMasterSimTask::PndMasterSimTask() :
   // -----   Emc hit Producer   ----------------------------
   this->Add(new PndEmcHitProducer()); // 0
   if ((this->GetListOfTasks()->GetSize()-1) != kPndEmcHitProducer) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  
+
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------
@@ -31,7 +31,7 @@ PndMasterSimTask::PndMasterSimTask() :
 void PndMasterSimTask::SetPersistency(Bool_t pers)
 {
   ((PndEmcHitProducer*)GetListOfTasks()->At(kPndEmcHitProducer))->SetStorageOfData(pers);
-  
+
   return;
 }
 

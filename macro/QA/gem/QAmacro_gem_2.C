@@ -1,3 +1,4 @@
+#include "../auxi.C"
 int QAmacro_gem_2()
 {
   Int_t verboseLevel = 0;
@@ -21,10 +22,10 @@ int QAmacro_gem_2()
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
-	
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-        
+
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
@@ -32,7 +33,7 @@ int QAmacro_gem_2()
   // -----   Digitizer and Hit Finder   -------------------------------------
   PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
   fRun->AddTask(gemDigitize);
-  
+
   PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
   fRun->AddTask(gemFindHits);
 
@@ -41,7 +42,7 @@ int QAmacro_gem_2()
   PndGemFindTracks* finderTask = new PndGemFindTracks("PndGemFindTracks");
   finderTask->SetUseHitOrDigi("hit"); // hit = (default), digi
   fRun->AddTask(finderTask);
-  
+
   //------ Realistic Track finder --------------------
   PndGemTrackFinderOnHits* mcTrackFinder = new  PndGemTrackFinderOnHits();
   mcTrackFinder->SetVerbose(verboseLevel);  // verbosity level
@@ -54,20 +55,20 @@ int QAmacro_gem_2()
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
   //--------------------------------------------------
-  
+
   // -----   Run Kalman fitter   --------------------------------------------
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("GEMTrack");
   recoKalman->SetTrackOutBranchName("GEMFitTrack");
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
-  // ------------------------------------------------- 
+  // -------------------------------------------------
 
   // -----   Run Track finder QA   --------------------------------------------
   PndGemTrackFinderQA* trackFinderQA = new PndGemTrackFinderQA();
   trackFinderQA->SetVerbose(verboseLevel);
   fRun->AddTask(trackFinderQA);
-  // ------------------------------------------------- 
+  // -------------------------------------------------
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
@@ -114,7 +115,7 @@ int QAmacro_gem_2()
 	 momQuality    > minQuality &&
 	 momQuality    < maxQuality &&
 	 momResolution < maxResolution )
-      fTest = kTRUE; 
+      fTest = kTRUE;
 
     // in case can't match reco tracks to mc tracks
     if ( !fTest && fNofRecoTracks > fNofMCPrim*minEfficiency/100. ) {
@@ -131,13 +132,14 @@ int QAmacro_gem_2()
 
   if (fTest){
     cout << " Test passed" << endl;
-    cout << " All ok " << endl;  
+    cout << " All ok " << endl;
   }else{
     cout << " Test Failed" << endl;
-    cout << " Not Ok " << endl;         
+    cout << " Not Ok " << endl;
   }
 
-  return 0; 
+   CloseGeoManager();
+ return 0;
 
-}  
-  
+}
+

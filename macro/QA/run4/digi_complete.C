@@ -1,17 +1,18 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
 // root  digi_complete.C  or in root session root>.x  digi_complete.C
+#include "../auxi.C"
 int digi_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  output         = "digi";
   TString  friend1        = "";
   TString  friend2        = "";
   TString  friend3        = "";
   TString  friend4        = "";
-  
+
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
   fRun->SetInput(input);
@@ -30,6 +31,7 @@ int digi_complete(Int_t nEvents = 0)
   fRun->Init();
   fRun->Run(0, nEvents);
   fRun->Finish();
- 
+
+  CloseGeoManager();
   return 0;
 }

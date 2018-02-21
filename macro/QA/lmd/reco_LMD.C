@@ -6,6 +6,7 @@
 // track filter (erase double track-candidates, aply X&Y cuts)
 // back-propagation with GEANE
 // created 23/07/2015 by A.Karavdina
+#include "../auxi.C"
 
 int reco_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="", const int verboseLevel=0, const double mom=1.5)
 {
@@ -41,11 +42,11 @@ int reco_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="
   outFile += startEvent;
   outFile += ".root";
 
-    
+
     std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
     std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
     std::cout << "RecoFile: " << outFile.Data()<< std::endl;
- 
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -73,15 +74,15 @@ int reco_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="
   // alignment parameter file
   //TString alignparFile = "LMD_alignment/lumi.align_pixel_ideal.par";//perfect
 TString alignparFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/lumi.align_pixel_ideal.par";//perfect
- 
+
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(alignparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
 
    // ------------------------------------------------------------------------
-  
+
   // -----           LMD hit reco         --------------------------------------------
- 
+
   PndLmdPixelClusterTask* lmdhitrec = new PndLmdPixelClusterTask();
   lmdhitrec->SetVerbose(verboseLevel);
   //  lmdhitrec->SetMSflag(useMSerr);//switch on\off error calculation due to multiple scaterring
@@ -138,7 +139,7 @@ TString alignparFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/lum
   rtdb->print();
 
   // =========================================================================
-  
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 
@@ -160,6 +161,7 @@ TString alignparFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/lum
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  CloseGeoManager();
   return 0;
 
 }

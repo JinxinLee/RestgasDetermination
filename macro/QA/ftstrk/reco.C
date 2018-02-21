@@ -1,3 +1,4 @@
+#include "../auxi.C"
 int reco(Int_t nEvents = 5)
 {
   // Macro created 20/09/2006 by S.Spataro
@@ -105,7 +106,7 @@ int reco(Int_t nEvents = 5)
   cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
-  
+
   // Send cool info to the Dashboard
   cout << "<DartMeasurement name=\"Time\" type=\"numeric/double\">";
   cout << rtime;
@@ -124,5 +125,6 @@ int reco(Int_t nEvents = 5)
   // ------------------------------------------------------------------------
   cout << "Macro finished successfully." << endl;
   //return 0;
-  return 0;
+   CloseGeoManager();
+ return 0;
 }

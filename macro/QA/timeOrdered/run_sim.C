@@ -4,6 +4,7 @@
 // root  sim_complete.C  or in root session root>.x  sim_complete_stt.C
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
+#include "../auxi.C"
 
 int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
@@ -21,7 +22,7 @@ int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.
   Bool_t UseDpm 	      =kFALSE;
   Bool_t UseFtf 	      =kFALSE;
   Bool_t UseBoxGenerator      =kFALSE;
-  
+
   Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
   if (UseBoxGenerator)
   {
@@ -38,7 +39,7 @@ int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.
   TStopwatch timer;
   timer.Start();
   gRandom->SetSeed();
-  
+
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName(SimEngine.Data() );
@@ -48,29 +49,29 @@ int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.
   fRun->SetMaterials(MediaFile.Data());
   fRun->SetUseFairLinks(kTRUE);
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  
+
   // Set the parameters
   //-------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
   allDigiFile += digiFile;
-  
-  
+
+
   //-------Set the parameter output --------------------
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
   rtdb->setFirstInput(parIo1);
-  
+
   //---------------------Set Parameter output      ----------
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(ParOutputfile.Data());
   rtdb->setOutput(output);
-  
+
   // Create and add detectors
-  
+
   //-------------------------  CAVE      -----------------
-  
+
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
@@ -139,12 +140,12 @@ int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.
   FairDetector *Rich= new PndRich("RICH",kFALSE);
   Rich->SetGeometryFileName("rich_v2_shift.geo");
   fRun->AddModule(Rich);
-  
+
   // Create and Set Event Generator
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-	 
+
   if(UseBoxGenerator){	// Box Generator
     FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
     boxGen->SetPRange(mom,mom); // GeV/c
@@ -171,16 +172,16 @@ int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.
     EvtGen->SetStoreTree(kTRUE);
     primGen->AddGenerator(EvtGen);
   }
-  
+
   //---------------------Create and Set the Field(s)----------
   PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
-  
+
   // EMC Hit producer
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
-  
+
   //-------------------------  Initialize the RUN  -----------------
   fRun->Init();
   //-------------------------  Run the Simulation  -----------------
@@ -192,12 +193,13 @@ int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  
+
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  
+
   //return 0;
+  CloseGeoManager();
   return 0;
-  
+
 };
 

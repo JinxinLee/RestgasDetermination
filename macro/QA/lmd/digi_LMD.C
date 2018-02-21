@@ -1,5 +1,6 @@
 // digi macro for lmd
 // created 23/07/2015 by A.Karavdina
+#include "../auxi.C"
 int digi_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="", const int verboseLevel=0)
 {
   // -----   Timer   --------------------------------------------------------
@@ -30,8 +31,8 @@ int digi_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-// fRun->SetEventMeanTime(50);//[ns] 50= interaction rate 20 MHz; 
-  fRun->SetEventMeanTime(80);//[ns] 80= interaction rate 12.5 MHz; 
+// fRun->SetEventMeanTime(50);//[ns] 50= interaction rate 20 MHz;
+  fRun->SetEventMeanTime(80);//[ns] 80= interaction rate 12.5 MHz;
   // example: cross-section(DPM el+inlel, 1.5 GeV/c)= 125 mb, L=10^32 -> interaction rate 12.5 MHz
  // fRun->SetEventMeanTime(800);//[ns] 800= interaction rate 5 MHz; //15 GeV
 
@@ -51,17 +52,17 @@ int digi_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="
   // =========================================================================
   // ======                       Hit Producers                         ======
   // =========================================================================
-  
+
   PndLmdHybridHitProducer* lmdStripProd = new PndLmdHybridHitProducer();
   lmdStripProd->SetVerbose(verboseLevel);
   fRun->AddTask(lmdStripProd);
- 
+
   rtdb->setOutput(parInput1);
   rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
-  PndSdsGeoPar* geoPar  = (PndSdsGeoPar*)(rtdb->getContainer("PndSdsGeoPar")); 
-  
+  PndSdsGeoPar* geoPar  = (PndSdsGeoPar*)(rtdb->getContainer("PndSdsGeoPar"));
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0,nEvents);
@@ -80,5 +81,6 @@ int digi_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="
   cout << endl;
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  CloseGeoManager();
   return 0;
 }

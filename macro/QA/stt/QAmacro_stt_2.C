@@ -1,4 +1,5 @@
 // TEST 2: digitization
+#include "../auxi.C"
 int QAmacro_stt_2()
 {
   TStopwatch timer;
@@ -28,12 +29,12 @@ int QAmacro_stt_2()
   fRun->SetOutputFile(outFile);
   fRun->SetUseFairLinks(kTRUE);
   // ------------------------------------------------------------------------
- 
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
-  
+
   // Digitisation file (ascii)
   TString digiFile = "all.par";
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
@@ -68,10 +69,10 @@ int QAmacro_stt_2()
 
   if (fTest){
     cout << " Test Passed" << endl;
-    cout << " All Ok " << endl;  
+    cout << " All Ok " << endl;
   }else{
     cout << " Test Failed" << endl;
-    cout << " Not Ok " << endl;         
+    cout << " Not Ok " << endl;
   }
 
   delete fRun;
@@ -80,7 +81,8 @@ int QAmacro_stt_2()
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
- 
+
+  CloseGeoManager();
   return 0;
-}  
-  
+}
+

@@ -1,3 +1,4 @@
+#include "../auxi.C"
 void digi()
 {
   // -----------   User Settings: -------------------------------
@@ -17,7 +18,7 @@ void digi()
   TString outFile = "digi.root";
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
-  
+
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
@@ -26,19 +27,19 @@ void digi()
   fRun->SetWriteRunInfoFile(kFALSE);
   //fRun->SetEventMeanTime(50); //in ns
   if (timebased) fRun->SetEventMeanTime(1/(eventrate * 10e6)*10e9); //in n
- 
+
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
   allDigiFile += digiFile;
-  
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
-  
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-        
+
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
 
@@ -46,7 +47,7 @@ void digi()
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);
- 
+
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
@@ -61,7 +62,7 @@ void digi()
   PndFtofHitProducerIdeal* ftofhit = new PndFtofHitProducerIdeal();
   ftofhit->SetVerbose(iVerbose);
   fRun->AddTask(ftofhit);
- 
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 
@@ -82,5 +83,6 @@ void digi()
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
 
+  CloseGeoManager();
   return 0;
 }

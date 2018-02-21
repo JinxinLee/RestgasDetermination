@@ -7,6 +7,7 @@
 #include "TSystem.h"
 #include "TTree.h"
 #include "TString.h"
+#include "../auxi.C"
 
 
 void printCand(TLorentzVector l, TVector3 p)
@@ -165,5 +166,6 @@ int QAmacro_fastsim_2(int nevts=0)
     cout << " Test passed" << endl;
     cout << " All ok " << endl;
     }
+  CloseGeoManager();
   return 0;
 }

@@ -1,11 +1,12 @@
+#include "../auxi.C"
 void reco()
 {
 
-  Int_t iVerbose = 0; 
-  
+  Int_t iVerbose = 0;
+
 	// Number of events to process
   Int_t nEvents = 0;  // if 0 all the events will be processed
- 
+
   Bool_t timebased = kTRUE; // "Countinuous ReadOut"
 
   TString simFile = "sim.root";
@@ -17,7 +18,7 @@ void reco()
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
     // ------------------------------------------------------------------------
-  
+
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(digiFile);
@@ -32,21 +33,21 @@ void reco()
   TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
   emcDigiFile += "/macro/params/";
   emcDigiFile += digiParFile;
-  
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
-  
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(emcDigiFile.Data(),"in");
-        
+
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  
+
   PndT0CandidateTask* T0CandidateTask = new PndT0CandidateTask();
   fRun->AddTask(T0CandidateTask);
-  
-  /* 
+
+  /*
   PndSolCorrTask* SolCorrTask = new PndSolCorrTask();
   SolCorrTask->SetOutBranchName("TOFCounter");
   SolCorrTask->AddInputBranch("SciTHit");
@@ -64,7 +65,7 @@ void reco()
   cout << "fRun->Init()" << endl;
 
   fRun->Init();
-  
+
   timer.Start();
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
@@ -83,5 +84,6 @@ void reco()
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  //return 0;
+  CloseGeoManager();
+  return 0;
 }
