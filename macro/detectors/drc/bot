@@ -9,18 +9,18 @@ phi=10.825
 theta=22
 mom=3.5
 
-if [ "$bars" -eq "2" ] || [ "$bars" -eq "4" ] ; then 
+if [ "$bars" -eq "2" ] || [ "$bars" -eq "4" ] ; then
     phi=14
 fi
 
-luttab="$HOME/pandaroot/macro/drc/lut/lut_e${ev}_b${bars}_l${lens}_m${rows}_avr.root"
+luttab="$HOME/pandaroot/macro/detectors/drc/lut/lut_e${ev}_b${bars}_l${lens}_m${rows}_avr.root"
 log="b_log"
 
 rm -f b_*.root
 
 waitForMe (){
-    while : 
-    do 
+    while :
+    do
 	activth=$(ps aux | grep "[r]oot.exe" | grep "b_" | wc -l)
 	printf "\r pandaroot [$activth] ---- [$(($(date +%s) - start_time)) s] "
 	sleep 0.1

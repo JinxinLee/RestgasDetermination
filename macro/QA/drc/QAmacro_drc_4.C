@@ -10,7 +10,7 @@ int QAmacro_drc_4()
   TString digiFile = "digi.root";
   TString hitFile = "hit.root";
   TString luttab = gSystem->Getenv("VMCWORKDIR");
-  luttab += "/macro/drc/lut/lut_e3_b3_l6_m40_avr.root";
+  luttab += "/macro/detectors/drc/lut/lut_e3_b3_l6_m40_avr.root";
   TString outFile = "reco.root";
 
   gSystem->Load("libSpectrum");

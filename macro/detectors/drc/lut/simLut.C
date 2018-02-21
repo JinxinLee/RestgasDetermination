@@ -5,7 +5,7 @@ int simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TSt
 
   TString digiFile = "all.par";
   TString vmcdir=gSystem->Getenv("VMCWORKDIR");
-  
+
   FairRunSim *fRun = new FairRunSim();
 
   fRun->SetName("TGeant4");
@@ -13,20 +13,20 @@ int simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TSt
   fRun->SetOutputFile(simFile);
   fRun->SetMaterials("media_pnd.geo");
   fRun->SetUseFairLinks(kTRUE);
-  fRun->SetUserConfig(vmcdir+"/macro/drc/g4Config_Cherenkov.C");
- 
+  fRun->SetUserConfig(vmcdir+"/macro/detectors/drc/g4Config_Cherenkov.C");
+
   // Set the parameters
   //-------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
   allDigiFile += digiFile;
-  
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);  
-      
-  Bool_t kParameterMerged=kTRUE;	
+  rtdb->setFirstInput(parIo1);
+
+  Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output = new FairParRootFileIo(kParameterMerged);
   output->open(parFile);
   rtdb->setOutput(output);
@@ -35,12 +35,12 @@ int simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TSt
   //-------------------------
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
-  fRun->AddModule(Cave); 
+  fRun->AddModule(Cave);
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
-  Drc->SetMirrorReal(kTRUE);  
-  Drc->StopSecondaries(kTRUE); 
+  Drc->SetMirrorReal(kTRUE);
+  Drc->StopSecondaries(kTRUE);
   Drc->SetDetEffAtProduction(kFALSE);
   Drc->SetStopTime(50);
   Drc->SetVerboseLevel(0);
@@ -48,7 +48,7 @@ int simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TSt
   Drc->SetBlackLensSides(kTRUE);
   Drc->SetOptionForLUT(kTRUE);
   Drc->SetGeometryFileName(geom);
-  fRun->AddModule(Drc);  
+  fRun->AddModule(Drc);
 
   // Set Random Number seed
   Int_t rndm=0;
@@ -81,8 +81,8 @@ int simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TSt
   FairBoxGenerator* boxGen = new FairBoxGenerator(50000050, 1000);
   boxGen->SetPRange(3.18e-9,3.18e-9); // GeV/c //3.18eV <==> 390nm
   //boxGen->SetPhiRange(0,360);
-  boxGen->SetThetaRange(90, 180); 
-  //boxGen->SetThetaRange(0, 180); 
+  boxGen->SetThetaRange(90, 180);
+  //boxGen->SetThetaRange(0, 180);
   boxGen->SetCosTheta();
   //boxGen->SetBoxXYZ(46.3 ,7.4, 47.3,10.4, -118.9+0.01+60);
   // boxGen->SetXYZ(46.8,8.9,-119+0.01);
@@ -92,7 +92,7 @@ int simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TSt
   if(bars==4)  boxGen->SetXYZ(x4[barId],y4[barId],-119+0.0001);
   if(bars==5)  boxGen->SetXYZ(x5[barId],y5[barId],-119+0.0001);
   primGen->AddGenerator(boxGen);
-  
+
   // // Box Generator
   // FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1);// 211 = pion, 321 = kaon; 13 = muon-; 1 = multipl.
   // boxGen->SetPRange(3,3);
@@ -104,12 +104,12 @@ int simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TSt
   // fRun->SetStoreTraj(kTRUE);
 
   fRun->Init();
-  
+
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
 
-  fRun->Run(nEvents); 
+  fRun->Run(nEvents);
 
   timer.Stop();
   Double_t rtime = timer.RealTime();

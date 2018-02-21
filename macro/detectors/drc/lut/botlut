@@ -8,7 +8,7 @@ rows=${4:-40}
 nevents=2000
 
 JOB_ID="e${ev}_b${bars}_l${lens}_m${rows}"
-DIR="$HOME/pandaroot/macro/drc/lut"
+DIR="$HOME/pandaroot/macro/detectors/drc/lut"
 
 root -q -b ../createdirc.C"(${ev},${bars},${lens},${rows})"
 
@@ -26,7 +26,7 @@ done
 while [ 1==1 ] ; do
     activth=$(ps aux | grep "[r]oot.exe" | wc -l)
     diffth=$(($maxnthr-$activth))
-    echo "We have $activth active root.exe " 
+    echo "We have $activth active root.exe "
     if [ "$activth" -eq 0 ]; then
 	break
     fi

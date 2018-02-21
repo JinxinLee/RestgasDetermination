@@ -1,11 +1,11 @@
 int sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root", TString geom="dirc_e3_b3_l6_m40.root", Int_t pdg=321 , Double_t mom=3.5, Double_t theta=140, Double_t phi=10.825){
-  
+
   TStopwatch timer;
   timer.Start();
   gDebug=0;
 
   TString vmcdir=gSystem->Getenv("VMCWORKDIR");
- 
+
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName("TGeant4");
   fRun->SetGenerateRunInfo(kFALSE);
@@ -13,19 +13,19 @@ int sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root"
   fRun->SetOutputFile(outFile);
   fRun->SetMaterials("media_pnd.geo");
   fRun->SetUseFairLinks(kTRUE);
-  fRun->SetUserConfig(vmcdir+"/macro/drc/g4Config_Cherenkov.C");
-  fRun->SetUserCuts(vmcdir+"/macro/drc/g4Cuts.C");
+  fRun->SetUserConfig(vmcdir+"/macro/detectors/drc/g4Config_Cherenkov.C");
+  fRun->SetUserCuts(vmcdir+"/macro/detectors/drc/g4Cuts.C");
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
   // Set the parameters
   //-------------------------------
   TString allDigiFile(vmcdir+"/macro/params/all.par");
-   
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);  
-      
-  Bool_t kParameterMerged=kTRUE;	
+  rtdb->setFirstInput(parIo1);
+
+  Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output = new FairParRootFileIo(kParameterMerged);
   output->open(parFile.Data());
   rtdb->setOutput(output);
@@ -34,7 +34,7 @@ int sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root"
   //-------------------------
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
-  fRun->AddModule(Cave); 
+  fRun->AddModule(Cave);
 
   //-----------------------  Pipe  -----------------
   FairModule *Pipe= new PndPipe("PIPE");
@@ -45,18 +45,18 @@ int sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root"
   // FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   // Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   // fRun->AddModule(Mvd);
-  
+
   // //-----------------------  STT   -----------------
   // FairDetector *Stt= new PndStt("STT", kTRUE);
   // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   // fRun->AddModule(Stt);
-  
+
   //-----------------------  DRC  -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
-  Drc->SetMirrorReal(kTRUE);  
-  Drc->StopChargedTrackAfterDIRC(kTRUE); 
-  Drc->StopSecondaries(kTRUE); 
+  Drc->SetMirrorReal(kTRUE);
+  Drc->StopChargedTrackAfterDIRC(kTRUE);
+  Drc->StopSecondaries(kTRUE);
   Drc->SetTransportEffAtProduction(kTRUE);
   Drc->SetDetEffAtProduction(kTRUE);
   Drc->SetStopTime(150.);
@@ -65,8 +65,8 @@ int sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root"
   Drc->SetOptionForLUT(kFALSE);
   //Drc->SetGeometryFileName("dirc_g1_l6.root");
   Drc->SetGeometryFileName(geom);
-  fRun->AddModule(Drc); 
-  
+  fRun->AddModule(Drc);
+
   //  //-------------------------  SCITIL    -----------------
   //  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
   //  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
@@ -97,7 +97,7 @@ int sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root"
   //  //-------------------------  FTS       -----------------
   //  FairDetector *Fts= new PndFts("FTS", kTRUE);
   //  Fts->SetGeometryFileName("fts.geo");
-  //  fRun->AddModule(Fts); 
+  //  fRun->AddModule(Fts);
   //  //-------------------------  FTOF      -----------------
   //  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
   //  FTof->SetGeometryFileName("ftofwall.root");
@@ -133,7 +133,7 @@ int sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root"
   boxGen->SetThetaRange(theta,theta); // Polar a1ngle in lab system range [degree]
   primGen->AddGenerator(boxGen);
 
-  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
+  fRun->SetStoreTraj(kTRUE); // to store particle trajectories
 
   // Create and Set Magnetic Field
   //-------------------------------
@@ -144,9 +144,9 @@ int sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root"
 
   // FairTrajFilter* trajFilter = FairTrajFilter::Instance();
   // trajFilter->SetStorePrimaries(kFALSE);
-  // trajFilter->SetStoreSecondaries(kTRUE); 
+  // trajFilter->SetStoreSecondaries(kTRUE);
 
-  fRun->Run(nEvents); 
+  fRun->Run(nEvents);
 
   rtdb->setOutput(output);
   rtdb->saveOutput();
