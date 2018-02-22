@@ -1,5 +1,5 @@
 #include "../auxi.C"
-void digi()
+int digi()
 {
   // -----------   User Settings: -------------------------------
 

@@ -10,7 +10,7 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-void benchmark() {
+int benchmark() {
 
 	TString simFile = "sim.root";
 	TString parFile = "sim_params.root";

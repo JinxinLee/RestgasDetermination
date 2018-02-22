@@ -1,5 +1,5 @@
 #include "../auxi.C"
-void reco()
+int reco()
 {
 
   Int_t iVerbose = 0;

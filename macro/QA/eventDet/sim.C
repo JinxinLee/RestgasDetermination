@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-void sim(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6.2)
+int sim(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6.2)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim.root";
@@ -203,7 +203,7 @@ void sim(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6.2)
   std::cout << " Test passed" << std::endl;
   std::cout << " All ok " << std::endl;
 
-  //return 0;
+  return 0;
 
 }
 
