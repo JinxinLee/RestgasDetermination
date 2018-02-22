@@ -38,10 +38,10 @@ PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo
 	std::smatch match;
 
 	if (std::regex_search(volume_path, match, std::regex(reg_exp.str()))) {
-		hit_info.detector_half = (unsigned char) std::stoul(match[1]);
-		hit_info.plane = (unsigned char) std::stoul(match[2]);
-		hit_info.module = (unsigned char) std::stoul(match[3]);
-		unsigned char sensor_id((unsigned char) std::stoul(match[4]));
+		hit_info.detector_half = (unsigned char) std::stoul(match[2]);
+		hit_info.plane = (unsigned char) std::stoul(match[3]);
+		hit_info.module = (unsigned char) std::stoul(match[4]);
+		unsigned char sensor_id((unsigned char) std::stoul(match[5]));
 		hit_info.module_side = 0;
 		hit_info.module_sensor_id = sensor_id;
 
@@ -101,7 +101,8 @@ const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(const std:
 	auto const &result = volume_path_to_hit_info_mapping.find(volume_path);
 	if (result != volume_path_to_hit_info_mapping.end()) {
 		return result->second;
-	} else {
+	}
+	else {
 		return createMappingEntry(volume_path);
 	}
 }
@@ -168,8 +169,7 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sen
 	fGeoManager->CdUp();
 
 	TGeoHMatrix matrix = *fGeoManager->GetCurrentMatrix();
-	if (actPath != "" && actPath != " ")
-		fGeoManager->cd(actPath);
+	if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
 
 	return matrix;
 }
@@ -265,8 +265,7 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToLmdLocal() {
 	fGeoManager->cd(lmd_root_path.c_str());
 	TGeoHMatrix *matrix = (TGeoHMatrix *) (fGeoManager->GetCurrentNode()->GetMatrix());
 
-	if (actPath != "" && actPath != " ")
-		fGeoManager->cd(actPath);
+	if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
 
 	return *matrix;
 }
@@ -360,20 +359,14 @@ std::vector<std::string> PndLmdGeometryHelper::getAllAlignPaths(bool sensors, bo
 	auto all_volume_paths = getAllAlignableVolumePaths();
 
 	std::vector<std::string> filter_strings;
-	if (!sensors && !modules && !planes && !halfs && !detector) {
-		sensors = true;
-		modules = true;
-		planes = true;
-		halfs = true;
-		detector = true;
-	}
+
 	if (detector) filter_strings.push_back(navigation_paths[0].first);
 	if (halfs) filter_strings.push_back(navigation_paths[1].first);
 	if (planes) filter_strings.push_back(navigation_paths[2].first);
 	if (modules) filter_strings.push_back(navigation_paths[3].first);
 	if (sensors) filter_strings.push_back(navigation_paths[4].first);
 
-	std::cout<<"total number of alignable volumes: "<<all_volume_paths.size()<<std::endl;
+	std::cout << "total number of alignable volumes: " << all_volume_paths.size() << std::endl;
 
 	for (auto filter_string : filter_strings) {
 		auto found(all_volume_paths.begin());
@@ -404,7 +397,7 @@ std::vector<std::string> PndLmdGeometryHelper::getAllAlignableVolumePaths() cons
 	std::vector<std::string> alignable_volumes;
 
 	if (fGeoManager->GetNAlignable() > 0) {
-		for (unsigned int i = 0; i < fGeoManager->GetNAlignable(); ++i) {
+		for (int i = 0; i < fGeoManager->GetNAlignable(); ++i) {
 			TGeoPNEntry* entry = fGeoManager->GetAlignableEntry(i);
 			if (entry) alignable_volumes.push_back(entry->GetPath());
 		}

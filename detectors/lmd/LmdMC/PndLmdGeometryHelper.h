@@ -29,9 +29,9 @@ struct PndLmdHitLocationInfo {
 		return stream;
 	}
 
-	bool operator <(const PndLmdHitLocationInfo &o){
-		return std::tie(detector_half, plane, module, module_side, module_sensor_id) <
-				std::tie(o.detector_half, o.plane, o.module, o.module_side, o.module_sensor_id);
+	bool operator <(const PndLmdHitLocationInfo &o) {
+		return std::tie(detector_half, plane, module, module_side, module_sensor_id)
+		    < std::tie(o.detector_half, o.plane, o.module, o.module_side, o.module_sensor_id);
 	}
 };
 
@@ -52,9 +52,9 @@ class PndLmdGeometryHelper {
 		read_json(geo_params_config_file_url, geometry_properties);
 		auto pt_general = geometry_properties.get_child("general");
 		for (boost::property_tree::ptree::value_type &nav_path : pt_general.get_child("navigation_paths")) {
-				navigation_paths.push_back(
-					      std::make_pair(nav_path.second.get<std::string>("name"),
-					                     nav_path.second.get<bool>("is_alignable")));
+			navigation_paths.push_back(
+			    std::make_pair(nav_path.second.get<std::string>("name"),
+			        nav_path.second.get<bool>("is_alignable")));
 		}
 
 		TString actPath = fGeoManager->GetPath();
@@ -62,8 +62,7 @@ class PndLmdGeometryHelper {
 		fGeoManager->CdTop();
 		lmd_path << fGeoManager->GetPath() << "/" << navigation_paths[0].first << "_0";
 		lmd_root_path = lmd_path.str();
-		if (actPath != "" && actPath != " ")
-			fGeoManager->cd(actPath);
+		if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
 
 	}
 
@@ -96,7 +95,7 @@ public:
 
 	bool isOverlappingArea(const int id1, const int id2);
 
-	const std::string getPath(unsigned char ...);
+	const std::string getPath(unsigned char...);
 
 	const TGeoHMatrix getMatrixPndGlobalToSensor(const int sensorId);
 	const TGeoHMatrix getMatrixSensorToPndGlobal(const int sensorId);
@@ -105,11 +104,11 @@ public:
 	const TGeoHMatrix getMatrixLmdLocalToPndGlobal();
 
 	// returns all paths to alignable objects, filtered by bools
-	std::vector<std::string> getAllAlignPaths(bool sensors=true, bool modules=false, bool planes=false,
-	        bool halfs=false, bool detector=false);
+	    std::vector<std::string> getAllAlignPaths(bool sensors=true, bool modules=false, bool planes=false,
+	    bool halfs=false, bool detector=false);
 
-	std::vector<std::string> getAllAlignableVolumePaths() const;
+	    std::vector<std::string> getAllAlignableVolumePaths() const;
 
-};
+    };
 
 #endif /* LMD_LMDMC_PNDLMDGEOMETRYHELPER_H_ */
