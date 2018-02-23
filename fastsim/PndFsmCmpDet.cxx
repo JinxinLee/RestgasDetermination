@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------
 // Description:
 //      Class PndFsmCmpDet
-//      
+//
 //  Detector class that combines responses from other detectors
 //
 //  This software was developed for the PANDA collaboration.  If you
@@ -66,11 +66,11 @@ PndFsmCmpDet::PndFsmCmpDet(ArgList& par) {
   readParameters();
 
   // when PndFsmCmpDet has been created by the detector
-  // factory, some arbitrary detector set is added 
+  // factory, some arbitrary detector set is added
 
   std::cout<<" -I- (PndFsmCmpDet::PndFsmCmpDet) - Creating arbitrary detector set"<<endl;
 
-  //EM Calorimeters w/ default parameters 
+  //EM Calorimeters w/ default parameters
   AddDetector("EmcBarrel");
   AddDetector("EmcFwCap");
   AddDetector("EmcBwCap");
@@ -80,8 +80,8 @@ PndFsmCmpDet::PndFsmCmpDet(ArgList& par) {
   AddDetector("Mvd2");
   AddDetector("Stt");
   AddDetector("MdcTS");
-  AddDetector("MdcFS");  
-//AddDetector("Tpc"); 
+  AddDetector("MdcFS");
+//AddDetector("Tpc");
 
   //PID detectors
   AddDetector("DrcBarrel");
@@ -106,10 +106,10 @@ PndFsmCmpDet::~PndFsmCmpDet() {
 // Operations --
 //--------------
 
-PndFsmResponse* 
+PndFsmResponse*
 PndFsmCmpDet::respond(PndFsmTrack *t) {
   PndFsmResponse *result=new PndFsmResponse();
-  
+
   result->setDetector(this);
 
   bool detected=false;
@@ -140,15 +140,15 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
   double dVx=0;
   double dVy=0;
   double dVz=0;
-  
+
   double LH_e=1.0;
   double LH_mu=1.0;
   double LH_pi=1.0;
   double LH_K=1.0;
   double LH_p=1.0;
-  
+
   double val=0.0;
-  
+
   for (FsmAbsDetList::iterator iter=fDetList.begin();iter!=fDetList.end(); iter++) {
     PndFsmResponse* resp=(*iter)->respond(t);
 
@@ -188,11 +188,11 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
         rawLHpi /= sumRaw;
         rawLHK  /= sumRaw;
         rawLHp  /= sumRaw;
-        LH_e  *= rawLHe; 
-        LH_mu *= rawLHmu; 
-        LH_pi *= rawLHpi; 
-        LH_K  *= rawLHK; 
-        LH_p  *= rawLHp; 
+        LH_e  *= rawLHe;
+        LH_mu *= rawLHmu;
+        LH_pi *= rawLHpi;
+        LH_K  *= rawLHK;
+        LH_p  *= rawLHp;
       } else {
         LH_e  *= 0.2;
         LH_mu *= 0.2;
@@ -200,10 +200,10 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
         LH_K  *= 0.2;
         LH_p  *= 0.2;
       }
-    } 
+    }
   }
-  
-  // invoke parameterised vertex/momentum resolution 
+
+  // invoke parameterised vertex/momentum resolution
   // (this will overwrite dp, dtheta, dphi and dV)
     if ( _parFile ) {
         // haven't done neutral particles yet
@@ -234,7 +234,7 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
             }
         }
     }
-  
+
   for (FsmAbsDetList::iterator iter=fSubtractDetList.begin();iter!=fSubtractDetList.end(); iter++) {
     PndFsmResponse* resp=(*iter)->respond(t);
 
@@ -279,13 +279,13 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
         rawLHpi /= sumRaw;
         rawLHK  /= sumRaw;
         rawLHp  /= sumRaw;
-        LH_e  /= rawLHe; 
-        LH_mu /= rawLHmu; 
-        LH_pi /= rawLHpi; 
-        LH_K  /= rawLHK; 
-        LH_p  /= rawLHp; 
+        LH_e  /= rawLHe;
+        LH_mu /= rawLHmu;
+        LH_pi /= rawLHpi;
+        LH_K  /= rawLHK;
+        LH_p  /= rawLHp;
       }
-    } 
+    }
   }
 
   double sumLH = LH_e + LH_mu + LH_pi + LH_K + LH_p;
@@ -304,14 +304,14 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
     LH_p  = 0.2;
   }
 
-  // this shifts all likelihoods linearly to the state 
+  // this shifts all likelihoods linearly to the state
   // of no pid information at all i. e. all lhs are 0.2
   LH_e  = 0.2*(1-_pidLhMulti) + LH_e*_pidLhMulti;
   LH_mu = 0.2*(1-_pidLhMulti) + LH_mu*_pidLhMulti;
   LH_pi = 0.2*(1-_pidLhMulti) + LH_pi*_pidLhMulti;
   LH_K  = 0.2*(1-_pidLhMulti) + LH_K*_pidLhMulti;
   LH_p  = 0.2*(1-_pidLhMulti) + LH_p*_pidLhMulti;
-  
+
   result->setdE( dE>0. ? 1/sqrt(dE) : 0.0 );
   result->setdp( dp>0. ? 1/sqrt(dp) : 0.0 );
   result->setdtheta( dtheta>0. ? 1/sqrt(dtheta) : 0.0 );
@@ -323,23 +323,23 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
   result->setMvddEdx(MvddEdx,MvddEdxErr);
   result->setTpcdEdx(TpcdEdx,TpcdEdxErr);
   result->setSttdEdx(SttdEdx,SttdEdxErr);
-  
+
   result->setDrcDiscThtc(DrcDiscThtc,DrcDiscThtcErr);
   result->setDrcBarrelThtc(DrcBarrelThtc,DrcBarrelThtcErr);
   result->setRichThtc(RichThtc,RichThtcErr);
-  
+
   if (dVx > 0.) dVx=1./sqrt(dVx); else dVx = 0.0;
   if (dVy > 0.) dVy=1./sqrt(dVy); else dVy = 0.0;
   if (dVz > 0.) dVz=1./sqrt(dVz); else dVz = 0.0;
 
   result->setdV( dVx , dVy , dVz );
-  
+
   result->setLHElectron(LH_e);
   result->setLHMuon(LH_mu);
   result->setLHPion(LH_pi);
   result->setLHKaon(LH_K);
-  result->setLHProton(LH_p);	  
-  
+  result->setLHProton(LH_p);
+
   result->setDetected(detected);
 
   return result;
@@ -379,24 +379,24 @@ bool PndFsmCmpDet::setParameter(std::string &name, double value) {
   // *****************
   // include here all float parameters which should be settable
   // *****************
-      
+
   bool knownName=true;
 
   if (name == "d0ResMulti")
     _d0ResMulti=value;
-  else 
+  else
   if (name == "z0ResMulti")
     _z0ResMulti=value;
-  else 
+  else
   if (name == "thtResMulti")
     _thtResMulti=value;
-  else 
+  else
   if (name == "phiResMulti")
     _phiResMulti=value;
-  else 
+  else
   if (name == "momResMulti")
     _momResMulti=value;
-  else 
+  else
   if (name == "thtMin")
     _tht0 = new TParameter<double>("tht0", value);
   else
@@ -513,7 +513,7 @@ void PndFsmCmpDet::readParameters() {
 
 void PndFsmCmpDet::initParameters() {
   _detName = "CmpDet";
-  _parFileName = "$VMCWORKDIR/fsim/cmpdetparams.root";
+  _parFileName = "$VMCWORKDIR/fastsim/cmpdetparams.root";
   _parFile=false;
   _d0ResMulti=1.0;
   _z0ResMulti=1.0;
@@ -530,7 +530,7 @@ void PndFsmCmpDet::initParameters() {
   _tht1=0;
  }
 
-// TSpline3::Eval returns bogus values when outside the 
+// TSpline3::Eval returns bogus values when outside the
 // interval, so the spline has to be continued somehow
 double PndFsmCmpDet::eval(TSpline3* s, double x) {
   double xmin=s->GetXmin();
@@ -540,6 +540,6 @@ double PndFsmCmpDet::eval(TSpline3* s, double x) {
   else if (x>xmax)
     return s->Eval(xmax)+(x-xmax)*s->Derivative(xmax);
   else
-    return s->Eval(x); 
-} 
+    return s->Eval(x);
+}
 

@@ -210,7 +210,7 @@ PndFsmEmcPid::initParameters()
   _phiMin=-360.;
   _phiMax=360.;
   _efficiency=1.0;
-  _parFileName     = "$VMCWORKDIR/fsim/EmcPidPdf.root";
+  _parFileName     = "$VMCWORKDIR/fastsim/EmcPidPdf.root";
 }
 
 bool

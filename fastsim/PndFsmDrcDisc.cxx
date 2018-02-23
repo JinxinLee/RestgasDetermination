@@ -4,7 +4,7 @@
 //
 // Description:
 //      Class FsmDrcBarrel
-//      
+//
 //  Implementation of the Disc DIRC for the FastSim
 //
 //  This software was developed for the PANDA collaboration.  If you
@@ -57,7 +57,7 @@ using std::string;
 // Constructors --
 //----------------
 
-PndFsmDrcDisc::PndFsmDrcDisc()    
+PndFsmDrcDisc::PndFsmDrcDisc()
 {
   initParameters();
 
@@ -65,23 +65,23 @@ PndFsmDrcDisc::PndFsmDrcDisc()
   _thtMax=_thtMax*M_PI/180.0;
 
   readParameters();
-  
+
   //print(std::cout);
 }
 
-PndFsmDrcDisc::PndFsmDrcDisc(ArgList &par) 
+PndFsmDrcDisc::PndFsmDrcDisc(ArgList &par)
 {
   initParameters();
   //set default parameter values and parses a parameter list
   //i.e. std::list<std::string> of the form
-  //"a=1" "b=2" "c=3" 
+  //"a=1" "b=2" "c=3"
   parseParameterList(par);
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
 
   readParameters();
-  
+
   //print(std::cout);
 }
 
@@ -97,15 +97,15 @@ PndFsmDrcDisc::~PndFsmDrcDisc()
 // Operations --
 //--------------
 
-PndFsmResponse* 
+PndFsmResponse*
 PndFsmDrcDisc::respond(PndFsmTrack *t)
 {
   PndFsmResponse *result=new PndFsmResponse();
-  
+
   result->setDetector(this);
   bool wasDetected=detected(t);
   result->setDetected(wasDetected);
-  
+
   if (wasDetected && fabs(t->charge())>1e-8)
   {
     TParticlePDG* part = _fdbPDG->GetParticle(t->pdt());
@@ -114,10 +114,10 @@ PndFsmDrcDisc::respond(PndFsmTrack *t)
     double p=t->p4().Vect().Mag();
     double ctht=cos(theta);
     //double p_t=p*sin(theta);
-    
+
     int    pid=abs(t->pdt());
     int    npid=-1;
-    
+
     if (pid==11) npid=0;
     else if (pid==13)   npid=1;
     else if (pid==211)  npid=2;
@@ -132,53 +132,53 @@ PndFsmDrcDisc::respond(PndFsmTrack *t)
     double lambda2 = 330e-9;
 
     double alpha=7.2974e-3;   //finestructure constant
-    
+
     // curvature of track due to magnet field
     //double r = 3.3356 * p_t / _Bfield;
-    
+
     // dip angle in phi direction (due to curvature of track in magnet field)
     //double psi = acos(_rBarrel/(2*r));
 
     // path length in radiator
     double l = _dDisc/cos(theta);//  _dSlab*sqrt( 1/(sin(theta)*sin(theta)) + 1/(tan(psi)*tan(psi)) );
-    
+
     // deteremine trapping fraction
     double trapped = _trap;
-    
-    if (npid>=0 && trapfrac[npid]) 
-      trapped = npid<0 ? 0.0 : trapfrac[npid]->GetBinContent(trapfrac[npid]->FindBin(p<6.0?p:6.0,thtdeg)); 
-    
+
+    if (npid>=0 && trapfrac[npid])
+      trapped = npid<0 ? 0.0 : trapfrac[npid]->GetBinContent(trapfrac[npid]->FindBin(p<6.0?p:6.0,thtdeg));
+
     // estimate the number of initially produced cherenkov photons
-    double nPhot = 2*M_PI*alpha*l*(1./lambda1 - 1./lambda2)*(1 - (mass*mass+p*p)/(p*p*_nRefrac*_nRefrac)); 
-    
+    double nPhot = 2*M_PI*alpha*l*(1./lambda1 - 1./lambda2)*(1 - (mass*mass+p*p)/(p*p*_nRefrac*_nRefrac));
+
     // dice a poisson value
     nPhot = _rand->Poisson(nPhot);
-    
-    // determine the number of photons hitting the sensor
-    nPhot *= trapped*_effNPhotons; 
 
-    // ************** reset detected and quit due to low numbers of photons 
+    // determine the number of photons hitting the sensor
+    nPhot *= trapped*_effNPhotons;
+
+    // ************** reset detected and quit due to low numbers of photons
 
     if (nPhot<=_nPhotMin) {
       result->setDetected(false);
       return result;
     }
-    
+
     if (nPhot>100) nPhot=100;
 
     // overall resolution for the tht_c measurement
     double sig = _dthtc/sqrt(nPhot);
     double thtC = compThetaC(p,mass);
-    
+
     double m_e  = _fdbPDG->GetParticle(11)->Mass();
-    double m_mu = _fdbPDG->GetParticle(13)->Mass(); 
-    double m_pi = _fdbPDG->GetParticle(211)->Mass(); 
+    double m_mu = _fdbPDG->GetParticle(13)->Mass();
+    double m_pi = _fdbPDG->GetParticle(211)->Mass();
     double m_K  = _fdbPDG->GetParticle(321)->Mass();
     double m_p  = _fdbPDG->GetParticle(2212)->Mass();
 
     // compute the expected cherenkov angles for all particle types
     // we need these to determine the pdf's (gaussian around nominal tht_c with res sig)
-    // this Likelihood function has to be evaluated for the _measured_ momentum, which 
+    // this Likelihood function has to be evaluated for the _measured_ momentum, which
     // is smeared with dp!
 
     double measp=_rand->Gaus(p,_dp*p);
@@ -189,20 +189,20 @@ PndFsmDrcDisc::respond(PndFsmTrack *t)
     double thtc_pi = compThetaC(measp,m_pi);
     double thtc_K  = compThetaC(measp,m_K);
     double thtc_p  = compThetaC(measp,m_p);
-    
+
     double measThetaC = _rand->Gaus(thtC,sig);
     if (measThetaC<0) measThetaC=0;
-    
+
     result->setDrcDiscThtc(measThetaC,sig);
-     
+
     if (thtc_e)  result->setLHElectron( gauss(measThetaC,thtc_e,sig) );
     if (thtc_mu) result->setLHMuon( gauss(measThetaC,thtc_mu,sig) );
     if (thtc_pi) result->setLHPion( gauss(measThetaC,thtc_pi,sig) );
     if (thtc_K)  result->setLHKaon( gauss(measThetaC,thtc_K,sig) );
     if (thtc_p)  result->setLHProton(gauss(measThetaC,thtc_p,sig) );
-    
+
   }
-  
+
   return result;
 }
 
@@ -223,7 +223,7 @@ PndFsmDrcDisc::compThetaC(double p, double m)
 }
 
 
-bool 
+bool
 PndFsmDrcDisc::detected(PndFsmTrack *t) const
 {
   if (t->hitMapValid()) {
@@ -235,7 +235,7 @@ PndFsmDrcDisc::detected(PndFsmTrack *t) const
     double p_cerenkov_min=mass/sqrt(_nRefrac*_nRefrac - 1.0);
     double theta = t->p4().Theta();
     double p=t->p4().Vect().Mag();
-    
+
     bool correctPidType=(lundId==11 || lundId==13 || lundId==211 || lundId==321 || lundId==2212);
 
     return ( p>p_cerenkov_min  && theta>=_thtMin && theta<=_thtMax && correctPidType && _rand->Uniform()<=_efficiency);
@@ -246,23 +246,23 @@ void
 PndFsmDrcDisc::print(ostream &o)
 {
   o <<"Parameters for detector <"<<detName()<<">"<<endl;
-  o  <<"  _thtMin          = "<<_thtMin<<endl; 
-  o  <<"  _thtMax          = "<<_thtMax<<endl; 
-  o  <<"  _radiationLength = "<<_radiationLength<<endl; 
-  o  <<"  _pmin            = "<<_pmin<<endl; 
-  o  <<"  _dthtc           = "<<_dthtc<<endl; 
-  o  <<"  _nPhotMin        = "<<_nPhotMin<<endl; 
-  o  <<"  _nRefrac         = "<<_nRefrac<<endl; 
-  o  <<"  _Bfield          = "<<_Bfield<<endl; 
-  o  <<"  _effNPhotons     = "<<_effNPhotons<<endl; 
-  o  <<"  _dDisc           = "<<_dDisc<<endl; 
-  o  <<"  _dp              = "<<_dp<<endl; 
-  o  <<"  _trap            = "<<_trap<<endl; 
-  o  <<"  _efficiency      = "<<_efficiency<<endl; 
-  o  <<"  _parFileName     = "<<_parFileName<<endl; 
+  o  <<"  _thtMin          = "<<_thtMin<<endl;
+  o  <<"  _thtMax          = "<<_thtMax<<endl;
+  o  <<"  _radiationLength = "<<_radiationLength<<endl;
+  o  <<"  _pmin            = "<<_pmin<<endl;
+  o  <<"  _dthtc           = "<<_dthtc<<endl;
+  o  <<"  _nPhotMin        = "<<_nPhotMin<<endl;
+  o  <<"  _nRefrac         = "<<_nRefrac<<endl;
+  o  <<"  _Bfield          = "<<_Bfield<<endl;
+  o  <<"  _effNPhotons     = "<<_effNPhotons<<endl;
+  o  <<"  _dDisc           = "<<_dDisc<<endl;
+  o  <<"  _dp              = "<<_dp<<endl;
+  o  <<"  _trap            = "<<_trap<<endl;
+  o  <<"  _efficiency      = "<<_efficiency<<endl;
+  o  <<"  _parFileName     = "<<_parFileName<<endl;
 }
 
-void 
+void
 PndFsmDrcDisc::initParameters()
 {
   _detName         = "DrcDisc";
@@ -273,13 +273,13 @@ PndFsmDrcDisc::initParameters()
   _dthtc           = 0.01;
   _nPhotMin        = 5;
   _nRefrac         = 1.472;
-  _Bfield          = 2.;               
-  _effNPhotons     = 0.1;         
-  _dDisc           = 0.017;  
+  _Bfield          = 2.;
+  _effNPhotons     = 0.1;
+  _dDisc           = 0.017;
   _dp              = 0.01;
   _trap            = 0.7;
-  _efficiency	   = 1.0; 
-  _parFileName     = "$VMCWORKDIR/fsim/trapfrac_disc.root"; 
+  _efficiency	   = 1.0;
+  _parFileName     = "$VMCWORKDIR/fastsim/trapfrac_disc.root";
 }
 
 bool
@@ -288,14 +288,14 @@ PndFsmDrcDisc::setParameter(std::string &name,std::string &value)
   // *****************
   // include here all string parameters which should be settable
   // *****************
-  
+
   bool knownName=true;
-  
+
   if (name == "parFileName")
     _parFileName=value;
   else
     knownName=false;
-  
+
   return knownName;
 }
 
@@ -305,9 +305,9 @@ PndFsmDrcDisc::setParameter(std::string &name, double value)
   // *****************
   // include here all parameters which should be settable via tcl
   // *****************
-      
+
   bool knownName=true;
-  
+
   if (name == "thtMin")
     _thtMin=value;
   else
@@ -348,38 +348,38 @@ PndFsmDrcDisc::setParameter(std::string &name, double value)
     _efficiency=value;
   else
     knownName=false;
-  
+
   return knownName;
 }
 
 bool PndFsmDrcDisc::readParameters()
 {
   TFile *f=new TFile(_parFileName.c_str());
-  
-  for (int i=0;i<5;i++) 
+
+  for (int i=0;i<5;i++)
   {
     trapfrac[i]=0;
   }
-  
-  if (f->IsZombie()) 
+
+  if (f->IsZombie())
   {
     cout <<" -W-  (PndFsmDrcDisc::readParameters) - file "<<_parFileName.c_str()
          <<" doesn't exist. Using constant trapping fraction _trap="<<_trap<<endl;
   }
-  else 
+  else
   {
     trapfrac[0]=(TH2F*)f->Get("hacc0");
     trapfrac[1]=(TH2F*)f->Get("hacc1");
     trapfrac[2]=(TH2F*)f->Get("hacc2");
     trapfrac[3]=(TH2F*)f->Get("hacc3");
     trapfrac[4]=(TH2F*)f->Get("hacc4");
-    
+
     for (int i=0;i<5;i++) trapfrac[i]->SetDirectory(0);
-      
+
     f->Close();
   }
   delete f;
-    
+
   return true;
 }
 

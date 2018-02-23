@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------
 // Description:
 //      Class PndFsmCombiDet
-//      
+//
 //  Detector class that combines responses from other detectors (same as PndFsmCmpDet)
 //  Includes a simple parametrization for charged particles
 //
@@ -11,11 +11,11 @@
 // Author List:
 //      Oscar Reinecke                   Original Author
 //	Andreas Pitka			 Efficiency part
-// 
+//
 // Copyright Information:
 //      Copyright (C) 2008              GSI
-//     
-//	
+//
+//
 //------------------------------------------------------------------------
 
 //-----------------------
@@ -70,11 +70,11 @@ PndFsmCombiDet::PndFsmCombiDet(ArgList& par) {
   readParameters();
 
   // when PndFsmCombiDet has been created by the detector
-  // factory, some arbitrary detector set is added 
+  // factory, some arbitrary detector set is added
 
   std::cout<<" -I- (PndFsmCombiDet::PndFsmCombiDet) - Creating arbitrary detector set"<<endl;
 
-  //EM Calorimeters w/ default parameters 
+  //EM Calorimeters w/ default parameters
   AddDetector("EmcBarrel");
   AddDetector("EmcFwCap");
   AddDetector("EmcBwCap");
@@ -84,8 +84,8 @@ PndFsmCombiDet::PndFsmCombiDet(ArgList& par) {
   AddDetector("Mvd2");
   AddDetector("Stt");
   AddDetector("MdcTS");
-  AddDetector("MdcFS");  
-//AddDetector("Tpc"); 
+  AddDetector("MdcFS");
+//AddDetector("Tpc");
 
   //PID detectors
   AddDetector("DrcBarrel");
@@ -110,10 +110,10 @@ PndFsmCombiDet::~PndFsmCombiDet() {
 // Operations --
 //--------------
 
-PndFsmResponse* 
+PndFsmResponse*
 PndFsmCombiDet::respond(PndFsmTrack *t) {
   PndFsmResponse *result=new PndFsmResponse();
-  
+
   result->setDetector(this);
 
   Bool_t detected=false;
@@ -144,15 +144,15 @@ PndFsmCombiDet::respond(PndFsmTrack *t) {
   Double_t dVx=0;
   Double_t dVy=0;
   Double_t dVz=0;
-  
+
   Double_t LH_e=1.0;
   Double_t LH_mu=1.0;
   Double_t LH_pi=1.0;
   Double_t LH_K=1.0;
   Double_t LH_p=1.0;
-  
+
   Double_t val=0.0;
-  
+
   for (FsmAbsDetList::iterator iter=fDetList.begin();iter!=fDetList.end(); iter++) {
     PndFsmResponse* resp=(*iter)->respond(t);
 
@@ -192,11 +192,11 @@ PndFsmCombiDet::respond(PndFsmTrack *t) {
         rawLHpi /= sumRaw;
         rawLHK  /= sumRaw;
         rawLHp  /= sumRaw;
-        LH_e  *= rawLHe; 
-        LH_mu *= rawLHmu; 
-        LH_pi *= rawLHpi; 
-        LH_K  *= rawLHK; 
-        LH_p  *= rawLHp; 
+        LH_e  *= rawLHe;
+        LH_mu *= rawLHmu;
+        LH_pi *= rawLHpi;
+        LH_K  *= rawLHK;
+        LH_p  *= rawLHp;
       } else {
         LH_e  *= 0.2;
         LH_mu *= 0.2;
@@ -204,12 +204,12 @@ PndFsmCombiDet::respond(PndFsmTrack *t) {
         LH_K  *= 0.2;
         LH_p  *= 0.2;
       }
-    } 
+    }
   }
-  
-  // invoke parameterised vertex/momentum resolution 
+
+  // invoke parameterised vertex/momentum resolution
   // (this will overwrite dp, dtheta, dphi and dV)
-  if ( _parFile ) 
+  if ( _parFile )
     // haven't done neutral particles yet
     if ( fabs(t->charge())>1e-8 ) {
       Double_t p=t->p4().Vect().Mag();
@@ -280,13 +280,13 @@ PndFsmCombiDet::respond(PndFsmTrack *t) {
         rawLHpi /= sumRaw;
         rawLHK  /= sumRaw;
         rawLHp  /= sumRaw;
-        LH_e  /= rawLHe; 
-        LH_mu /= rawLHmu; 
-        LH_pi /= rawLHpi; 
-        LH_K  /= rawLHK; 
-        LH_p  /= rawLHp; 
+        LH_e  /= rawLHe;
+        LH_mu /= rawLHmu;
+        LH_pi /= rawLHpi;
+        LH_K  /= rawLHK;
+        LH_p  /= rawLHp;
       }
-    } 
+    }
   }
 
   Double_t sumLH = LH_e + LH_mu + LH_pi + LH_K + LH_p;
@@ -305,14 +305,14 @@ PndFsmCombiDet::respond(PndFsmTrack *t) {
     LH_p  = 0.2;
   }
 
-  // this shifts all likelihoods linearly to the state 
+  // this shifts all likelihoods linearly to the state
   // of no pid information at all i. e. all lhs are 0.2
   LH_e  = 0.2*(1-_pidLhMulti) + LH_e*_pidLhMulti;
   LH_mu = 0.2*(1-_pidLhMulti) + LH_mu*_pidLhMulti;
   LH_pi = 0.2*(1-_pidLhMulti) + LH_pi*_pidLhMulti;
   LH_K  = 0.2*(1-_pidLhMulti) + LH_K*_pidLhMulti;
   LH_p  = 0.2*(1-_pidLhMulti) + LH_p*_pidLhMulti;
-  
+
   result->setdE( dE>0. ? 1/sqrt(dE) : 0.0 );
   result->setdp( dp>0. ? 1/sqrt(dp) : 0.0 );
   result->setdtheta( dtheta>0. ? 1/sqrt(dtheta) : 0.0 );
@@ -324,48 +324,48 @@ PndFsmCombiDet::respond(PndFsmTrack *t) {
   result->setMvddEdx(MvddEdx,MvddEdxErr);
   result->setTpcdEdx(TpcdEdx,TpcdEdxErr);
   result->setSttdEdx(SttdEdx,SttdEdxErr);
-  
+
   result->setDrcDiscThtc(DrcDiscThtc,DrcDiscThtcErr);
   result->setDrcBarrelThtc(DrcBarrelThtc,DrcBarrelThtcErr);
   result->setRichThtc(RichThtc,RichThtcErr);
-  
+
   if (dVx > 0.) dVx=1./sqrt(dVx); else dVx = 0.0;
   if (dVy > 0.) dVy=1./sqrt(dVy); else dVy = 0.0;
   if (dVz > 0.) dVz=1./sqrt(dVz); else dVz = 0.0;
 
   result->setdV( dVx , dVy , dVz );
-  
+
   result->setLHElectron(LH_e);
   result->setLHMuon(LH_mu);
   result->setLHPion(LH_pi);
   result->setLHKaon(LH_K);
-  result->setLHProton(LH_p);	  
+  result->setLHProton(LH_p);
 
-  Double_t Eff=0; 
+  Double_t Eff=0;
   TLorentzVector P4=t->p4();
   Double_t Mom = P4.P();
   Double_t CosTheta = P4.CosTheta();
   Double_t Phi = TMath::RadToDeg() * P4.Phi();
   Int_t PDG = t->pdt();
 
-  if(PDG==211){Eff=fPipPara->Eval(Mom,CosTheta,Phi);}      
+  if(PDG==211){Eff=fPipPara->Eval(Mom,CosTheta,Phi);}
   if(PDG==321){Eff=fKpPara->Eval(Mom,CosTheta,Phi);}
   if(PDG==2212){Eff=fProtPara->Eval(Mom,CosTheta,Phi);}
   if(PDG==-13){Eff=fmupPara->Eval(Mom,CosTheta,Phi);}
-  if(PDG==-11){Eff=fepPara->Eval(Mom,CosTheta,Phi);}      
+  if(PDG==-11){Eff=fepPara->Eval(Mom,CosTheta,Phi);}
 
-  if(PDG==-211){Eff=fPimPara->Eval(Mom,CosTheta,Phi);}      
+  if(PDG==-211){Eff=fPimPara->Eval(Mom,CosTheta,Phi);}
   if(PDG==-321){Eff=fKmPara->Eval(Mom,CosTheta,Phi);}
   if(PDG==-2212){Eff=fAntiProtPara->Eval(Mom,CosTheta,Phi);}
   if(PDG==13){Eff=fmumPara->Eval(Mom,CosTheta,Phi);}
-  if(PDG==11){Eff=femPara->Eval(Mom,CosTheta,Phi);}      
+  if(PDG==11){Eff=femPara->Eval(Mom,CosTheta,Phi);}
 
   if(Eff>0) {
     Double_t Alea=gRandom->Rndm();
     if(Eff>=Alea){detected=true;}
     if(Eff<Alea){detected=false;}
   }
-  
+
   result->setDetected(detected);
 
   return result;
@@ -404,24 +404,24 @@ Bool_t PndFsmCombiDet::setParameter(std::string &name, Double_t value) {
   // *****************
   // include here all float parameters which should be settable
   // *****************
-      
+
   Bool_t knownName=true;
 
   if (name == "d0ResMulti")
     _d0ResMulti=value;
-  else 
+  else
   if (name == "z0ResMulti")
     _z0ResMulti=value;
-  else 
+  else
   if (name == "thtResMulti")
     _thtResMulti=value;
-  else 
+  else
   if (name == "phiResMulti")
     _phiResMulti=value;
-  else 
+  else
   if (name == "momResMulti")
     _momResMulti=value;
-  else 
+  else
   if (name == "thtMin")
     _tht0 = new TParameter<Double_t>("tht0", value);
   else
@@ -538,8 +538,8 @@ void PndFsmCombiDet::readParameters() {
 
 void PndFsmCombiDet::initParameters() {
   _detName = "CmpDet";
-  _parFileName = "$VMCWORKDIR/fsim/cmpdetparams.root";
-  fEffFile = new TFile("$VMCWORKDIR/fsim/FsmCombiDetParas.root");
+  _parFileName = "$VMCWORKDIR/fastsim/cmpdetparams.root";
+  fEffFile = new TFile("$VMCWORKDIR/fastsim/FsmCombiDetParas.root");
 
   fPipPara = (TF3*)fEffFile->Get("PipPara");
   fPimPara = (TF3*)fEffFile->Get("PimPara");
@@ -579,7 +579,7 @@ void PndFsmCombiDet::initParameters() {
   _tht1=0;
  }
 
-// TSpline3::Eval returns bogus values when outside the 
+// TSpline3::Eval returns bogus values when outside the
 // Interval, so the spline has to be continued somehow
 Double_t PndFsmCombiDet::eval(TSpline3* s, Double_t x) {
   Double_t xmin=s->GetXmin();
@@ -589,6 +589,6 @@ Double_t PndFsmCombiDet::eval(TSpline3* s, Double_t x) {
   else if (x>xmax)
     return s->Eval(xmax)+(x-xmax)*s->Derivative(xmax);
   else
-    return s->Eval(x); 
-} 
+    return s->Eval(x);
+}
 
