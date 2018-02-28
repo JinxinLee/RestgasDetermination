@@ -1,28 +1,29 @@
-
-
-eventDisplay()
+int eventDisplay(TString prefix="evtcomplete")
 {
     //-----User Settings:-----------------------------------------------
-  TString  SimEngine      ="TGeant3"; 
-  TString  InputFile     ="sim_complete.root";
-  TString  DigiFile		 ="digi_complete.root";
-  TString  RecoFile      ="reco_complete.root";
-  TString  ParFile       ="simparams.root";
+
 
   Bool_t enablePointDraw = kTRUE;
   Bool_t enableHitDraw = kTRUE;
   Bool_t enableTrackDraw = kTRUE;
+
+  PndFileNameCreator nameCreator(prefix.Data());
+  TString InputFile = nameCreator.GetSimFileName().c_str();
+  TString DigiFile  = nameCreator.GetDigiFileName().c_str();
+  TString RecoFile  = nameCreator.GetRecoFileName().c_str();
+  TString ParFile   = nameCreator.GetParFileName().c_str();
   //------------------------------------------------------------------
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(InputFile.Data());
-  fRun->SetOutputFile("tst.root");
+  FairFileSource *fileSource = new FairFileSource(InputFile);
+  fRun->SetSource(fileSource);
+  fRun->SetOutputFile("unusedOutput.root");
 
   TFile* testFile;
   testFile = new TFile(DigiFile.Data());
   if (!testFile->IsZombie()){
-	  fRun->AddFriend(DigiFile.Data());
+	  fileSource->AddFriend(DigiFile.Data());
   }
   else {
 	  enableHitDraw = kFALSE;
@@ -31,7 +32,7 @@ eventDisplay()
 
   testFile = new TFile(RecoFile.Data());
   if (!testFile->IsZombie()){
-	  fRun->AddFriend(RecoFile.Data());
+	  fileSource->AddFriend(RecoFile.Data());
 	  FairGeane *Geane = new FairGeane();
 	  fRun->AddTask(Geane);
   }
@@ -40,7 +41,7 @@ eventDisplay()
   }
   testFile->Close();
 
-   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(ParFile.Data());
   rtdb->setFirstInput(parInput1);
@@ -71,7 +72,7 @@ eventDisplay()
 	  fMan->AddTask(Track);
 	  fMan->AddTask(MvdPoints);
 	  fMan->AddTask(EMCPoints);
-		fMan->AddTask(EMCPoints2);
+	  fMan->AddTask(EMCPoints2);
 	  fMan->AddTask( TofSciFPoint);
 	  fMan->AddTask( MdtPoint);
 	  fMan->AddTask( PndDrcBarPoint);
@@ -130,9 +131,7 @@ eventDisplay()
 	  fMan->AddTask(FtsIdealGenTrack);
   }
 
-
-
-  
   fMan->Init();                     
 
+  return 0;
 }

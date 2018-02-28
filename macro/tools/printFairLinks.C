@@ -1,22 +1,21 @@
-int PrintLinks_complete(Int_t nEvents = 0)
+int printFairLinks(Int_t nEvents = 0)
 {
-  // Macro created 20/09/2006 by S.Spataro
-  // It loads a digi file and performs tracking
 
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0; // just forget about it, for the moment
-  
 	// Number of events to process
 //  Int_t nEvents = 0;  // if 0 all the vents will be processed
 
-  TString MCFile = "sim_complete.root";
-  TString digiInputFile = "digi_complete.root";
-  TString recoInput = "reco_complete.root";
-  TString pidInput = "pid_complete.root"; 
- 
+  TString inputName = "evtcomplete";
+  Bool_t useDigiFile = kTRUE;
+  Bool_t useRecoFile = kTRUE;
+  Bool_t usePidFile = kTRUE;
 
-   TString sysFile = gSystem->Getenv("VMCWORKDIR");
-   TString parFile = "simparams.root"; // at the moment you do not need it
+  PndFileNameCreator creator(inputName.Data());
+
+  TString MCFile = creator.GetSimFileName();
+  TString DigiFile = creator.GetDigiFileName();
+  TString RecoFile = creator.GetRecoFileName();
+  TString PidFile = creator.GetPidFileName();
+  TString ParFile = creator.GetParFileName();
 
   // Digitisation file (ascii)
   TString digiFile = "all.par";
@@ -27,30 +26,52 @@ int PrintLinks_complete(Int_t nEvents = 0)
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(MCFile);
-  fRun->AddFriend(digiInputFile);
-  fRun->AddFriend(recoInput);
-  fRun->AddFriend(pidInput);
-//  fRun->AddFriend("reco_complete_test.root");
-//  fRun->AddFriend(MCFile);
+  FairFileSource* fileSource = new FairFileSource(MCFile.Data());
+  fRun->SetSource(fileSource);
+
+  TFile* testFile;
+  if (useDigiFile == kTRUE){
+	testFile = new TFile(DigiFile.Data());
+	if (!testFile->IsZombie()){
+	 fileSource->AddFriend(DigiFile.Data());
+	}
+	testFile->Close();
+  }
+
+  if (useRecoFile == kTRUE){
+	  testFile = new TFile(RecoFile.Data());
+	  if (!testFile->IsZombie()){
+		 fileSource->AddFriend(RecoFile.Data());
+	  }
+	  testFile->Close();
+  }
+
+  if (usePidFile == kTRUE){
+	  testFile = new TFile(PidFile.Data());
+	  if (!testFile->IsZombie()){
+		 fileSource->AddFriend(PidFile.Data());
+	  }
+	  testFile->Close();
+  }
+
   fRun->SetOutputFile("TST.root");
   fRun->SetGenerateRunInfo(kTRUE);
   fRun->SetUseFairLinks(kTRUE);
-  //fRun->RunWithTimeStamps();
+
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 
   // -----  Parameter database   --------------------------------------------
-  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
+  TString digiParFile = gSystem->Getenv("VMCWORKDIR");
+  digiParFile += "/macro/params/";
+  digiParFile += digiFile;
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(parFile.Data());
+  parInput1->open(ParFile.Data());
   
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(emcDigiFile.Data(),"in");
+  parIo1->open(digiParFile.Data(),"in");
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
@@ -60,15 +81,8 @@ int PrintLinks_complete(Int_t nEvents = 0)
   PndPrintFairLinks* printlinksTask = new PndPrintFairLinks();
   fRun->AddTask(printlinksTask);
 
-//  PndMCMatchPrintTask* printTask = new PndMCMatchPrintTask();
- // fRun->AddTask(printTask);
-
-//  PndMCMatchAnaGapTask* anaTask = new PndMCMatchAnaGapTask();
- // fRun->AddTask(anaTask);
-
-
   // -----   Intialise and run   --------------------------------------------
- // PndEmcMapper::Init(1);
+
   cout << "fRun->Init()" << endl;
 
   fRun->Init();
@@ -84,13 +98,12 @@ int PrintLinks_complete(Int_t nEvents = 0)
   Double_t ctime = timer.CpuTime();
   cout << endl << endl;
   cout << "Macro finished successfully." << endl;
- // cout << "Output file is "    << outFile << endl;
-//  cout << "Parameter file is " << parFile << endl;
+
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
- // exit(0);
+
   return 0;
 }
