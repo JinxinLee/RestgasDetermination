@@ -87,7 +87,7 @@ public:
 
 	const PndLmdHitLocationInfo& getHitLocationInfo(int sensor_id);
 
-	std::vector<int> getAvailableOverlapIDs();
+	static std::vector<int> getAvailableOverlapIDs();
 	int getOverlapIdFromSensorIDs(int id1, int id2);
 
 	TVector3 transformPndGlobalToLmdLocal(const TVector3 &vec);

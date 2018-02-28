@@ -120,7 +120,6 @@ const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(int sensor
 std::vector<int> PndLmdGeometryHelper::getAvailableOverlapIDs() {
 	std::vector<int> result;
 	int overlapID;
-
 	for (int iHalf = 0; iHalf < 2; iHalf++) {
 		for (int iPlane = 0; iPlane < 4; iPlane++) {
 			for (int iModule = 0; iModule < 5; iModule++) {
