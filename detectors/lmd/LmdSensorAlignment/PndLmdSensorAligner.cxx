@@ -55,7 +55,7 @@ PndLmdSensorAligner::~PndLmdSensorAligner() {
 	//destroy everything. leave nothing standing.
 }
 
-PndLmdSensorAligner::PndLmdSensorAligner(const PndLmdSensorAligner&) { // other //FIXME [R.K.03/2017] unused variable(s)
+PndLmdSensorAligner::PndLmdSensorAligner(const PndLmdSensorAligner&) {  // other //FIXME [R.K.03/2017] unused variable(s)
 	std::cerr << "PndLmdSensorAligner::Warning! Unnecessary copy-construction." << "\n";
 	init();
 }
@@ -75,9 +75,10 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	if (s1 == s2 && s2 == s3 && s3 == s4 && s4 == s5 && s5 == s6) {
 		nPairs = simpleSensorOneX.size();
-	} else {
+	}
+	else {
 		cout
-		        << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
+		    << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
 		cout << "s1: " << s1 << "\n";
 		cout << "s2: " << s2 << "\n";
 		cout << "s3: " << s3 << "\n";
@@ -110,18 +111,18 @@ void PndLmdSensorAligner::calculateMatrix() {
 	//check if maxPairs > 0
 	if (nPairs < 5) {
 		cerr
-		        << "PndLmdSensrAligner::Error: Trying to use less than 5 pairs! (And that's not going to work.) Aborting.\n";
+		    << "PndLmdSensrAligner::Error: Trying to use less than 5 pairs! (And that's not going to work.) Aborting.\n";
 		_success = false;
 		return;
-	} else {
+	}
+	else {
 		//	cout << "PndLmdSensrAligner::CalculateMatrix: Using " << nPairs << " pairs.\n";
 	}
 
 	double* Model = new double[dim * nPairs];
 	double* Template = new double[dim * nPairs];
 
-	if (verbose == 3)
-		cout << "arranging pairs...\n";
+	if (verbose == 3) cout << "arranging pairs...\n";
 
 	if (dim == 2) {
 		for (int ipair = 0; ipair < nPairs; ipair++) {
@@ -147,8 +148,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		// as well. So to get comparable results of CM vs PX, we should use this in BOTH cases
 
 		if (_zIsTimestamp) {
-			if (verbose == 3)
-				cout << "applying artificial Z coordinate...\n";
+			if (verbose == 3) cout << "applying artificial Z coordinate...\n";
 
 			for (int ipair = 0; ipair < nPairs; ipair++) {
 				Model[ipair * dim + 2] = ((2.0 * ipair / (double) nPairs - 1.0) * 1e4);
@@ -166,8 +166,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		 * could still be useful.
 		 */
 
-		if (verbose == 3)
-			cout << "checking for zero values...\n";
+		if (verbose == 3) cout << "checking for zero values...\n";
 
 		for (int iCheck = 0; iCheck < dim * nPairs; iCheck++) {
 			double val1 = abs(Model[iCheck]);
@@ -250,15 +249,15 @@ void PndLmdSensorAligner::calculateMatrix() {
 	//attention! dim * nPairs must equal size of model!
 	IcpPointToPoint icp(Model, nPairs, dim);
 
-	if (verbose == 3)
-		cout << "ICP and model created...\n";
+	if (verbose == 3) cout << "ICP and model created...\n";
 
 	//TODO: clean this up!
 	//prepare Matrices
 	if (dim == 2) {
 		Rotation = Matrix::eye(2);
 		translation = Matrix(2, 1);
-	} else if (dim == 3) {
+	}
+	else if (dim == 3) {
 		Rotation = Matrix::eye(3);
 		translation = Matrix(3, 1);
 	}
@@ -266,8 +265,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	icp.forceInstantResult(forceInstant);
 	icp.fit(Template, nPairs, Rotation, translation, -1);
 
-	if (verbose == 3)
-		cout << "ICP fit step done.\n";
+	if (verbose == 3) cout << "ICP fit step done.\n";
 
 	if (dim == 2) {
 
@@ -306,7 +304,8 @@ void PndLmdSensorAligner::calculateMatrix() {
 		delete tempT;
 		delete finalMatrix;
 
-	} else if (dim == 3) {
+	}
+	else if (dim == 3) {
 
 		//make 4x4 matrix
 		double* tempR = new double[9];
@@ -355,17 +354,18 @@ void PndLmdSensorAligner::calculateMatrix() {
 		alignlog << "\n";
 		alignlog << "====================================================\n";
 		alignlog << "icp converged for overlapID " << overlapID << " in " << icp.getInterations()
-		        << " iterations.\n";
+		    << " iterations.\n";
 		alignlog << "pairs available: " << nPairs;
 		if (nPairs < 100000) {
 			alignlog << " (WARNING! This is not enough for accurate alignment!)\n";
-		} else {
+		}
+		else {
 			alignlog << "\n";
 		}
 		//log << "euclidean fitness score: " << icp.getFitnessScore() << " (that is " << icp.getFitnessScore()/8e-4 << " pixels)"<< "\n";
 		alignlog << "euclidean fitness score: " << icp.getFitnessScore();
 		if (icp.getFitnessScore() > 0.55) {
-			alignlog << " (WARNING! This is bad! Should be ~0.55)"; //FIXME: no it should not
+			alignlog << " (WARNING! This is bad! Should be ~0.55)";  //FIXME: no it should not
 		}
 		alignlog << "\n";
 		alignlog << "minDelta: " << minDelta << "\n";
@@ -373,30 +373,30 @@ void PndLmdSensorAligner::calculateMatrix() {
 		alignlog << "EventTimeCheck: ";
 		if (eventTimeCheck) {
 			alignlog << "on (and passed)\n";
-		} else {
+		}
+		else {
 			alignlog << "off\n";
 		}
 		alignlog << "Force Instant: ";
 		if (forceInstant) {
 			alignlog << "on\n";
-		} else {
+		}
+		else {
 			alignlog << "off\n";
 		}
-		if (verbose == 3)
-			cout << "ICP convergence ok.\n";
-	} else {
+		if (verbose == 3) cout << "ICP convergence ok.\n";
+	}
+	else {
 		alignlog << "\n";
 		alignlog << "====================================================\n";
 		alignlog << "CRITICAL ERROR:\n";
 		alignlog << "no convergence for overlapID " << overlapID << "." << "\n";
 		alignlog << "====================================================\n";
 		alignlog << "\n";
-		if (verbose == 3)
-			cout << "ICP did not converge!\n";
+		if (verbose == 3) cout << "ICP did not converge!\n";
 		_success = false;
 	}
-	if (verbose == 3)
-		cout << alignlog.str();
+	if (verbose == 3) cout << alignlog.str();
 
 	delete[] Model;
 	delete[] Template;
@@ -425,7 +425,8 @@ bool PndLmdSensorAligner::addSimplePair(const PndLmdHitPair &pair) {
 		simpleSensorTwoX.push_back(pair.getHit2().x());
 		simpleSensorTwoY.push_back(pair.getHit2().y());
 		simpleSensorTwoZ.push_back(pair.getHit2().z());
-	} else {
+	}
+	else {
 		simpleSensorOneX.push_back(pair.getCol1());
 		simpleSensorOneY.push_back(pair.getRow1());
 		simpleSensorOneZ.push_back(simpleSensorOneZ.size());	//vecor grows, so this is okay
@@ -446,12 +447,13 @@ bool PndLmdSensorAligner::writePairsToBinary(const std::string directory) {
 	int nPairs = 0;
 
 	if (simpleSensorOneX.size() == simpleSensorOneY.size()
-	        && simpleSensorOneX.size() == simpleSensorOneZ.size()
-	        && simpleSensorOneX.size() == simpleSensorTwoX.size()
-	        && simpleSensorOneX.size() == simpleSensorTwoY.size()
-	        && simpleSensorOneX.size() == simpleSensorTwoZ.size()) {
+	    && simpleSensorOneX.size() == simpleSensorOneZ.size()
+	    && simpleSensorOneX.size() == simpleSensorTwoX.size()
+	    && simpleSensorOneX.size() == simpleSensorTwoY.size()
+	    && simpleSensorOneX.size() == simpleSensorTwoZ.size()) {
 		nPairs = simpleSensorOneX.size();
-	} else {
+	}
+	else {
 		cout << "PndLmdSensorAligner::ERROR: x, y and z have different amounts of entries!\n";
 		cout << "oneX: " << simpleSensorOneX.size() << "\n";
 		cout << "oneY: " << simpleSensorOneY.size() << "\n";
@@ -460,16 +462,16 @@ bool PndLmdSensorAligner::writePairsToBinary(const std::string directory) {
 		cout << "twoY: " << simpleSensorTwoY.size() << "\n";
 		cout << "twoZ: " << simpleSensorTwoZ.size() << "\n";
 
-		nPairs=0;
+		nPairs = 0;
 	}
 
 	if (nPairs == 0) {
 		cout << "warning: attempting to write empty binary pair file! (no pairs in buffer for overlapID "
-		        << overlapID << ")\n";
+		    << overlapID << ")\n";
 		return false;
 	}
 
-	size_t length = nPairs * doublesPerPair + 6;//number of raw doubles (including header), remember pairs have 6 doubles
+	size_t length = nPairs * doublesPerPair + 6;	//number of raw doubles (including header), remember pairs have 6 doubles
 
 	filename = directory;
 	filename += PndLmdAlignManager::makeBinaryPairFileName(overlapID, _inCentimeters);
@@ -556,7 +558,8 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 	if (inStream) {
 		std::fstream::pos_type size = inStream.tellg();
 		filesize = size;
-	} else {
+	}
+	else {
 		cout << filename.c_str() << " could not be read!\n";
 		return false;
 	}
@@ -566,8 +569,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 	if (filesize >= sizeof(double)) {
 		//read header
 		std::ifstream is(filename.c_str(), std::ios::binary | std::ios::in);
-		if (!is.is_open())
-			return false;
+		if (!is.is_open()) return false;
 		is.read(reinterpret_cast<char*>(headersizeD), std::streamsize(sizeof(double)));
 		is.close();
 	}
@@ -576,7 +578,8 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 	if (headersizeD[0] < 6) {
 		//cout << "headersize is " << headersizeD[0] << ", seems to be old format. using 6 for now.";
 		headersize = 6;
-	} else {
+	}
+	else {
 		headersize = headersizeD[0];
 	}
 
@@ -586,8 +589,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 
 		//read header
 		std::ifstream is(filename.c_str(), std::ios::binary | std::ios::in);
-		if (!is.is_open())
-			return false;
+		if (!is.is_open()) return false;
 		is.read(reinterpret_cast<char*>(header), std::streamsize(headersize * sizeof(double)));
 		is.close();
 
@@ -607,7 +609,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 
 		if (doublesize != header[3]) {
 			cout
-			        << "warning! sizeof(double) on this system is different than on the system that made this binary!\n";
+			    << "warning! sizeof(double) on this system is different than on the system that made this binary!\n";
 			//TODO: decide what to do in this case
 			exit(1);
 			doublesize = header[3];
@@ -622,9 +624,9 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 		}
 
 		if (filesizeMust == filesize) {
-			if (verbose == 3)
-				cout << "file seems okay!\n";
-		} else {
+			if (verbose == 3) cout << "file seems okay!\n";
+		}
+		else {
 			cout << "file is corrupt!\n";
 			return false;
 		}
@@ -632,7 +634,8 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 		//free allocated space!
 		delete[] header;
 
-	} else {
+	}
+	else {
 		cout << filename.c_str() << " is too small, file corrupt!\n";
 		return false;
 	}
@@ -641,8 +644,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 
 	//actually read file
 	std::ifstream is(filename.c_str(), std::ios::binary | std::ios::in);
-	if (!is.is_open())
-		return false;
+	if (!is.is_open()) return false;
 	is.read(reinterpret_cast<char*>(pdata), std::streamsize(noOfDoubles * sizeof(double)));
 	is.close();
 
@@ -675,18 +677,12 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 		}
 		//check read data
 		else {
-			if (pdata[currentIndex + 0] != simpleSensorOneX[i])
-				error = true;
-			if (pdata[currentIndex + 1] != simpleSensorOneY[i])
-				error = true;
-			if (pdata[currentIndex + 2] != simpleSensorOneZ[i])
-				error = true;
-			if (pdata[currentIndex + 3] != simpleSensorTwoX[i])
-				error = true;
-			if (pdata[currentIndex + 4] != simpleSensorTwoY[i])
-				error = true;
-			if (pdata[currentIndex + 5] != simpleSensorTwoZ[i])
-				error = true;
+			if (pdata[currentIndex + 0] != simpleSensorOneX[i]) error = true;
+			if (pdata[currentIndex + 1] != simpleSensorOneY[i]) error = true;
+			if (pdata[currentIndex + 2] != simpleSensorOneZ[i]) error = true;
+			if (pdata[currentIndex + 3] != simpleSensorTwoX[i]) error = true;
+			if (pdata[currentIndex + 4] != simpleSensorTwoY[i]) error = true;
+			if (pdata[currentIndex + 5] != simpleSensorTwoZ[i]) error = true;
 
 			if (error) {
 				cout << pdata[currentIndex + 0] << "|" << simpleSensorOneX[i] << "\n";
@@ -708,13 +704,21 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 	if (!error) {
 		if (verbose == 3) {
 			cout << "file check successful, everything okay!\n";
+			cout << "read " << nPairs << " from binary file.\n";
+			cout << "vector sizes:\n";
+			cout << "1x: " << simpleSensorOneX.size() << "\n";
+			cout << "1y: " << simpleSensorOneY.size() << "\n";
+			cout << "1z: " << simpleSensorOneZ.size() << "\n";
+			cout << "2x: " << simpleSensorTwoX.size() << "\n";
+			cout << "2y: " << simpleSensorTwoY.size() << "\n";
+			cout << "2z: " << simpleSensorTwoZ.size() << "\n";
 		}
 	}
 
 	//delete array!
 	delete[] pdata;
 
-	//now, check if ID1 and ID2 can be generated from overlapID
+	// now, check if ID1 and ID2 can be generated from overlapID
 	// well, they can, but only from dimension->, so this is done in manager, not here
 	return true;
 }

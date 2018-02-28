@@ -21,22 +21,14 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/
 
 	string pandaDir = getenv("VMCWORKDIR");
 
-	string matrixDir;
-
+	// don't forget trailing slashes!!
 	if (LMDmatrixDir == "") {
-		// don't forget trailing slash
-		matrixDir = pairFilePath + "/LMDmatrices/";
-	}
-	else {
-		matrixDir = LMDmatrixDir;
+		LMDmatrixDir = pairFilePath + "/LMDmatrices/";
 	}
 	if (binaryPairFilePath == "") {
-		// don't forget trailing slash
 		binaryPairFilePath = pairFilePath + "/binaryPairs/";
 	}
 
-	string pairFilesDir = pairFilePath.Data();
-	string binaryFilesDir = binaryPairFilePath.Data();
 	int readNoOfFiles = 0;			//how many files should be processed? 0 for all
 
 	// ---------------------- init Matrix Finder
@@ -45,17 +37,15 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/
 
 	PndLmdAlignManager manager;
 	manager.setInCentimeters(incentimeters);
-	manager.setBinaryPairFileDirectory(binaryFilesDir);
+	manager.setBinaryPairFileDirectory(binaryPairFilePath.Data());
 	manager.setMaxPairs(300e3);
 
 	// ---------------------- check for binary files and sort/write, if necessary
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
 
 	if (!binaryPairsPresent) {
-		manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
-		manager.setMatrixOutDir(matrixDir);
-
-		//manager.setZasTimestamp(true);	//TODO: remove after testing, or leave in depending on test result!
+		manager.addFilesFromDirectory(pairFilePath.Data(), readNoOfFiles);
+		manager.setMatrixOutDir(LMDmatrixDir.Data());
 
 		manager.readFilesAndAlign();
 		manager.waitForCompletion();
@@ -66,7 +56,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/
 	bool LMDMatrixFilesPresent = manager.checkForLmdMatrixFiles();
 	if (!LMDMatrixFilesPresent) {
 		cout << "reading binary pair files.\n";
-		manager.setMatrixOutDir(matrixDir);
+		manager.setMatrixOutDir(LMDmatrixDir.Data());
 		manager.readPairsFromBinaryFiles();
 		manager.alignAllSensors();
 	}
