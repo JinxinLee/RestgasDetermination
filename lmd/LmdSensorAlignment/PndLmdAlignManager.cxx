@@ -108,6 +108,8 @@ void PndLmdAlignManager::init() {
 	_enableHelperMatrix = false;
 	_multithreaded = true;
 
+	_verboseLevel=0;
+
 	//int overlapId=-1;
 	fileNames.clear();
 	aligners.clear();
@@ -357,7 +359,7 @@ void PndLmdAlignManager::alignOne(PndLmdSensorAligner &aligner) {
 	if (!checkForBinaryFiles()) {
 		aligner.writePairsToBinary(_binaryPairFileDirectory);
 	}
-	//if binary files already present, then they have been read earliert and we can display a progress bar for the aliners
+	//if binary files already present, then they have been read earlier and we can display a progress bar for the aliners
 	else {
 		incrementMTLB();
 	}
@@ -375,11 +377,14 @@ void PndLmdAlignManager::alignST() {
 	int cur, tot;
 	cur = 0;
 	tot = aligners.size();
+	verbosePrint("aligning single threaded.\n");
 
 	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
 		loadBar(cur++, tot, 1000, 60);
+		verbosePrint("calculating matrix.\n");
 		it->second.calculateMatrix();
 		if (it->second.successful()) {
+			verbosePrint("success. getting matrix.\n");
 			Matrix result = it->second.getResultMatrix();
 			string matrixFilename = _matrixOutDir
 			    + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
@@ -418,9 +423,12 @@ void PndLmdAlignManager::alignMT() {
 	}
 
 	//create worker threads
+	if(_verboseLevel >= 3) cout << "creating threads... ";
 	for (int i = 0; i < nThreads; i++) {
 		worker_threads.create_thread(boost::bind(&WorkerThread, io_service));
+		if(_verboseLevel >= 3) cout << "[" << i << "] ";
 	}
+	if(_verboseLevel >= 3) cout << "done.\nposting work...\n";
 
 	resetMTLB(aligners.size(), aligners.size(), 60);
 
@@ -431,16 +439,20 @@ void PndLmdAlignManager::alignMT() {
 		 * when binding member classes, boost::bind needs the namespace AND the pointer to an object
 		 * of that class (here: this-pointer). Also, when using references, use boost::ref()
 		 */
+		if(_verboseLevel >= 3) cout << "posting work for aligner " << it->second.getOverlapId() << "... ";
 		io_service->post(boost::bind(&PndLmdAlignManager::alignOne, this, boost::ref(it->second)));
+		if(_verboseLevel >= 3) cout << "done.\n";
+
 	}
 
 	//wait for all threads to complete, then and only then write matrices to disk
+	if(_verboseLevel >= 3) cout << "waiting for all threads to complete.\n";
 	work.reset();
 	worker_threads.join_all();
-
+	if(_verboseLevel >= 3) cout << "all threads done. getting info.\n";
 	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
 		if (it->second.successful()) {
-
+			if(_verboseLevel >= 3) cout << "gtting matrix from " << it->second.getOverlapId() << "\n";
 			Matrix result = it->second.getResultMatrix();
 			string matrixFilename = _matrixOutDir
 			    + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
@@ -452,6 +464,8 @@ void PndLmdAlignManager::alignMT() {
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
 			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
 			_info << "\n";
+
+			if(_verboseLevel >= 3) cout << _info.str() << "\n";
 		}
 		else {
 			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
@@ -1514,6 +1528,12 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 		}
 	}
 	return success;
+}
+
+void PndLmdAlignManager::verbosePrint(std::string input, int level) {
+	if(_verboseLevel >= level){
+		cout << input;
+	}
 }
 
 boost::property_tree::ptree PndLmdAlignManager::readConfigFile(std::string filename) {
