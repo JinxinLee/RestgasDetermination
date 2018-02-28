@@ -5,7 +5,6 @@
  *
  */
 
-using namespace std;
 
 void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0)
 {

@@ -22,10 +22,6 @@
 
 #include <matrix.h>
 
-struct allPairs {
-
-};
-
 class PndLmdSensorAligner {
 
 private:
@@ -120,7 +116,6 @@ public:
 	void setZasTimetamp(bool value) {
 		_zIsTimestamp = value;
 	}
-
 };
 
 #endif /* LMD_LMDSENSORALIGNMENT_PNDLMDSENSORALIGNER_H_ */

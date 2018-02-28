@@ -23,7 +23,6 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include <PndLmdAlignStructs.h>
-#include <PndLmdGeometryHelper.h>
 #include <PndLmdSensorAligner.h>
 
 #include <TGeoMatrix.h>
@@ -58,7 +57,11 @@ private:
 	bool _firstInitDone;
 	bool _multithreaded;
 
-	PndLmdGeometryHelper *helper;
+	vector<int> overlapIDs;
+
+	//FIXME: remove
+	// we don't want that here anymore
+	//PndLmdGeometryHelper *helper;
 
 	void alignST();
 	void alignMT();

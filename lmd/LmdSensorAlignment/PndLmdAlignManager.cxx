@@ -27,6 +27,7 @@
 
 #include <PndLmdSensorAligner.h>
 #include <PndLmdHitPair.h>
+#include <PndLmdGeometryHelper.h>
 #include <TChain.h>
 #include <TClonesArray.h>
 #include <TFile.h>
@@ -58,10 +59,8 @@ void PndLmdAlignManager::incrementMTLB() {
 	_i++;
 
 	// Only update r times.
-	if (_n == 0)
-		return;
-	if (_n == 1)
-		return;
+	if (_n == 0) return;
+	if (_n == 1) return;
 
 	if (_r > _n) {
 		_r = _n;
@@ -114,9 +113,10 @@ void PndLmdAlignManager::init() {
 	fileNames.clear();
 	aligners.clear();
 
-	helper = &PndLmdGeometryHelper::getInstance();
+	//FIXME: remove
+	//helper = &PndLmdGeometryHelper::getInstance();
 
-	vector<int> overlapIDs = helper->getAvailableOverlapIDs();
+	overlapIDs = PndLmdGeometryHelper::getAvailableOverlapIDs();
 	for (size_t i = 0; i < overlapIDs.size(); i++) {
 		int overlapId = overlapIDs[i];
 
@@ -152,13 +152,15 @@ bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
 	pair.check();
 	if (pair.isSane()) {
 		if (useSimpleStorage) {
-			success = aligners[pair.getOverlapId()].addSimplePair(pair);//returns true if addPair succeeded
+			success = aligners[pair.getOverlapId()].addSimplePair(pair);  //returns true if addPair succeeded
 			alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
-		} else {
+		}
+		else {
 			//_aligners[pair.getOverlapId()].addPair(pair);
 			cout << "WARNING! Legacy storage mode is no longer supported.";
 		}
-	} else {
+	}
+	else {
 		cout << "pair is not sane. processing failed.\n";
 		success = false;
 	}
@@ -179,21 +181,22 @@ bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair) {
 	pair.check();
 	if (pair.isSane()) {
 		if (useSimpleStorage) {
-			success = aligners[pair.getOverlapId()].addSimplePair(pair);//returns true if addPair succeeded
+			success = aligners[pair.getOverlapId()].addSimplePair(pair);  //returns true if addPair succeeded
 			alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
-		} else {
+		}
+		else {
 			//_aligners[pair.getOverlapId()].addPair(pair);
 			cout << "WARNING! Legacy storage mode is no longer supported.";
 		}
-	} else {
+	}
+	else {
 		cout << "pair is not sane. processing failed.\n";
 	}
 
 	//if pair could not be added, aligner is full. start thread directly.
 	if (!success) {
 		alignerThreadGroup.create_thread(
-		        boost::bind(&PndLmdAlignManager::alignOne, this,
-		                boost::ref(aligners[pair.getOverlapId()])));
+		    boost::bind(&PndLmdAlignManager::alignOne, this, boost::ref(aligners[pair.getOverlapId()])));
 	}
 
 	//check if all aligners are done
@@ -215,7 +218,7 @@ void PndLmdAlignManager::validate() {
 	std::cout << "using " << aligners.size() << " aligners, which have:\n";
 	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
 		cout << "id: " << it->second.getModuleID() << " has " << it->second.getNoOfPairs() << " pairs."
-		        << "\n";
+		    << "\n";
 	}
 }
 
@@ -223,7 +226,8 @@ bool PndLmdAlignManager::addFile(std::string filename) {
 
 	if (_allFilesAdded) {
 		return false;
-	} else {
+	}
+	else {
 		fileNames.push_back(filename);
 		return true;
 	}
@@ -233,18 +237,19 @@ int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFile
 
 	if (_allFilesAdded) {
 		return fileNames.size();
-	} else {
+	}
+	else {
 		std::vector<string> list;
 		searchFiles(directory, list, ".root", false);
 		for (size_t i = 0; i < list.size(); i++) {
 			fileNames.push_back(list[i]);
-			if ((int) i == maxFiles - 1) {//we use == instead of >= so that maxFiles=0 always chooses all files
+			if ((int) i == maxFiles - 1) {	//we use == instead of >= so that maxFiles=0 always chooses all files
 				break;
 			}
 		}
 		_allFilesAdded = true;
 		cout << "looking for files in " << directory << ". choose " << fileNames.size()
-		        << " files of maximum of " << maxFiles << ".\n";
+		    << " files of maximum of " << maxFiles << ".\n";
 		return fileNames.size();
 	}
 
@@ -257,7 +262,8 @@ void PndLmdAlignManager::readFiles() {
 	int noOfFiles = fileNames.size();
 	if (noOfFiles > 0) {
 		cout << "found " << noOfFiles << " file(s). reading...\n";
-	} else {
+	}
+	else {
 		cout << "no files found. exiting.\n";
 		exit(0);
 	}
@@ -308,7 +314,8 @@ void PndLmdAlignManager::readFilesAndAlign() {
 	int noOfFiles = fileNames.size();
 	if (noOfFiles > 0) {
 		cout << "found " << noOfFiles << " file(s). reading...\n";
-	} else {
+	}
+	else {
 		cout << "no files found. exiting.\n";
 		exit(0);
 	}
@@ -388,14 +395,15 @@ void PndLmdAlignManager::alignST() {
 		if (it->second.successful()) {
 			Matrix result = it->second.getResultMatrix();
 			string matrixFilename = _matrixOutDir
-			        + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
+			    + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
 			writeMatrix(result, matrixFilename);
 
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
 			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
 			_info << "\n";
 
-		} else {
+		}
+		else {
 			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
 		}
 	}
@@ -407,8 +415,7 @@ void PndLmdAlignManager::alignMT() {
 
 	//shared pointer, since io_services can't be copied
 	boost::shared_ptr<boost::asio::io_service> io_service(new boost::asio::io_service);
-	boost::shared_ptr<boost::asio::io_service::work> work(
-	        new boost::asio::io_service::work(*io_service));
+	boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*io_service));
 
 	//thread group
 	boost::thread_group worker_threads;
@@ -449,7 +456,7 @@ void PndLmdAlignManager::alignMT() {
 
 			Matrix result = it->second.getResultMatrix();
 			string matrixFilename = _matrixOutDir
-			        + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
+			    + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
 
 			if (!writeMatrix(result, matrixFilename)) {
 				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
@@ -458,7 +465,8 @@ void PndLmdAlignManager::alignMT() {
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
 			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
 			_info << "\n";
-		} else {
+		}
+		else {
 			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
 		}
 	}
@@ -476,7 +484,8 @@ void PndLmdAlignManager::alignAllSensors() {
 
 	if (_multithreaded) {
 		alignMT();
-	} else {
+	}
+	else {
 		alignST();
 	}
 
@@ -484,7 +493,8 @@ void PndLmdAlignManager::alignAllSensors() {
 	ofstream of;
 	if (_inCentimeters) {
 		of.open((_matrixOutDir + "/info-cm.txt").c_str());
-	} else {
+	}
+	else {
 		of.open((_matrixOutDir + "/info-px.txt").c_str());
 	}
 
@@ -538,28 +548,26 @@ void PndLmdAlignManager::alignAllSensors() {
 //	return result;
 //}
 
+//FIXME: move to AlignQA
 /*
  * get transformation matrix of fromSensor -> toSensor (PANDA global reference frame)
  * this is in cm and IN PANDA GLOBAL.
  * ATTENTION! set aligned flag true for perfect geometry, else use false!
  */
-Matrix PndLmdAlignManager::getMatrixSensorToSensor(int fromSensor, int toSensor) {
-
-	auto matrixSen1ToLmd = helper->getMatrixSensorToPndGlobal(fromSensor);
-	auto matrixLmdToSen2 = helper->getMatrixPndGlobalToSensor(toSensor);
-
-	Matrix matSen1ToLmd = castTGeoHMatrixToMatrix(matrixSen1ToLmd);
-	Matrix matLmdToSen2 = castTGeoHMatrixToMatrix(matrixLmdToSen2);
-	return matLmdToSen2 * matSen1ToLmd;
-}
-
+//Matrix PndLmdAlignManager::getMatrixSensorToSensor(int fromSensor, int toSensor) {
+//
+//	auto matrixSen1ToLmd = helper->getMatrixSensorToPndGlobal(fromSensor);
+//	auto matrixLmdToSen2 = helper->getMatrixPndGlobalToSensor(toSensor);
+//
+//	Matrix matSen1ToLmd = castTGeoHMatrixToMatrix(matrixSen1ToLmd);
+//	Matrix matLmdToSen2 = castTGeoHMatrixToMatrix(matrixLmdToSen2);
+//	return matLmdToSen2 * matSen1ToLmd;
+//}
 void PndLmdAlignManager::loadBar(int i, int n, int r, int w, std::string message) {
 
 	// Only update r times.
-	if (n == 0)
-		return;
-	if (n == 1)
-		return;
+	if (n == 0) return;
+	if (n == 1) return;
 
 	if (r > n) {
 		r = n;
@@ -719,7 +727,7 @@ vector<vector<double> > PndLmdAlignManager::readFromCSVFile(std::string filename
 }
 
 int PndLmdAlignManager::searchFiles(std::string path, std::vector<std::string> &list, std::string detail,
-        bool includeSubDirs) {
+    bool includeSubDirs) {
 
 	if (!boost::filesystem::exists(path)) {
 		return 0;
@@ -729,7 +737,8 @@ int PndLmdAlignManager::searchFiles(std::string path, std::vector<std::string> &
 		if (boost::filesystem::is_directory(iterator->path()) && includeSubDirs) {
 			list.push_back(iterator->path().string());
 			searchFiles(iterator->path().string(), list, detail, includeSubDirs);
-		} else if (boost::filesystem::is_regular_file(iterator->path())) {
+		}
+		else if (boost::filesystem::is_regular_file(iterator->path())) {
 			if (iterator->path().string().find(detail) != std::string::npos) {
 				list.push_back(iterator->path().string());
 			}
@@ -784,7 +793,7 @@ vector<string> PndLmdAlignManager::findRegex(std::string source, std::string reg
 }
 
 int PndLmdAlignManager::searchDirectories(std::string curr_directory, std::vector<std::string> &list,
-        bool includeSubDirs) {
+    bool includeSubDirs) {
 
 	if (!boost::filesystem::exists(curr_directory)) {
 		return 0;
@@ -891,9 +900,6 @@ Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 
 bool PndLmdAlignManager::checkForBinaryFiles() {
 
-	//list all IDs that SHOULD be there
-	vector<int> availableIds = helper->getAvailableOverlapIDs();
-
 	vector<string> files;
 	searchFiles(_binaryPairFileDirectory, files, "bin", false);
 	int foundFiles = 0;
@@ -907,10 +913,10 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 	bool tempfilefound = false;
 
 	//check for every ID that should be there if there is a corresponding file
-	for (size_t i = 0; i < availableIds.size(); i++) {
+	for (size_t i = 0; i < overlapIDs.size(); i++) {
 
 		tempfilefound = false;
-		matrixName = makeBinaryPairFileName(availableIds[i], _inCentimeters);
+		matrixName = makeBinaryPairFileName(overlapIDs[i], _inCentimeters);
 		for (size_t j = 0; j < files.size(); j++) {
 			if (files[j].find(matrixName) != string::npos) {
 				tempfilefound = true;
@@ -928,9 +934,6 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 
 bool PndLmdAlignManager::checkForLmdMatrixFiles() {
 
-	//list all IDs that SHOULD be there
-	vector<int> availableIds = helper->getAvailableOverlapIDs();
-
 	vector<string> files;
 	searchFiles(_binaryPairFileDirectory, files, "mat", false);
 	int foundFiles = 0;
@@ -944,12 +947,12 @@ bool PndLmdAlignManager::checkForLmdMatrixFiles() {
 	bool tempfilefound = false;
 
 	//check for every ID that should be there if there is a corresponding file
-	for (size_t i = 0; i < availableIds.size(); i++) {
+	for (size_t i = 0; i < overlapIDs.size(); i++) {
 
 		//reset counter
 		tempfilefound = false;
-		matrixName1 = makeMatrixFileName(availableIds[i], true);
-		matrixName1 = makeMatrixFileName(availableIds[i], false);
+		matrixName1 = makeMatrixFileName(overlapIDs[i], true);
+		matrixName1 = makeMatrixFileName(overlapIDs[i], false);
 
 		for (size_t j = 0; j < files.size(); j++) {
 			if (files[j].find(matrixName1) != string::npos) {
@@ -975,7 +978,8 @@ std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incen
 	filename << overlapId;
 	if (incentimeters) {
 		filename << "-cm";
-	} else {
+	}
+	else {
 		filename << "-px";
 	}
 	filename << ".bin";
@@ -992,379 +996,385 @@ std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentime
 	matrixName << "/m";
 	if (incentimeters) {
 		matrixName << overlapId << "cm.mat";
-	} else {
+	}
+	else {
 		matrixName << overlapId << "px.mat";
 	}
 	return matrixName.str();
 }
 
-Matrix PndLmdAlignManager::combineCyclicMatrix(int id) {
-
-	Matrix result = Matrix::eye(4);
-
-	// get id of first sensor on module
-	int id1 = (std::floor(id / 10.0)) * 10;
-	int id2 = id % 10;
-
-	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
-	string m05f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
-	string m18f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
-	string m28f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
-	string m29f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
-	string m36f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
-	string m37f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
-	string m38f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
-	string m47f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
-	string m49f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
-
-	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
-	Matrix m01 = getMatrixSensorToSensor(id1, id1 + 1);
-	Matrix m56 = getMatrixSensorToSensor(id1 + 5, id1 + 6);
-
-	// remember, CM matrices are in LMD local, px matrices are in sensor local!
-	// and since we know those from external measurements, we have those
-	//FIXME: these functions are missing, so the code does not work right now!
+// FIXME:
+// clean this up, there should be a better way. maybe use the HitLocationInfo structs
+//Matrix PndLmdAlignManager::combineCyclicMatrix(int id) {
+//
+//	Matrix result = Matrix::eye(4);
+//
+//	// get id of first sensor on module
+//	int id1 = (std::floor(id / 10.0)) * 10;
+//	int id2 = id % 10;
+//
+//	//FIXME: assign matrices, this is shuddy atm.
+//	string m05f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
+//	string m18f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
+//	string m28f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
+//	string m29f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
+//	string m36f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
+//	string m37f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
+//	string m38f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
+//	string m47f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
+//	string m49f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
+//
+//	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
+//	Matrix m01 = getMatrixSensorToSensor(id1, id1 + 1);
+//	Matrix m56 = getMatrixSensorToSensor(id1 + 5, id1 + 6);
+//
+//	// remember, CM matrices are in LMD local, px matrices are in sensor local!
+//	// and since we know those from external measurements, we have those
+//	//FIXME: these functions are missing, so the code does not work right now!
+////	if (!_inCentimeters) {
+////		transformFromLmdLocalToSensor(m01, id1 + 0, aligned);
+////		transformFromLmdLocalToSensor(m56, id1 + 5, aligned);
+////	}
+//
+//	Matrix m05 = readMatrix(m05f);
+//	Matrix m18 = readMatrix(m18f);
+//	Matrix m28 = readMatrix(m28f);
+//	Matrix m29 = readMatrix(m29f);
+//	Matrix m36 = readMatrix(m36f);
+//	Matrix m37 = readMatrix(m37f);
+//	Matrix m38 = readMatrix(m38f);
+//	Matrix m47 = readMatrix(m47f);
+//	Matrix m49 = readMatrix(m49f);
+//
+//	// I think all px matrices are inverted
 //	if (!_inCentimeters) {
-//		transformFromLmdLocalToSensor(m01, id1 + 0, aligned);
-//		transformFromLmdLocalToSensor(m56, id1 + 5, aligned);
+//		m01.inv();
+//		m56.inv();
+//		m05.inv();
+//		m18.inv();
+//		m28.inv();
+//		m29.inv();
+//		m36.inv();
+//		m37.inv();
+//		m38.inv();
+//		m47.inv();
+//		m49.inv();
 //	}
+//
+//	// since we read only correction matrices in cm, we must multiply them
+//	// with the ideal senToSen to get the complete misaligned senToSen.
+//	// this isn't cheating as we are only using ideal matrices, which we should
+//	// always have.
+//	// but remember, they still live on separate modules.
+//	if (_inCentimeters) {
+//
+//		Matrix m05ideal = getMatrixSensorToSensor(id1 + 0, id1 + 5);
+//		Matrix m18ideal = getMatrixSensorToSensor(id1 + 1, id1 + 8);
+//		Matrix m28ideal = getMatrixSensorToSensor(id1 + 2, id1 + 8);
+//		Matrix m29ideal = getMatrixSensorToSensor(id1 + 2, id1 + 9);
+//		Matrix m36ideal = getMatrixSensorToSensor(id1 + 3, id1 + 6);
+//		Matrix m37ideal = getMatrixSensorToSensor(id1 + 3, id1 + 7);
+//		Matrix m38ideal = getMatrixSensorToSensor(id1 + 3, id1 + 8);
+//		Matrix m47ideal = getMatrixSensorToSensor(id1 + 4, id1 + 7);
+//		Matrix m49ideal = getMatrixSensorToSensor(id1 + 4, id1 + 9);
+//
+//		//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
+////		realignMatrixInLmd(m05ideal, id1 + 0);
+////		realignMatrixInLmd(m18ideal, id1 + 1);
+////		realignMatrixInLmd(m28ideal, id1 + 2);
+////		realignMatrixInLmd(m29ideal, id1 + 2);
+////		realignMatrixInLmd(m36ideal, id1 + 3);
+////		realignMatrixInLmd(m37ideal, id1 + 3);
+////		realignMatrixInLmd(m38ideal, id1 + 3);
+////		realignMatrixInLmd(m47ideal, id1 + 4);
+////		realignMatrixInLmd(m49ideal, id1 + 4);
+//
+//		m05 = m05 * m05ideal;
+//		m18 = m18 * m18ideal;
+//		m28 = m28 * m28ideal;
+//		m29 = m29 * m29ideal;
+//		m36 = m36 * m36ideal;
+//		m37 = m37 * m37ideal;
+//		m38 = m38 * m38ideal;
+//		m47 = m47 * m47ideal;
+//		m49 = m49 * m49ideal;
+//	}
+//
+//	//prepare inverted matrices
+//	Matrix m10 = m01.inv(m01);
+//	Matrix m50 = m05.inv(m05);
+//	Matrix m65 = m56.inv(m56);
+//	Matrix m81 = m18.inv(m18);
+//	Matrix m82 = m28.inv(m28);
+//	Matrix m92 = m29.inv(m29);
+//	Matrix m63 = m36.inv(m36);
+//	Matrix m73 = m37.inv(m37);
+//	Matrix m83 = m38.inv(m38);
+//	Matrix m74 = m47.inv(m47);
+//	Matrix m94 = m49.inv(m49);
+//
+//	// case switch, conctruct all cyclic matrices
+//	switch (id2) {
+//	case 0:
+//		result = m10 * m81 * m38 * m63 * m56 * m05;		//uses hand-measured matrices m01 and m56
+//		break;
+//	case 1:
+//		result = m81 * m38 * m73 * m47 * m94 * m29 * m82 * m18;	//FIXME: change to other path with self inverse
+//		break;
+//	case 2:
+//		result = m82 * m38 * m73 * m47 * m94 * m29;
+//		break;
+//	case 3:
+//		result = m83 * m28 * m92 * m49 * m74 * m37;
+//		break;
+//	case 4:
+//		result = m94 * m29 * m82 * m38 * m73 * m47;
+//		break;
+//	case 5:
+//		result = m05 * m10 * m81 * m38 * m63 * m56;		//uses hand-measured matrices m01 and m56
+//		break;
+//	case 6:
+//		result = m36 * m83 * m28 * m92 * m49 * m74 * m37 * m63;	//FIXME: change to other path with self inverse
+//		break;
+//	case 7:
+//		result = m47 * m94 * m29 * m82 * m38 * m73;
+//		break;
+//	case 8:
+//		result = m38 * m73 * m47 * m94 * m29 * m82;
+//		break;
+//	case 9:
+//		result = m29 * m82 * m38 * m73 * m47 * m94;
+//		break;
+//	}
+//
+//	return result;
+//}
 
-	Matrix m05 = readMatrix(m05f);
-	Matrix m18 = readMatrix(m18f);
-	Matrix m28 = readMatrix(m28f);
-	Matrix m29 = readMatrix(m29f);
-	Matrix m36 = readMatrix(m36f);
-	Matrix m37 = readMatrix(m37f);
-	Matrix m38 = readMatrix(m38f);
-	Matrix m47 = readMatrix(m47f);
-	Matrix m49 = readMatrix(m49f);
-
-	// I think all px matrices are inverted
-	if (!_inCentimeters) {
-		m01.inv();
-		m56.inv();
-		m05.inv();
-		m18.inv();
-		m28.inv();
-		m29.inv();
-		m36.inv();
-		m37.inv();
-		m38.inv();
-		m47.inv();
-		m49.inv();
-	}
-
-	// since we read only correction matrices in cm, we must multiply them
-	// with the ideal senToSen to get the complete misaligned senToSen.
-	// this isn't cheating as we are only using ideal matrices, which we should
-	// always have.
-	// but remember, they still live on separate modules.
-	if (_inCentimeters) {
-
-		Matrix m05ideal = getMatrixSensorToSensor(id1 + 0, id1 + 5);
-		Matrix m18ideal = getMatrixSensorToSensor(id1 + 1, id1 + 8);
-		Matrix m28ideal = getMatrixSensorToSensor(id1 + 2, id1 + 8);
-		Matrix m29ideal = getMatrixSensorToSensor(id1 + 2, id1 + 9);
-		Matrix m36ideal = getMatrixSensorToSensor(id1 + 3, id1 + 6);
-		Matrix m37ideal = getMatrixSensorToSensor(id1 + 3, id1 + 7);
-		Matrix m38ideal = getMatrixSensorToSensor(id1 + 3, id1 + 8);
-		Matrix m47ideal = getMatrixSensorToSensor(id1 + 4, id1 + 7);
-		Matrix m49ideal = getMatrixSensorToSensor(id1 + 4, id1 + 9);
-
-		//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
-//		realignMatrixInLmd(m05ideal, id1 + 0);
-//		realignMatrixInLmd(m18ideal, id1 + 1);
-//		realignMatrixInLmd(m28ideal, id1 + 2);
-//		realignMatrixInLmd(m29ideal, id1 + 2);
-//		realignMatrixInLmd(m36ideal, id1 + 3);
-//		realignMatrixInLmd(m37ideal, id1 + 3);
-//		realignMatrixInLmd(m38ideal, id1 + 3);
-//		realignMatrixInLmd(m47ideal, id1 + 4);
-//		realignMatrixInLmd(m49ideal, id1 + 4);
-
-		m05 = m05 * m05ideal;
-		m18 = m18 * m18ideal;
-		m28 = m28 * m28ideal;
-		m29 = m29 * m29ideal;
-		m36 = m36 * m36ideal;
-		m37 = m37 * m37ideal;
-		m38 = m38 * m38ideal;
-		m47 = m47 * m47ideal;
-		m49 = m49 * m49ideal;
-	}
-
-	//prepare inverted matrices
-	Matrix m10 = m01.inv(m01);
-	Matrix m50 = m05.inv(m05);
-	Matrix m65 = m56.inv(m56);
-	Matrix m81 = m18.inv(m18);
-	Matrix m82 = m28.inv(m28);
-	Matrix m92 = m29.inv(m29);
-	Matrix m63 = m36.inv(m36);
-	Matrix m73 = m37.inv(m37);
-	Matrix m83 = m38.inv(m38);
-	Matrix m74 = m47.inv(m47);
-	Matrix m94 = m49.inv(m49);
-
-	// case switch, conctruct all cyclic matrices
-	switch (id2) {
-	case 0:
-		result = m10 * m81 * m38 * m63 * m56 * m05;		//uses hand-measured matrices m01 and m56
-		break;
-	case 1:
-		result = m81 * m38 * m73 * m47 * m94 * m29 * m82 * m18;	//FIXME: change to other path with self inverse
-		break;
-	case 2:
-		result = m82 * m38 * m73 * m47 * m94 * m29;
-		break;
-	case 3:
-		result = m83 * m28 * m92 * m49 * m74 * m37;
-		break;
-	case 4:
-		result = m94 * m29 * m82 * m38 * m73 * m47;
-		break;
-	case 5:
-		result = m05 * m10 * m81 * m38 * m63 * m56;		//uses hand-measured matrices m01 and m56
-		break;
-	case 6:
-		result = m36 * m83 * m28 * m92 * m49 * m74 * m37 * m63;	//FIXME: change to other path with self inverse
-		break;
-	case 7:
-		result = m47 * m94 * m29 * m82 * m38 * m73;
-		break;
-	case 8:
-		result = m38 * m73 * m47 * m94 * m29 * m82;
-		break;
-	case 9:
-		result = m29 * m82 * m38 * m73 * m47 * m94;
-		break;
-	}
-
-	return result;
-}
-
-Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
-
-	bool success = false;
-
-	//FIXME: this is not the correct way to do this. better use the real int values below
-	if (id1 > id2) {
-		std::swap(id1, id2);
-	}
-
-	//what module are we on? are id1 and id2 on same module?
-	int fhalf, fplane, fmodule, fside;
-	int bhalf, bplane, bmodule, bside;
-
-	//dimension->Get_sensor_by_id(id1, fhalf, fplane, fmodule, fside, fdie, fsensor);
-	//dimension->Get_sensor_by_id(id2, bhalf, bplane, bmodule, bside, bdie, bsensor);
-
-	auto infoOne = helper->getHitLocationInfo(id1);
-	auto infoTwo = helper->getHitLocationInfo(id2);
-
-	fhalf = infoOne.detector_half;
-	bhalf = infoTwo.detector_half;
-
-	fplane = infoOne.plane;
-	bplane = infoTwo.plane;
-
-	fmodule = infoOne.module;
-	bmodule = infoTwo.module;
-
-	if (fhalf != bhalf) {
-		cout << "error! id1 and id2 are not on same half!\n";
-		success = false;
-	}
-	if (fplane != bplane) {
-		cout << "error! id1 and id2 are not on same plane!\n";
-		success = false;
-	}
-	if (fmodule != bmodule) {
-		cout << "error! id1 and id2 are not on same module!\n";
-		success = false;
-	}
-
-	Matrix result;
-
-	//at this point, id0 should end in 0, so we can just add numbers
-	//FIXME: obviously, this is shuddy and needs fixing
-
-	success = true;
-
-	//last time, just for safety
-	if ((id1 % 10) != 0) {
-		cout << "error: id1 is not first sensor on module, something went wrong!\n";
-	}
-
-	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
-	string m05f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
-	string m18f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
-	string m28f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
-	string m29f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
-	string m36f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
-	string m37f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
-	string m38f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
-	string m47f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
-	string m49f = _matrixOutDir
-	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
-
-	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
-	Matrix m01 = getMatrixSensorToSensor(id1, id1 + 1);
-	Matrix m56 = getMatrixSensorToSensor(id1 + 5, id1 + 6);
-
-	// remember, CM matrices are in LMD local, px matrices are in sensor local!
-	// and since we know those from external measurements, we have those
-	//FIXME: these functions are missing, so the code does not work right now!
+//FIXME: remove
+//move to AlignQA
+//FIXME holy fuck clean this up
+//Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
+//
+//	bool success = false;
+//
+//	//FIXME: this is not the correct way to do this. better use the real int values below
+//	if (id1 > id2) {
+//		std::swap(id1, id2);
+//	}
+//
+//	//what module are we on? are id1 and id2 on same module?
+//	int fhalf, fplane, fmodule, fside;
+//	int bhalf, bplane, bmodule, bside;
+//
+//	//dimension->Get_sensor_by_id(id1, fhalf, fplane, fmodule, fside, fdie, fsensor);
+//	//dimension->Get_sensor_by_id(id2, bhalf, bplane, bmodule, bside, bdie, bsensor);
+//
+//	auto infoOne = helper->getHitLocationInfo(id1);
+//	auto infoTwo = helper->getHitLocationInfo(id2);
+//
+//	fhalf = infoOne.detector_half;
+//	bhalf = infoTwo.detector_half;
+//
+//	fplane = infoOne.plane;
+//	bplane = infoTwo.plane;
+//
+//	fmodule = infoOne.module;
+//	bmodule = infoTwo.module;
+//
+//	if (fhalf != bhalf) {
+//		cout << "error! id1 and id2 are not on same half!\n";
+//		success = false;
+//	}
+//	if (fplane != bplane) {
+//		cout << "error! id1 and id2 are not on same plane!\n";
+//		success = false;
+//	}
+//	if (fmodule != bmodule) {
+//		cout << "error! id1 and id2 are not on same module!\n";
+//		success = false;
+//	}
+//
+//	Matrix result;
+//
+//	//at this point, id0 should end in 0, so we can just add numbers
+//	//FIXME: obviously, this is shuddy and needs fixing
+//
+//	success = true;
+//
+//	//last time, just for safety
+//	if ((id1 % 10) != 0) {
+//		cout << "error: id1 is not first sensor on module, something went wrong!\n";
+//	}
+//
+//	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
+//	string m05f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
+//	string m18f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
+//	string m28f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
+//	string m29f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
+//	string m36f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
+//	string m37f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
+//	string m38f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
+//	string m47f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
+//	string m49f = _matrixOutDir
+//	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
+//
+//	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
+//	Matrix m01 = getMatrixSensorToSensor(id1, id1 + 1);
+//	Matrix m56 = getMatrixSensorToSensor(id1 + 5, id1 + 6);
+//
+//	// remember, CM matrices are in LMD local, px matrices are in sensor local!
+//	// and since we know those from external measurements, we have those
+//	//FIXME: these functions are missing, so the code does not work right now!
+////	if (!_inCentimeters) {
+////		transformFromLmdLocalToSensor(m01, id1 + 0, aligned);
+////		transformFromLmdLocalToSensor(m56, id1 + 5, aligned);
+////	}
+//
+//	Matrix m05 = readMatrix(m05f);
+//	Matrix m18 = readMatrix(m18f);
+//	Matrix m28 = readMatrix(m28f);
+//	Matrix m29 = readMatrix(m29f);
+//	Matrix m36 = readMatrix(m36f);
+//	Matrix m37 = readMatrix(m37f);
+//	Matrix m38 = readMatrix(m38f);
+//	Matrix m47 = readMatrix(m47f);
+//	Matrix m49 = readMatrix(m49f);
+//
+//	// I think all px matrices are inverted
 //	if (!_inCentimeters) {
-//		transformFromLmdLocalToSensor(m01, id1 + 0, aligned);
-//		transformFromLmdLocalToSensor(m56, id1 + 5, aligned);
+//		m01.inv();
+//		m56.inv();
+//		m05.inv();
+//		m18.inv();
+//		m28.inv();
+//		m29.inv();
+//		m36.inv();
+//		m37.inv();
+//		m38.inv();
+//		m47.inv();
+//		m49.inv();
 //	}
-
-	Matrix m05 = readMatrix(m05f);
-	Matrix m18 = readMatrix(m18f);
-	Matrix m28 = readMatrix(m28f);
-	Matrix m29 = readMatrix(m29f);
-	Matrix m36 = readMatrix(m36f);
-	Matrix m37 = readMatrix(m37f);
-	Matrix m38 = readMatrix(m38f);
-	Matrix m47 = readMatrix(m47f);
-	Matrix m49 = readMatrix(m49f);
-
-	// I think all px matrices are inverted
-	if (!_inCentimeters) {
-		m01.inv();
-		m56.inv();
-		m05.inv();
-		m18.inv();
-		m28.inv();
-		m29.inv();
-		m36.inv();
-		m37.inv();
-		m38.inv();
-		m47.inv();
-		m49.inv();
-	}
-
-	// since we read only correction matrices in cm, we must multiply them
-	// with the ideal senToSen to get the complete misaligned senToSen.
-	// this isn't cheating as we are only using ideal matrices, which we should
-	// always have.
-	// but remember, they still live on separate modules.
-	if (_inCentimeters) {
-
-		Matrix m05ideal = getMatrixSensorToSensor(id1 + 0, id1 + 5);
-		Matrix m18ideal = getMatrixSensorToSensor(id1 + 1, id1 + 8);
-		Matrix m28ideal = getMatrixSensorToSensor(id1 + 2, id1 + 8);
-		Matrix m29ideal = getMatrixSensorToSensor(id1 + 2, id1 + 9);
-		Matrix m36ideal = getMatrixSensorToSensor(id1 + 3, id1 + 6);
-		Matrix m37ideal = getMatrixSensorToSensor(id1 + 3, id1 + 7);
-		Matrix m38ideal = getMatrixSensorToSensor(id1 + 3, id1 + 8);
-		Matrix m47ideal = getMatrixSensorToSensor(id1 + 4, id1 + 7);
-		Matrix m49ideal = getMatrixSensorToSensor(id1 + 4, id1 + 9);
-
-		//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
-//		realignMatrixInLmd(m05ideal, id1 + 0);
-//		realignMatrixInLmd(m18ideal, id1 + 1);
-//		realignMatrixInLmd(m28ideal, id1 + 2);
-//		realignMatrixInLmd(m29ideal, id1 + 2);
-//		realignMatrixInLmd(m36ideal, id1 + 3);
-//		realignMatrixInLmd(m37ideal, id1 + 3);
-//		realignMatrixInLmd(m38ideal, id1 + 3);
-//		realignMatrixInLmd(m47ideal, id1 + 4);
-//		realignMatrixInLmd(m49ideal, id1 + 4);
-
-		m05 = m05 * m05ideal;
-		m18 = m18 * m18ideal;
-		m28 = m28 * m28ideal;
-		m29 = m29 * m29ideal;
-		m36 = m36 * m36ideal;
-		m37 = m37 * m37ideal;
-		m38 = m38 * m38ideal;
-		m47 = m47 * m47ideal;
-		m49 = m49 * m49ideal;
-	}
-
-	//prepare inverted matrices
-	Matrix m10 = m01.inv(m01);
-	Matrix m50 = m05.inv(m05);
-	Matrix m65 = m56.inv(m56);
-	Matrix m81 = m18.inv(m18);
-	Matrix m82 = m28.inv(m28);
-	Matrix m92 = m29.inv(m29);
-	Matrix m63 = m36.inv(m36);
-	Matrix m73 = m37.inv(m37);
-	Matrix m83 = m38.inv(m38);
-	Matrix m74 = m47.inv(m47);
-	Matrix m94 = m49.inv(m49);
-
-	id2 %= 10;
-
-	//finally, if cascade:
-	switch (id2) {
-	case 0:
-		result = m10 * m81 * m38 * m63 * m56 * m05;
-		break;
-	case 1:
-		result = m01;
-		break;
-	case 2:
-		result = m82 * m18 * m01;
-		break;
-	case 3:
-		result = m83 * m18 * m01;
-		break;
-	case 4:
-		result = m94 * m29 * m82 * m18 * m01;
-		break;
-	case 5:
-		result = m05;
-		break;
-	case 6:
-		result = m56 * m05;
-		break;
-	case 7:
-		result = m37 * m63 * m56 * m05;
-		break;
-	case 8:
-		result = m38 * m63 * m56 * m05;
-		break;
-	case 9:
-		result = m29 * m82 * m38 * m63 * m56 * m05;
-		break;
-	default:
-		result = Matrix::eye(4);
-		success = false;
-	}
-
-	//return successfully combined matrix
-	if (success) {
-		if (!_inCentimeters) {
-			result.inv();		//FIXME: this is from a bug where all PX matrices are inverted
-		}
-		return result;
-	}
-	//else return unity matrix
-	cerr << "warning! could not return matrix " << id1 << " to " << id2
-	        << "! returning identity matrix!\n";
-	return Matrix::eye(4);
-}
+//
+//	// since we read only correction matrices in cm, we must multiply them
+//	// with the ideal senToSen to get the complete misaligned senToSen.
+//	// this isn't cheating as we are only using ideal matrices, which we should
+//	// always have.
+//	// but remember, they still live on separate modules.
+//	if (_inCentimeters) {
+//
+//		Matrix m05ideal = getMatrixSensorToSensor(id1 + 0, id1 + 5);
+//		Matrix m18ideal = getMatrixSensorToSensor(id1 + 1, id1 + 8);
+//		Matrix m28ideal = getMatrixSensorToSensor(id1 + 2, id1 + 8);
+//		Matrix m29ideal = getMatrixSensorToSensor(id1 + 2, id1 + 9);
+//		Matrix m36ideal = getMatrixSensorToSensor(id1 + 3, id1 + 6);
+//		Matrix m37ideal = getMatrixSensorToSensor(id1 + 3, id1 + 7);
+//		Matrix m38ideal = getMatrixSensorToSensor(id1 + 3, id1 + 8);
+//		Matrix m47ideal = getMatrixSensorToSensor(id1 + 4, id1 + 7);
+//		Matrix m49ideal = getMatrixSensorToSensor(id1 + 4, id1 + 9);
+//
+//		//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
+////		realignMatrixInLmd(m05ideal, id1 + 0);
+////		realignMatrixInLmd(m18ideal, id1 + 1);
+////		realignMatrixInLmd(m28ideal, id1 + 2);
+////		realignMatrixInLmd(m29ideal, id1 + 2);
+////		realignMatrixInLmd(m36ideal, id1 + 3);
+////		realignMatrixInLmd(m37ideal, id1 + 3);
+////		realignMatrixInLmd(m38ideal, id1 + 3);
+////		realignMatrixInLmd(m47ideal, id1 + 4);
+////		realignMatrixInLmd(m49ideal, id1 + 4);
+//
+//		m05 = m05 * m05ideal;
+//		m18 = m18 * m18ideal;
+//		m28 = m28 * m28ideal;
+//		m29 = m29 * m29ideal;
+//		m36 = m36 * m36ideal;
+//		m37 = m37 * m37ideal;
+//		m38 = m38 * m38ideal;
+//		m47 = m47 * m47ideal;
+//		m49 = m49 * m49ideal;
+//	}
+//
+//	//prepare inverted matrices
+//	Matrix m10 = m01.inv(m01);
+//	Matrix m50 = m05.inv(m05);
+//	Matrix m65 = m56.inv(m56);
+//	Matrix m81 = m18.inv(m18);
+//	Matrix m82 = m28.inv(m28);
+//	Matrix m92 = m29.inv(m29);
+//	Matrix m63 = m36.inv(m36);
+//	Matrix m73 = m37.inv(m37);
+//	Matrix m83 = m38.inv(m38);
+//	Matrix m74 = m47.inv(m47);
+//	Matrix m94 = m49.inv(m49);
+//
+//	id2 %= 10;
+//
+//	//finally, if cascade:
+//	switch (id2) {
+//	case 0:
+//		result = m10 * m81 * m38 * m63 * m56 * m05;
+//		break;
+//	case 1:
+//		result = m01;
+//		break;
+//	case 2:
+//		result = m82 * m18 * m01;
+//		break;
+//	case 3:
+//		result = m83 * m18 * m01;
+//		break;
+//	case 4:
+//		result = m94 * m29 * m82 * m18 * m01;
+//		break;
+//	case 5:
+//		result = m05;
+//		break;
+//	case 6:
+//		result = m56 * m05;
+//		break;
+//	case 7:
+//		result = m37 * m63 * m56 * m05;
+//		break;
+//	case 8:
+//		result = m38 * m63 * m56 * m05;
+//		break;
+//	case 9:
+//		result = m29 * m82 * m38 * m63 * m56 * m05;
+//		break;
+//	default:
+//		result = Matrix::eye(4);
+//		success = false;
+//	}
+//
+//	//return successfully combined matrix
+//	if (success) {
+//		if (!_inCentimeters) {
+//			result.inv();		//FIXME: this is from a bug where all PX matrices are inverted
+//		}
+//		return result;
+//	}
+//	//else return unity matrix
+//	cerr << "warning! could not return matrix " << id1 << " to " << id2
+//	        << "! returning identity matrix!\n";
+//	return Matrix::eye(4);
+//}
 
 void PndLmdAlignManager::setMaxPairs(int maxPairs) {
 
@@ -1373,7 +1383,8 @@ void PndLmdAlignManager::setMaxPairs(int maxPairs) {
 			it->second.setMaximumNumberOfHitPairs(maxPairs);
 		}
 		return;
-	} else {
+	}
+	else {
 		cout << "warning. max pairs must be larger than 0!\n";
 		return;
 	}
@@ -1396,7 +1407,7 @@ void PndLmdAlignManager::waitForCompletion() {
 			//cout << "starting aligner " << it->first << "\n";
 			//if pair could not be added, aligner is full. start thread directly.
 			alignerThreadGroup.create_thread(
-			        boost::bind(&PndLmdAlignManager::alignOne, this, boost::ref(aligners[it->first])));
+			    boost::bind(&PndLmdAlignManager::alignOne, this, boost::ref(aligners[it->first])));
 			notStarted++;
 		}
 	}
@@ -1413,7 +1424,7 @@ void PndLmdAlignManager::waitForCompletion() {
 
 			Matrix result = it->second.getResultMatrix();
 			string matrixFilename = _matrixOutDir
-			        + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
+			    + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
 
 			if (!writeMatrix(result, matrixFilename)) {
 				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
@@ -1422,7 +1433,8 @@ void PndLmdAlignManager::waitForCompletion() {
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
 			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
 			_info << "\n";
-		} else {
+		}
+		else {
 			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
 		}
 	}
@@ -1431,7 +1443,8 @@ void PndLmdAlignManager::waitForCompletion() {
 	ofstream of;
 	if (_inCentimeters) {
 		of.open((_matrixOutDir + "/info-cm.txt").c_str());
-	} else {
+	}
+	else {
 		of.open((_matrixOutDir + "/info-px.txt").c_str());
 	}
 
@@ -1508,7 +1521,8 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 		loadBar(cur++, tot, 1000, 60);
 		if (!it->second.readPairsFromBinary(_binaryPairFileDirectory)) {
 			success = false;
-		} else {
+		}
+		else {
 			success = true;
 		}
 	}
@@ -1526,14 +1540,15 @@ boost::property_tree::ptree PndLmdAlignManager::readConfigFile(std::string filen
 	boost::property_tree::ptree root;
 	try {
 		boost::property_tree::read_json(is, root);
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e) {
 		cerr << "PndLmdAlignManager::readConfig: ERROR! Can't parse json file " << filename << ".\n";
 	}
 	return root;
 }
 
 bool PndLmdAlignManager::writeConfigFile(boost::property_tree::ptree configTree, std::string filename,
-        bool replaceExisting) {
+    bool replaceExisting) {
 
 	//replace logic
 

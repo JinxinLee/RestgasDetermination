@@ -5,32 +5,38 @@
  *
  *
  */
-using namespace std;
 
-#include <string>
-
-int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/", TString binaryPairFilePath="test/boxtest-aligned-1.5/binaryFiles", TString LMDmatrixDir="", bool incentimeters=true, const int verboseLevel=0)
-{
+int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/",
+    TString binaryPairFilePath = "", TString LMDmatrixDir = "", bool incentimeters = true,
+    const int verboseLevel = 0) {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
 	timer.Start();
+
+	//do we really need those?
+	gSystem->Load("libLmd");
+	gSystem->Load("libLmdSensorAligner");
 
 	// ---------------------- init parameters
 
 	string pandaDir = getenv("VMCWORKDIR");
 
-	bool simplestorage=true;
+	bool simplestorage = true;
 	string matrixDir;
 
-	if(LMDmatrixDir==""){
-		matrixDir=pandaDir + "/geometry/LMDmatrices";
+	if (LMDmatrixDir == "") {
+		matrixDir = pandaDir + "/LMDmatrices";
 	}
-	else{
-		matrixDir=LMDmatrixDir.Data();
+	else {
+		matrixDir = LMDmatrixDir.Data();
 	}
-	string pairFilesDir=pairFilePath.Data();
-	string binaryFilesDir=binaryPairFilePath.Data();
-	int readNoOfFiles=0;			//how many files should be processed? 0 for all
+	if (binaryPairFilePath == "") {
+		binaryPairFilePath = pairFilePath + "/binaryPairs/";
+	}
+
+	string pairFilesDir = pairFilePath.Data();
+	string binaryFilesDir = binaryPairFilePath.Data();
+	int readNoOfFiles = 0;			//how many files should be processed? 0 for all
 
 	// ---------------------- init Matrix Finder
 
@@ -45,7 +51,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 	// ---------------------- check for binary files and sort/write, if necessary
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
 
-	if(!binaryPairsPresent){
+	if (!binaryPairsPresent) {
 		manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
 		manager.setMatrixOutDir(matrixDir);
 
@@ -58,7 +64,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 
 	//check for LMD Matrix Files
 	bool LMDMatrixFilesPresent = manager.checkForLmdMatrixFiles();
-	if(!LMDMatrixFilesPresent){
+	if (!LMDMatrixFilesPresent) {
 		cout << "reading binary pair files.\n";
 		manager.setMatrixOutDir(matrixDir);
 		manager.readPairsFromBinaryFiles();
@@ -79,7 +85,6 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 	 * store them in a good way (how?)
 	 *
 	 */
-
 
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();
