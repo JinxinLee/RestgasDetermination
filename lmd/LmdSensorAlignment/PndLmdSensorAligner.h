@@ -107,8 +107,6 @@ public:
 		_inCentimeters = inCentimeters;
 	}
 
-	bool isValid(double val);
-
 	bool successful() {
 		return _success;
 	}

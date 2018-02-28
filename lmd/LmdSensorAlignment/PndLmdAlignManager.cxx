@@ -103,7 +103,6 @@ void PndLmdAlignManager::init() {
 
 	_zIsTimestamp = true;
 	_allFilesAdded = false;
-	useSimpleStorage = true;
 	_singleAligner = true;
 	_inCentimeters = false;
 	_enableHelperMatrix = false;
@@ -140,33 +139,27 @@ void PndLmdAlignManager::init() {
 PndLmdAlignManager::~PndLmdAlignManager() {
 }
 
-bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
-
-	bool success = false;
-	// check if the aligner for that pair is full. if yes, skip this pair.
-	// do this even before checking that pair, saves on cpu time.
-	if (alignersFull[pair.getOverlapId()]) {
-		return false;
-	}
-
-	pair.check();
-	if (pair.isSane()) {
-		if (useSimpleStorage) {
-			success = aligners[pair.getOverlapId()].addSimplePair(pair);  //returns true if addPair succeeded
-			alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
-		}
-		else {
-			//_aligners[pair.getOverlapId()].addPair(pair);
-			cout << "WARNING! Legacy storage mode is no longer supported.";
-		}
-	}
-	else {
-		cout << "pair is not sane. processing failed.\n";
-		success = false;
-	}
-
-	return success;
-}
+//bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
+//
+//	bool success = false;
+//	// check if the aligner for that pair is full. if yes, skip this pair.
+//	// do this even before checking that pair, saves on cpu time.
+//	if (alignersFull[pair.getOverlapId()]) {
+//		return false;
+//	}
+//
+//	pair.check();
+//	if (pair.isSane()) {
+//		success = aligners[pair.getOverlapId()].addSimplePair(pair);  //returns true if addPair succeeded
+//		alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
+//	}
+//	else {
+//		cout << "pair is not sane. processing failed.\n";
+//		success = false;
+//	}
+//
+//	return success;
+//}
 
 bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair) {
 
@@ -180,14 +173,8 @@ bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair) {
 
 	pair.check();
 	if (pair.isSane()) {
-		if (useSimpleStorage) {
-			success = aligners[pair.getOverlapId()].addSimplePair(pair);  //returns true if addPair succeeded
-			alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
-		}
-		else {
-			//_aligners[pair.getOverlapId()].addPair(pair);
-			cout << "WARNING! Legacy storage mode is no longer supported.";
-		}
+		success = aligners[pair.getOverlapId()].addSimplePair(pair);  //returns true if addPair succeeded
+		alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
 	}
 	else {
 		cout << "pair is not sane. processing failed.\n";
@@ -255,57 +242,57 @@ int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFile
 
 }
 
-void PndLmdAlignManager::readFiles() {
-
-	_allFilesAdded = true;
-
-	int noOfFiles = fileNames.size();
-	if (noOfFiles > 0) {
-		cout << "found " << noOfFiles << " file(s). reading...\n";
-	}
-	else {
-		cout << "no files found. exiting.\n";
-		exit(0);
-	}
-
-	TChain* chainPairs = new TChain("cbmsim");
-	for (size_t i = 0; i < fileNames.size(); i++) {
-		//cout << files[i] << "\n";
-		if (fileNames[i].find("Lumi_Pairs") != std::string::npos) {
-			chainPairs->Add(fileNames[i].c_str());
-		}
-	}
-
-	//pairs of sensors in LMD coordinates
-	TClonesArray* hitPairs = new TClonesArray("PndLmdHitPair");
-	chainPairs->SetBranchAddress("PndLmdHitPair", &hitPairs);
-	int nEntries = chainPairs->GetEntries();
-	cout << "HitPairs no of entries: " << nEntries << "\n";
-
-	cout << "Sorting Pairs to Manager...\n";
-	int totalPairs = 0;
-	for (int i_event = 0; i_event < nEntries; i_event++) {
-
-		loadBar(i_event, nEntries, 1000, 60);
-		chainPairs->GetEntry(i_event);
-		int nPairs = hitPairs->GetEntries();
-
-		//loop over hitPairs per Event
-		for (int i_Pair = 0; i_Pair < nPairs; i_Pair++) {
-			PndLmdHitPair* currentPair = (PndLmdHitPair*) hitPairs->At(i_Pair);
-			addPair(*currentPair);
-			totalPairs++;
-		}
-	}
-
-	cout << "================================ \n";
-	cout << "total Pairs: " << totalPairs << "\n";
-	cout << "All done. Running Align Manager. \n";
-	cout << "================================ \n";
-
-	delete chainPairs;
-	delete hitPairs;
-}
+//void PndLmdAlignManager::readFiles() {
+//
+//	_allFilesAdded = true;
+//
+//	int noOfFiles = fileNames.size();
+//	if (noOfFiles > 0) {
+//		cout << "found " << noOfFiles << " file(s). reading...\n";
+//	}
+//	else {
+//		cout << "no files found. exiting.\n";
+//		exit(0);
+//	}
+//
+//	TChain* chainPairs = new TChain("cbmsim");
+//	for (size_t i = 0; i < fileNames.size(); i++) {
+//		//cout << files[i] << "\n";
+//		if (fileNames[i].find("Lumi_Pairs") != std::string::npos) {
+//			chainPairs->Add(fileNames[i].c_str());
+//		}
+//	}
+//
+//	//pairs of sensors in LMD coordinates
+//	TClonesArray* hitPairs = new TClonesArray("PndLmdHitPair");
+//	chainPairs->SetBranchAddress("PndLmdHitPair", &hitPairs);
+//	int nEntries = chainPairs->GetEntries();
+//	cout << "HitPairs no of entries: " << nEntries << "\n";
+//
+//	cout << "Sorting Pairs to Manager...\n";
+//	int totalPairs = 0;
+//	for (int i_event = 0; i_event < nEntries; i_event++) {
+//
+//		loadBar(i_event, nEntries, 1000, 60);
+//		chainPairs->GetEntry(i_event);
+//		int nPairs = hitPairs->GetEntries();
+//
+//		//loop over hitPairs per Event
+//		for (int i_Pair = 0; i_Pair < nPairs; i_Pair++) {
+//			PndLmdHitPair* currentPair = (PndLmdHitPair*) hitPairs->At(i_Pair);
+//			addPair(*currentPair);
+//			totalPairs++;
+//		}
+//	}
+//
+//	cout << "================================ \n";
+//	cout << "total Pairs: " << totalPairs << "\n";
+//	cout << "All done. Running Align Manager. \n";
+//	cout << "================================ \n";
+//
+//	delete chainPairs;
+//	delete hitPairs;
+//}
 
 void PndLmdAlignManager::readFilesAndAlign() {
 
@@ -1453,27 +1440,28 @@ void PndLmdAlignManager::waitForCompletion() {
 	cout << "all aligners done.\n";
 }
 
-Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
-
-	Matrix result = Matrix::eye(4);
-	Matrix shift = Matrix::eye(4);
-	Matrix scale = Matrix::eye(4);
-
-	//correct for pixel corner to center
-	shift.val[0][3] += 0.5;
-	shift.val[1][3] += 0.5;
-
-	//shift from corner to center (this considers inactive area!)
-	shift.val[0][3] -= (247.5 / 2.0);
-	shift.val[1][3] -= (242.5 / 2.0);
-
-	//scale for pixel size
-	scale.val[0][0] *= 80e-4;
-	scale.val[1][1] *= 80e-4;
-
-	result = scale * shift;
-	return result;
-}
+//FIXME: move to GeometryHelper
+//Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
+//
+//	Matrix result = Matrix::eye(4);
+//	Matrix shift = Matrix::eye(4);
+//	Matrix scale = Matrix::eye(4);
+//
+//	//correct for pixel corner to center
+//	shift.val[0][3] += 0.5;
+//	shift.val[1][3] += 0.5;
+//
+//	//shift from corner to center (this considers inactive area!)
+//	shift.val[0][3] -= (247.5 / 2.0);
+//	shift.val[1][3] -= (242.5 / 2.0);
+//
+//	//scale for pixel size
+//	scale.val[0][0] *= 80e-4;
+//	scale.val[1][1] *= 80e-4;
+//
+//	result = scale * shift;
+//	return result;
+//}
 
 bool PndLmdAlignManager::writePairsToBinaryFiles() {
 
@@ -1491,12 +1479,11 @@ bool PndLmdAlignManager::writePairsToBinaryFiles() {
 	mkdir(_binaryPairFileDirectory);
 
 	//maybe do this multithreaded?
-	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
+	for(auto &aligner:aligners){
 		loadBar(cur++, tot, 1000, 60);
-		if (!it->second.writePairsToBinary(_binaryPairFileDirectory)) {
+		if(!aligner.second.writePairsToBinary(_binaryPairFileDirectory)){
 			return false;
 		}
-
 	}
 	return true;
 }

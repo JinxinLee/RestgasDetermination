@@ -401,8 +401,10 @@ void PndLmdSensorAligner::calculateMatrix() {
 	delete[] Model;
 	delete[] Template;
 
-	//aligner is done, pairs can be cleared.
-	clearPairs();
+	// DONT DO THIS HERE. The AlignManager takes care of that!
+	// we must save the pairs before that!
+	// this shit just cost me three hours of my life!
+	// clearPairs();
 
 	return;
 }
@@ -432,19 +434,7 @@ bool PndLmdSensorAligner::addSimplePair(const PndLmdHitPair &pair) {
 		simpleSensorTwoY.push_back(pair.getRow2());
 		simpleSensorTwoZ.push_back(simpleSensorTwoZ.size());	//vecor grows, so this is okay
 	}
-	return true;
-}
 
-bool PndLmdSensorAligner::isValid(double val) {
-
-	if (std::isinf(val)) {
-		cout << "value is invalid! is inf\n";
-		return false;
-	}
-	if (std::isnan(val)) {
-		cout << "value is invalid! is nan\n";
-		return false;
-	}
 	return true;
 }
 
@@ -454,10 +444,6 @@ bool PndLmdSensorAligner::writePairsToBinary(const std::string directory) {
 	double* pdata;						//array with pairs
 	int doublesPerPair = 6;				//well, doubles per Pair
 	int nPairs = 0;
-
-	if (simpleSensorOneX.size() == 0) {
-		nPairs = 0;
-	}
 
 	if (simpleSensorOneX.size() == simpleSensorOneY.size()
 	        && simpleSensorOneX.size() == simpleSensorOneZ.size()
@@ -473,6 +459,8 @@ bool PndLmdSensorAligner::writePairsToBinary(const std::string directory) {
 		cout << "twoX: " << simpleSensorTwoX.size() << "\n";
 		cout << "twoY: " << simpleSensorTwoY.size() << "\n";
 		cout << "twoZ: " << simpleSensorTwoZ.size() << "\n";
+
+		nPairs=0;
 	}
 
 	if (nPairs == 0) {

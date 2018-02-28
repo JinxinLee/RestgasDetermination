@@ -21,16 +21,17 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/
 
 	string pandaDir = getenv("VMCWORKDIR");
 
-	bool simplestorage = true;
 	string matrixDir;
 
 	if (LMDmatrixDir == "") {
-		matrixDir = pandaDir + "/LMDmatrices";
+		// don't forget trailing slash
+		matrixDir = pairFilePath + "/LMDmatrices/";
 	}
 	else {
-		matrixDir = LMDmatrixDir.Data();
+		matrixDir = LMDmatrixDir;
 	}
 	if (binaryPairFilePath == "") {
+		// don't forget trailing slash
 		binaryPairFilePath = pairFilePath + "/binaryPairs/";
 	}
 
@@ -43,10 +44,9 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/
 	cout << "searching available files...\n";
 
 	PndLmdAlignManager manager;
-	manager.setSimpleStorage(simplestorage);
 	manager.setInCentimeters(incentimeters);
 	manager.setBinaryPairFileDirectory(binaryFilesDir);
-	manager.setMaxPairs(600e3);
+	manager.setMaxPairs(300e3);
 
 	// ---------------------- check for binary files and sort/write, if necessary
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
