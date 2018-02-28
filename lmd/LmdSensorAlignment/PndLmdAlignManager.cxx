@@ -1479,9 +1479,9 @@ bool PndLmdAlignManager::writePairsToBinaryFiles() {
 	mkdir(_binaryPairFileDirectory);
 
 	//maybe do this multithreaded?
-	for(auto &aligner:aligners){
+	for (auto &aligner : aligners) {
 		loadBar(cur++, tot, 1000, 60);
-		if(!aligner.second.writePairsToBinary(_binaryPairFileDirectory)){
+		if (!aligner.second.writePairsToBinary(_binaryPairFileDirectory)) {
 			return false;
 		}
 	}
