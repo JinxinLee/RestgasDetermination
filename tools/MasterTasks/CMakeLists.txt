@@ -91,6 +91,7 @@ set(SRCS
 PndMasterTask.cxx
 PndMasterSimTask.cxx
 PndMasterDigiTask.cxx
+PndMasterDigiOnlyTask.cxx
 PndMasterRecoTask.cxx
 PndMasterRecoIdealTask.cxx
 PndMasterPidTask.cxx
