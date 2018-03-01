@@ -1,14 +1,14 @@
-// Macro for running Panda digitization tasks
+// Macro for running Panda local reconstruction tasks
 // to run the macro:
-// root  digi_complete.C  or in root session root>.x  digi_complete.C
-int digiOnly_complete(Int_t nEvents = 0)
+// root  recolocal_complete.C  or in root session root>.x  reco_complete.C
+int recolocal_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
   TString  prefix         = "evtcomplete";
-  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  TString  output         = "digionly";
-  TString  friend1        = "";
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  output         = "reco";
+  TString  friend1        = "digionly";
   TString  friend2        = "";
   TString  friend3        = "";
   TString  friend4        = "";
@@ -23,11 +23,12 @@ int digiOnly_complete(Int_t nEvents = 0)
   fRun->SetFriend4(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
-
+  
   // -----   Add tasks   ----------------------------------------------------
-  fRun->AddDigiOnlyTasks();
-
+  fRun->AddLocalRecoTasks();
+  
   // -----   Intialise and run   --------------------------------------------
+  PndEmcMapper::Init(1);
   fRun->Init();
   fRun->Run(0, nEvents);
   fRun->Finish();

@@ -52,7 +52,7 @@ fDigiArray(NULL), fHitArray(NULL), fMCTrackArray(NULL), fClusterArray(NULL), fWr
 {
 	fClusterList.clear();
 	fClusterPosParam.clear();
-	SetPersistency(kFALSE);
+	SetPersistency(storeclusters);
 }
 
 //--------------

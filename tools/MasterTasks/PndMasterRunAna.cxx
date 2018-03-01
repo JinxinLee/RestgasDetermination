@@ -3,6 +3,7 @@
 #include "PndMasterDigiTask.h"
 #include "PndMasterDigiOnlyTask.h"
 #include "PndMasterRecoTask.h"
+#include "PndMasterLocalRecoTask.h"
 #include "PndMasterRecoIdealTask.h"
 #include "PndMasterPidTask.h"
 #include "PndFileNameCreator.h"
@@ -111,6 +112,7 @@ void PndMasterRunAna::AddDigiTasks(Bool_t pers)
 {
   PndMasterDigiTask *digi = new PndMasterDigiTask(fOptions);
   if (!pers) digi->SetPersistency(kFALSE);
+  digi->SetPersistency(pers);
   AddTask(digi);
 }
 
@@ -119,6 +121,7 @@ void PndMasterRunAna::AddDigiOnlyTasks(Bool_t pers)
 {
   PndMasterDigiOnlyTask *digi = new PndMasterDigiOnlyTask(fOptions);
   if (!pers) digi->SetPersistency(kFALSE);
+  digi->SetPersistency(pers);
   AddTask(digi);
 }
 
@@ -129,8 +132,21 @@ void PndMasterRunAna::AddRecoTasks(Bool_t pers)
   if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
   PndMasterRecoTask *reco = new PndMasterRecoTask(fOptions);
   if (!pers) reco->SetPersistency(kFALSE);
+  reco->SetPersistency(pers);
   AddTask(reco);
 }
+
+// -----   AddLocalRecoTasks   ---------------------------------------------------
+void PndMasterRunAna::AddLocalRecoTasks(Bool_t pers)
+{
+  // -----   Geane   ---------------------------------------
+  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
+  PndMasterLocalRecoTask *reco = new PndMasterLocalRecoTask(fOptions);
+  if (!pers) reco->SetPersistency(kFALSE);
+  reco->SetPersistency(pers);
+  AddTask(reco);
+}
+
 
 // -----   AddRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddRecoIdealTasks(Bool_t pers)
@@ -139,6 +155,7 @@ void PndMasterRunAna::AddRecoIdealTasks(Bool_t pers)
   if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
   PndMasterRecoIdealTask *recoIdeal = new PndMasterRecoIdealTask(fOptions);
   if (!pers) recoIdeal->SetPersistency(kFALSE);
+  recoIdeal->SetPersistency(pers);
   AddTask(recoIdeal);
 }
 
@@ -148,6 +165,7 @@ void PndMasterRunAna::AddPidTasks(Bool_t pers)
   if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
   PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
   if (!pers) pid->SetPersistency(kFALSE);
+  pid->SetPersistency(pers);
   AddTask(pid);
 }
 

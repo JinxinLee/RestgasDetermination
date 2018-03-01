@@ -93,6 +93,7 @@ PndMasterSimTask.cxx
 PndMasterDigiTask.cxx
 PndMasterDigiOnlyTask.cxx
 PndMasterRecoTask.cxx
+PndMasterLocalRecoTask.cxx
 PndMasterRecoIdealTask.cxx
 PndMasterPidTask.cxx
 PndMasterRunSim.cxx

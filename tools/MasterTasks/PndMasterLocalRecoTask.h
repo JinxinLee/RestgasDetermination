@@ -1,0 +1,62 @@
+/**
+ * @class PndMasterLocalRecoTask
+ * @brief The default local reconstruction tasks
+ * @details # Master Local Reconstruction Task Class
+ * This class includes all the local reconstruction tasks which need to be used in the default local reconstruction macros.
+ * @remark If you find some obsolete task which needs to be changed, contact the computing coordinator.
+ * @author Tobias Stockmanns <t.stockmanns@fz-juelich.de>, FZ Juelich
+ * @version 1.0
+ * @date Mar 1, 2018
+ **
+ **/
+
+#ifndef PndMasterLocalRecoTask_H
+#define PndMasterLocalRecoTask_H
+
+#include "PndMasterTask.h"
+#include "FairTask.h"
+#include "PndBranchTask.h"
+
+class TClonesArray;
+
+
+class PndMasterLocalRecoTask : public PndMasterTask
+{
+ public:
+
+  /**
+   * @brief Default constructor with options
+   * @detail This string can be:
+   * ""                          -> default settings full setup
+   * "day1"                      -> Setup for day1 experiment: no GEM, FTS1234, NO DISC, NO RICH
+   * "gem" (added to "day1")     -> Setup for day1 experiment with 3 GEM planes
+   * "fts1256" (added to "day1") -> Setup for day1 experiment with FTS1256 insted of FTS1234
+   * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256
+   */
+  PndMasterLocalRecoTask(TString options="");
+
+  /**
+   * @brief Destructor
+   */
+  virtual ~PndMasterLocalRecoTask();
+
+  /**
+   * @brief Set the persistency of all the tasks
+   * @param pers Persistency level: 0 no TCA, 1 all TCA
+   */
+  virtual void SetPersistency(Bool_t pers = kTRUE);
+
+ private:
+
+  std::vector<PndBranchTask*> fBranchTasks;
+  std::vector<FairTask*> fStandardTasks;
+  std::map<PndBranchTask*, bool> fFixedPersistency;
+
+  TString fOptions;          ///< Options parsed to the digitization
+
+  /** @cond CLASSIMP */
+  ClassDef(PndMasterLocalRecoTask,1);
+  /** @endcond */
+};
+
+#endif /* PndMasterLocalRecoTask_H */

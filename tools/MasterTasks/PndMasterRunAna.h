@@ -73,6 +73,14 @@ class PndMasterRunAna : public FairRunAna
   void AddRecoTasks(Bool_t pers = kTRUE);
 
   /**
+   * @brief Add local reconstruction tasks
+   * @details # Add Master local reco tasks
+   * @param pers Persistency of the TCAs, used only to switch OFF
+   * It calls PndMasterLocalRecoTask, adding all the standard reconstruction tasks
+   */
+  void AddLocalRecoTasks(Bool_t pers = kTRUE);
+
+  /**
      * @brief Add ideal pattern reconstruction tasks
      * @details # Add Master reco tasks
      * @param pers Persistency of the TCAs, used only to switch OFF
