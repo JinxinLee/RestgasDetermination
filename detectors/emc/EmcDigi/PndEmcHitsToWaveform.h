@@ -22,7 +22,7 @@
 #include "PndEmcWaveform.h"
 #include "PndEmcTwoCoordIndex.h"
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 //class PndEmcTwoCoordIndex;
 //class PndEmcWaveform;
@@ -38,7 +38,7 @@ class PndEmcAbsPulseshape;
  * @brief Takes list of PndEmcHits and creates PndEmcWaveform
  * @ingroup PndEmc
  */
-class PndEmcHitsToWaveform : public FairTask
+class PndEmcHitsToWaveform : public PndBranchTask
 {
 public:
 	// Constructors
@@ -129,7 +129,6 @@ private:
 
 	/** Verbosity level **/
 	Int_t fVerbose;
-	Bool_t fStoreWaves;
 
 	//counters for task
 	Int_t HowManyHit;

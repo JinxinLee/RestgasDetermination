@@ -4,7 +4,7 @@
 #define PNDSTTHITPRODUCERREALFAST_H 1
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 //#include "PndSttHit.h"
 //#include "PndSttHitInfo.h"
@@ -17,7 +17,7 @@ class PndSttHitInfo;
 class TClonesArray;
 class TObjectArray;
 
-class PndSttHitProducerRealFast : public FairTask
+class PndSttHitProducerRealFast : public PndBranchTask
 {
 
  public:
@@ -48,7 +48,7 @@ class PndSttHitProducerRealFast : public FairTask
 
  
   /** set persistence flag **/
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
   void SwitchOnOverlap() { fOverlap = kTRUE; }
 
   void SeparateHits() { fSeparate = kTRUE; }

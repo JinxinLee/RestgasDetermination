@@ -20,7 +20,7 @@
 // -----   Default constructor   -------------------------------------------
 PndLmdPixelClusterTask::PndLmdPixelClusterTask()
     : PndSdsPixelClusterTask("LMD Clustertisation Task") {
-  fPersistance = kTRUE;
+  SetPersistency(kTRUE);
   // flagMS = true;
 }
 // -------------------------------------------------------------------------
@@ -60,10 +60,10 @@ InitStatus PndLmdPixelClusterTask::Init() {
   }
 
   fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterPixel",
-                                  fFolderName, fPersistance);
+                                  fFolderName, GetPersistency());
 
   fHitArray =
-      ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, fPersistance);
+      ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, GetPersistency());
 
   SetInBranchId();
 

@@ -19,13 +19,14 @@
 
 #include "PndRichGeo.h"
 #include "PndRichPDHit.h"
+#include "PndBranchTask.h"
 
 #include <string>
 #include <vector>
 
 class TClonesArray;
 
-class PndRichHitFinder : public FairTask
+class PndRichHitFinder : public PndBranchTask
 {
  public:
 
@@ -54,7 +55,6 @@ class PndRichHitFinder : public FairTask
   virtual void FinishTask();
 
   void SetPixelFactor(Int_t factor ){fPixelFactor = factor;}
-  void SetPersistency(Bool_t v = kTRUE) { fPersistency = v; }
   
 protected:
     
@@ -73,7 +73,6 @@ protected:
   void ProduceHits();
 
   TString fInBranchName;
-  Bool_t fPersistency;
   Int_t    fPixelFactor;
   Double_t fPixelSize;	// pixel size;
   Double_t fPixelGap;   // gap betwen neighboring pixels

@@ -28,7 +28,6 @@
 // -----   Default constructor   -------------------------------------------
 PndSdsIdealRecoTask::PndSdsIdealRecoTask() :
   PndSdsTask("Ideal reconstruction task for PANDA PndSds"),
-    fPersistance(kTRUE),
     fGeoH(PndGeoHandling::Instance()),
     fPointArray(NULL),
     fMctruthArray(NULL),
@@ -41,13 +40,13 @@ PndSdsIdealRecoTask::PndSdsIdealRecoTask() :
     fHitCovMatrix(3,3)
 {
   //fGeoH = PndGeoHandling::Instance();
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
 // -----   Constructor   ---------------------------------------------------
 PndSdsIdealRecoTask::PndSdsIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
   PndSdsTask("Ideal reconstruction task for PANDA PndSds"),
-    fPersistance(kTRUE),
     fGeoH(PndGeoHandling::Instance()),
     fPointArray(NULL),
     fMctruthArray(NULL),
@@ -60,6 +59,7 @@ PndSdsIdealRecoTask::PndSdsIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) 
     fHitCovMatrix(3,3)
 {
   //fGeoH = PndGeoHandling::Instance();
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -97,7 +97,7 @@ InitStatus PndSdsIdealRecoTask::Init()
 
   // Create and register output array
   fHitOutputArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fOutBranchName, fFolderName ,fHitOutputArray, fPersistance);
+  ioman->Register(fOutBranchName, fFolderName ,fHitOutputArray, GetPersistency());
 
   std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
 

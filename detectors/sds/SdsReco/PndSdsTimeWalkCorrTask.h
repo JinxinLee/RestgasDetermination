@@ -25,7 +25,6 @@ public:
 	PndSdsTimeWalkCorrTask(const char* name);
   PndSdsTimeWalkCorrTask(PndSdsTimeWalkCorrTask& other) :
     PndSdsTask(),
-	  fPersistance(other.fPersistance),
 	  fDigiArray(other.fDigiArray),
 	  fDigiCorrArray(other.fDigiCorrArray),
     fDigiPar(other.fDigiPar),
@@ -36,7 +35,6 @@ public:
 	virtual ~PndSdsTimeWalkCorrTask();
   PndSdsTimeWalkCorrTask& operator=(PndSdsTimeWalkCorrTask& other)
   {
-	  fPersistance=other.fPersistance;
 	  fDigiArray=other.fDigiArray;
 	  fDigiCorrArray=other.fDigiCorrArray;
     fDigiPar=other.fDigiPar;
@@ -50,7 +48,6 @@ public:
 	void Exec(Option_t* opt);
 	  virtual void FinishTask();
 protected:
-	Bool_t fPersistance;
 	TClonesArray* fDigiArray;
 	TClonesArray* fDigiCorrArray;
     PndSdsPixelDigiPar* fDigiPar;

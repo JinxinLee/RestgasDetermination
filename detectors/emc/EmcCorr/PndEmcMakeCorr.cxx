@@ -104,7 +104,7 @@ InitStatus PndEmcMakeCorr::Init() {
   
   TString corName;
   corName = fClusterType+"Corr";
-  ioman->Register(corName,"Emc",fClusterArrayCorr,kTRUE);
+  ioman->Register(corName,"Emc",fClusterArrayCorr,GetPersistency());
   
   // Read 2-dim histograms with shifts: GetMean() 
   // of reconstructed clusters compared to MC clusters

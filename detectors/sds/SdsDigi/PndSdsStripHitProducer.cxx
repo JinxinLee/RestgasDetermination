@@ -32,8 +32,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer() :
-PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)"), 
-      fPersistance(kTRUE),
+PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)"),
       fPointArray(NULL),
       fStripArray(NULL),
       fDataBuffer(0),
@@ -54,13 +53,13 @@ PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)"),
 {
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer(const char* name) :
-PndSdsTask(name), 
-      fPersistance(kTRUE),
+PndSdsTask(name),
       fPointArray(NULL),
       fStripArray(NULL),
       fDataBuffer(0),
@@ -81,6 +80,7 @@ PndSdsTask(name),
 {
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -178,7 +178,7 @@ InitStatus PndSdsStripHitProducer::Init()
   }
   
 
-  fDataBuffer = new PndSdsDigiStripWriteoutBuffer(fOutBranchName, fFolderName, fPersistance);
+  fDataBuffer = new PndSdsDigiStripWriteoutBuffer(fOutBranchName, fFolderName, GetPersistency());
   fDataBuffer = (PndSdsDigiStripWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
 
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);

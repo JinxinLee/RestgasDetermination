@@ -2,11 +2,11 @@
 #ifndef PNDBLACKBOXTASK_H
 #define PNDBLACKBOXTASK_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 class TClonesArray;
 
-class PndBlackBoxTask : public FairTask
+class PndBlackBoxTask : public PndBranchTask
   {
   public:
     PndBlackBoxTask(const char* name);

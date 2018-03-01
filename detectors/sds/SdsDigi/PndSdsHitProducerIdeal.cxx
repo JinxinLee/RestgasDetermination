@@ -15,21 +15,21 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsHitProducerIdeal::PndSdsHitProducerIdeal() :
-PndSdsTask("Ideal SDS Hit Producer"), 
-fPersistance(kTRUE),
+PndSdsTask("Ideal SDS Hit Producer"),
 fPointArray(NULL),
 fHitArray(NULL)
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
 // -----   Named constructor   -------------------------------------------
 PndSdsHitProducerIdeal::PndSdsHitProducerIdeal(const char* name) :
-PndSdsTask(name), 
-fPersistance(kTRUE),
+PndSdsTask(name),
 fPointArray(),
 fHitArray()
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ InitStatus PndSdsHitProducerIdeal::Init()
 
   // Create and register output array
   fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
+  ioman->Register(fOutBranchName, fFolderName, fHitArray, GetPersistency());
 
   std::cout << "-I- PndSdsHitProducerIdeal: Intialisation successfull" << std::endl;
   return kSUCCESS;

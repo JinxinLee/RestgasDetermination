@@ -17,7 +17,7 @@
 #ifndef PNDFTOFHITPRODUCERIDEAL_H
 #define PNDFTOFHITPRODUCERIDEAL_H 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndGeoFtofPar.h"
 #include "PndFtofPoint.h"
 
@@ -31,7 +31,7 @@
 
 class TClonesArray;
 
-class PndFtofHitProducerIdeal : public FairTask
+class PndFtofHitProducerIdeal : public PndBranchTask
 {
  public:
 
@@ -53,15 +53,11 @@ class PndFtofHitProducerIdeal : public FairTask
   void smear(Double_t& , Double_t& ) {}; // time dt //[R.K.03/2017] unused variable(s)
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
-
-  /** Set the Persistency of PndFtofHit **/
-  void SetPersistency(Bool_t pers = kTRUE) { fPersistency = pers; };
   
  private:
   
   TString fBranchName;
   Bool_t fTimeOrderedDigi;
-  Bool_t fPersistency;                       ///< Persistency flag
   
   /** Input array of PndFtofPoints **/
   TClonesArray* fPointArray;

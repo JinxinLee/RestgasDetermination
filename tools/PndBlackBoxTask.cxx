@@ -6,7 +6,7 @@
 #include "PndBlackBoxTask.h"
 
 PndBlackBoxTask::PndBlackBoxTask(const char* name) :
-FairTask(name)
+PndBranchTask(name)
 {
 }
 // -------------------------------------------------------------------------
@@ -35,7 +35,7 @@ void PndBlackBoxTask::SetVerbose(Int_t iVerbose)
   TList* thistasks = this->GetListOfTasks();
   for(Int_t i=0;i<thistasks->GetEntries();i++)
   {
-    ((FairTask*)thistasks->At(i))->SetVerbose(fVerbose);
+    ((PndBranchTask*)thistasks->At(i))->SetVerbose(fVerbose);
   }
 }
 

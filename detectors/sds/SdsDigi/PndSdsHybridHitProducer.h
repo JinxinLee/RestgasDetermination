@@ -39,7 +39,6 @@ class PndSdsHybridHitProducer : public PndSdsTask
   
   PndSdsHybridHitProducer(PndSdsHybridHitProducer& other) :
       PndSdsTask(),
-      fPersistance(other.fPersistance),
       fDigiPixelMCInfo(other.fDigiPixelMCInfo),
       fPointArray(other.fPointArray),
       fPixelArray(other.fPixelArray),
@@ -82,9 +81,7 @@ class PndSdsHybridHitProducer : public PndSdsTask
 
   virtual void FinishEvent();
   virtual void FinishTask();
-  
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;};
+
   
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
   
@@ -92,7 +89,6 @@ class PndSdsHybridHitProducer : public PndSdsTask
   {
     if(this != &other) // protect against invalid self-assignment
     {
-      fPersistance=other.fPersistance;
       fDigiPixelMCInfo=other.fDigiPixelMCInfo;
       fPointArray=other.fPointArray;
       fPixelArray=other.fPixelArray;

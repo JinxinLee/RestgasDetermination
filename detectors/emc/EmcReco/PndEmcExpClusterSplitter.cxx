@@ -68,10 +68,11 @@ using std::endl;
 // Constructors --
 //----------------
 
-PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose):FairTask("PndEmcExpClusterSplitter", verbose), 
-fDigiArray(0), fClusterArray(0), fBumpArray(0), fSharedDigiArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fClusterPosParam(), fPersistance(kTRUE), fMoliereRadius(0), fMoliereRadiusShashlyk(0), fExponentialConstant(0), fMaxIterations(0), fCentroidShift(0), fMaxBumps(0), fMinDigiEnergy(0)
+PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose):PndBranchTask("PndEmcExpClusterSplitter", verbose),
+fDigiArray(0), fClusterArray(0), fBumpArray(0), fSharedDigiArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fClusterPosParam(), fMoliereRadius(0), fMoliereRadiusShashlyk(0), fExponentialConstant(0), fMaxIterations(0), fCentroidShift(0), fMaxBumps(0), fMinDigiEnergy(0)
 {
   fClusterPosParam.clear();
+  SetPersistency(kTRUE);
 }
 
 //--------------
@@ -158,10 +159,10 @@ InitStatus PndEmcExpClusterSplitter::Init() {
 
   // Create and register output array
   fBumpArray = new TClonesArray("PndEmcBump");
-  ioman->Register("EmcBump","Emc",fBumpArray,fPersistance);
+  ioman->Register("EmcBump","Emc",fBumpArray,GetPersistency());
   
   fSharedDigiArray = new TClonesArray("PndEmcSharedDigi");
-  ioman->Register("EmcSharedDigi","Emc",fSharedDigiArray,fPersistance);
+  ioman->Register("EmcSharedDigi","Emc",fSharedDigiArray,GetPersistency());
 
 	HowManyDidis = 0;
 

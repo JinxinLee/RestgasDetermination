@@ -24,22 +24,22 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSciTHitProducerIdeal::PndSciTHitProducerIdeal() :
-  FairTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(0.1) //auto time resolution 0.1 ns
+  PndBranchTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(0.1) //auto time resolution 0.1 ns
 {
 	fInBranchName 	= "SciTPoint";
 	fGeoH =  NULL;
-	fPersistence = kTRUE;
+	SetPersistency(kTRUE);
 
 }
 // -------------------------------------------------------------------------
 
 // -----   Default constructor   -------------------------------------------
 PndSciTHitProducerIdeal::PndSciTHitProducerIdeal(Double_t dt) :
-  FairTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(dt)
+  PndBranchTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(dt)
 {
 	fInBranchName 	= "SciTPoint";
 	fGeoH =  NULL;
-	fPersistence = kTRUE;
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ InitStatus PndSciTHitProducerIdeal::Init()
   }
 
   // Create and register output array
-  fHitArray = ioman->Register("SciTHit", "PndSciTHit", "SciT", fPersistence);
+  fHitArray = ioman->Register("SciTHit", "PndSciTHit", "SciT", GetPersistency());
 
   std::cout << "-I- PndSciTHitProducerIdeal: Intialisation successfull" << std::endl;
   return kSUCCESS;

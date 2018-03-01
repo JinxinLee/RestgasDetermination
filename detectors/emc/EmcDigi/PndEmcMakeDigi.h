@@ -15,7 +15,7 @@
 #ifndef PndEmcMakeDigi_H
 #define PndEmcMakeDigi_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include <string>
 
 class PndEmcTwoCoordIndex;
@@ -34,7 +34,7 @@ class PndEmcRecoPar;
  * analysis of waveforms.
  * @ingroup PndEmc
  */
-class PndEmcMakeDigi : public FairTask
+class PndEmcMakeDigi : public PndBranchTask
 {
 public:
   // Constructors
@@ -93,7 +93,6 @@ private:
 	PndEmcDigiPar*    fDigiPar;      //!< Digitisation parameter container
 	PndEmcRecoPar*    fRecoPar;      //!< Reconstruction parameter container
 	
-	Bool_t fStoreDigis;
 
 	ClassDef(PndEmcMakeDigi,1);
 };

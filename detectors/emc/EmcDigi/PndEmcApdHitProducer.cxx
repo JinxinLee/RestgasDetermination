@@ -37,7 +37,7 @@ using std::map;
 		
 // -----   Default constructor   -------------------------------------------
 PndEmcApdHitProducer::PndEmcApdHitProducer() :
-  FairTask("Ideal EMC APD hit Producer"), fPointArray(0), fDigiArray(0), fVolumeArray(new TObjArray),
+  PndBranchTask("Ideal EMC APD hit Producer"), fPointArray(0), fDigiArray(0), fVolumeArray(new TObjArray),
   fMapVersion(0), emcX(), emcY(), emcZ(), fEmcStr()
 { 
 }
@@ -77,7 +77,7 @@ InitStatus PndEmcApdHitProducer::Init() {
   // Create and register output array
   fDigiArray = new TClonesArray("PndEmcApdHit");
   
-  ioman->Register("EmcApdHit","Emc",fDigiArray,kTRUE);
+  ioman->Register("EmcApdHit","Emc",fDigiArray, GetPersistency());
   
 	// Geometry loading
 // 	TFile *infile = ioman->GetInFile();

@@ -26,7 +26,7 @@ using std::string;
 
 // -----   Default constructor   -------------------------------------------
 PndSttFindTracks::PndSttFindTracks() 
-  : FairTask("STT Find Tracks") 
+  : PndBranchTask("STT Find Tracks")
 {
   fFinder      = NULL;
   fTrackCandArray  = NULL; 
@@ -34,7 +34,7 @@ PndSttFindTracks::PndSttFindTracks()
   fNofTracks   = 0;
   fVerbose     = 1;
   fCollectionsComplete = kFALSE;
-  fPersistence = kTRUE;
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ PndSttFindTracks::PndSttFindTracks()
 // -----   Standard constructor   ------------------------------------------
 PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder, 
 				   Int_t verbose)
-  : FairTask("STT Find Tracks") 
+  : PndBranchTask("STT Find Tracks")
 {
   fFinder      = finder;
   fTrackCandArray  = NULL; 
@@ -51,7 +51,7 @@ PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder,
   fNofTracks   = 0;
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
-  fPersistence = kTRUE;
+  SetPersistency(kTRUE);
   fHelixHitProduction = kFALSE;
 }
 // -------------------------------------------------------------------------
@@ -62,7 +62,7 @@ PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder,
 PndSttFindTracks::PndSttFindTracks(const char* name, const char* title, 
 				   PndSttTrackFinder* finder,
 				   Int_t verbose) 
-  : FairTask(name) 
+  : PndBranchTask(name)
 {
   fFinder      = finder;
   fTrackCandArray  = NULL; 
@@ -70,7 +70,7 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
   fNofTracks   = 0;
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
-  fPersistence = kTRUE;
+  SetPersistency(kTRUE);
   fHelixHitProduction = kFALSE;
   SetTitle(title);
 }
@@ -112,10 +112,10 @@ InitStatus PndSttFindTracks::Init()
   }
 
   fTrackCandArray = new TClonesArray("PndTrackCand",100); 
-  ioman->Register("STTTrackCand", "STT", fTrackCandArray, fPersistence); 
+  ioman->Register("STTTrackCand", "STT", fTrackCandArray, GetPersistency());
 
   fTrackArray = new TClonesArray("PndTrack",100); 
-  ioman->Register("STTFoundTrack", "STT", fTrackArray, fPersistence); 
+  ioman->Register("STTFoundTrack", "STT", fTrackArray, GetPersistency());
   
   fHelixHitArray = new TClonesArray("PndSttHelixHit",100); 
   ioman->Register("STTPRHelixHit", "STT", fHelixHitArray, fHelixHitProduction);

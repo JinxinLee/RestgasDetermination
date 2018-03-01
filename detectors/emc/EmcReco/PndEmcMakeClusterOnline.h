@@ -7,7 +7,7 @@
 #ifndef PNDEMCMAKECLUSTERONLINE_H
 #define PNDEMCMAKECLUSTERONLINE_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include <vector>		
 
 #include "FairTSBufferFunctional.h"
@@ -22,7 +22,7 @@ class PndEmcRecoPar;
 class BinaryFunctor;
 
 
-class PndEmcMakeClusterOnline : public FairTask
+class PndEmcMakeClusterOnline : public PndBranchTask
 {
 public:
 
@@ -73,7 +73,6 @@ private:
 	Double_t fClusterActiveTime; //!< Defines how long clusters are kept open in timebased reconstruction
 	BinaryFunctor* fDigiFunctor;
 
-	Bool_t fStoreClusters;
 	Bool_t fStoreClusterBase; 	//restore digis in case of a timebased run
 
 	/** Get parameter containers **/

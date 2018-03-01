@@ -15,7 +15,7 @@
 #ifndef PNDMVDNOISEPRODUCER_H
 #define PNDMVDNOISEPRODUCER_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "FairMCEventHeader.h"
 
 #include <vector>
@@ -35,7 +35,7 @@
 
 class TClonesArray;
 
-class PndMvdNoiseProducer : public FairTask
+class PndMvdNoiseProducer : public PndBranchTask
 {
  public:
 
@@ -64,15 +64,11 @@ class PndMvdNoiseProducer : public FairTask
   void AddDigiStrip(Int_t &iStrip, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge);
   void AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge);
 
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;};
-
   void FillSensorLists();
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
 
  protected:
-  Bool_t fPersistance;
 
   Bool_t fTimeOrderedDigi; ///< parameter to switch to time ordered simulation
 

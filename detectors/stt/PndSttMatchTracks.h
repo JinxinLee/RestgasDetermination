@@ -19,7 +19,7 @@
 
 #include <vector>
 #include <map>
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndSttHit.h"
 #include "FairMCPoint.h"
 
@@ -27,7 +27,7 @@ class TClonesArray;
 
 
 
-class PndSttMatchTracks : public FairTask
+class PndSttMatchTracks : public PndBranchTask
 {
 
  public:
@@ -43,10 +43,10 @@ class PndSttMatchTracks : public FairTask
   /** Constructor with name, title and verbosity
    **
    *@param name     Name of taks
-   *@param title    Title of task   (default FairTask)
+   *@param title    Title of task   (default PndBranchTask)
    *@param verbose  Verbosity level (default 1)
    **/
-  PndSttMatchTracks(const char* name, const char* title = "FairTask",
+  PndSttMatchTracks(const char* name, const char* title = "Pnd Stt Match Tracks Task",
 		    Int_t verbose = 1);
 
 
@@ -71,7 +71,7 @@ class PndSttMatchTracks : public FairTask
   FairMCPoint* GetPointFromCollections(Int_t hitCounter);
 
   /** set persistence flag **/
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
 
  private:
   void AddAllCollections(); 
@@ -92,9 +92,6 @@ class PndSttMatchTracks : public FairTask
   std::vector<std::string> fPointCollectionNames;
   TList fHitCollectionList;
   TList fPointCollectionList;
- 
-  /** object persistence **/
-  Bool_t  fPersistence; //!
 
   PndSttMatchTracks(const  PndSttMatchTracks& L);
   PndSttMatchTracks& operator= (const  PndSttMatchTracks&) {return *this;};

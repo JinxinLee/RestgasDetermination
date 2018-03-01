@@ -40,8 +40,8 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerRealFast::PndSttHitProducerRealFast() : 
-  FairTask("Ideal STT Hit Producer",0), fSeparate(kFALSE), fSttParameters(NULL) { 
-  fPersistence = kTRUE;
+  PndBranchTask("Ideal STT Hit Producer",0), fSeparate(kFALSE), fSttParameters(NULL) {
+  SetPersistency(kTRUE);
   fOverlap = kFALSE;
 }
 // -------------------------------------------------------------------------
@@ -77,14 +77,14 @@ InitStatus PndSttHitProducerRealFast::Init() {
   if(!fOverlap) {
     if(fSeparate == kTRUE) {
       fSttParalHitArray = new TClonesArray("PndSttHit");
-      ioman->Register("STTParalHit","STT", fSttParalHitArray, fPersistence);
+      ioman->Register("STTParalHit","STT", fSttParalHitArray, GetPersistency());
       fSttSkewHitArray = new TClonesArray("PndSttHit");
-      ioman->Register("STTSkewHit","STT", fSttSkewHitArray, fPersistence);
+      ioman->Register("STTSkewHit","STT", fSttSkewHitArray, GetPersistency());
     }
     else {
       // if there is no overlap save in output the regular hits
       fHitArray = new TClonesArray("PndSttHit");
-      ioman->Register("STTHit","STT",fHitArray, fPersistence);
+      ioman->Register("STTHit","STT",fHitArray, GetPersistency());
     }
   }
   else {
@@ -94,19 +94,19 @@ InitStatus PndSttHitProducerRealFast::Init() {
     // hits in another TCA (STTOriginalHit)
     if(fSeparate == kTRUE) {
       fSttParalOverlapHitArray = new TClonesArray("PndSttHit");
-      ioman->Register("STTParalHit","STT", fSttParalOverlapHitArray, fPersistence);
+      ioman->Register("STTParalHit","STT", fSttParalOverlapHitArray, GetPersistency());
       fSttSkewOverlapHitArray = new TClonesArray("PndSttHit");
-      ioman->Register("STTSkewHit","STT", fSttSkewOverlapHitArray, fPersistence);
+      ioman->Register("STTSkewHit","STT", fSttSkewOverlapHitArray, GetPersistency());
       fSttParalHitArray = new TClonesArray("PndSttHit");
-      ioman->Register("STTParalOriginalHit","STT", fSttParalHitArray, fPersistence);
+      ioman->Register("STTParalOriginalHit","STT", fSttParalHitArray, GetPersistency());
       fSttSkewHitArray = new TClonesArray("PndSttHit");
-      ioman->Register("STTSkewOriginalHit","STT", fSttSkewHitArray, fPersistence);
+      ioman->Register("STTSkewOriginalHit","STT", fSttSkewHitArray, GetPersistency());
     }
     else {
       fOverlapHitArray = new TClonesArray("PndSttHit");
-      ioman->Register("STTHit","STT",fOverlapHitArray, fPersistence);
+      ioman->Register("STTHit","STT",fOverlapHitArray, GetPersistency());
       fHitArray = new TClonesArray("PndSttHit");
-      ioman->Register("STTOriginalHit","STT",fHitArray, fPersistence);
+      ioman->Register("STTOriginalHit","STT",fHitArray, GetPersistency());
     }
     
   }

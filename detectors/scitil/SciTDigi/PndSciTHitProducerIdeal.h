@@ -23,7 +23,7 @@
 #include "PndGeoHandling.h"
 #include "PndGeoSciTPar.h"
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "FairMCEventHeader.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
@@ -35,7 +35,7 @@
 
 class TClonesArray;
 
-class PndSciTHitProducerIdeal : public FairTask
+class PndSciTHitProducerIdeal : public PndBranchTask
 {
  public:
 
@@ -55,7 +55,7 @@ class PndSciTHitProducerIdeal : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
   void smear(Double_t& time, Double_t& dt);
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
 
  private:
   
@@ -71,9 +71,6 @@ class PndSciTHitProducerIdeal : public FairTask
   PndGeoSciTPar* fGeoPar;
 
   PndGeoHandling* fGeoH; //For converting sensor ID (shortID) into the Full volume path
-  
-   /** object persistence **/
-  Bool_t  fPersistence; //!
 
   Double_t fdt,fdt2;
   

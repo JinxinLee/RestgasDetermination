@@ -45,7 +45,6 @@ class PndSdsStripClusterTask : public PndSdsTask
     PndSdsStripClusterTask(PndSdsStripClusterTask& other) :
       PndSdsTask(),
   	  fPath(other.fPath),
-      fPersistance(other.fPersistance),
       fDigiArray(other.fDigiArray),
       fClusterArray(other.fClusterArray),
       fHitArray(other.fHitArray),
@@ -83,7 +82,6 @@ class PndSdsStripClusterTask : public PndSdsTask
     PndSdsStripClusterTask& operator=(PndSdsStripClusterTask& other)
     {
   	  fPath=other.fPath;
-      fPersistance=other.fPersistance;
       fDigiArray=other.fDigiArray;
       fClusterArray=other.fClusterArray;
       fHitArray=other.fHitArray;
@@ -142,14 +140,9 @@ class PndSdsStripClusterTask : public PndSdsTask
     /** Virtual method Finish **/
     virtual void Finish();
     
-    void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-    Bool_t GetPersistance() {return fPersistance;};
-    
   protected:
     
 	TString fPath;
-
-    Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
     
     virtual void SetCalculators(); 
     TVector2 CalcLineCross(TVector2 point1, TVector2 dir1, TVector2 point2, TVector2 dir2) const;

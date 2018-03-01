@@ -79,7 +79,6 @@ class PndSdsStripHitProducer : public PndSdsTask
   
   PndSdsStripHitProducer(PndSdsStripHitProducer& other):
       PndSdsTask(),
-      fPersistance(other.fPersistance),
       fPointArray(other.fPointArray),
       fStripArray(other.fStripArray),
       fDataBuffer(other.fDataBuffer),
@@ -124,9 +123,6 @@ class PndSdsStripHitProducer : public PndSdsTask
   virtual void FinishTask();
   void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge);
 
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;};
-
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
   
@@ -134,7 +130,6 @@ class PndSdsStripHitProducer : public PndSdsTask
   {
     if(this != &other) // protect against invalid self-assignment
     {
-      fPersistance=other.fPersistance;
       fPointArray=other.fPointArray;
       fStripArray=other.fStripArray;
       fDataBuffer=other.fDataBuffer;
@@ -159,7 +154,6 @@ class PndSdsStripHitProducer : public PndSdsTask
   
  protected:
 
-  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
 
   /** Input array of PndSdsMCPoints **/
   TClonesArray* fPointArray;

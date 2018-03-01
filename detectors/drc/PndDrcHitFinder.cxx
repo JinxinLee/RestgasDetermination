@@ -22,9 +22,9 @@
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitFinder::PndDrcHitFinder() :
-FairTask("DrcHitFinder", 1)
+PndBranchTask("DrcHitFinder", 1)
 {
-  fPersistency = kTRUE;
+	SetPersistency(kTRUE);
   fPixelHits = 0;
   fEventNr = 0;
   fPixelFactor = 1;
@@ -47,9 +47,9 @@ FairTask("DrcHitFinder", 1)
 // -------------------------------------------------------------------------
 
 PndDrcHitFinder::PndDrcHitFinder(Int_t iVerbose) :
-  FairTask("DrcHitFinder", iVerbose)
+  PndBranchTask("DrcHitFinder", iVerbose)
 {
-  fPersistency = kTRUE;
+  SetPersistency(kTRUE);
   fPixelHits = 0;
   fEventNr = 0; 
   fPixelFactor = 1;
@@ -71,9 +71,8 @@ PndDrcHitFinder::PndDrcHitFinder(Int_t iVerbose) :
 }
 
 PndDrcHitFinder::PndDrcHitFinder(const char* name, Int_t iVerbose) :
-FairTask(name, iVerbose)
+PndBranchTask(name, iVerbose)
 {
-  fPersistency = kTRUE;
   fPixelHits = 0;
   fEventNr = 0;   
   fPixelFactor = 1;
@@ -138,7 +137,7 @@ InitStatus PndDrcHitFinder::Init(){
   
   // Create and register output array
   fPdHitArray	= new TClonesArray("PndDrcPDHit");
-  ioman->Register("DrcPDHit", "Drc", fPdHitArray, fPersistency);
+  ioman->Register("DrcPDHit", "Drc", fPdHitArray, GetPersistency());
  
   fGapFunctor = new TimeGap();
   fStopFunctor = new StopTime();

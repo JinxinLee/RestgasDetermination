@@ -12,7 +12,7 @@
 PndMvdToPix4ClusterTask::PndMvdToPix4ClusterTask(TString parName, TString totParName) :
 PndMvdPixelClusterTask(parName, totParName)
 {
-  fPersistance = kTRUE;
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 

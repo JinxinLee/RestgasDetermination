@@ -40,9 +40,9 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerIdeal::PndSttHitProducerIdeal() :
-  FairTask("Ideal STT Hit Producer",0) 
+  PndBranchTask("Ideal STT Hit Producer",0)
 { 
-  fPersistence = kTRUE;
+  SetPersistency(kTRUE);
   
   fPointArray    = NULL;
   fHitArray      = NULL;
@@ -88,11 +88,11 @@ InitStatus PndSttHitProducerIdeal::Init()
 
   // Create and register output array
   fHitArray = new TClonesArray("PndSttHit");
-  ioman->Register("STTHit", "STT", fHitArray, fPersistence);
+  ioman->Register("STTHit", "STT", fHitArray, GetPersistency());
 
   // Create and register output array
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
-  ioman->Register("STTHitInfo", "STT", fHitInfoArray, fPersistence);
+  ioman->Register("STTHitInfo", "STT", fHitInfoArray,GetPersistency());
 
   // CHECK added 
 //   PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);

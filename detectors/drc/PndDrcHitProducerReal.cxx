@@ -43,13 +43,13 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitProducerReal::PndDrcHitProducerReal() 
-  :FairTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fPersistency(kTRUE),fGeo(new PndGeoDrc()),fVerbose(0),fDetType(1){
+  :PndBranchTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fGeo(new PndGeoDrc()),fVerbose(0),fDetType(1){
   SetParameters();
 }
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
 PndDrcHitProducerReal::PndDrcHitProducerReal(Int_t verbose, Int_t det_type)  
-  :FairTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fPersistency(kTRUE),fGeo(new PndGeoDrc()),fVerbose(verbose),fDetType(det_type){
+  :PndBranchTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fGeo(new PndGeoDrc()),fVerbose(verbose),fDetType(det_type){
   SetParameters();
 }
 
@@ -121,11 +121,11 @@ InitStatus PndDrcHitProducerReal::Init()
 
   // Create and register output array
   fHitArray = new TClonesArray("PndDrcHit");
-  ioman->Register("DrcHit","Drc",fHitArray, fPersistency);
+  ioman->Register("DrcHit","Drc",fHitArray, GetPersistency());
   
   // Create and register output array
   fPDHitArray = new TClonesArray("PndDrcPDHit");
-  ioman->Register("DrcPDHit","Drc",fPDHitArray, fPersistency);
+  ioman->Register("DrcPDHit","Drc",fPDHitArray, GetPersistency());
     
   cout << "-I- PndDrcHitProducerReal: Intialization successfull" << endl;
   

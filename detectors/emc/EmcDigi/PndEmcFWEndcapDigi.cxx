@@ -28,8 +28,9 @@ using std::cout;
 using std::endl;
 
 PndEmcFWEndcapDigi::PndEmcFWEndcapDigi(Int_t verbose, Bool_t storedigis):
-  fWaveformArray(NULL), fDigiArray(NULL), fEnergyDigiThreshold(0), fDigiPosMethod(""), fEmcDigiRescaleFactor(0.), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fHighgainPSA(NULL), fLowgainPSA(NULL), fHighLowPSA(verbose), fCalibrator(NULL), fDigiPar(NULL), fRecoPar(NULL), fGeoPar(NULL), fVerbose(verbose), fStoreDigis(storedigis), fTimeOrderedDigi(kFALSE)
+  fWaveformArray(NULL), fDigiArray(NULL), fEnergyDigiThreshold(0), fDigiPosMethod(""), fEmcDigiRescaleFactor(0.), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fHighgainPSA(NULL), fLowgainPSA(NULL), fHighLowPSA(verbose), fCalibrator(NULL), fDigiPar(NULL), fRecoPar(NULL), fGeoPar(NULL), fVerbose(verbose), fTimeOrderedDigi(kFALSE)
 {
+	SetPersistency(storedigis);
 }
 
 //--------------
@@ -82,7 +83,7 @@ InitStatus PndEmcFWEndcapDigi::Init()
 	}
 	
 	// Create and register output array
-	fDigiArray = ioman->Register("EmcDigi","PndEmcDigi", "Emc", fStoreDigis);
+	fDigiArray = ioman->Register("EmcDigi","PndEmcDigi", "Emc", GetPersistency());
 
 	//position methods
 	fEmcDigiPositionDepthPWO=fRecoPar->GetEmcDigiPositionDepthPWO();
@@ -280,7 +281,7 @@ void PndEmcFWEndcapDigi::SetParContainers()
 
 void PndEmcFWEndcapDigi::SetStorageOfData(Bool_t val)
 {
-  fStoreDigis = val;
+  SetPersistency(val);
   return;
 }
 

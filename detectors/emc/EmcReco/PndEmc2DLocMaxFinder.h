@@ -23,7 +23,7 @@
 #ifndef PNDEMC2DLOCALMAXFINDER_H
 #define PNDEMC2DLOCALMAXFINDER_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
 
@@ -38,7 +38,7 @@ class PndEmcRecoPar;
  * @brief Searches for local maxima in a cluster
  * @ingroup PndEmc
  */
-class PndEmc2DLocMaxFinder: public FairTask
+class PndEmc2DLocMaxFinder: public PndBranchTask
 {
 public:
   // Constructors
@@ -49,7 +49,7 @@ public:
   virtual InitStatus Init();
   virtual void Exec(Option_t* opt);
   
-  void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
+  void SetStorageOfData(Bool_t p = kTRUE) {SetPersistency(p);};
   
 protected:
   /** Get parameter containers **/
@@ -78,8 +78,6 @@ private:
   PndEmcDigiPar*    fDigiPar;      //!< Digitisation parameter container
   PndEmcRecoPar*    fRecoPar;      //!< Reconstruction parameter container
   
-  Bool_t fPersistance;
-  
   // Data members
   Double_t fMaxECut;
   Double_t fNeighbourECut;
@@ -89,7 +87,7 @@ private:
   Int_t fTheNeighbourLevel;
 
   /* Verbosity level */
-  // Int_t fVerbose;	//do not shadow FairTask::fVerbose
+  // Int_t fVerbose;	//do not shadow PndBranchTask::fVerbose
  
   ClassDef(PndEmc2DLocMaxFinder,2);
 };

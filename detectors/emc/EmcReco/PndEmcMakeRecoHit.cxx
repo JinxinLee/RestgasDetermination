@@ -36,8 +36,9 @@ using std::cout;
 using std::endl;
 
 PndEmcMakeRecoHit::PndEmcMakeRecoHit(Int_t verbose, Bool_t storerecohits):
-fBumpArray(0), fRecoHitArray(0), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreRecoHits(storerecohits)
+fBumpArray(0), fRecoHitArray(0), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose)
 {
+	SetPersistency(storerecohits);
 }
 
 //--------------
@@ -71,7 +72,7 @@ InitStatus PndEmcMakeRecoHit::Init() {
 	// Create and register output array
 	fRecoHitArray = new TClonesArray("PndEmcRecoHit");
 	
-	ioman->Register("EmcRecoHit","Emc",fRecoHitArray,fStoreRecoHits);
+	ioman->Register("EmcRecoHit","Emc",fRecoHitArray,GetPersistency());
 	
 	cout << "-I- PndEmcMakeRecoHit: Intialization successfull" << endl;
 
@@ -114,7 +115,7 @@ void PndEmcMakeRecoHit::SetParContainers() {
 
 void PndEmcMakeRecoHit::SetStorageOfData(Bool_t val)
 {
-  fStoreRecoHits=val;
+  SetPersistency(val);
   return;
 }
   

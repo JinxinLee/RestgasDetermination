@@ -50,7 +50,7 @@ using std::setw;
 
 // -----   Default constructor   ------------------------------------------
 PndGemFindHits::PndGemFindHits() : 
-  FairTask("GEM Hit Finder", 1),
+  PndBranchTask("GEM Hit Finder", 1),
   fMonitor(NULL),
   fDigiPar(NULL),
   fDigis  (NULL),
@@ -69,9 +69,9 @@ PndGemFindHits::PndGemFindHits() :
   fTNofEvents(0),
   fTNofDigis (0),
   fTNofHits  (0),
-  fTNofHitsTemp  (0),
-  fPersistency(kTRUE)
+  fTNofHitsTemp  (0)
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ PndGemFindHits::PndGemFindHits() :
 
 // -----   Standard constructor   ------------------------------------------
 PndGemFindHits::PndGemFindHits(Int_t iVerbose) 
-  : FairTask("GEMFindHits", iVerbose),
+  : PndBranchTask("GEMFindHits", iVerbose),
   fMonitor(NULL),
   fDigiPar(NULL),
   fDigis  (NULL),
@@ -98,9 +98,9 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
   fTNofEvents(0),
   fTNofDigis (0),
   fTNofHits  (0),
-  fTNofHitsTemp  (0),
-  fPersistency(kTRUE)
+  fTNofHitsTemp  (0)
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
 
 // -----   Constructor with name   -----------------------------------------
 PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose) 
-  : FairTask(name, iVerbose),
+  : PndBranchTask(name, iVerbose),
   fMonitor(NULL),
   fDigiPar(NULL),
   fDigis  (NULL),
@@ -127,9 +127,9 @@ PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose)
   fTNofEvents(0),
   fTNofDigis (0),
   fTNofHits  (0),
-  fTNofHitsTemp  (0),
-  fPersistency(kTRUE)
+  fTNofHitsTemp  (0)
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -338,7 +338,7 @@ InitStatus PndGemFindHits::Init() {
 
   // Register output array
   fHits = new TClonesArray("PndGemHit", 1000);
-  ioman->Register("GEMHit", "Hit in GEM", fHits, fPersistency);
+  ioman->Register("GEMHit", "Hit in GEM", fHits, GetPersistency());
 
   // Test Register output array
   fHitsTemp = new TClonesArray("PndGemHit", 1000);

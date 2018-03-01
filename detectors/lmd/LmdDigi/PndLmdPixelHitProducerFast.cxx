@@ -16,24 +16,27 @@
 
 // -----   Default constructor   -------------------------------------------
 PndLmdPixelHitProducerFast::PndLmdPixelHitProducerFast() :
-PndSdsTask("Fast LMD Hit Producer"), fPersistance(kTRUE)
+PndSdsTask("Fast LMD Hit Producer")
 {
   fPixelSizeX=0.005; //to round MC-Hit x-position
   fPixelSizeY=0.005; //to round MC-Hit y-position
+  SetPersistency(kTRUE);
 }
 
 PndLmdPixelHitProducerFast::PndLmdPixelHitProducerFast(Double_t pixelx, Double_t pixely) :
-PndSdsTask("Fast LMD Hit Producer"), fPersistance(kTRUE), fPixelSizeX(pixelx), fPixelSizeY(pixely)
+PndSdsTask("Fast LMD Hit Producer"), fPixelSizeX(pixelx), fPixelSizeY(pixely)
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
 // -----   Named constructor   -------------------------------------------
 PndLmdPixelHitProducerFast::PndLmdPixelHitProducerFast(const char* name) :
-PndSdsTask(name), fPersistance(kTRUE)
+PndSdsTask(name)
 {
   fPixelSizeX=0.005; //to round MC-Hit x-position
   fPixelSizeY=0.005; //to round MC-Hit y-position
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -72,7 +75,7 @@ InitStatus PndLmdPixelHitProducerFast::Init()
 
   // Create and register output array
   fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
+  ioman->Register(fOutBranchName, fFolderName, fHitArray, GetPersistency());
 
   std::cout << "-I- PndLmdPixelHitProducerFast: Intialisation successfull" << std::endl;
   return kSUCCESS;

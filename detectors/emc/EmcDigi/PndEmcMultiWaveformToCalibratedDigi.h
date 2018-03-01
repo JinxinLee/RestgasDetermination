@@ -21,7 +21,7 @@
 #ifndef PndEmcMultiWaveformToCalibratedDigi_H
 #define PndEmcMultiWaveformToCalibratedDigi_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include <string>		
 #include <map>
 #include "TString.h"
@@ -44,7 +44,7 @@ class PndEmcAbsPulseshape;
  * @ingroup PndEmc
  * @author Ch. Hammann <chammann@hiskp.uni-bonn.de>
  */
-class PndEmcMultiWaveformToCalibratedDigi : public FairTask
+class PndEmcMultiWaveformToCalibratedDigi : public PndBranchTask
 {
 
 public:
@@ -107,8 +107,6 @@ private:
 	
 	/** Verbosity level **/
 	Int_t fVerbose;
-
-	Bool_t fStoreDigis;
 	
 	Double_t fWfNormalisation; // Waveform normalisation constant
 	Double_t fWfNormalisation_pmt;

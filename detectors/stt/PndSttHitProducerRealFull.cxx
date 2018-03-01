@@ -37,8 +37,9 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerRealFull::PndSttHitProducerRealFull() :
-  FairTask("Ideal STT Hit Producer",0), fDataBuffer(0), fTimeOrderedDigi(kFALSE), fPersistence(kTRUE)
+  PndBranchTask("Ideal STT Hit Producer",0), fDataBuffer(0), fTimeOrderedDigi(kFALSE)
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -73,13 +74,13 @@ InitStatus PndSttHitProducerRealFull::Init() {
 //  fHitArray = new TClonesArray("PndSttHit");
 //  ioman->Register("STTHit","STT",fHitArray, fPersistence);
 
-  fDataBuffer = new PndSttHitWriteoutBuffer("STTHit", "STT", fPersistence);
+  fDataBuffer = new PndSttHitWriteoutBuffer("STTHit", "STT", GetPersistency());
   fDataBuffer = (PndSttHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer("STTHit", fDataBuffer);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
   
  // Create and register output array
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
-  ioman->Register("STTHitInfo", "STT", fHitInfoArray, fPersistence);
+  ioman->Register("STTHitInfo", "STT", fHitInfoArray, GetPersistency());
   
   // CHECK added 
   PndSttMapCreator mapper(fSttParameters);

@@ -34,7 +34,7 @@ using std::endl;
 using std::cout;
 
 // -----   Default constructor   -------------------------------------------
-PndDrcDigiTask::PndDrcDigiTask() :FairTask("PndDrcDigiTask"){
+PndDrcDigiTask::PndDrcDigiTask() :PndBranchTask("PndDrcDigiTask"){
   fGeo = new PndGeoDrc();
   fGeoH = NULL;  
   fPDPointArray   = NULL;
@@ -44,7 +44,7 @@ PndDrcDigiTask::PndDrcDigiTask() :FairTask("PndDrcDigiTask"){
 }
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
-PndDrcDigiTask::PndDrcDigiTask(Int_t verbose) :FairTask("PndDrcDigiTask",verbose){
+PndDrcDigiTask::PndDrcDigiTask(Int_t verbose) :PndBranchTask("PndDrcDigiTask",verbose){
   fVerbose = verbose;  
   fGeo = new PndGeoDrc();
   fGeoH = NULL;  
@@ -123,7 +123,7 @@ InitStatus PndDrcDigiTask::Init(){
   }
  
   // Create and register output buffer
-  fDataBuffer = new PndDrcDigiWriteoutBuffer("DrcDigi","PndDrc", kTRUE);
+  fDataBuffer = new PndDrcDigiWriteoutBuffer("DrcDigi","PndDrc", GetPersistency());
   fDataBuffer = (PndDrcDigiWriteoutBuffer*)ioman->RegisterWriteoutBuffer("DrcDigi", fDataBuffer);
   fDataBuffer->SetVerbose(fVerbose);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);

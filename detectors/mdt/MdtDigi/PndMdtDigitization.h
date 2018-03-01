@@ -2,7 +2,7 @@
 #define PNDMDTDIGITIZATION_H 1
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TVector3.h"
 
 class TClonesArray;
@@ -10,7 +10,7 @@ class PndMdtIGeometry;
 class PndMdtDigi;
 class PndMdtWaveform;
 
-class PndMdtDigitization : public FairTask
+class PndMdtDigitization : public PndBranchTask
 {
 
   public:
@@ -59,7 +59,6 @@ class PndMdtDigitization : public FairTask
     Long_t HowManyStripWf;
     Long_t HowManyStripDigi;
 
-    Bool_t fPersitence;
     Bool_t fTimeOrderedDigi;
 
     ClassDef(PndMdtDigitization,1);

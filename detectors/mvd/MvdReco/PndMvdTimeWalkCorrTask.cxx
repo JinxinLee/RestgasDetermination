@@ -13,8 +13,7 @@
 PndMvdTimeWalkCorrTask::PndMvdTimeWalkCorrTask() :
 PndSdsTimeWalkCorrTask("SDS TimeWalkCorrection Task")
 {
-fPersistance=true;
-
+	SetPersistency(true);
 }
 
 

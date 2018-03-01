@@ -59,8 +59,9 @@ Int_t PndEmcMakeBump::fEventCounter=1;
 // Constructors --
 //----------------
 PndEmcMakeBump::PndEmcMakeBump(Int_t verbose, Bool_t persistance):
-FairTask("EMC Bump splitting Task"), fVerbose(verbose), fPersistance(persistance)
+PndBranchTask("EMC Bump splitting Task"), fVerbose(verbose)
 {
+	SetPersistency(persistance);
   this->Add(new PndEmc2DLocMaxFinder());
   this->Add(new PndEmcExpClusterSplitter());
   this->Add(new PndEmcPhiBumpSplitter());
@@ -68,19 +69,19 @@ FairTask("EMC Bump splitting Task"), fVerbose(verbose), fPersistance(persistance
   TList* thistasks = this->GetListOfTasks();
   for(Int_t i=0;i<thistasks->GetEntries();i++)
   {
-    ((FairTask*)thistasks->At(i))->SetVerbose(fVerbose);
+    ((PndBranchTask*)thistasks->At(i))->SetVerbose(fVerbose);
   }
   
-	SetStorageOfData(fPersistance);
+	SetStorageOfData(GetPersistency());
 }
 
 void PndEmcMakeBump::SetStorageOfData(Bool_t val)
 {
-  fPersistance=val;
+  SetPersistency(val);
   TList* thistasks = this->GetListOfTasks();
-  if (thistasks->GetEntries()>0) ((PndEmc2DLocMaxFinder*)thistasks->At(0))->SetStorageOfData(fPersistance);
-  if (thistasks->GetEntries()>1) ((PndEmcExpClusterSplitter*)thistasks->At(1))->SetStorageOfData(fPersistance);
-  if (thistasks->GetEntries()>2) ((PndEmcPhiBumpSplitter*)thistasks->At(2))->SetStorageOfData(fPersistance);  
+  if (thistasks->GetEntries()>0) ((PndEmc2DLocMaxFinder*)thistasks->At(0))->SetStorageOfData(GetPersistency());
+  if (thistasks->GetEntries()>1) ((PndEmcExpClusterSplitter*)thistasks->At(1))->SetStorageOfData(GetPersistency());
+  if (thistasks->GetEntries()>2) ((PndEmcPhiBumpSplitter*)thistasks->At(2))->SetStorageOfData(GetPersistency());
   return;
 }
 

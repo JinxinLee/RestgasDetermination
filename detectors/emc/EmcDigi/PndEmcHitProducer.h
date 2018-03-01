@@ -9,7 +9,7 @@
 #include <string>
 #include <limits>
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TH1F.h"
 #include "TFile.h"
 #include "TVector3.h"
@@ -34,7 +34,7 @@ using std::map;
  * @brief creates PndEmcHit%s from PndEmcPoint%s
  * @ingroup PndEmc
  */
-class PndEmcHitProducer : public FairTask
+class PndEmcHitProducer : public PndBranchTask
 {
   
  public:

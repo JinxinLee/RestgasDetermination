@@ -15,7 +15,7 @@ PndSdsPixelClusterTask("MVD Clustertisation Task"),
 	    fTotDigiPar(NULL),
 	    fSensorNamePar(NULL)
 {
-  fPersistance = kTRUE;
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 

@@ -33,10 +33,11 @@ using std::endl;
 using std::fstream;
 
 PndEmcMakeDigi::PndEmcMakeDigi(Bool_t storedigis):
-  fHitArray(0), fDigiArray(0), fThreshold(0), fDigiPosMethod(""), fEmcDigiRescaleFactor(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fUseDigiEffectiveSmearing(0), fDetectedPhotonsPerMeV(0), fNPhotoElectronsPerMeVAPDBarrel(0), fNPhotoElectronsPerMeVAPDBWD(0), fNPhotoElectronsPerMeVVPT(0), fSensitiveAreaAPD(0), fSensitiveAreaVPT(0), fQuantumEfficiencyAPD(0), fQuantumEfficiencyVPT(0), fExcessNoiseFactorAPD(0), fExcessNoiseFactorVPT(0), fIncoherent_elec_noise_width_GeV_APD(0), fIncoherent_elec_noise_width_GeV_VPT(0), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fStoreDigis(storedigis)
+  fHitArray(0), fDigiArray(0), fThreshold(0), fDigiPosMethod(""), fEmcDigiRescaleFactor(0), fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fUseDigiEffectiveSmearing(0), fDetectedPhotonsPerMeV(0), fNPhotoElectronsPerMeVAPDBarrel(0), fNPhotoElectronsPerMeVAPDBWD(0), fNPhotoElectronsPerMeVVPT(0), fSensitiveAreaAPD(0), fSensitiveAreaVPT(0), fQuantumEfficiencyAPD(0), fQuantumEfficiencyVPT(0), fExcessNoiseFactorAPD(0), fExcessNoiseFactorVPT(0), fIncoherent_elec_noise_width_GeV_APD(0), fIncoherent_elec_noise_width_GeV_VPT(0), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar())
 {
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;
+	SetPersistency(storedigis);
 }
 
 //--------------
@@ -78,7 +79,7 @@ InitStatus PndEmcMakeDigi::Init()
 	// Create and register output array
 /*	fDigiArray = new TClonesArray("PndEmcDigi");
 	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);*/
-	fDigiArray = ioman->Register("EmcDigi", "PndEmcDigi", "Emc", fStoreDigis);
+	fDigiArray = ioman->Register("EmcDigi", "PndEmcDigi", "Emc", GetPersistency());
 	
 	fEmcDigiPositionDepthPWO=fRecoPar->GetEmcDigiPositionDepthPWO();
 	fEmcDigiPositionDepthShashlyk=fRecoPar->GetEmcDigiPositionDepthShashlyk();
@@ -252,7 +253,7 @@ void PndEmcMakeDigi::SetParContainers()
 
 void PndEmcMakeDigi::SetStorageOfData(Bool_t val)
 {
-  fStoreDigis=val;
+  SetPersistency(val);
   return;
 }
 

@@ -15,7 +15,7 @@
 #ifndef PNDDRCHITPRODUCERIDEAL_H
 #define PNDDRCHITPRODUCERIDEAL_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TClonesArray.h"
 #include "PndMCTrack.h"
 #include "PndDrcHit.h"
@@ -32,7 +32,7 @@
 #include "TDatabasePDG.h"
 #endif
 
-class PndDrcHitProducerIdeal : public FairTask {
+class PndDrcHitProducerIdeal : public PndBranchTask {
 
 public:
 
@@ -67,8 +67,6 @@ public:
 		    Double_t errThetaC,
 		    Int_t index);
 
-  void SetPersistency(Bool_t v = kTRUE) { fPersistency = v; }
-
  private:
   
   Int_t fDetectorID;
@@ -76,7 +74,6 @@ public:
   TVector3 fDPosHit;
   Double_t fThetaC, fErrThetaC;
   Int_t fRefIndex;
-  Bool_t fPersistency;
 
   TClonesArray* fBarPointArray; // DRC MC points in the bars
   TClonesArray* fHitArray;      // DRC hits

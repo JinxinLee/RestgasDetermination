@@ -18,7 +18,7 @@
 #ifndef PNDSTTFINDTRACKS
 #define PNDSTTFINDTRACKS 1
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndGeoSttPar.h"
 
 #include <string>
@@ -27,7 +27,7 @@
 class PndSttTrackFinder;
 class TClonesArray;
 
-class PndSttFindTracks : public FairTask
+class PndSttFindTracks : public PndBranchTask
 {
 
  public:
@@ -49,7 +49,7 @@ class PndSttFindTracks : public FairTask
    *@param finder   Pointer to STT track finder concrete class
    *@param verbose  Verbosity level
    **/
-  PndSttFindTracks(const char* name, const char* title = "FairTask", 
+  PndSttFindTracks(const char* name, const char* title = "PndBranchTask",
 		   PndSttTrackFinder* finder = NULL, Int_t verbose = 1);
 
 
@@ -82,7 +82,7 @@ class PndSttFindTracks : public FairTask
   void AddHitCollectionName(char *hitCollectionName, char *pointCollectionName);
 
   /** set persistence flag **/
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
 
   /** set the helix hit production flag true or false **/
   void SetHelixHitProduction(Bool_t hhprod = kTRUE) { fHelixHitProduction = hhprod; }
@@ -105,9 +105,6 @@ class PndSttFindTracks : public FairTask
   std::vector<std::string> fPointCollectionNames;
 
   Bool_t fCollectionsComplete;
-
-  /** object persistence **/
-  Bool_t  fPersistence; //!
 
   /** production to file of helix hit from PR or not **/
   Bool_t fHelixHitProduction; //!

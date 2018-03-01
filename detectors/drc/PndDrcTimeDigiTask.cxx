@@ -41,7 +41,7 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcTimeDigiTask::PndDrcTimeDigiTask() 
-:FairTask("PndDrcTimeDigiTask")
+:PndBranchTask("PndDrcTimeDigiTask")
 {
   fGeo = new PndGeoDrc();
   fGeoH = NULL;  
@@ -62,7 +62,7 @@ PndDrcTimeDigiTask::PndDrcTimeDigiTask()
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
 PndDrcTimeDigiTask::PndDrcTimeDigiTask(Int_t verbose) 
-  :FairTask("PndDrcTimeDigiTask",verbose)
+  :PndBranchTask("PndDrcTimeDigiTask",verbose)
 {
   fVerbose = verbose;  
   fDetType= 1; 
@@ -142,7 +142,7 @@ if ( ! ioman ) {
   ioman->Register("DrcDigiNormal","Drc",fDrcDigiArray, kFALSE);
  
   // Create and register output array
-  fDrcTimeDigiArray = new PndDrcDigiWriteoutBuffer("DrcDigi","PndDrc", kTRUE);
+  fDrcTimeDigiArray = new PndDrcDigiWriteoutBuffer("DrcDigi","PndDrc", GetPersistency());
   fDrcTimeDigiArray = (PndDrcDigiWriteoutBuffer*)ioman->RegisterWriteoutBuffer("DrcDigi", fDrcTimeDigiArray);
   fDrcTimeDigiArray->ActivateBuffering(fTimeOrderedDigi);
 

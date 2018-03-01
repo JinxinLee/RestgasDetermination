@@ -6,13 +6,13 @@
 #ifndef PNDEMCFULLDIGITASK_H
 #define PNDEMCFULLDIGITASK_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 /**
  * @brief combines the tasks PndEmcHitsToWaveform and PndEmcWaveformToDigi
  * @ingroup PndEmc
  */
-class PndEmcFullDigiTask  : public FairTask
+class PndEmcFullDigiTask  : public PndBranchTask
 {
 public:
 
@@ -41,8 +41,6 @@ public:
   
   /** Verbosity level **/
   Int_t fVerbose;
-  
-  Bool_t fPersistance;
   
   static Int_t fEventCounter;
   

@@ -5,7 +5,7 @@
 
 #include "PndRichHitProducer.h"
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 #include "PndRichDigi.h"
 #include "PndRichHit.h"
@@ -37,12 +37,12 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndRichHitProducer::PndRichHitProducer() :
-  FairTask("Rich Hit Producer") { 
+  PndBranchTask("Rich Hit Producer") {
   fPosResolution = -1.;
   fGeoVersion = 313;
   fPhDetNoise = kFALSE;
   fNumRand = 0;
-  fPersistency = kTRUE;
+  SetPersistency(kTRUE);
   fTimeOrderedDigi = kFALSE;
   fPreviousEventTime = -1;
 }
@@ -98,19 +98,12 @@ InitStatus PndRichHitProducer::Init() {
   }
 
   // Create and register output array
-  //if (fTimeOrderedDigi)
-   {
-      fDataBuffer = new PndRichHitWriteoutBuffer("RichDigi", "PndRich", fPersistency);
+      fDataBuffer = new PndRichHitWriteoutBuffer("RichDigi", "PndRich", GetPersistency());
       fDataBuffer = (PndRichHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer("RichDigi", fDataBuffer);
       fDataBuffer->ActivateBuffering(fTimeOrderedDigi);    
-   }
-   //else
-   //{
-   //   fPDHitArray = new TClonesArray("PndRichPDHit");
+
       fHitArray = new TClonesArray("PndRichHit");
-   //   ioman->Register("RichPDHit","PndRich",fPDHitArray,kTRUE);
       ioman->Register("RichHit","PndRich",fHitArray,kTRUE);
-   //}
 
   if (fPosResolution>0.)
      cout << "-I- PndRichHitProducer::Init: "

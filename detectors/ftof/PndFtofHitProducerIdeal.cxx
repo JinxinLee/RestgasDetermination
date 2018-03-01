@@ -22,21 +22,21 @@
 
 // -----   Default constructor   -------------------------------------------
 PndFtofHitProducerIdeal::PndFtofHitProducerIdeal() :
-  FairTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE), fPersistency(kTRUE)
+  PndBranchTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE)
 {
 	fBranchName 	= "FtofPoint";
+	SetPersistency(kTRUE);
 
 }
 // -------------------------------------------------------------------------
 
 // -----   Default constructor   -------------------------------------------
 PndFtofHitProducerIdeal::PndFtofHitProducerIdeal(Double_t dt, Double_t dt2) :
-  FairTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE), fPersistency(kTRUE)
+  PndBranchTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE)
 {
 	fBranchName 	= "FtofPoint";
-
 	fdt= dt;	fdt2= dt2;
-	
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ InitStatus PndFtofHitProducerIdeal::Init()
 
   // Create and register output array
   fHitArray = new TClonesArray("PndFtofHit");
-  ioman->Register("FtofHit", "Ftof", fHitArray, fPersistency);
+  ioman->Register("FtofHit", "Ftof", fHitArray, GetPersistency());
 
   std::cout << "-I- PndFtofHitProducerIdeal: Intialisation successfull" << std::endl;
   return kSUCCESS;

@@ -40,9 +40,9 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerIdeal::PndFtsHitProducerIdeal() :
-  FairTask("Ideal FTS Hit Producer",0)
+  PndBranchTask("Ideal FTS Hit Producer",0)
 {
-  fPersistence = kTRUE;
+  SetPersistency(kTRUE);
   fPointArray    = NULL;
   fHitArray      = NULL;
   fHitInfoArray  = NULL;
@@ -84,7 +84,7 @@ InitStatus PndFtsHitProducerIdeal::Init()
 
   // Create and register output array
   fHitArray = new TClonesArray("PndFtsHit");
-  ioman->Register("FTSHit", "FTS", fHitArray, fPersistence);
+  ioman->Register("FTSHit", "FTS", fHitArray, GetPersistency());
 
   // Create and register output array
   fHitInfoArray = new TClonesArray("PndFtsHitInfo");

@@ -18,7 +18,7 @@
 #ifndef PNDSTTHITPRODUCERIDEAL_H
 #define PNDSTTHITPRODUCERIDEAL_H 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndGeoSttPar.h"
 
 #include "TVector3.h"
@@ -26,7 +26,7 @@
  
 class TClonesArray;
 
-class PndSttHitProducerIdeal : public FairTask
+class PndSttHitProducerIdeal : public PndBranchTask
 {
  public:
 
@@ -45,7 +45,7 @@ class PndSttHitProducerIdeal : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
 
  private:
   /** Private method GetClostestApproachToWire;
@@ -78,9 +78,6 @@ class PndSttHitProducerIdeal : public FairTask
 
   /** from parameters array of PndSttTube **/  //  CHECK added
   TClonesArray* fTubeArray;
-  
-  /** object persistence **/
-  Bool_t  fPersistence; //!
 
   PndGeoSttPar *fSttParameters;  //  CHECK added
   

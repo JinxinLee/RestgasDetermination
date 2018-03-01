@@ -4,7 +4,7 @@
 #define PNDFTSHITPRODUCERREALFAST_H 1
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndGeoFtsPar.h"
 #include "TVector3.h"
 
@@ -13,7 +13,7 @@ class PndFtsHitInfo;
 class TClonesArray;
 class TObjectArray;
 
-class PndFtsHitProducerRealFast : public FairTask
+class PndFtsHitProducerRealFast : public PndBranchTask
 {
 
  public:
@@ -43,7 +43,7 @@ class PndFtsHitProducerRealFast : public FairTask
 
  
   /** set persistence flag **/
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
   void SwitchOnOverlap(){fOverlap = kTRUE;}
 
   private: 
@@ -66,8 +66,6 @@ class PndFtsHitProducerRealFast : public FairTask
 
   PndGeoFtsPar*  fFtsParameters;
   
-  /** object persistence **/
-  Bool_t  fPersistence; //!
   Bool_t fOverlap; //!
 
   TClonesArray* fTubeArray;

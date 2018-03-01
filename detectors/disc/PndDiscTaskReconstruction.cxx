@@ -407,7 +407,7 @@ double PndDiscTaskReconstruction::deviation(double mean_value, std::vector<doubl
 
 //---------------------------------------------------------------------------
 
-PndDiscTaskReconstruction::PndDiscTaskReconstruction() : FairTask("DiscDircTaskReconstruction"), tclarr_digits(NULL), tclarr_particles(NULL), tclarr_tracks(NULL), is_time_based(kTRUE), flag_export_patterns(kFALSE), average_wl(420.), minimum_wl(385.)
+PndDiscTaskReconstruction::PndDiscTaskReconstruction() : PndBranchTask("DiscDircTaskReconstruction"), tclarr_digits(NULL), tclarr_particles(NULL), tclarr_tracks(NULL), is_time_based(kTRUE), flag_export_patterns(kFALSE), average_wl(420.), minimum_wl(385.)
 {
     branch_name_digits    = "DiscDigit";
     folder_name_digits    = "DiscDIRC";
@@ -464,9 +464,9 @@ InitStatus PndDiscTaskReconstruction::Init()
     tclarr_digits_out = new TClonesArray("PndDiscDigitizedHit");
     tclarr_particles_out = new TClonesArray("PndDiscParticleMCPoint");
 
-    io_manager->Register("DiscPatternPrediction", "DiscDircDetector", tclarr_recon_results, true);
-    io_manager->Register("DiscDigitizedHit","DiscDircDetector", tclarr_digits_out, true);
-    io_manager->Register("DiscRealTracks","DiscDircDetector", tclarr_particles_out, true);
+    io_manager->Register("DiscPatternPrediction", "DiscDircDetector", tclarr_recon_results, GetPersistency());
+    io_manager->Register("DiscDigitizedHit","DiscDircDetector", tclarr_digits_out, GetPersistency());
+    io_manager->Register("DiscRealTracks","DiscDircDetector", tclarr_particles_out, GetPersistency());
 
 
 

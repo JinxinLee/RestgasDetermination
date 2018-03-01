@@ -28,11 +28,11 @@ PndMvdDigiTask::PndMvdDigiTask() :
 
 void PndMvdDigiTask::SetPersistance(Bool_t pers)
 {
-  fPersistance = pers;
+  SetPersistency(pers);
   TList* thistasks = this->GetListOfTasks();
-  ((PndMvdHybridHitProducer*)thistasks->At(0))->SetPersistance(fPersistance);
-  ((PndMvdStripHitProducer*)thistasks->At(1))->SetPersistance(fPersistance);
-  ((PndMvdNoiseProducer*)thistasks->At(2))->SetPersistance(fPersistance);
+  ((PndMvdHybridHitProducer*)thistasks->At(0))->SetPersistency(GetPersistency());
+  ((PndMvdStripHitProducer*)thistasks->At(1))->SetPersistency(GetPersistency());
+  ((PndMvdNoiseProducer*)thistasks->At(2))->SetPersistency(GetPersistency());
   return;
 }
 

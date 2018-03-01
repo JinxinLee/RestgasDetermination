@@ -17,7 +17,7 @@
 #define PNDDRCTIMEDIGITASK_H
 
 #include "FairTimeStamp.h"
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TClonesArray.h"
 #include "PndMCTrack.h"
 #include "PndDrcDigi.h"
@@ -44,7 +44,7 @@
 
 #include <map>
 class PndDrcDigiWriteoutBuffer;
-class PndDrcTimeDigiTask : public FairTask {
+class PndDrcTimeDigiTask : public PndBranchTask {
 
 public:
 

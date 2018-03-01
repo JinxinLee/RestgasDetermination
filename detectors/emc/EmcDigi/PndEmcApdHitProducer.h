@@ -7,7 +7,7 @@
 #define PNDEMCAPDHITPRODUCER_H
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndEmcApdHit.h"
 #include "TVector3.h"
 #include "TArrayI.h"
@@ -18,7 +18,7 @@
 class TClonesArray;
 class TObjectArray;
 
-class PndEmcApdHitProducer : public FairTask
+class PndEmcApdHitProducer : public PndBranchTask
 {
 
  public:

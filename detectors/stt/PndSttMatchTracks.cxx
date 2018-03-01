@@ -20,11 +20,11 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndSttMatchTracks::PndSttMatchTracks() 
-  : FairTask("STT track match") {
+  : PndBranchTask("STT track match") {
   fMatches    = NULL;
   fVerbose    = 1;
   fCollectionsComplete = kFALSE;
-  fPersistence = kTRUE;
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -32,11 +32,11 @@ PndSttMatchTracks::PndSttMatchTracks()
 
 // -----   Constructor with verbosity level   ------------------------------
 PndSttMatchTracks::PndSttMatchTracks(Int_t verbose) 
-  : FairTask("STT track match") {
+  : PndBranchTask("STT track match") {
   fMatches    = NULL;
   fVerbose    = verbose;
   fCollectionsComplete = kFALSE;
-  fPersistence = kTRUE;
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -45,11 +45,11 @@ PndSttMatchTracks::PndSttMatchTracks(Int_t verbose)
 // -----   Constructor with name, title and verbosity  ---------------------
 PndSttMatchTracks::PndSttMatchTracks(const char* name, const char* title,
 				     Int_t verbose) 
-  : FairTask(name) {
+  : PndBranchTask(name) {
   fMatches    = NULL;
   fVerbose    = verbose;
   fCollectionsComplete = kFALSE;
-  fPersistence = kTRUE;
+  SetPersistency(kTRUE);
   SetTitle(title);
 }
 // -------------------------------------------------------------------------
@@ -87,7 +87,7 @@ InitStatus PndSttMatchTracks::Init() {
   
   // Create and register SttTrackMatch array
   fMatches = new TClonesArray("PndSttTrackMatch",100);
-  ioman->Register("STTTrackMatch", "STT", fMatches, fPersistence);
+  ioman->Register("STTTrackMatch", "STT", fMatches, GetPersistency());
 
   return kSUCCESS;
 

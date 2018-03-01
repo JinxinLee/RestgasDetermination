@@ -37,7 +37,6 @@
 PndSdsStripClusterTask::PndSdsStripClusterTask() :
   PndSdsTask("SDS Strip Clustertisation Task"),
   	  fPath(),
-      fPersistance(kTRUE),
       fDigiArray(NULL),
       fClusterArray(NULL),
       fHitArray(NULL),
@@ -70,13 +69,13 @@ PndSdsStripClusterTask::PndSdsStripClusterTask() :
       eta_trap(NULL),
       etahistofile(NULL)
 {
+	SetPersistency(kTRUE);
 }
 
 // -----   Named constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask(const char* name) :
   PndSdsTask(name),
   	  fPath(),
-      fPersistance(kTRUE),
       fDigiArray(NULL),
       fClusterArray(NULL),
       fHitArray(NULL),
@@ -109,6 +108,7 @@ PndSdsStripClusterTask::PndSdsStripClusterTask(const char* name) :
       eta_trap(NULL),
       etahistofile(NULL)
 {
+	SetPersistency(kTRUE);
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -260,11 +260,11 @@ InitStatus PndSdsStripClusterTask::Init()
 //  fClusterArray = new TClonesArray("PndSdsClusterStrip");
 //  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
 
-  fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterStrip", fFolderName, fPersistance);
+  fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterStrip", fFolderName, GetPersistency());
 
   
   //fHitArray = new TClonesArray("PndSdsHit");
-  fHitArray = ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, fPersistance);
+  fHitArray = ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, GetPersistency());
   
   SetInBranchId();
   

@@ -37,10 +37,10 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFull::PndFtsHitProducerRealFull() :
-  FairTask("Real FTS Hit Producer",0), fPointArray(0),  //fHitArray(0),
-  fHitInfoArray(0), fFtsParameters(new PndGeoFtsPar()),
-  fPersistence(kTRUE), fTimeOrderedDigi(kFALSE)
+  PndBranchTask("Real FTS Hit Producer",0), fPointArray(0),  //fHitArray(0),
+  fHitInfoArray(0), fFtsParameters(new PndGeoFtsPar()), fTimeOrderedDigi(kFALSE)
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ InitStatus PndFtsHitProducerRealFull::Init() {
 //  fHitArray = new TClonesArray("PndFtsHit");
 //  ioman->Register("FTSHit","FTS",fHitArray, fPersistence);
 
-  fDataBuffer = new PndFtsHitWriteoutBuffer("FTSHit", "FTS", fPersistence);
+  fDataBuffer = new PndFtsHitWriteoutBuffer("FTSHit", "FTS", GetPersistency());
   fDataBuffer = (PndFtsHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer("FTSHit", fDataBuffer);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
 

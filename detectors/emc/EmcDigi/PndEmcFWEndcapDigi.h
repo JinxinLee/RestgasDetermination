@@ -8,7 +8,7 @@
 #include "PndEmcSimCrystalCalibrator.h"
 #include "PndEmcPSAFPGA/PndEmcPSAFPGASampleAnalyser.h"
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 #include <string>
 //#include <vector>
@@ -32,7 +32,7 @@ class PndEmcAbsPulseshape;
  * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
  * @ingroup PndEmc
  */
-class PndEmcFWEndcapDigi : public FairTask
+class PndEmcFWEndcapDigi : public PndBranchTask
 {
 public:
   // Constructors
@@ -96,7 +96,6 @@ private:
 	/** Verbosity level **/
 	Int_t fVerbose;
 
-	Bool_t fStoreDigis;
 	Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.
 
 	ClassDef(PndEmcFWEndcapDigi,1);

@@ -41,7 +41,6 @@ class PndSdsIdealClusterTask : public PndSdsTask
     PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile);
     PndSdsIdealClusterTask(PndSdsIdealClusterTask& other) :
       PndSdsTask(),
-      fPersistance(other.fPersistance),
       fDigiArray(other.fDigiArray),
       fClustBranchName(other.fClustBranchName),
       fClusterType(other.fClusterType),
@@ -59,7 +58,6 @@ class PndSdsIdealClusterTask : public PndSdsTask
     virtual ~PndSdsIdealClusterTask();
     PndSdsIdealClusterTask& operator=(PndSdsIdealClusterTask& other)
     {
-      fPersistance=other.fPersistance;
       fDigiArray=other.fDigiArray;
       fClustBranchName=other.fClustBranchName;
       fClusterType=other.fClusterType;
@@ -93,13 +91,8 @@ class PndSdsIdealClusterTask : public PndSdsTask
 
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
-
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;};
   
 protected:
-  
-  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
 
     /** Input array of PndSdsDigis **/
      TClonesArray* fDigiArray;

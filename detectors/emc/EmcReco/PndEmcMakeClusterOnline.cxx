@@ -41,17 +41,17 @@ static Int_t evtCounter = 0;
 static Int_t digiCounter = 0;
 
 PndEmcMakeClusterOnline::PndEmcMakeClusterOnline(Int_t verbose, Bool_t storeclusters):
-	FairTask("EmcClusteringTask", verbose),
+	PndBranchTask("EmcClusteringTask", verbose),
 	fDigiArray(NULL), 
 	fClusterArray(NULL), 
 	fGeoPar(new PndEmcGeoPar()), 
 	fRecoPar(new PndEmcRecoPar()), 
 	fDigiEnergyTresholdBarrel(0.), fDigiEnergyTresholdFWD(0.), fDigiEnergyTresholdBWD(0.), fDigiEnergyTresholdShashlyk(0.), 
 	fClusterActiveTime(0.),
-	fDigiFunctor(NULL), 
-	fStoreClusters(storeclusters), 
+	fDigiFunctor(NULL),
 	fStoreClusterBase(kTRUE)
 {
+	SetPersistency(storeclusters);
 }
 
 //--------------
@@ -87,7 +87,7 @@ InitStatus PndEmcMakeClusterOnline::Init() {
 
 	// Create and register output array
 	fClusterArray = new TClonesArray("PndEmcCluster");
-	ioman->Register("EmcCluster","Emc", fClusterArray, fStoreClusters);
+	ioman->Register("EmcCluster","Emc", fClusterArray, GetPersistency());
 
 	// for subsequent methods we need the "event grouping" as given by the TS buffer 
 	// --> fDigiArray becomes an output array. 
@@ -264,7 +264,7 @@ void PndEmcMakeClusterOnline::SetParContainers() {
 
 
 void PndEmcMakeClusterOnline::SetStorageOfData(Bool_t val) {
-	fStoreClusters=val;
+	SetPersistency(val);
 	return;
 }
 

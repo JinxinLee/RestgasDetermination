@@ -21,7 +21,7 @@
 #define PNDGEMFINDHITS_H 1
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 #include "TStopwatch.h"
 #include "TH2F.h"
@@ -40,7 +40,7 @@ class PndGemStation;
 class PndGemCluster;
 class PndGemDigitize;
 
-class PndGemFindHits : public FairTask
+class PndGemFindHits : public PndBranchTask
 {
 
 
@@ -74,9 +74,6 @@ class PndGemFindHits : public FairTask
   Bool_t GetTimeBased()   const { return fTimeOrderedDigi; }
 
   void SetHitWindow(Double_t dd=1.5) {fHitWindow = dd;}
-
-  /** Set the Persistency of PndMdtHit **/
-  void SetPersistency(Bool_t pers = kTRUE) { fPersistency = pers; };
   
  private:
 
@@ -106,8 +103,6 @@ class PndGemFindHits : public FairTask
   Int_t             fTNofHitsTemp;
 
   TStopwatch fTimer;
-
-  Bool_t fPersistency;                       ///< Persistency flag
   
   /** Get parameter containers **/
   virtual void SetParContainers();

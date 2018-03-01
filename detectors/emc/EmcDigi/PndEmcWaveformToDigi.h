@@ -19,7 +19,7 @@
 #ifndef PndEmcWaveformToDigi_H
 #define PndEmcWaveformToDigi_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndEmcDigiWriteoutBuffer.h"
 #include <string>		
 #include "FairTSBufferFunctional.h"
@@ -47,7 +47,7 @@ class PndEmcAbsCrystalCalibrator;
  * @brief Takes list of PndEmcWaveform and creates PndEmcDigi
  * @ingroup PndEmc
  */
-class PndEmcWaveformToDigi : public FairTask
+class PndEmcWaveformToDigi : public PndBranchTask
 {
 public:
 	// Constructors
@@ -154,7 +154,6 @@ private:
 
 	/** Verbosity level **/
 	Int_t fVerbose;
-	Bool_t fStoreDigis;
 	Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.
 
 	Double_t fWfNormalisation; // Waveform normalisation constant

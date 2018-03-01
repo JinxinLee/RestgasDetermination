@@ -7,7 +7,7 @@
 #include "PndEmcFWEndcapTimebasedWaveforms.h"
 
 #include "FairRun.h"
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 #include "PndEmcWaveform.h"
 #include "PndEmcWaveformData.h"
@@ -45,9 +45,10 @@ using std::fstream;
 
 
 PndEmcFWEndcapTimebasedWaveforms::PndEmcFWEndcapTimebasedWaveforms(Int_t verbose, Bool_t storewaves) :
-	FairTask("PndEmcFWEndcapTimebasedWaveforms", verbose),	
-	fHitArray(NULL), fWaveformBuffer(NULL), fStoreWaves(storewaves), fStoreDataClass(kFALSE), fActivateBuffering(kFALSE), fDigiPar(NULL), fGeoPar(NULL), fUse_photon_statistic(kFALSE), fNPhotoElectronsPerMeV(0), fExcessNoiseFactor(0.), fExternalSimulator(NULL), fAPD_LOWHIGH(NULL) 
+	PndBranchTask("PndEmcFWEndcapTimebasedWaveforms", verbose),
+	fHitArray(NULL), fWaveformBuffer(NULL), fStoreDataClass(kFALSE), fActivateBuffering(kFALSE), fDigiPar(NULL), fGeoPar(NULL), fUse_photon_statistic(kFALSE), fNPhotoElectronsPerMeV(0), fExcessNoiseFactor(0.), fExternalSimulator(NULL), fAPD_LOWHIGH(NULL)
 {
+	SetPersistency(storewaves);
 }
 
 //--------------
@@ -87,16 +88,16 @@ InitStatus PndEmcFWEndcapTimebasedWaveforms::Init()
 
 	// Create and activiate output Buffer....choose between PndEmcWaveform and PndEmcMultiWaveform
   #ifndef MULTI
-	fWaveformBuffer = new PndEmcWaveformBuffer("EmcWaveform", "PndEmcWaveform", "Emc", fStoreWaves);	
+	fWaveformBuffer = new PndEmcWaveformBuffer("EmcWaveform", "PndEmcWaveform", "Emc", GetPersistency());
   #else
-	fWaveformBuffer = new PndEmcWaveformBuffer("EmcWaveform", "PndEmcMultiWaveform", "Emc", fStoreWaves);	
+	fWaveformBuffer = new PndEmcWaveformBuffer("EmcWaveform", "PndEmcMultiWaveform", "Emc", GetPersistency());
   #endif
 
 	fWaveformBuffer = (PndEmcWaveformBuffer*) ioman ->RegisterWriteoutBuffer("EmcTimebasedWaveform", fWaveformBuffer);
 	fWaveformBuffer->ActivateBuffering(fActivateBuffering);
 
 	if (fStoreDataClass) {
-		fWaveformBuffer->StoreWaveformData("EmcWaveformData", "Emc", fStoreWaves);
+		fWaveformBuffer->StoreWaveformData("EmcWaveformData", "Emc", GetPersistency());
 	}
 
 	

@@ -57,12 +57,11 @@ class PndLmdPixelHitProducerFast : public PndSdsTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;};
+  void SetPersistance(Bool_t p = kTRUE) {SetPersistency(p);};
+  Bool_t GetPersistance() {return GetPersistency();};
   
 protected:
 
-  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   Double_t fPixelSizeX; //to round MC-Hit x-position
   Double_t fPixelSizeY; //to round MC-Hit y-position
   

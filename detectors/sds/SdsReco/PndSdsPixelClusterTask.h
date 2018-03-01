@@ -57,7 +57,6 @@ class PndSdsPixelClusterTask : public PndSdsTask
     PndSdsPixelClusterTask();
     PndSdsPixelClusterTask(const PndSdsPixelClusterTask& other):
       PndSdsTask(),
-      fPersistance(other.fPersistance),
       fUseNoiseSuppression(other.fUseNoiseSuppression),
       fFEModel(other.fFEModel),
       fDigiArray(other.fDigiArray),
@@ -82,7 +81,6 @@ class PndSdsPixelClusterTask : public PndSdsTask
     virtual ~PndSdsPixelClusterTask();
     PndSdsPixelClusterTask& operator=(PndSdsPixelClusterTask& other)
     {
-      fPersistance=other.fPersistance;
       fUseNoiseSuppression=other.fUseNoiseSuppression;
       fFEModel=other.fFEModel;
       fDigiArray=other.fDigiArray;
@@ -132,12 +130,8 @@ class PndSdsPixelClusterTask : public PndSdsTask
     void Exec(Option_t* opt);
 
     
-    void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-    Bool_t GetPersistance() {return fPersistance;};
-    
   protected:
     
-    Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
     Bool_t fUseNoiseSuppression; // switch to turn on/off noise cancellation by introducing an additional cluster threshold
 
     PndSdsFE* fFEModel; //!

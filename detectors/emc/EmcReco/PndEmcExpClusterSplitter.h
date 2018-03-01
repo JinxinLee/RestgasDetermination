@@ -31,7 +31,7 @@
 #include <vector>
 #include <map>
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
 #include "PndEmcDigiCalibrator.h"
@@ -54,7 +54,7 @@ class PndEmcRecoPar;
  * @brief splits clusters on the basis of exponential distance from the bump centroid
  * @ingroup PndEmc
  */
-class PndEmcExpClusterSplitter: public FairTask
+class PndEmcExpClusterSplitter: public PndBranchTask
 {
 public:
 	// Constructor
@@ -67,7 +67,7 @@ public:
 	virtual void Exec(Option_t* opt);
 	virtual void FinishTask();
 	
-	void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
+	void SetStorageOfData(Bool_t p = kTRUE) {SetPersistency(p);};
 	PndEmcBump* AddBump();
 	PndEmcSharedDigi* AddSharedDigi(PndEmcDigi*, Double_t weight);
 
@@ -94,8 +94,7 @@ private:
 	PndEmcRecoPar*    fRecoPar;      //!< Reconstruction parameter container
 	
 	std::vector<Double_t> fClusterPosParam;
-	
-	Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+
 	// Data members
 	Double_t fMoliereRadius;
 	Double_t fMoliereRadiusShashlyk;
@@ -106,7 +105,7 @@ private:
 	Double_t fMinDigiEnergy;
 	
 	/* Verbosity level */
-	// Int_t fVerbose;	//do not shadow FairTask::fVerbose
+	// Int_t fVerbose;	//do not shadow PndBranchTask::fVerbose
 	
 	//added for time information
 	PndEmcDigiCalibrator digiCalibrator;

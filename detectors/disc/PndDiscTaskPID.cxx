@@ -65,7 +65,7 @@ double PndDiscTaskPID::deviation(double mean_value, std::vector<double> values)
 
 //---------------------------------------------------------------------------
 
-PndDiscTaskPID::PndDiscTaskPID() : FairTask("PndDiscTaskPID")
+PndDiscTaskPID::PndDiscTaskPID() : PndBranchTask("PndDiscTaskPID")
 {
     branch_name_digits    = "DiscPatternPrediction";
     folder_name_digits    = "DiscDIRC";
@@ -130,7 +130,7 @@ InitStatus PndDiscTaskPID::Init()
 
     io_manager->Register("DiscPID",
                          "DiscDIRC_Detector",
-                         tclarr_pid_results, true);
+                         tclarr_pid_results, GetPersistency());
 
 
 

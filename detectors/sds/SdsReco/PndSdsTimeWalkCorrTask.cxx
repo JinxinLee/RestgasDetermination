@@ -14,8 +14,7 @@ ClassImp(PndSdsTimeWalkCorrTask);
 // -----   Default constructor   -------------------------------------------
 
 PndSdsTimeWalkCorrTask::PndSdsTimeWalkCorrTask():
-   PndSdsTask("SDS TimeWalkCorrection Task"), 
- 	  fPersistance(true),
+   PndSdsTask("SDS TimeWalkCorrection Task"),
 	  fDigiArray(NULL),
 	  fDigiCorrArray(NULL),
     fDigiPar(NULL),
@@ -23,13 +22,12 @@ PndSdsTimeWalkCorrTask::PndSdsTimeWalkCorrTask():
     fFEModel(NULL),
     fVerbose(0)
 {
-
+	SetPersistency(kTRUE);
 }
 
 // -----   Named constructor   ---------------------------------------------
 PndSdsTimeWalkCorrTask::PndSdsTimeWalkCorrTask(const char* name):
-   PndSdsTask(name), 
- 	  fPersistance(true),
+   PndSdsTask(name),
 	  fDigiArray(NULL),
 	  fDigiCorrArray(NULL),
     fDigiPar(NULL),
@@ -37,6 +35,7 @@ PndSdsTimeWalkCorrTask::PndSdsTimeWalkCorrTask(const char* name):
     fFEModel(NULL),
     fVerbose(1)
 {
+	SetPersistency(kTRUE);
 }
 
 
@@ -79,7 +78,7 @@ InitStatus PndSdsTimeWalkCorrTask::Init()
   }
 
   // Create output array
-  fDigiCorrArray = ioman->Register(fOutBranchName, "PndSdsDigiPixel", fFolderName, fPersistance);
+  fDigiCorrArray = ioman->Register(fOutBranchName, "PndSdsDigiPixel", fFolderName, GetPersistency());
 
   SetInBranchId();
 

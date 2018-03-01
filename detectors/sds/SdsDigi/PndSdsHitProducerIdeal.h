@@ -36,7 +36,6 @@ class PndSdsHitProducerIdeal : public PndSdsTask
 
   PndSdsHitProducerIdeal(PndSdsHitProducerIdeal& other):
       PndSdsTask(),
-      fPersistance(other.fPersistance),
       fPointArray(other.fPointArray),
       fHitArray(other.fHitArray)
    {};
@@ -62,22 +61,18 @@ class PndSdsHitProducerIdeal : public PndSdsTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;};
+  void SetPersistance(Bool_t p = kTRUE) {SetPersistency(p);};
   
   PndSdsHitProducerIdeal& operator=(PndSdsHitProducerIdeal& other)
   {
     if(this != &other) // protect against invalid self-assignment
     {
-      fPersistance=other.fPersistance;
       fPointArray=other.fPointArray;
       fHitArray=other.fHitArray;
     }
     return *this;
   }
 protected:
-  
-  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   
   /** Input array of PndSdsMCPoints **/
   TClonesArray* fPointArray;

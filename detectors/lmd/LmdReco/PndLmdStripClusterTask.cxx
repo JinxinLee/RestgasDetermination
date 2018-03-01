@@ -67,11 +67,11 @@ InitStatus PndLmdStripClusterTask::Init() {
   // set output arrays
 
   fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterStrip",
-                                  fFolderName, fPersistance);
+                                  fFolderName, GetPersistency());
 
   // fHitArray = new TClonesArray("PndSdsHit");
   fHitArray =
-      ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, fPersistance);
+      ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, GetPersistency());
 
   SetInBranchId();
 

@@ -40,7 +40,7 @@ Double_t n_phase_sellmeier(Double_t * coeff,Double_t lambda_um)
 
 
 
-PndDiscTaskDigitization::PndDiscTaskDigitization() : FairTask("PndDiscTaskDigitization"), mc_point_branch_id(0), tclarr_mc_points(NULL), writeout_buffer(NULL), fMcEventHeader(NULL), is_time_based(kTRUE), is_persistent(kTRUE)
+PndDiscTaskDigitization::PndDiscTaskDigitization() : PndBranchTask("PndDiscTaskDigitization"), mc_point_branch_id(0), tclarr_mc_points(NULL), writeout_buffer(NULL), fMcEventHeader(NULL), is_time_based(kTRUE), is_persistent(kTRUE)
 #ifndef USESENSORGRID
     ,pde_interpolator(0, ROOT::Math::Interpolation::kLINEAR)
 #endif
@@ -116,8 +116,8 @@ InitStatus PndDiscTaskDigitization::Init()
 
         // create output branch for particle tracks
         //tclarr_particle_tracks_out = new TClonesArray("DiscParticleMCPoint");
-        FairRootManager::Instance()->Register("DiscMCTruthTracks","DiscDIRC", tclarr_particle_tracks_out, true);
-        FairRootManager::Instance()->Register("DiscDigit","DiscDIRC", array, true);
+        FairRootManager::Instance()->Register("DiscMCTruthTracks","DiscDIRC", tclarr_particle_tracks_out, GetPersistency());
+        FairRootManager::Instance()->Register("DiscDigit","DiscDIRC", array, GetPersistency());
     }
 
 

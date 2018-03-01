@@ -28,7 +28,6 @@
 // -----   Default constructor   -------------------------------------------
 PndSdsIdealClusterTask::PndSdsIdealClusterTask() :
   PndSdsTask("SDS Clustertisation Task"),
-      fPersistance(kTRUE),
       fDigiArray(NULL),
       fClustBranchName(""),
       fClusterType(-1),
@@ -45,11 +44,11 @@ PndSdsIdealClusterTask::PndSdsIdealClusterTask() :
   //TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
   //geoMan = gGeoManager;
   //fGeoH = PndGeoHandling::Instance();
+	SetPersistency(kTRUE);
 }
 
 PndSdsIdealClusterTask::PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile) :
   PndSdsTask("SDS Clustertisation Task"),
-      fPersistance(kTRUE),
       fDigiArray(NULL),
       fClustBranchName(""),
       fClusterType(-1),
@@ -66,6 +65,7 @@ PndSdsIdealClusterTask::PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns,
   //TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
   //geoMan = gGeoManager;
   //fGeoH = PndGeoHandling::Instance();
+	SetPersistency(kTRUE);
 }
 
 // -------------------------------------------------------------------------
@@ -116,10 +116,10 @@ InitStatus PndSdsIdealClusterTask::Init()
   }
 
   fClusterArray = new TClonesArray("PndSdsClusterPixel");
-  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
+  ioman->Register(fClustBranchName, fFolderName, fClusterArray, GetPersistency());
 
   fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fOutBranchName , fFolderName, fHitArray, fPersistance);
+  ioman->Register(fOutBranchName , fFolderName, fHitArray, GetPersistency());
 
   mapping = new PndSdsChargeWeightedPixelMapping(fGeoH);
   finder = new PndSdsIdealPixelClusterFinder();

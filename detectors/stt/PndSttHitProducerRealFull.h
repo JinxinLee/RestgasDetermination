@@ -4,7 +4,7 @@
 #define PNDSTTHITPRODUCERREALFULL_H 1
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndGeoSttPar.h"
 
 //#include "PndSttHit.h"
@@ -18,7 +18,7 @@ class TClonesArray;
 class TObjectArray;
 class PndSttHitWriteoutBuffer;
 
-class PndSttHitProducerRealFull : public FairTask
+class PndSttHitProducerRealFull : public PndBranchTask
 {
 
  public:
@@ -45,7 +45,7 @@ class PndSttHitProducerRealFull : public FairTask
   void FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, TVector3 localInPos, TVector3 localOutPos);
 
   /** set persistence flag **/
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
 
   void SetParContainers();
 
@@ -66,13 +66,11 @@ class PndSttHitProducerRealFull : public FairTask
   /** from parameters array of PndSttTube **/  //  CHECK added
   TClonesArray* fTubeArray;
 
-  /** object persistence **/
-  Bool_t  fPersistence; //!
-  Bool_t fTimeOrderedDigi;
+  Bool_t fTimeOrderedDigi; //!
 
   PndGeoSttPar *fSttParameters;  //  CHECK added
 
-  ClassDef(PndSttHitProducerRealFull,1);
+  ClassDef(PndSttHitProducerRealFull,2);
 
 };
 

@@ -36,7 +36,6 @@
 // -----   Default constructor   -------------------------------------------
 PndSdsHybridHitProducer::PndSdsHybridHitProducer() :
   PndSdsTask("SDS Hybrid Hit Producer"),
-  fPersistance(kTRUE),
   fDigiPixelMCInfo(kFALSE),
   fPointArray(NULL),
   fPixelArray(NULL),
@@ -61,13 +60,12 @@ PndSdsHybridHitProducer::PndSdsHybridHitProducer() :
   fPixelList()
 {
   if(fVerbose>0) Info("PndSdsHybridHitProducer","SDS Hybrid Digi Producer created, Parameters will be taken from RTDB");
-  fPersistance = kTRUE;
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
 PndSdsHybridHitProducer::PndSdsHybridHitProducer(const char* name) :
 PndSdsTask(name),
-  fPersistance(kTRUE),
   fDigiPixelMCInfo(kFALSE),
   fPointArray(NULL),
   fPixelArray(NULL),
@@ -92,12 +90,12 @@ PndSdsTask(name),
   fPixelList()
 {
   if(fVerbose>0) Info("PndSdsHybridHitProducer","%s created, Parameters will be taken from RTDB",name);
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
 PndSdsHybridHitProducer::PndSdsHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise) :
 PndSdsTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)"),
-  fPersistance(kTRUE),
   fDigiPixelMCInfo(kFALSE),
   fPointArray(NULL),
   fPixelArray(NULL),
@@ -123,6 +121,7 @@ PndSdsTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)"),
 {
   fTimeOrderedDigi = kFALSE;
   if(fVerbose>0) Info("PndSdsHybridHitProducer","SDS Hybrid Digi Producer created, Parameters will be overwritten in RTDB");
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -183,7 +182,7 @@ InitStatus PndSdsHybridHitProducer::Init()
   //  ioman->Register(fOutBranchName, fFolderName, fPixelArray, fPersistance);
   //  fPixelArray = ioman->Register(fOutBranchName, "PndSdsDigiPixel", fFolderName, fPersistance);
   
-  fDataBuffer = new PndSdsDigiPixelWriteoutBuffer(fOutBranchName, fFolderName, fPersistance);
+  fDataBuffer = new PndSdsDigiPixelWriteoutBuffer(fOutBranchName, fFolderName, GetPersistency());
   fDataBuffer = (PndSdsDigiPixelWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
   

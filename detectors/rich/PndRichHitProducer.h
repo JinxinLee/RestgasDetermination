@@ -2,7 +2,7 @@
 #define PNDRICHHITPRODUCER_H 1
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndRichDigi.h"
 #include "PndRichHit.h"
 #include "PndRichGeo.h"
@@ -14,7 +14,7 @@
 class TClonesArray;
 class PndRichHitWriteoutBuffer;
 
-class PndRichHitProducer : public FairTask
+class PndRichHitProducer : public PndBranchTask
 {
 
  public:
@@ -48,7 +48,6 @@ class PndRichHitProducer : public FairTask
 
   void FinishEvent();
   void FinishTask();
-  void SetPersistency(Bool_t v = kTRUE) { fPersistency = v; }
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}  
 
@@ -58,7 +57,6 @@ class PndRichHitProducer : public FairTask
   UInt_t fGeoVersion;
   Bool_t fPhDetNoise;
   UInt_t fNumRand;
-  Bool_t fPersistency;
   Bool_t fTimeOrderedDigi;
   Double_t fDeadTime;
   Double_t fEventTime;

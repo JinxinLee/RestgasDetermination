@@ -46,7 +46,7 @@ PndEmcWaveformToCalibratedDigi::PndEmcWaveformToCalibratedDigi(Int_t verbose, Bo
 	fVerbose=verbose;
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;
-	fStoreDigis=storedigis;
+	SetPersistency(storedigis);
 	fCalibrationFileName = "";
 	//fPndEmcDigiPositionDepth=6.2;
 }
@@ -82,7 +82,7 @@ InitStatus PndEmcWaveformToCalibratedDigi::Init()
 	// Create and register output array
 	fDigiArray = new TClonesArray("PndEmcDigi");
 
-	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
+	ioman->Register("EmcDigi","Emc",fDigiArray, GetPersistency());
 	fSampleRate=fDigiPar->GetSampleRate();
 	fSampleRate_PMT=fDigiPar->GetSampleRate_PMT();
 	fASIC_Shaping_int_time=fDigiPar->GetASIC_Shaping_int_time();      //s
@@ -253,7 +253,7 @@ void PndEmcWaveformToCalibratedDigi::SetParContainers() {
 
 void PndEmcWaveformToCalibratedDigi::SetStorageOfData(Bool_t val)
 {
-  fStoreDigis = val;
+  SetPersistency(val);
   return;
 }
 

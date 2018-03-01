@@ -7,7 +7,7 @@
 #ifndef PNDEMCMAKERECOHIT_H
 #define PNDEMCMAKERECOHIT_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 //#include <string>
 //#include <vector>		
 
@@ -20,7 +20,7 @@ class PndEmcRecoPar;
  * @brief Create PndEmcRecoHit from PndEmcBump
  * @ingroup PndEmc
  */
-class PndEmcMakeRecoHit : public FairTask
+class PndEmcMakeRecoHit : public PndBranchTask
 {
 public:
 
@@ -57,8 +57,6 @@ private:
 	
 	/** Verbosity level **/
 	Int_t fVerbose;
-
-	Bool_t fStoreRecoHits;
 
         PndEmcMakeRecoHit(const  PndEmcMakeRecoHit& L);
         PndEmcMakeRecoHit& operator= (const  PndEmcMakeRecoHit&) {return *this;};

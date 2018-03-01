@@ -31,8 +31,9 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtTrkProducer::PndMdtTrkProducer() :
-  FairTask(" MDT Tracklet Producer"), fPersistency(kTRUE) {
+  PndBranchTask(" MDT Tracklet Producer") {
   Reset();
+  SetPersistency(kTRUE);
   fRec_method = 0;  //default, not use lhetrack as seed
 }
 // -------------------------------------------------------------------------
@@ -81,7 +82,7 @@ InitStatus PndMdtTrkProducer::Init() {
   
   SetGeometry();
   
-  ioman->Register("MdtTrk","Mdt",fTrkArray,fPersistency);
+  ioman->Register("MdtTrk","Mdt",fTrkArray,GetPersistency());
   
   cout << "-I- PndMdtTrkProducer: Intialization successfull" << endl;
 

@@ -9,7 +9,7 @@
 #define PNDDISCTASKPID_H
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndDetectorList.h"
 #include "FairMCEventHeader.h"
 #include "FairTSBufferFunctional.h"
@@ -21,7 +21,7 @@ class TClonesArray;
 
 
 
-class PndDiscTaskPID : public FairTask
+class PndDiscTaskPID : public PndBranchTask
 {
 public:
     PndDiscTaskPID();

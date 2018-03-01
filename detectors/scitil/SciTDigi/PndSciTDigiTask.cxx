@@ -25,7 +25,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSciTDigiTask::PndSciTDigiTask() :
-  FairTask("PndSciT Hit Producer")
+  PndBranchTask("PndSciT Hit Producer")
 {
 	fInBranchName 	= "SciTPoint";
 	fOutBranchName 	= "SciTHit";
@@ -33,7 +33,7 @@ PndSciTDigiTask::PndSciTDigiTask() :
 
 	fTimeOrderedDigi = kFALSE;
 	fActivateBuffering = kTRUE;
-	fPersistence = kTRUE;
+	SetPersistency(kTRUE);
 
 	fGeoH =  NULL;
 
@@ -46,7 +46,7 @@ PndSciTDigiTask::PndSciTDigiTask() :
 
 // -----   Default constructor   -------------------------------------------
 PndSciTDigiTask::PndSciTDigiTask(Double_t dt, Double_t deadtime) :
-  FairTask("Ideal PndSciT Hit Producer")
+  PndBranchTask("Ideal PndSciT Hit Producer")
 {
 	fInBranchName 	= "SciTPoint";
 	fOutBranchName 	= "SciTHit";
@@ -54,7 +54,7 @@ PndSciTDigiTask::PndSciTDigiTask(Double_t dt, Double_t deadtime) :
 
 	fTimeOrderedDigi = kFALSE;
 	fActivateBuffering = kTRUE;
-	fPersistence = kTRUE;
+	SetPersistency(kTRUE);
 
 	fGeoH =  NULL;
 
@@ -98,7 +98,7 @@ InitStatus PndSciTDigiTask::Init()
 
   //time and event based simulation:
   // fDataBuffer = new PndSciTHitWriteoutBuffer(fOutBranchName, fFolderName", fPersistance);
-  fDataBuffer = new PndSciTHitWriteoutBuffer(fOutBranchName, "SciT", fPersistence);
+  fDataBuffer = new PndSciTHitWriteoutBuffer(fOutBranchName, "SciT", GetPersistency());
   fDataBuffer = (PndSciTHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
   fDataBuffer->ActivateBuffering(fActivateBuffering);// Buffering always activated to handle the Pile up in Event and Time based Version
 

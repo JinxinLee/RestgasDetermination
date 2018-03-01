@@ -23,7 +23,7 @@
 #ifndef PNDEMCMAKEBUMP_H
 #define PNDEMCMAKEBUMP_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 class TClonesArray;
 class TObjectArray;
@@ -41,7 +41,7 @@ class PndEmcTwoCoordIndex;
  * This task is mostly empty and just calls the subtasks.
  * @ingroup PndEmc
  */
-class PndEmcMakeBump  : public FairTask
+class PndEmcMakeBump  : public PndBranchTask
 {
 public:
   // Constructors
@@ -61,7 +61,6 @@ protected:
 private:
   /** Verbosity level **/
   Int_t fVerbose;
-  Bool_t fPersistance;
   static Int_t fEventCounter;
   
   ClassDef(PndEmcMakeBump,1);

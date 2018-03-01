@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndMdtTrk.h"
 #include "PndMdtRecoPar.h"
 
@@ -16,7 +16,7 @@ class TClonesArray;
 using std::map;
 using std::vector;
 
-class PndMdtTrkProducer : public FairTask
+class PndMdtTrkProducer : public PndBranchTask
 {
 
  public:
@@ -42,12 +42,8 @@ class PndMdtTrkProducer : public FairTask
 
   void SetRecMethod(Int_t rec_method) {fRec_method = rec_method;}
 
-  /** Set the Persistency of PndMdtHit **/
-  void SetPersistency(Bool_t pers = kTRUE) { fPersistency = pers; };
   
  private:
-
-  Bool_t fPersistency;                       ///< Persistency flag
   
   Int_t fRec_method; //0; previous method, use mdt info only; 1; use lhetrack as seed
   

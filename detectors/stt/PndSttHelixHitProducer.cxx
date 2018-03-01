@@ -42,15 +42,15 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHelixHitProducer::PndSttHelixHitProducer() :
-  FairTask("STT HELIX Hit Producer") { 
-  fPersistence = kTRUE;
+  PndBranchTask("STT HELIX Hit Producer") {
+  SetPersistency(kTRUE);
   fVerbose = 1;
 }
 // -------------------------------------------------------------------------
 
 PndSttHelixHitProducer::PndSttHelixHitProducer(Int_t verbose) :
-  FairTask("STT HELIX Hit Producer") { 
-  fPersistence = kTRUE;
+  PndBranchTask("STT HELIX Hit Producer") {
+  SetPersistency(kTRUE);
   fVerbose = verbose;
 }
 // -------------------------------------------------------------------------
@@ -120,7 +120,7 @@ InitStatus PndSttHelixHitProducer::Init() {
 
   // Create and register output array
   fHelixHitArray = new TClonesArray("PndSttHelixHit");
-  ioman->Register("SttHelixHit","STT",fHelixHitArray, fPersistence);
+  ioman->Register("SttHelixHit","STT",fHelixHitArray, GetPersistency());
     
   // CHECK added 
   PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);

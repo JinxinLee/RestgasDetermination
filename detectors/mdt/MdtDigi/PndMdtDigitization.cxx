@@ -23,9 +23,10 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtDigitization::PndMdtDigitization(Int_t verbose, Bool_t store) :
-  FairTask(" MDT Digitization") , fPersitence(store), fTimeOrderedDigi(kFALSE)
+  PndBranchTask(" MDT Digitization"), fTimeOrderedDigi(kFALSE)
 {
   SetVerbose(verbose);
+  SetPersistency(store);
 }
 // -------------------------------------------------------------------------
 
@@ -59,11 +60,11 @@ InitStatus PndMdtDigitization::Init() {
   }
 
   if(fTimeOrderedDigi){
-    fDigiArray = ioman->Register("MdtDigi","PndMdtDigi","Mdt", fPersitence);
+    fDigiArray = ioman->Register("MdtDigi","PndMdtDigi","Mdt", GetPersistency());
   }else{
     // Create and register output array
-    fDigiBoxArray = ioman->Register("MdtDigiBox","PndMdtDigi","Mdt", fPersitence);
-    fDigiStripArray = ioman->Register("MdtDigiStrip","PndMdtDigi","Mdt", fPersitence);
+    fDigiBoxArray = ioman->Register("MdtDigiBox","PndMdtDigi","Mdt", GetPersistency());
+    fDigiStripArray = ioman->Register("MdtDigiStrip","PndMdtDigi","Mdt", GetPersistency());
   }
 
   fWireNoiseSigma = 0.05;

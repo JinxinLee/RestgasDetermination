@@ -165,7 +165,7 @@ InitStatus PndSdsStripHitProducerDif::Init()
 
   // Create and register output array
   fStripArray = new TClonesArray("PndSdsDigiStrip");
-  ioman->Register("SSDStripDigis", "SSD", fStripArray, fPersistance);
+  ioman->Register("SSDStripDigis", "SSD", fStripArray, GetPersistency());
 
   // Create and register parameter array
 //  fStripArray = new TClonesArray("PndSdsDigiPar");

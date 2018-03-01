@@ -42,20 +42,22 @@ static Int_t HowManyHitsAboveThreshold = 0;
 
 // -----   Default constructor   -------------------------------------------
 PndEmcHitProducer::PndEmcHitProducer() :
-	FairTask("Ideal EMC hit Producer"),
-	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fStoreHits(kTRUE)
+	PndBranchTask("Ideal EMC hit Producer"),
+	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar()
 {
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
 	fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
 PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
-	FairTask("Ideal EMC hit Producer"),
-	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fStoreHits(val)
+	PndBranchTask("Ideal EMC hit Producer"),
+	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar()
 { 
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
 	fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
+	SetPersistency(val);
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -99,7 +101,7 @@ InitStatus PndEmcHitProducer::Init(){
 	// Create and register output array
 	fHitArray = new TClonesArray("PndEmcHit");
 
-	ioman->Register("EmcHit","Emc",fHitArray,fStoreHits);
+	ioman->Register("EmcHit","Emc",fHitArray, GetPersistency());
 
 	fGeoPar->InitEmcMapper();
 	fMapper=PndEmcMapper::Instance();

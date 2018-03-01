@@ -21,7 +21,7 @@
 #ifndef PndEmcTmpWaveformToDigi_H
 #define PndEmcTmpWaveformToDigi_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include <string>		
 //#include <vector>
 
@@ -37,7 +37,7 @@ class PndEmcRecoPar;
  * @brief currently not used, not in CMakeLists.txt
  * @ingroup PndEmc
  */
-class PndEmcTmpWaveformToDigi : public FairTask
+class PndEmcTmpWaveformToDigi : public PndBranchTask
 {
 
 public:
@@ -81,8 +81,6 @@ private:
 	
 	/** Verbosity level **/
 	Int_t fVerbose;
-
-	Bool_t fStoreDigis;
 
 	ClassDef(PndEmcTmpWaveformToDigi,1);
 	

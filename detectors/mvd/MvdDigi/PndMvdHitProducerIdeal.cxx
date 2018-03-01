@@ -13,7 +13,7 @@ PndMvdHitProducerIdeal::PndMvdHitProducerIdeal() :
   PndSdsHitProducerIdeal("Ideal MVD Hit Producer")
 {
 	fInBranchName 	= "MVDPoint";
-  fPersistance = kTRUE;
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 

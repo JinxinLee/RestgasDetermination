@@ -18,12 +18,9 @@ class PndMvdClusterTask : public PndBlackBoxTask
     /** Destructor **/
     virtual ~PndMvdClusterTask();
     
-    
-    void SetPersistance(Bool_t p = kTRUE);
-    Bool_t GetPersistance() {return fPersistance;};
-    
+    void SetPersistance(Bool_t pers);
+
   private:
-    Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
     
     ClassDef(PndMvdClusterTask,2);
     

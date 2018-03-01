@@ -20,7 +20,7 @@
 #ifndef PNDGEMDIGITIZE_H
 #define PNDGEMDIGITIZE_H 1
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 
 #include "TStopwatch.h"
 #include "TRandom2.h"
@@ -35,7 +35,7 @@ class PndGemDigiPar;
 class PndGemDigiWriteoutBuffer;
 
 
-class PndGemDigitize : public FairTask
+class PndGemDigitize : public PndBranchTask
 {
 
  public:
@@ -73,7 +73,7 @@ class PndGemDigitize : public FairTask
   void SetShowerSigma(Double_t dd) {fSSigma = dd;} //sigam for realistic response
 
   /** Set the Persistency of PndMdtHit **/
-  void SetPersistency(Bool_t pers = kTRUE) { fPersistency = pers; };
+  void SetPersistency(Bool_t pers = kTRUE) { SetPersistency(pers); };
   
  private:
 
@@ -91,7 +91,6 @@ class PndGemDigitize : public FairTask
   TRandom2*         fRand;
   PndGemDigiWriteoutBuffer* fDataBuffer;
   Bool_t fTimeOrderedDigi;
-  Bool_t fPersistency;                       ///< Persistency flag
 
   Int_t             fNPoints;
   Int_t             fNFailed;

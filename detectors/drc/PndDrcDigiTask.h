@@ -8,7 +8,7 @@
 #ifndef PNDDRCDIGITASK_H
 #define PNDDRCDIGITASK_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TClonesArray.h"
 #include "PndMCTrack.h"
 #include "PndDrcDigi.h"
@@ -37,7 +37,7 @@
 
 #include <map>
 
-class PndDrcDigiTask : public FairTask {
+class PndDrcDigiTask : public PndBranchTask {
 
 public:
 

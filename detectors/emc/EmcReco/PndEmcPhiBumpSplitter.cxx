@@ -72,11 +72,12 @@ using std::endl;
 // Constructors --
 //----------------
 
-PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):FairTask("PndEmcPhiBumpSplitter", verbose),
-  fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fClusterPosParam(), fPersistance(kTRUE) 
+PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):PndBranchTask("PndEmcPhiBumpSplitter", verbose),
+  fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fClusterPosParam()
 	
 {
   fClusterPosParam.clear();
+  SetPersistency(kTRUE);
 }
 
 //--------------
@@ -132,7 +133,7 @@ InitStatus PndEmcPhiBumpSplitter::Init()
 
   // Create and register output array
   fPhiBumpArray = new TClonesArray("PndEmcBump");
-  ioman->Register("EmcPhiBump","Emc",fPhiBumpArray,fPersistance);
+  ioman->Register("EmcPhiBump","Emc",fPhiBumpArray,GetPersistency());
 
   cout << "-I- PndEmcPhiBumpSplitter: Intialization successfull" << endl;
 

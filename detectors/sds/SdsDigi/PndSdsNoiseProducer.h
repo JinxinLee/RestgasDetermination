@@ -38,7 +38,6 @@ class PndSdsNoiseProducer : public PndSdsTask
 
   PndSdsNoiseProducer(PndSdsNoiseProducer& other):
       PndSdsTask(),
-      fPersistance(other.fPersistance),
       fBranchNameStrip(other.fBranchNameStrip),
       fBranchNamePixel(other.fBranchNamePixel),
       fDigiStripArray(other.fDigiStripArray),
@@ -87,15 +86,12 @@ class PndSdsNoiseProducer : public PndSdsTask
   void DiveDownNode(TGeoNode *fN);
   void FillSensorLists();
 //   void Finish();
-  
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;};
+
   
   PndSdsNoiseProducer& operator=(PndSdsNoiseProducer& other)
   {
     if(this != &other) // protect against invalid self-assignment
     {
-      fPersistance=other.fPersistance;
       fBranchNameStrip=other.fBranchNameStrip;
       fBranchNamePixel=other.fBranchNamePixel;
       fDigiStripArray=other.fDigiStripArray;
@@ -119,7 +115,6 @@ class PndSdsNoiseProducer : public PndSdsTask
   }
 
  protected:
-  Bool_t fPersistance;
   TString fBranchNameStrip;
   TString fBranchNamePixel;
   /** In-Output array of PndSdsDigis **/

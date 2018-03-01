@@ -53,9 +53,10 @@ using std::fstream;
 
 
 PndEmcHitsToWaveform::PndEmcHitsToWaveform(Int_t verbose, Bool_t storewaves):
-	fHitArray(0), fWaveformArray(0), fDataBuffer(0), fTimeOrderedWaveform(kFALSE), fOneBitResolution(0), fOneBitResolutionBW(0), fOneBitResolutionPMT(0), fNBits(0), fDetectedPhotonsPerMeV(0), fDetectedPhotonsPerMeV_PMT(0), fNPhotoElectronsPerMeVAPDBarrel(0), fNPhotoElectronsPerMeVAPDBWD(0), fNPhotoElectronsPerMeVVPT(0), fNPhotoElectronsPerMeVPMT(0), fSensitiveAreaAPD(0), fSensitiveAreaVPT(0), fQuantumEfficiencyAPD(0), fQuantumEfficiencyVPT(0), fQuantumEfficiencyPMT(0), fExcessNoiseFactorAPD(0), fExcessNoiseFactorVPT(0), fExcessNoiseFactorPMT(0), fIncoherent_elec_noise_width_GeV_APD(0), fIncoherent_elec_noise_width_GeV_VPT(0), fEnergyRange(0), fEnergyRangeBW(0), fFirstSamplePhase(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fShashlykSamplingFactor(0), fSampleRate(0), fSampleRate_PMT(0), fUse_shaped_noise(0), fUse_photon_statistic(0), fNoiseAllChannels(0), fMapVersion(0), fFirstADCBinTime(0), fGevPeakAnalogue(0), fGevPeakAnalogue_PMT(0), fDigiPar(new PndEmcDigiPar()), fGeoPar(new PndEmcGeoPar()), fVerbose(verbose), fStoreWaves(storewaves)
+	fHitArray(0), fWaveformArray(0), fDataBuffer(0), fTimeOrderedWaveform(kFALSE), fOneBitResolution(0), fOneBitResolutionBW(0), fOneBitResolutionPMT(0), fNBits(0), fDetectedPhotonsPerMeV(0), fDetectedPhotonsPerMeV_PMT(0), fNPhotoElectronsPerMeVAPDBarrel(0), fNPhotoElectronsPerMeVAPDBWD(0), fNPhotoElectronsPerMeVVPT(0), fNPhotoElectronsPerMeVPMT(0), fSensitiveAreaAPD(0), fSensitiveAreaVPT(0), fQuantumEfficiencyAPD(0), fQuantumEfficiencyVPT(0), fQuantumEfficiencyPMT(0), fExcessNoiseFactorAPD(0), fExcessNoiseFactorVPT(0), fExcessNoiseFactorPMT(0), fIncoherent_elec_noise_width_GeV_APD(0), fIncoherent_elec_noise_width_GeV_VPT(0), fEnergyRange(0), fEnergyRangeBW(0), fFirstSamplePhase(0), fNumber_of_samples_in_waveform(0), fNumber_of_samples_in_waveform_pmt(0), fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0), fCrystal_time_constant(0), fShashlyk_time_constant(0), fShashlykSamplingFactor(0), fSampleRate(0), fSampleRate_PMT(0), fUse_shaped_noise(0), fUse_photon_statistic(0), fNoiseAllChannels(0), fMapVersion(0), fFirstADCBinTime(0), fGevPeakAnalogue(0), fGevPeakAnalogue_PMT(0), fDigiPar(new PndEmcDigiPar()), fGeoPar(new PndEmcGeoPar()), fVerbose(verbose)
 {
 	HowManyHit = 0;
+	SetPersistency(storewaves);
 }
 
 //--------------
@@ -102,7 +103,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	}
 	if(fTimeOrderedWaveform){
 		// Create and register output buffer
-		fDataBuffer = new PndEmcWaveformWriteoutBuffer("EmcWaveform", "Emc", fStoreWaves);
+		fDataBuffer = new PndEmcWaveformWriteoutBuffer("EmcWaveform", "Emc", GetPersistency());
 		fDataBuffer->ActivateBuffering(fTimeOrderedWaveform);
 		fDataBuffer->SetVerbose(fVerbose);
 		ioman->RegisterWriteoutBuffer("EmcWaveform", fDataBuffer);
@@ -110,7 +111,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	}else{
 		// Create and register output array
 		fWaveformArray = new TClonesArray("PndEmcWaveform");
-		ioman->Register("EmcWaveform","Emc",fWaveformArray,fStoreWaves);
+		ioman->Register("EmcWaveform","Emc",fWaveformArray,GetPersistency());
 	}
 
 	cout << "-I- PndEmcHitsToWaveform: Intialization successfull" << endl;
@@ -611,7 +612,7 @@ PndEmcWaveform* PndEmcHitsToWaveform::AddWaveform(Int_t detID,
 
 void PndEmcHitsToWaveform::SetStorageOfData(Bool_t val)
 {
-	fStoreWaves = val;
+	SetPersistency(val);
 	return;
 }
 /**

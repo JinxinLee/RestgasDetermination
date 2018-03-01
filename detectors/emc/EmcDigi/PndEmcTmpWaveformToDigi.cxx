@@ -48,7 +48,7 @@ PndEmcTmpWaveformToDigi::PndEmcTmpWaveformToDigi(Int_t verbose, Bool_t storedigi
 	fVerbose=verbose;
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;
-	fStoreDigis=storedigis;
+	SetPersistency(storedigis);
 	//fPndEmcDigiPositionDepth=6.2;
 }
 
@@ -83,7 +83,7 @@ InitStatus PndEmcTmpWaveformToDigi::Init()
 	// Create and register output array
 	fDigiArray = new TClonesArray("PndEmcDigi");
 
-	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
+	ioman->Register("EmcDigi","Emc",fDigiArray,GetPersistency());
 	fSampleRate=fDigiPar->GetSampleRate();
 	fEnergyDigiThreshold=fDigiPar->GetEnergyDigiThreshold();
 	fEmcDigiPositionDepth=fRecoPar->GetEmcDigiPositionDepth();
@@ -200,7 +200,7 @@ void PndEmcTmpWaveformToDigi::SetParContainers() {
 
 void PndEmcTmpWaveformToDigi::SetStorageOfData(Bool_t val)
 {
-  fStoreDigis = val;
+  SetPersistency(val);
   return;
 }
 

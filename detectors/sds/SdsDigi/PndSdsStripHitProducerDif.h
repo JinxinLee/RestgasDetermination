@@ -136,16 +136,8 @@ class PndSdsStripHitProducerDif : public PndSdsTask
 //   Int_t    GetNrFECh()    const {return fNrFECh;}
 //   Double_t GetThreshold() const {return fThreshold;}
 //   Double_t GetNoise()     const {return fNoise;}
-
-
-
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;};
   
 protected:
-  
-  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
-  
   
   TString fBranchName;
 

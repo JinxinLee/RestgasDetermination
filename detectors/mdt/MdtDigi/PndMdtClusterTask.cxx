@@ -22,9 +22,9 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtClusterTask::PndMdtClusterTask() :
-  FairTask("MDT Cluster Task") 
+  PndBranchTask("MDT Cluster Task")
 {
-  fPersistence = kTRUE;
+  SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -70,8 +70,8 @@ InitStatus PndMdtClusterTask::Init() {
   // Create and register output array
   fBoxOArray   = new TClonesArray("PndMdtCluster");
   fStripOArray = new TClonesArray("PndMdtCluster");
-  ioman->Register("MdtBoxCluster","Mdt",fBoxOArray,fPersistence);
-  ioman->Register("MdtStripCluster","Mdt",fStripOArray,fPersistence);
+  ioman->Register("MdtBoxCluster","Mdt",fBoxOArray,GetPersistency());
+  ioman->Register("MdtStripCluster","Mdt",fStripOArray,GetPersistency());
  
    cout << "-I- PndMdtClusterTask: Intialization successfull" << endl;
   

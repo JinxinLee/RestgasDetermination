@@ -1,7 +1,7 @@
 #ifndef PNDMDTCLUSTERTASK_H
 #define PNDMDTCLUSTERTASK_H 1
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndMdtCluster.h"
 
 class TClonesArray;
@@ -9,7 +9,7 @@ class TClonesArray;
 using std::map;
 using std::vector;
 
-class PndMdtClusterTask : public FairTask
+class PndMdtClusterTask : public PndBranchTask
 {
 
  public:
@@ -29,7 +29,7 @@ class PndMdtClusterTask : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
   
-  void SetPersistence(Bool_t pers)  { fPersistence = pers; };
+  void SetPersistence(Bool_t pers)  {  SetPersistency(pers); };
   
  private: 
   
@@ -51,8 +51,6 @@ class PndMdtClusterTask : public FairTask
   /** Maps layer - digiIndex **/
   map<Int_t, Int_t>mapBox;
   map<Int_t, Int_t>mapStrip;
- 
-  Bool_t fPersistence;   // Persistence of cluster objects
   
   ClassDef(PndMdtClusterTask,1);
 

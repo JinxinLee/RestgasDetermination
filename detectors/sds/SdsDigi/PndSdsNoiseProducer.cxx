@@ -23,8 +23,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsNoiseProducer::PndSdsNoiseProducer() :
-PndSdsTask("Charge Noise Producer"), 
-fPersistance(kTRUE),
+PndSdsTask("Charge Noise Producer"),
 fBranchNameStrip(""),
 fBranchNamePixel(""),
 fDigiStripArray(NULL),
@@ -44,6 +43,7 @@ fNoiseSpread(0),
 fThreshold(0),
 fIonizationEnergy(1.)
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -72,14 +72,14 @@ InitStatus PndSdsNoiseProducer::Init()
   if ( ! fDigiStripArray )  {
     std::cout << "-W- PndSdsNoiseProducer::Init: No "<<fBranchNameStrip<<" array!" << std::endl;
     std::cout << "    Create a new one." << std::endl;
-    ioman->Register(fBranchNameStrip, "PndSdsDigiStrip", fFolderName, fPersistance);
+    ioman->Register(fBranchNameStrip, "PndSdsDigiStrip", fFolderName, GetPersistency());
   }
   
   fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray(fBranchNamePixel);
   if ( ! fDigiPixelArray )     {
     std::cout << "-W- PndSdsNoiseProducer::Init: No "<<fBranchNamePixel<<" array!" << std::endl;
     std::cout << "    Create a new one." << std::endl;
-    ioman->Register(fBranchNamePixel, "PndSdsDigiPixel", fFolderName, fPersistance);
+    ioman->Register(fBranchNamePixel, "PndSdsDigiPixel", fFolderName, GetPersistency());
   }
   
   

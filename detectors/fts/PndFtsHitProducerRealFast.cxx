@@ -41,10 +41,10 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFast::PndFtsHitProducerRealFast():
-  FairTask("Ideal FTS Hit Producer",0), fPointArray(0),  fHitArray(0),
-  fVolumeArray(0), fHitInfoArray(0), fevtn(0), fFtsParameters(new PndGeoFtsPar()),
-  fPersistence(kTRUE), fOverlap(kFALSE)
+  PndBranchTask("Ideal FTS Hit Producer",0), fPointArray(0),  fHitArray(0),
+  fVolumeArray(0), fHitInfoArray(0), fevtn(0), fFtsParameters(new PndGeoFtsPar()), fOverlap(kFALSE)
 {
+	SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -87,16 +87,16 @@ InitStatus PndFtsHitProducerRealFast::Init() {
   ////new part: create and register output array
   if(!fOverlap){
     fHitArray = new TClonesArray("PndFtsHit");
-    ioman->Register("FTSHit","FTS",fHitArray, fPersistence);
+    ioman->Register("FTSHit","FTS",fHitArray, GetPersistency());
   }
   else{
     //if overlap on, save the overlapped hits in regular
     //output TCA (FTSHit) and the "original" hits (non overlapped)
     //in another TCA (FTSOriginalHit)
     fOverlapHitArray = new TClonesArray("PndFtsHit");
-    ioman->Register("FTSHit","FTS",fOverlapHitArray,fPersistence);
+    ioman->Register("FTSHit","FTS",fOverlapHitArray, GetPersistency());
     fHitArray = new TClonesArray("PndFtsHit");
-    ioman->Register("FTSOriginalHit","FTS",fHitArray, fPersistence);
+    ioman->Register("FTSOriginalHit","FTS",fHitArray, GetPersistency());
   }
 
 

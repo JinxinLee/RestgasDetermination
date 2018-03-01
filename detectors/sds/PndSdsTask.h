@@ -7,17 +7,17 @@
 
 #ifndef PNDSDSTASK_H_
 #define PNDSDSTASK_H_
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "FairRootManager.h"
 
 #include <iostream>
 
-class PndSdsTask: public FairTask {
+class PndSdsTask: public PndBranchTask {
 public:
 	PndSdsTask();
 
 	PndSdsTask(const char* name, Int_t iVerbose = 1) : 
-  FairTask(name, iVerbose),
+  PndBranchTask(name, iVerbose),
   fInBranchName(""),
 	fOutBranchName(""),
 	fFolderName(""),

@@ -40,8 +40,8 @@ PndMdtPointsToWaveform::PndMdtPointsToWaveform(Int_t verbose, Bool_t storewaves)
   , fTimeOrderedWaveform(kFALSE)
   , fDataBuffer(0)
   , fVerbose(verbose)
-  , fStoreWaves(storewaves)
 {
+	SetPersistency(storewaves);
 }
 //--------------
 // Destructor --
@@ -79,12 +79,12 @@ InitStatus PndMdtPointsToWaveform::Init()
     return kERROR;
   }
   if(fTimeOrderedWaveform){
-    fDataBuffer = new PndMdtWaveformWriteoutBuffer("MdtWaveform", "Mdt", fStoreWaves);
+    fDataBuffer = new PndMdtWaveformWriteoutBuffer("MdtWaveform", "Mdt", GetPersistency());
     fDataBuffer->ActivateBuffering(kTRUE);
     fDataBuffer->SetVerbose(fVerbose);
     ioman->RegisterWriteoutBuffer("MdtWaveform", fDataBuffer);
   }else{
-    fWaveformArray = ioman->Register("MdtWaveform", "PndMdtWaveform", "Mdt",fStoreWaves);
+    fWaveformArray = ioman->Register("MdtWaveform", "PndMdtWaveform", "Mdt",GetPersistency());
   }
 
 
@@ -446,7 +446,7 @@ void PndMdtPointsToWaveform::SetParContainers() {
 
 void PndMdtPointsToWaveform::SetStorageOfData(Bool_t val)
 {
-  fStoreWaves = val;
+  SetPersistency(val);
   return;
 }
 void PndMdtPointsToWaveform::FinishTask()

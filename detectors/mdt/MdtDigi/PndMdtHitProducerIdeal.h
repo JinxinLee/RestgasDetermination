@@ -2,13 +2,13 @@
 #define PNDMDTHITPRODUCERIDEAL_H 1
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndMdtHit.h"
 #include "TVector3.h"
 
 class TClonesArray;
 
-class PndMdtHitProducerIdeal : public FairTask
+class PndMdtHitProducerIdeal : public PndBranchTask
 {
 
  public:
@@ -35,14 +35,10 @@ class PndMdtHitProducerIdeal : public FairTask
    * @param res Resolution in [cm]
    */
   void SetPositionSmearing(Float_t res) { fPosResolution = res; };
-  
-  /** Set the Persistency of PndMdtHit **/
-  void SetPersistency(Bool_t pers = kTRUE) { fPersistency = pers; };
 
  private: 
  
   Float_t fPosResolution;                    ///< Position smearing [cm]
-  Bool_t fPersistency;                       ///< Persistency flag
   
   /** Input array of PndMdtPoint **/
   TClonesArray* fPointArray;

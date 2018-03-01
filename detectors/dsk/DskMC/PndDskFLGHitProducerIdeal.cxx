@@ -39,7 +39,7 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDskFLGHitProducerIdeal::PndDskFLGHitProducerIdeal() 
-:FairTask("PndDskFLGHitProducerIdeal")
+:PndBranchTask("PndDskFLGHitProducerIdeal")
 {
 
   fGeo         = new PndGeoDskFLG();  
@@ -49,7 +49,7 @@ PndDskFLGHitProducerIdeal::PndDskFLGHitProducerIdeal()
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
 PndDskFLGHitProducerIdeal::PndDskFLGHitProducerIdeal(Int_t verbose) 
-  :FairTask("PndDskFLGHitProducerIdeal")
+  :PndBranchTask("PndDskFLGHitProducerIdeal")
 {
   fGeo         = new PndGeoDskFLG();
   fVerbose = verbose;  
@@ -90,7 +90,7 @@ InitStatus PndDskFLGHitProducerIdeal::Init()
 
    // Create and register output array
    fHitArray = new TClonesArray("PndDskFLGHit");
-   ioman->Register("PndDskFLGHit","Dsk",fHitArray, kTRUE);
+   ioman->Register("PndDskFLGHit","Dsk",fHitArray, GetPersistency());
 
    //initialize random for producing cherenkov photons
    rand = new TRandom();   

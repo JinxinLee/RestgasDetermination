@@ -15,7 +15,7 @@
 #ifndef PNDEMCMAKECORR_H
 #define PNDEMCMAKECORR_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TObject.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
@@ -33,7 +33,7 @@ class PndEmcCluster;
 class PndEmcDigi;
 
 
-class PndEmcMakeCorr  : public FairTask 
+class PndEmcMakeCorr  : public PndBranchTask
 {
   
  public:

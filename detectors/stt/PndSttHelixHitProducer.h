@@ -2,7 +2,7 @@
 #define PNDSTTHELIXHITPRODUCER_H 1
 
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "PndSttHelixHit.h"
 #include "PndGeoSttPar.h"
 
@@ -13,7 +13,7 @@
 class TClonesArray;
 class TObjectArray;
 
-class PndSttHelixHitProducer : public FairTask
+class PndSttHelixHitProducer : public PndBranchTask
 {
 
  public:
@@ -38,7 +38,7 @@ class PndSttHelixHitProducer : public FairTask
   void WriteHistograms();
 
   /** set persistence flag **/
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
  
 
   void SetParContainers();
@@ -65,8 +65,6 @@ class PndSttHelixHitProducer : public FairTask
   TH1F *hxs, *hys, *hzs;
   TH2F *hzresvsslope;
 
-  /** object persistence **/
-  Bool_t  fPersistence; //!
 
   PndGeoSttPar *fSttParameters;  //  CHECK added
  

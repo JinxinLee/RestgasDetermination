@@ -36,7 +36,6 @@
 // -----   Default constructor   -------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :
 PndSdsTask("SDS Clustertisation Task"),
-      fPersistance(kTRUE),
       fUseNoiseSuppression(kTRUE),
       fFEModel(NULL),
       fDigiArray(NULL),
@@ -53,13 +52,14 @@ PndSdsTask("SDS Clustertisation Task"),
       fEventNr(0),
       fClusterFinder(NULL),
       fBackMapping(NULL)
-{}
+{
+	SetPersistency(kTRUE);
+}
 // -------------------------------------------------------------------------
 
 // -----   Named constructor   ---------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask(const char* name) :
-PndSdsTask(name), 
-      fPersistance(kTRUE),
+PndSdsTask(name),
       fUseNoiseSuppression(kTRUE),
       fFEModel(NULL),
       fDigiArray(NULL),
@@ -76,7 +76,9 @@ PndSdsTask(name),
       fEventNr(0),
       fClusterFinder(NULL),
       fBackMapping(NULL)
-{}
+{
+	SetPersistency(kTRUE);
+}
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
@@ -182,9 +184,9 @@ InitStatus PndSdsPixelClusterTask::Init()
     return kERROR;
   }
   
-  fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterPixel", fFolderName, fPersistance);
+  fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterPixel", fFolderName, GetPersistency());
 
-  fHitArray =  ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, fPersistance);
+  fHitArray =  ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, GetPersistency());
   
   SetInBranchId();
 

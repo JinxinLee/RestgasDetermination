@@ -9,7 +9,7 @@
 #ifndef PNDEMCMAKECLUSTER_H
 #define PNDEMCMAKECLUSTER_H
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 //#include <string>
 #include <vector>		
 
@@ -34,7 +34,7 @@ class BinaryFunctor;
  * The spatial cluster condition remains the same as in the eventbased reconstruction
  * @ingroup PndEmc
  */
-class PndEmcMakeCluster : public FairTask
+class PndEmcMakeCluster : public PndBranchTask
 {
 public:
   // Constructors
@@ -47,7 +47,7 @@ public:
 
   /// Finish clusters after subtasks have been executed
   virtual void ExecuteTasks(Option_t* option) {
-		FairTask::ExecuteTasks(option);
+		PndBranchTask::ExecuteTasks(option);
 		FinishClusters();
   }
 

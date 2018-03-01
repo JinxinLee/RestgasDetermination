@@ -34,7 +34,7 @@
 #include <vector>
 #include <map>
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
 //#include "PndEmcDigiCalibrator.h"
@@ -58,7 +58,7 @@ class PndEmcSharedDigi;
  * direction for use with Bremstrahlung correction.
  * @ingroup PndEmc
  */
-class PndEmcPhiBumpSplitter: public FairTask
+class PndEmcPhiBumpSplitter: public PndBranchTask
 {
 public:
 	// Constructor
@@ -71,7 +71,7 @@ public:
 	virtual void Exec(Option_t* opt);
 	virtual void FinishTask();
 	
-	void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
+	void SetStorageOfData(Bool_t p = kTRUE) {SetPersistency(p);};
 	PndEmcBump* AddPhiBump();
 	//PndEmcSharedDigi* AddPhiBumpSharedDigi(PndEmcDigi*, Double_t);
 
@@ -99,11 +99,6 @@ private:
 	PndEmcRecoPar*    fRecoPar;      //< Reconstruction parameter container
 	
 	std::vector<Double_t> fClusterPosParam;
-	
-	Bool_t fPersistance; //!< switch to turn on/off storing the arrays to a file
-
-	/* Verbosity level */
-	// Int_t fVerbose;	//do not shadow FairTask::fVerbose
 
 //added for time information
 	//PndEmcDigiCalibrator digiCalibrator;

@@ -21,7 +21,7 @@
 #include "PndGeoSciTPar.h"
 #include "PndSciTHitWriteoutBuffer.h"
 
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "FairMCEventHeader.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
@@ -33,7 +33,7 @@
 
 class TClonesArray;
 
-class PndSciTDigiTask : public FairTask
+class PndSciTDigiTask : public PndBranchTask
 {
  public:
 
@@ -56,9 +56,6 @@ class PndSciTDigiTask : public FairTask
   void SetPileupTime(Double_t pileuptime) {fPileupTime = pileuptime;}; // in ns  default val = 0.1
   
   void SetBuffering(Bool_t B) {fActivateBuffering=B;};
-  
-  void SetPersistence(Bool_t p = kTRUE) {fPersistence=p;};
-  Bool_t GetPersistence() {return fPersistence;}; 
 
 
   /** Virtual method Exec **/
@@ -85,7 +82,6 @@ class PndSciTDigiTask : public FairTask
 
   Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.
   Bool_t fActivateBuffering;       // set to kFALSE to deaktivate Buffering and PileUP
-  Bool_t fPersistence;
 
   void Register(); 
   void Reset();

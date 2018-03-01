@@ -48,7 +48,7 @@ using std::map;
 
 // -----   Default constructor   ------------------------------------------
 PndGemDigitize::PndGemDigitize()
-  : FairTask("GEM Digitizer", 0),
+  : PndBranchTask("GEM Digitizer", 0),
     fDigiPar(NULL),
     fPoints(NULL),
     fDigis(NULL),
@@ -62,9 +62,9 @@ PndGemDigitize::PndGemDigitize()
     fTNofDigis(0),
     fRand(new TRandom2()),
     fDataBuffer(0),
-    fTimeOrderedDigi(kFALSE),
-    fPersistency(kTRUE) {
-  
+    fTimeOrderedDigi(kFALSE)
+{
+  SetPersistency(kTRUE);
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -73,7 +73,7 @@ PndGemDigitize::PndGemDigitize()
 
 // -----   Standard constructor   ------------------------------------------
 PndGemDigitize::PndGemDigitize(Int_t iVerbose) 
-  : FairTask("GEM Digitizer", iVerbose),
+  : PndBranchTask("GEM Digitizer", iVerbose),
     fDigiPar(NULL),
     fPoints(NULL),
     fDigis(NULL),
@@ -87,9 +87,9 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
     fTNofDigis(0),
     fRand(new TRandom2()),
     fDataBuffer(0),
-    fTimeOrderedDigi(kFALSE),
-    fPersistency(kTRUE) {
-  
+    fTimeOrderedDigi(kFALSE)
+{
+  SetPersistency(kTRUE);
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -98,7 +98,7 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
 
 // -----   Constructor with name   -----------------------------------------
 PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose) 
-  : FairTask(name, iVerbose),
+  : PndBranchTask(name, iVerbose),
     fDigiPar(NULL),
     fPoints(NULL),
     fDigis(NULL),
@@ -112,10 +112,10 @@ PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose)
     fTNofDigis(0),
     fRand(new TRandom2()),
     fDataBuffer(0),
-    fTimeOrderedDigi(kFALSE),
-    fPersistency(kTRUE) {
-
-  Reset();
+    fTimeOrderedDigi(kFALSE)
+{
+	SetPersistency(kTRUE);
+	Reset();
 }
 // -------------------------------------------------------------------------
 
@@ -574,7 +574,7 @@ InitStatus PndGemDigitize::Init() {
   if ( fSaveOutsideHits ) {
     fHitOutsideArray = new TClonesArray("PndGemHit");
     ioman->Register("GEMOutsideHit", "PndGem Hits in inactive region",
-		    fHitOutsideArray, fPersistency);
+		    fHitOutsideArray, GetPersistency());
   }
 
   // Register output array StsDigi
@@ -582,7 +582,7 @@ InitStatus PndGemDigitize::Init() {
   ioman->Register("GEMDigiNormal", "Digital response in GEM", fDigis, kFALSE);
 
   // Register output buffer
-  fDataBuffer = new PndGemDigiWriteoutBuffer("GEMDigi", "GEM", fPersistency);
+  fDataBuffer = new PndGemDigiWriteoutBuffer("GEMDigi", "GEM", GetPersistency());
   fDataBuffer = (PndGemDigiWriteoutBuffer*)ioman->RegisterWriteoutBuffer("GEMDigi", fDataBuffer);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
 

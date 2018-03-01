@@ -47,11 +47,12 @@ using std::endl;
 Int_t PndEmcMakeCluster::fEventCounter=0;
 
 PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters):
-FairTask("EmcClusteringTask", verbose),
-fDigiArray(NULL), fHitArray(NULL), fMCTrackArray(NULL), fClusterArray(NULL), fWriteOutArray(NULL), fDigiFunctor(NULL), fClusterList(), fDigiEnergyTresholdBarrel(0), fDigiEnergyTresholdFWD(0), fDigiEnergyTresholdBWD(0), fDigiEnergyTresholdShashlyk(0), fClusterPosParam(), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreClusters(storeclusters), fStoreClusterBase(kFALSE)
+PndBranchTask("EmcClusteringTask", verbose),
+fDigiArray(NULL), fHitArray(NULL), fMCTrackArray(NULL), fClusterArray(NULL), fWriteOutArray(NULL), fDigiFunctor(NULL), fClusterList(), fDigiEnergyTresholdBarrel(0), fDigiEnergyTresholdFWD(0), fDigiEnergyTresholdBWD(0), fDigiEnergyTresholdShashlyk(0), fClusterPosParam(), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreClusters(storeclusters)
 {
 	fClusterList.clear();
 	fClusterPosParam.clear();
+	SetPersistency(kFALSE);
 }
 
 //--------------
@@ -111,7 +112,7 @@ InitStatus PndEmcMakeCluster::Init()
 	fClusterArray = new TClonesArray("PndEmcCluster");
 	fWriteOutArray = new TClonesArray(fClusterArray->GetClass());
 
-	ioman->Register("EmcCluster","Emc", fWriteOutArray, fStoreClusters);
+	ioman->Register("EmcCluster","Emc", fWriteOutArray, GetPersistency());
 
 	if(FairRunAna::Instance()->IsTimeStamp()) {	
 		// for subsequent methods we need the "event grouping" as given by the TS buffer --> fDigiArray becomes an output array. 
@@ -483,7 +484,7 @@ void PndEmcMakeCluster::SetParContainers() {
 
 void PndEmcMakeCluster::SetStorageOfData(Bool_t val)
 {
-	fStoreClusters=val;
+	SetPersistency(val);
 	return;
 }
 

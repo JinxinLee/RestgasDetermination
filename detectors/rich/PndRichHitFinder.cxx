@@ -23,9 +23,9 @@
 
 // -----   Default constructor   -------------------------------------------
 PndRichHitFinder::PndRichHitFinder() :
-FairTask("RichHitFinder", 1)
+PndBranchTask("RichHitFinder", 1)
 {
-  fPersistency = kTRUE;
+  SetPersistency(kTRUE);
   fPixelHits = 0;
   fEventNr = 0;
   fPixelFactor = 1;
@@ -66,9 +66,9 @@ FairTask("RichHitFinder", 1)
 // -------------------------------------------------------------------------
 
 PndRichHitFinder::PndRichHitFinder(Int_t iVerbose) :
-  FairTask("RichHitFinder", iVerbose)
+  PndBranchTask("RichHitFinder", iVerbose)
 {
-  fPersistency = kTRUE;
+  SetPersistency(kTRUE);
   fPixelHits = 0;
   fEventNr = 0; 
   fPixelFactor = 1;
@@ -107,9 +107,9 @@ PndRichHitFinder::PndRichHitFinder(Int_t iVerbose) :
 }
 
 PndRichHitFinder::PndRichHitFinder(const char* name, Int_t iVerbose) :
-FairTask(name, iVerbose)
+PndBranchTask(name, iVerbose)
 {
-  fPersistency = kTRUE;
+  SetPersistency(kTRUE);
   fPixelHits = 0;
   fEventNr = 0;   
   fPixelFactor = 1;
@@ -185,7 +185,7 @@ InitStatus PndRichHitFinder::Init(){
   
   // Create and register output array
   fPdHitArray	= new TClonesArray("PndRichPDHit");
-  ioman->Register("RichPDHit", "Rich", fPdHitArray, fPersistency);
+  ioman->Register("RichPDHit", "Rich", fPdHitArray, GetPersistency());
  
   fGapFunctor = new TimeGap();
   fStopFunctor = new StopTime();

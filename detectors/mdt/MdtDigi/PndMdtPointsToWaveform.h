@@ -15,7 +15,7 @@
 #define PndMdtPointsToWaveform_H
 
 #include "PndMdtWaveform.h"
-#include "FairTask.h"
+#include "PndBranchTask.h"
 #include "TVector3.h"
 #include <TFile.h>
 #include <TTree.h>
@@ -27,7 +27,7 @@ class PndMdtWaveformWriteoutBuffer;
 class PndMdtParamDigi;
 class PndMdtIGeometry;
 
-class PndMdtPointsToWaveform : public FairTask
+class PndMdtPointsToWaveform : public PndBranchTask
 {
 
   public:
@@ -78,7 +78,6 @@ class PndMdtPointsToWaveform : public FairTask
 
     /** Verbosity level **/
     Int_t fVerbose;
-    Bool_t fStoreWaves;
     //counters for task
     Int_t HowManyPoint;
     Int_t nWaveformProduced;
