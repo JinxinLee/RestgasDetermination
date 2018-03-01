@@ -1,10 +1,10 @@
------------------------
- README for macro/prod
------------------------
+------------------------------
+ README for macro/prod/scripts
+------------------------------
 
 A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Kronos cluster at GSI.
 
-See also 
+See also
 
  https://wiki.gsi.de/foswiki/bin/view/Linux/SlurmUsage
  http://wiki.gsi.de/cgi-bin/view/Linux/GridEngine (outdated)
@@ -56,11 +56,11 @@ Simulation
 - prod_aod.C
 - prod_fsim.C
 
-Analysis macros 
+Analysis macros
 - prod_ana.C
 - quickana.C
 
-Analysis example task 
+Analysis example task
 (-> https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootRhoTutorial#A_3._Analysis_in_a_Task)
 - prod_myana.C
 - PndProdAnaTask.cxx
@@ -80,7 +80,7 @@ Scripts to (re-)submit jobs to Kronos
 - resub.pl
 
 Script to submit analysis job for many input files
-- jobana_kronos.sh 
+- jobana_kronos.sh
 - anasub.pl
 
 Helper macro to merge output
@@ -183,7 +183,7 @@ https://wiki.gsi.de/foswiki/bin/view/Linux/SlurmUsage
 
 **************************************************************************************************************************
 *** In the following the actions to be taken for KRONOS are given only, since Prometheus will be decommissioned soon.  ***
-*** Refer to an older revision of this README file for information about Prometheus usage.                             *** 
+*** Refer to an older revision of this README file for information about Prometheus usage.                             ***
 **************************************************************************************************************************
 
 --------------
@@ -191,16 +191,16 @@ https://wiki.gsi.de/foswiki/bin/view/Linux/SlurmUsage
 --------------
 
 
-BEFORE being able to submit jobs to Kronos, you have to 
+BEFORE being able to submit jobs to Kronos, you have to
 
-1. Login to an lxbk machine by ssh yourname@kronos.hpc.gsi.de locally from a lxpool.gsi.de machine.  
+1. Login to an lxbk machine by ssh yourname@kronos.hpc.gsi.de locally from a lxpool.gsi.de machine.
 
 2. Create a work directory on the data storage element NYX, e.g. /lustre/nyx/panda/yourname/pandaroot
 
 3. Install PandaRoot in that place, since your GSI linux home directory is not mounted on Kronos nodes.
 
    There are several versions of the external packages and FairRoot pre-installed under /cvmfs. Take a look with
-   
+
    > ls /cvmfs/fairroot.gsi.de/fairsoft/
    > ls /cvmfs/fairroot.gsi.de/fairroot/
 
@@ -216,7 +216,7 @@ Some nice condensed information about slurm can be found under
 https://rc.fas.harvard.edu/resources/documentation/convenient-slurm-commands/
 
 
-- Job array submission with time setting, partition (sth like queue) setting 
+- Job array submission with time setting, partition (sth like queue) setting
 
   > sbatch --time=01:00:00 --partition=debug --array=1-10 my_slurm_job_script.sh <parameters> <for> <job> <script>
 
@@ -229,7 +229,7 @@ https://rc.fas.harvard.edu/resources/documentation/convenient-slurm-commands/
   > scancel -u <username>             # kills all your jobs
   > scancel <jobid>                   # kills a single job with id <jobid>
   > scancel -t PENDING -u <username>  # kills all your pending jobs
-   
+
 
 -----------------
  Full Simulation
@@ -251,9 +251,9 @@ with parameters
  [mode]      - Optional mode number for analysis. Stored in TTree produced by PndSimpleCombinerTask when using ana_prod.C.
 
 
-Produces output files data/<prefix>_<run>_pid.root (and data/<prefix>_<run>_sim.root, if opt "savesim" specified, and 
+Produces output files data/<prefix>_<run>_pid.root (and data/<prefix>_<run>_sim.root, if opt "savesim" specified, and
 data<prefix>_<run>_pid_ana.root, if save=="savesim") and log files,
-with <run> running from <min> to <max>. 
+with <run> running from <min> to <max>.
 
 
 -----------------
@@ -276,7 +276,7 @@ with same parameters
  [mode]      - Optional mode number for analysis. Stored in TTree produced by PndSimpleCombinerTask when using ana_prod.C.
 
 
-Produces output files data/<prefix>_<run>_fsim.root and log files, with <run> running from <min> to <max>. 
+Produces output files data/<prefix>_<run>_fsim.root and log files, with <run> running from <min> to <max>.
 
 
 ----------
@@ -288,14 +288,14 @@ Full Sim:
 > sbatch -a1-20 jobsim_kronos.sh PiPlus  1000 BOX:type[211,1]:p[0.05,8]
 > sbatch -a1-20 jobsim_kronos.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12. savesim:ana 10
 > sbatch -a1-20 jobsim_kronos.sh DpmBkg  1000 DPM                       12. ana 20
-> sbatch -a1-20 jobsim_kronos.sh FtfInel 1000 FTF1                      12. 
+> sbatch -a1-20 jobsim_kronos.sh FtfInel 1000 FTF1                      12.
 
 Fast Sim: (just replace jobsim... with jobfsim...)
 
 > sbatch -a1-20 jobfsim_kronos.sh PiPlus  1000 BOX:type[211,1]:p[0.05,8]
 > sbatch -a1-20 jobfsim_kronos.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12. savesim:ana 10
 > sbatch -a1-20 jobfsim_kronos.sh DpmBkg  1000 DPM                       12. ana 20
-> sbatch -a1-20 jobfsim_kronos.sh FtfInel 1000 FTF1                      12. 
+> sbatch -a1-20 jobfsim_kronos.sh FtfInel 1000 FTF1                      12.
 
 
 ----------------------
@@ -305,7 +305,7 @@ Fast Sim: (just replace jobsim... with jobfsim...)
 When submitting many jobs/job arrays, it sometimes happens that some of the jobs randomly fail. Usually resubmitting the same jobs
 again leads to success. In order to automatically resubmit only the failed jobs the perl script 'resub.pl' can be used.
 
-It looks for missing output files and output files being too small (size < 10kB) to contain reasonable output and resubmits exactly 
+It looks for missing output files and output files being too small (size < 10kB) to contain reasonable output and resubmits exactly
 the according jobs. The input parameter either is the complete sbatch command in quotos "sbatch -a...", or a ascii file containing
 a bunch of sbatch commands. The file has to have the ending '.jobs'
 
@@ -316,9 +316,9 @@ NOTE: In case some jobs got stuck in the queue, delete them with 'scancel -u <us
 Parameters:
 
   "<cmd>"  : full sbatch command line in quotes. The first parameters must be '-a', the job script has to have a name matching 'job...sh'
-             it's also possible to give the name of a file 'somename.jobs' containing sbatch commands, then resub is applied to all of them (except commented by #) 
+             it's also possible to give the name of a file 'somename.jobs' containing sbatch commands, then resub is applied to all of them (except commented by #)
   [check]  : optional parameter; if set to 'check', only prints the resubmission commands for checking.
-  
+
 
 ----------
  Examples
@@ -327,11 +327,11 @@ Parameters:
 Full Sim
 
 > ./resub.pl "sbatch -a1-20 jobsim_kronos.sh  DPM10GeV 1000 DPM 10.0 saveall" check
-> ./resub.pl "sbatch -a1-20 jobsim_kronos.sh  FftInel  1000 FTF1 10.0 saveall" 
+> ./resub.pl "sbatch -a1-20 jobsim_kronos.sh  FftInel  1000 FTF1 10.0 saveall"
 
 Fast Sim
 
-> ./resub.pl "sbatch -a1-20 jobfsim_kronos.sh SingleK  1000 box:type[321,1] 10.0 saveall" 
+> ./resub.pl "sbatch -a1-20 jobfsim_kronos.sh SingleK  1000 box:type[321,1] 10.0 saveall"
 > ./resub.pl my_fsim_study.jobs
 
 
@@ -365,24 +365,24 @@ Parameters:
 
 The format of the output file name depends on the input <prefix>
 
-- "myinput", min=1, max=10               -> myinput_ana_1_10.root 
+- "myinput", min=1, max=10               -> myinput_ana_1_10.root
 - "myinput_2_pid.root", min/max ignored  -> myinput_2_pid_ana.root
-- "myinput", min = max = 3               -> myinput_3_ana.root                       
+- "myinput", min = max = 3               -> myinput_3_ana.root
 
 
 ----------
  Examples
 ----------
 
-> root -l -b -q  'prod_ana.C("DPM10GeV", 1, 10)' 
-> root -l -b -q  'prod_ana.C("D0Sim",    1, 20, 1)' 
+> root -l -b -q  'prod_ana.C("DPM10GeV", 1, 10)'
+> root -l -b -q  'prod_ana.C("D0Sim",    1, 20, 1)'
 
 
 --------------------------
  Submitting analysis jobs
 --------------------------
 
-Submitting the analysis macro from above as job to Kronos (e.g. to split to several jobs) can be done from macro/prod by
+Submitting the analysis macro from above as job to Kronos (e.g. to split to several jobs) can be done from macro/prod/scripts by
 
 -> sbatch jobana_kronos.sh <prefix> <min> <max> <mode>
 
@@ -402,8 +402,8 @@ Parameters:
  Examples
 ----------
 
-> sbatch jobana_kronos.sh DPM10GeV 1 10 
-> sbatch jobana_kronos.sh D0Sim    1 20 1 
+> sbatch jobana_kronos.sh DPM10GeV 1 10
+> sbatch jobana_kronos.sh D0Sim    1 20 1
 
 
 
@@ -433,10 +433,10 @@ When parameters [min] and [max] are not given, the scripts searches for all file
  Examples
 ----------
 
-> ./anasub.pl check_DPM10GeV             // prints all submit commands for available files 
+> ./anasub.pl check_DPM10GeV             // prints all submit commands for available files
 > ./anasub.pl DPM10GeV 0 20              // submits analysis jobs on bunches of 20 inputs each
 > ./anasub.pl DPM10GeV 0 25 201 400      // submits jobs in bunches of 25 for runs 201 to 400
-> ./anasub.pl mystudy.jobs -1            // submits jobs according to all sbatch commands in file mystudy.jobs; run mode increased automatically 
+> ./anasub.pl mystudy.jobs -1            // submits jobs according to all sbatch commands in file mystudy.jobs; run mode increased automatically
 
 
 

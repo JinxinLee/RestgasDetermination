@@ -1,10 +1,10 @@
-# Create a library called "tutrhotask" 
+# Create a library called "tutrhotask"
 
 set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
-${BASE_INCLUDE_DIRECTORIES} 
-${CMAKE_SOURCE_DIR}/field 
-#${CMAKE_SOURCE_DIR}/trackbase 
+${ROOT_INCLUDE_DIR}
+${BASE_INCLUDE_DIRECTORIES}
+${CMAKE_SOURCE_DIR}/field
+#${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
 ${CMAKE_SOURCE_DIR}/detectors/passive
@@ -17,7 +17,7 @@ ${CMAKE_SOURCE_DIR}/analysis/rho
 ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
-${CMAKE_SOURCE_DIR}/macro/prod
+${CMAKE_SOURCE_DIR}/macro/prod/scripts
 ${CMAKE_SOURCE_DIR}/analysis/AnalysisTools
 ${CMAKE_SOURCE_DIR}/genfit
 )
@@ -28,7 +28,7 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS

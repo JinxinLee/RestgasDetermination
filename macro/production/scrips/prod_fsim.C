@@ -13,7 +13,7 @@ TString getInitialResonance(TString &fEvtGenFile);
 
 int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0. )
 {
-	if (prefix=="" || inputGen=="" || pbeam==0.) 
+	if (prefix=="" || inputGen=="" || pbeam==0.)
 	{
 		cout << "USAGE:\n";
 		cout << "prod_fsim.C( <pref>,  <nevt>, <gen>, <pbeam> )\n\n";
@@ -22,18 +22,18 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 		cout << "   <gen>      : generator input: EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or BOX generator instead\n";
 		cout << "                DPM settings: DPM  = inelastic only,  DPM1 = inel. + elastic, DPM2 = elastic only\n";
 		cout << "                FTF settings: FTF  = inel. + elastic, FTF1 = inelastic only\n";
-		cout << "                BOX settings: type[pdgcode,mult] and optional ranges 'p/tht/phi[min,max]' separated with colon; example: 'BOX:type[211,1]:p[1,5]:tht[45]:phi[90,210]'\n";    
+		cout << "                BOX settings: type[pdgcode,mult] and optional ranges 'p/tht/phi[min,max]' separated with colon; example: 'BOX:type[211,1]:p[1,5]:tht[45]:phi[90,210]'\n";
 		cout << "   <pbeam>    : pbar momentum (for BOX generator it still controls the magnetic field) \n\n";
 		cout << "Example 1 : root -l -b -q 'prod_fsim.C(\"EvtD0D0b\", 100, \"D0toKpi.dec:pbarpSystem0\", 12.)'\n";
 		cout << "Example 2 : root -l -b -q 'prod_fsim.C(\"DpmInel\",  100, \"DPM\", 12.)'\n";
 		cout << "Example 3 : root -l -b -q 'prod_fsim.C(\"SingleK\",  100, \"BOX:type[321,1]:p[0.1,10]:tht[22,140]:phi[0,360]\", 12.)'\n\n";
-		
+
 		return 0;
 	}
-	
+
 	// persist fast sim output?
 	bool persist = true;
-		
+
 	// if pbeam<0, interprete as -E_cm
 	double mp = 0.938272;
 	if (pbeam<0)
@@ -41,23 +41,23 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 		double X = (pbeam*pbeam-2*mp*mp)/(2*mp);
 		pbeam = sqrt(X*X-mp*mp);
 	}
-	
+
 	// Prevent generator from throwing a lot of warnings
 	TLorentzVector fIni(0,0,pbeam,mp+sqrt(pbeam*pbeam+mp*mp));
 	TDatabasePDG *pdg = TDatabasePDG::Instance();
 	pdg->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
 	pdg->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
 
-	
+
 	//----- Switches for Simulation Options ------------------------------
 	Bool_t enableSplitoff    = true;   // create e.-m. and hadronic split offs
 	Bool_t mergeNeutrals     = true;   // merge neutrals (for merged pi0s)
 	Bool_t electronBrems     = true;   // bremsstrahlung loss for electrons
-	
-	//----- Switches for Event Filter Options ------------------------------
-	Bool_t usePndEventFilter = false;  // enable Panda event filter.    *** Needs configuration (see below) *** 
 
-	
+	//----- Switches for Event Filter Options ------------------------------
+	Bool_t usePndEventFilter = false;  // enable Panda event filter.    *** Needs configuration (see below) ***
+
+
 	//-----General settings-----------------------------------------------
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
 	TString splitpars = BaseDir+"/fsim/splitpars.dat";
@@ -67,7 +67,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	TString  OutputFile     = prefix+"_fsim.root";
 	gDebug                  = 0;
 
-	
+
 	// Start a stop watch
 	TStopwatch fTimer;
 	fTimer.Start();
@@ -78,7 +78,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
 	fRun->SetGenerateRunInfo(kFALSE);
-	//fRun->SetUserConfig(BaseDir+"/macro/prod/g3ConfigNoMC.C");
+	//fRun->SetUserConfig(BaseDir+"/macro/prod/scripts/g3ConfigNoMC.C");
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
@@ -91,11 +91,11 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	fRun->SetGenerator(primGen);
 	fRun->SetName("TGeant3");
 
-	
+
 	// ------------------------------------------------------
 	// Determine event generator according to inputGen
 	// ------------------------------------------------------
-	
+
 	// ------------------------------------------------------
 	// use DPM generator; default: inelastic @ pbarmom = mom
 	// ------------------------------------------------------
@@ -105,9 +105,9 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 		int mode = 0;
 		if (inputGen=="dpm1") mode = 1;
 		if (inputGen=="dpm2") mode = 2;
-		
+
 		PndDpmDirect *Dpm= new PndDpmDirect(pbeam,mode);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
-		
+
 		// since fastsim doesn't have a transport, let all long-living resonances decay by the generator
 		Dpm->SetUnstable(111);   // pi0
 		Dpm->SetUnstable(310);   // K_S0
@@ -123,12 +123,12 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	}
 
 	// ------------------------------------------------------
-	// use FTF generator; 
+	// use FTF generator;
 	// ------------------------------------------------------
 	else if (inputGen.BeginsWith("FTF",TString::kIgnoreCase) && !inputGen.EndsWith(".dec",TString::kIgnoreCase))
 	{
 		inputGen.ToLower();
-		PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", pbeam, 0, (inputGen=="ftf1") ); 
+		PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", pbeam, 0, (inputGen=="ftf1") );
 		primGen->AddGenerator(Ftf);
 	}
 
@@ -145,26 +145,26 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 		Double_t BoxPhiMin  = 0. ;    // minimum phi for box generator
 		Double_t BoxPhiMax  = 360.;   // maximum   "       "
 		Bool_t   BoxCosTht  = false;  // isotropic in cos(theta) instead theta
-		
+
 		Int_t    BoxType    = 13;     // default particle muon
 		Int_t    BoxMult    = 1;      // default particle multiplicity
-		Double_t type=0,mult=0;       // ref. parameters for range function	
-		
+		Double_t type=0,mult=0;       // ref. parameters for range function
+
 		inputGen.ToLower();
-		
+
 		// Parse configuratio string
 		if (inputGen!="box")
 		{
 			inputGen.ReplaceAll("box","");
 			inputGen.ReplaceAll(" ","");
 			inputGen += ":";
-			
+
 			while (inputGen.Contains(":"))
 			{
 				TString curpar = inputGen(0,inputGen.Index(":"));
 				inputGen = inputGen(inputGen.Index(":")+1,1000);
-				curpar.ReplaceAll("[","("); curpar.ReplaceAll("]",")"); 
-				
+				curpar.ReplaceAll("[","("); curpar.ReplaceAll("]",")");
+
 				if (curpar.BeginsWith("type(")) {getRange(curpar,type,mult); BoxType = (Int_t)type; BoxMult = (Int_t)mult; }
 				if (curpar.BeginsWith("p("))     getRange(curpar,BoxMomMin,BoxMomMax);
 				if (curpar.BeginsWith("tht("))   getRange(curpar,BoxThtMin,BoxThtMax);
@@ -172,20 +172,20 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 				if (curpar.BeginsWith("phi("))   getRange(curpar,BoxPhiMin,BoxPhiMax);
 			}
 		}
-		
+
 		cout <<"BOX generator range: type["<<BoxType<<","<<BoxMult<<"]  p["<<BoxMomMin<<","<<BoxMomMax
 			<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
 
-		
+
 		PndBoxGenerator* boxGen = new PndBoxGenerator(BoxType, BoxMult);
 		boxGen->SetDebug(0);
-		
+
 		boxGen->SetPRange(BoxMomMin,BoxMomMax);      // GeV/c
 		boxGen->SetPhiRange(BoxPhiMin, BoxPhiMax);   // Azimuth angle range [degree]
 		boxGen->SetThetaRange(BoxThtMin, BoxThtMax); // Polar angle in lab system range [degree]
-		
+
 		if (BoxCosTht) boxGen->SetCosTheta();
-		
+
 		boxGen->SetXYZ(0., 0., 0.); //cm
 		primGen->AddGenerator(boxGen);
 	}
@@ -193,7 +193,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	// ------------------------------------------------------
 	// EvtGen Generator
 	// ------------------------------------------------------
-	else 
+	else
 	{
 		TString Resonance = getInitialResonance(inputGen);
 		Resonance.ReplaceAll("pbp","pbarpSystem");
@@ -213,34 +213,34 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	// Setup the Fast Simulation Task
 	//-----------------------------
 	PndFastSim* fastSim = new PndFastSim(persist);
-		
+
 	// increasing verbosity increases the amount of console output (mainly for debugging)
 	fastSim->SetVerbosity(0);
 
-	
+
 	//-----------------------------
 	// set PANDA event filters
 	//-----------------------------
-	
+
 	if (usePndEventFilter)
 	{
-		// *** Example Configuration of Event Filter 
+		// *** Example Configuration of Event Filter
 		cout <<"Using FairEventFilter"<<endl;
 		primGen->SetFilterMaxTries(100000);
-		
+
 		// require 4 charged tracks
 		FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
 		chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
 		primGen->AndFilter(chrgFilter);
-		 		 				
+
 		// require 1 ee combination in the mass range 2.8 < m(ee) < 3.3 GeV
 		PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
 		eeInv->SetPdgCodesToCombine( 11, -11);
 		eeInv->SetMinMaxInvMass( 2.8, 3.3 );
 		eeInv->SetMinMaxCounts(1,10000);
- 		primGen->AndFilter(eeInv);  //add filter to fFilterList		
+ 		primGen->AndFilter(eeInv);  //add filter to fFilterList
 	}
-	
+
 	// enable the merging of neutrals if they have similar direction
 	//-----------------------------
 	fastSim->MergeNeutralClusters(mergeNeutrals);
@@ -263,7 +263,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	// -----------------------------------------------------------------------------------
 	// -----------------------------------------------------------------------------------
 
-	
+
 	// Tracking: Set up in parts of theta coverage. All modelled by PndFsmSimpleTracker.
 	// Mind: Numbers on resolution (pRes,thtRes,phiRes) and efficiency are guessed
 	// -----------------------------------------------------------------------------------
@@ -316,33 +316,33 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	fastSim->AddDetector("ScEmcPidBwCap",  "thtMin=142.0 thtMax=160.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
 	fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 ptmin=0.2 pmin=0.0 efficiency=1.0");
 	fastSim->AddDetector("ScEmcPidFS",     "thtMin=0.5   thtMax=10.0  ptmin=0.0 pmin=0.5 efficiency=1.0");
-	
+
 	// -----------------------------------------------------------------------------------
 	// *********              END Fast Simulation Configuration                   ********
 	// -----------------------------------------------------------------------------------
 
 
 
-	fRun->AddTask(fastSim);	
-	
+	fRun->AddTask(fastSim);
+
 	//-------------------------  Initialize the RUN  -----------------
 	fRun->Init();
-	
+
 	//-------------------------  Run the Simulation  -----------------
 	fRun->Run(nEvents);
-	
+
 	//-------------------------  Write Filter Info to File -----------
-	if (usePndEventFilter) primGen->WriteEvtFilterStatsToRootFile(); 
-	
+	if (usePndEventFilter) primGen->WriteEvtFilterStatsToRootFile();
+
 	//------------------------Print some info and exit----------------
 	fTimer.Stop();
 	FairSystemInfo sysInfo;
 	Float_t maxMemory=sysInfo.GetMaxMemory();
 	Double_t rtime = fTimer.RealTime();
 	Double_t ctime = fTimer.CpuTime();
-	
+
 	Float_t cpuUsage=ctime/rtime;
-	
+
 	cout << endl;
 	cout << "[INFO   ] Macro call       : prod_fsim.C(\""<<prefix<<"\", "<<nEvents<<", \""<<inputGen<<"\", "<<pbeam<<")" <<endl;
 	cout << "[INFO   ] Generated Events : " <<primGen->GetNumberOfGeneratedEvents()<<endl;
@@ -360,18 +360,18 @@ void getRange(TString par, double &min, double &max)
 {
 	par.ReplaceAll(" ","");
 	par = par(par.Index("(")+1, par.Length()-par.Index("(")-2);
-	
+
 	TString smin=par, smax=par;
-	
-	if (par.Contains(",")) 
+
+	if (par.Contains(","))
 	{
 		smin = par(0,par.Index(","));
 		smax = par(par.Index(",")+1,1000);
 	}
-	
+
 	min = smin.Atof();
 	max = smax.Atof();
-	
+
 	//if (min>max) {double tmp=min;min=max;max=tmp;}
 }
 
@@ -380,7 +380,7 @@ TString getInitialResonance(TString &fEvtGenFile)
 
 	TString IniRes="";
 
-	if (fEvtGenFile.Contains(":")) // is the initial resonance provide as <decfile>.dec:iniRes ? 
+	if (fEvtGenFile.Contains(":")) // is the initial resonance provide as <decfile>.dec:iniRes ?
 	{
 		IniRes = fEvtGenFile(fEvtGenFile.Index(":")+1,1000);
 		fEvtGenFile = fEvtGenFile(0,fEvtGenFile.Index(":"));
@@ -388,7 +388,7 @@ TString getInitialResonance(TString &fEvtGenFile)
 
 	if (IniRes=="") // we need to search the decay file
 	{
-		std::ifstream fs(fEvtGenFile.Data());	
+		std::ifstream fs(fEvtGenFile.Data());
 		char line[250];
 
 		while (fs)
@@ -402,8 +402,8 @@ TString getInitialResonance(TString &fEvtGenFile)
 				s.ReplaceAll("Decay ","");
 				s.ReplaceAll(" ","");
 				IniRes = s;
-			}	 
-		} 
+			}
+		}
 		fs.close();
 	}
 

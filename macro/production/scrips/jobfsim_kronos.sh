@@ -24,12 +24,12 @@ if [ $# -lt 1 ]; then
   echo -e "Example 1 : sbatch -a1-20 jobfsim_kronos.sh d0sim 1000 D0toKpi.dec 12. ana 10"
   echo -e "Example 2 : sbatch -a1-20 jobfsim_kronos.sh dpmbkg 1000 dpm 12."
   echo -e "Example 3 : sbatch -a1-20 jobfsim_kronos.sh singleK 1000 \"box:type[321,1]:p[0.05,8]:tht[0,180]:phi[0,360]\" 12.\n"
-  
+
   exit 1
 fi
 
 # the working directory
-nyx=$VMCWORKDIR"/macro/prod"
+nyx=$VMCWORKDIR"/macro/prod/scripts"
 
 # the data store
 _target=$nyx"/data/"
@@ -43,7 +43,7 @@ ana=""
 mode=0
 run=$SLURM_ARRAY_TASK_ID
 
-#create and change to a temporary directory to run root 
+#create and change to a temporary directory to run root
 tmpdir="/tmp/"$USER"_"$SLURM_JOB_ID"_"$run"/"
 mkdir $tmpdir
 cd $tmpdir
@@ -101,14 +101,14 @@ root -l -q -b $nyx"/"prod_fsim.C\(\"$outprefix\",$nevt,\"$dec\",$mom\) &> $outpr
 # optionally run analysis stage in addition
 if [[ $ana == *"ana"* ]]; then
     root -l -q -b $nyx"/"prod_ana.C\(\"$pidfile\",0,0,$mode,0\) &> $outprefix"_fana.log"
-	
+
     cp  $outprefix"_fana.log" $_target
     cp  $outprefix"_fsim_ana.root" $_target
 fi
-   
+
 # ls in tmpdir to appear in slurmlog
 ls -ltrh $tmpdir
-   
+
 # move outputs to target dir
 mv  $outprefix"_fsim.log" $_target
 mv  $outprefix"_fsim.root" $_target

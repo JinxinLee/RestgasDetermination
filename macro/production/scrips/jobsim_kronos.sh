@@ -24,12 +24,12 @@ if [ $# -lt 1 ]; then
   echo -e "Example 1 : sbatch -a1-20 jobsim_kronos.sh d0sim 1000 D0toKpi.dec 12. ana 10"
   echo -e "Example 2 : sbatch -a1-20 jobsim_kronos.sh dpmbkg 1000 dpm 12."
   echo -e "Example 3 : sbatch -a1-20 jobsim_kronos.sh singleK 1000 box:type[321,1]:p[0.05,8]:tht[0,180]:phi[0,360] 12.\n"
-  
+
   exit 1
 fi
 
 # the working directory
-nyx=$VMCWORKDIR"/macro/prod"
+nyx=$VMCWORKDIR"/macro/prod/scripts"
 
 # the data store
 _target=$nyx"/data/"
@@ -43,7 +43,7 @@ opt=""
 mode=0
 run=$SLURM_ARRAY_TASK_ID
 
-#create and change to a temporary directory to run root 
+#create and change to a temporary directory to run root
 tmpdir="/tmp/"$USER"_"$SLURM_JOB_ID"_"$run"/"
 mkdir $tmpdir
 cd $tmpdir
@@ -106,7 +106,7 @@ if [[ $opt == *"savesim"* ]]; then
    cp  $outprefix"_sim.log" $_target
    cp  $outprefix"_sim.root" $_target
 fi
-   
+
 #
 # run the reco
 #
@@ -115,18 +115,18 @@ root -l -b -q $nyx"/"prod_aod.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
 # if opt contains 'ana', also run analysis
 if [[ $opt == *"ana"* ]]; then
    root -l -q -b $nyx"/"prod_ana.C\(\"$pidfile\",0,0,$mode,0\) &> $outprefix"_ana.log"
-   
+
    cp $outprefix"_ana.log" $_target
    cp $outprefix"_pid_ana.root" $_target
 fi
-   
+
 # copy number of generated events from FairFilteredPrimaryGenerator in ...sim.log to ...pid.log
 NUMEV=`grep 'Generated Events' $outprefix"_sim.log"`
 echo $NUMEV >> $outprefix"_pid.log"
 
 # ls in tmpdir to appear in slurmlog
 ls -ltrh $tmpdir
-   
+
 # move outputs to target dir
 mv  $outprefix"_par.root" $_target
 mv  $outprefix"_pid.log" $_target

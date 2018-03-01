@@ -7,20 +7,20 @@
 
 if [ $# -lt 1 ]; then
   echo -e "\nJob script for submission of PandaRoot analysis jobs based on macro 'prod_ana.C' on KRONOS. *The macro needs to configured beforehand!*\n"
-  echo -e "   ********************************************************"  
-  echo -e "   *** RECOMMENDED: Use anasub.pl for easier submission ***"  
-  echo -e "   *********************************************************\n"  
+  echo -e "   ********************************************************"
+  echo -e "   *** RECOMMENDED: Use anasub.pl for easier submission ***"
+  echo -e "   *********************************************************\n"
   echo -e "USAGE: sbatch jobana_kronos.sh <prefix> <min> <max> <mode>\n"
   echo -e " <prefix>  : Prefix of input files"
   echo -e " <min>     : Minimum job number of files data/<prefix>_<min>_pid.root"
   echo -e " <max>     : Maximum job number of files data/<prefix>_<max>_pid.root"
   echo -e " <mode>    : Arbitrary mode number to be stored in n-tuples.\n"
   echo -e "Example : sbatch jobana_kronos.sh d0sim 1 10 42\n"
-  
+
   exit 1
 fi
 
-nyx=$VMCWORKDIR"/macro/prod"
+nyx=$VMCWORKDIR"/macro/prod/scripts"
 _target=$nyx"/data/"
 
 prefix="mysim"

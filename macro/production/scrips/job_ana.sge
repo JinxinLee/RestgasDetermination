@@ -6,7 +6,7 @@ cd $TMPDIR
 
 . $FAIRLIBDIR"/../config.sh"
 
-data=$VMCWORKDIR"/macro/prod"
+data=$VMCWORKDIR"/macro/prod/scripts"
 _target=$data"/data/"
 
 prefix=M
@@ -33,7 +33,7 @@ fi
 root -l -b -q -w $data"/"prod_ana.C\(\"$_target/$prefix\",$from,$to,$mode\)  &> $prefix"_"$from"_"$to"_ana.log"
 
 # Move the data to the persistent storage
-cp -v $TMPDIR/$prefix*.root $_target 
+cp -v $TMPDIR/$prefix*.root $_target
 cp -v $TMPDIR/$prefix*.log $_target
 
 # Evacuate the log-file

@@ -1,4 +1,4 @@
-#$ -wd /tmp 
+#$ -wd /tmp
 #$ -j y
 #$ -V
 
@@ -6,7 +6,7 @@ cd $TMPDIR
 
 . $FAIRLIBDIR"/../config.sh"
 
-hera=$VMCWORKDIR"/macro/prod"
+hera=$VMCWORKDIR"/macro/prod/scripts"
 _target=$hera"/data/"
 
 prefix=9999
@@ -61,12 +61,12 @@ echo $NUMEV >> $outprefix"_pid.log"
 
 # Move the data to the persistent storage
 if test "$save" == "saveall"; then
-  cp -v $TMPDIR/M*root $_target 
-  cp -v $TMPDIR/M*log $_target 
+  cp -v $TMPDIR/M*root $_target
+  cp -v $TMPDIR/M*log $_target
 else
-  cp -v $TMPDIR/M*_pid.root $_target 
-  cp -v $TMPDIR/M*_pid.log $_target 
-  cp -v $TMPDIR/M*_par.root $_target 
+  cp -v $TMPDIR/M*_pid.root $_target
+  cp -v $TMPDIR/M*_pid.log $_target
+  cp -v $TMPDIR/M*_par.root $_target
 fi
 
 # Evacuate the log-file
