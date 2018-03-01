@@ -71,9 +71,6 @@ class PndGemDigitize : public PndBranchTask
   Bool_t GetTimeBased()   const { return fTimeOrderedDigi; }
 
   void SetShowerSigma(Double_t dd) {fSSigma = dd;} //sigam for realistic response
-
-  /** Set the Persistency of PndMdtHit **/
-  void SetPersistency(Bool_t pers = kTRUE) { SetPersistency(pers); };
   
  private:
 
