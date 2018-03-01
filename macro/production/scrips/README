@@ -1,5 +1,5 @@
 ------------------------------
- README for macro/prod/scripts
+ README for macro/production/scripts
 ------------------------------
 
 A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Kronos cluster at GSI.
@@ -382,7 +382,7 @@ The format of the output file name depends on the input <prefix>
  Submitting analysis jobs
 --------------------------
 
-Submitting the analysis macro from above as job to Kronos (e.g. to split to several jobs) can be done from macro/prod/scripts by
+Submitting the analysis macro from above as job to Kronos (e.g. to split to several jobs) can be done from macro/production/scripts by
 
 -> sbatch jobana_kronos.sh <prefix> <min> <max> <mode>
 

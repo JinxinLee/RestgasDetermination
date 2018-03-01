@@ -78,7 +78,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
 	fRun->SetGenerateRunInfo(kFALSE);
-	//fRun->SetUserConfig(BaseDir+"/macro/prod/scripts/g3ConfigNoMC.C");
+	//fRun->SetUserConfig(BaseDir+"/macro/production/scripts/g3ConfigNoMC.C");
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 

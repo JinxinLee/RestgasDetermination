@@ -6,7 +6,7 @@ cd $TMPDIR
 
 . $FAIRLIBDIR"/../config.sh"
 
-hera=$VMCWORKDIR"/macro/prod/scripts"
+hera=$VMCWORKDIR"/macro/production/scripts"
 _target=$hera"/data/"
 
 prefix=9999

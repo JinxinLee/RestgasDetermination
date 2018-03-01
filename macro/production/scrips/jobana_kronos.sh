@@ -20,7 +20,7 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-nyx=$VMCWORKDIR"/macro/prod/scripts"
+nyx=$VMCWORKDIR"/macro/production/scripts"
 _target=$nyx"/data/"
 
 prefix="mysim"

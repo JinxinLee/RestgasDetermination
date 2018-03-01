@@ -2,7 +2,7 @@
 //
 // Analysis Example Task
 //
-// for the Simulation Production (macro/prod/scripts) and Analysis, see
+// for the Simulation Production (macro/production/scripts) and Analysis, see
 //
 // https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootSimulationKronos
 // https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootRhoTutorial

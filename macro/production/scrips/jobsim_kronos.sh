@@ -29,7 +29,7 @@ if [ $# -lt 1 ]; then
 fi
 
 # the working directory
-nyx=$VMCWORKDIR"/macro/prod/scripts"
+nyx=$VMCWORKDIR"/macro/production/scripts"
 
 # the data store
 _target=$nyx"/data/"

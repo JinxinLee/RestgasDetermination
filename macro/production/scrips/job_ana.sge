@@ -6,7 +6,7 @@ cd $TMPDIR
 
 . $FAIRLIBDIR"/../config.sh"
 
-data=$VMCWORKDIR"/macro/prod/scripts"
+data=$VMCWORKDIR"/macro/production/scripts"
 _target=$data"/data/"
 
 prefix=M

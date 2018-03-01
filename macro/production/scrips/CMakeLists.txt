@@ -17,7 +17,7 @@ ${CMAKE_SOURCE_DIR}/analysis/rho
 ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
-${CMAKE_SOURCE_DIR}/macro/prod/scripts
+${CMAKE_SOURCE_DIR}/macro/production/scripts
 ${CMAKE_SOURCE_DIR}/analysis/AnalysisTools
 ${CMAKE_SOURCE_DIR}/genfit
 )
