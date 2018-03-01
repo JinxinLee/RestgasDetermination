@@ -120,7 +120,7 @@ void PndMasterDigiTask::SetPersistency(Bool_t pers)
   
   // -----   SciT hit producers   -------------------------------
   //((PndSciTHitProducerIdeal*)GetListOfTasks()->At(digi.kPndSciTHitProducerIdeal))->SetPersistence(pers);
-  ((PndSciTDigiTask*)GetListOfTasks()->At(digi.kPndSciTDigiTask))->SetPersistence(pers);
+  ((PndSciTDigiTask*)GetListOfTasks()->At(digi.kPndSciTDigiTask))->SetPersistency(pers);
   
   // -----   MDT hit producers   ---------------------------------
   ((PndMdtHitProducerIdeal*)GetListOfTasks()->At(digi.kPndMdtHitProducerIdeal))->SetPersistency(pers);

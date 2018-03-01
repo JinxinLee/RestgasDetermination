@@ -1,6 +1,7 @@
 #include "PndMasterRunAna.h"
 
 #include "PndMasterDigiTask.h"
+#include "PndMasterDigiOnlyTask.h"
 #include "PndMasterRecoTask.h"
 #include "PndMasterRecoIdealTask.h"
 #include "PndMasterPidTask.h"
@@ -109,6 +110,14 @@ Bool_t PndMasterRunAna::Setup(TString outprefix)
 void PndMasterRunAna::AddDigiTasks(Bool_t pers)
 {
   PndMasterDigiTask *digi = new PndMasterDigiTask(fOptions);
+  if (!pers) digi->SetPersistency(kFALSE);
+  AddTask(digi);
+}
+
+// -----   AddDigiTasks   ---------------------------------------------------
+void PndMasterRunAna::AddDigiOnlyTasks(Bool_t pers)
+{
+  PndMasterDigiOnlyTask *digi = new PndMasterDigiOnlyTask(fOptions);
   if (!pers) digi->SetPersistency(kFALSE);
   AddTask(digi);
 }

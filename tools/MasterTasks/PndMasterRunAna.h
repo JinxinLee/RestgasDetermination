@@ -49,12 +49,20 @@ class PndMasterRunAna : public FairRunAna
   void Finish();
 
   /**
-   * @brief Add digitization tasks
+   * @brief Add digitization and local reconstruction tasks
    * @details # Add Master digi tasks
    * @param pers Persistency of the TCAs, used only to switch OFF
    * It calls PndMasterDigiTask, adding all the standard digitization tasks
    */
   void AddDigiTasks(Bool_t pers = kTRUE);
+
+  /**
+   * @brief Add digitization tasks without reconstruction
+   * @details # Add Master digi only tasks
+   * @param pers Persistency of the TCAs, used only to switch OFF
+   * It calls PndMasterDigiTask, adding all the standard digitization tasks
+   */
+  void AddDigiOnlyTasks(Bool_t pers = kTRUE);
 
   /**
    * @brief Add reconstruction tasks

@@ -76,52 +76,9 @@ PndMasterDigiOnlyTask::PndMasterDigiOnlyTask(TString options) :
 /** Set the Persistency of all the tasks in the same way **/
 void PndMasterDigiOnlyTask::SetPersistency(Bool_t pers)
 {
-//	std::for_each(fBranchTasks.begin(), fBranchTasks.end(), [this](FairTask* task){ task->SetOutputBranchPersistent(pers);});
-//	std::for_each(fFixedPersistency.begin(), fFixedPersistency.end(), [](std::pair<FairTask*, bool>& pair){ pair.first->SetOutputBranchPersistent(pair.second);});
+  std::for_each(fBranchTasks.begin(), fBranchTasks.end(), [pers](PndBranchTask* task){task->SetPersistency(pers);});
+  std::for_each(fFixedPersistency.begin(), fFixedPersistency.end(), [](std::pair<PndBranchTask*, bool> task){task.first->SetPersistency(task.second);});
 
-//  // -----   STT digi producers   --------------------------------
-//  ((PndSttHitProducerRealFast*)GetListOfBranchTasks()->At(digi.kPndSttHitProducerRealFast))->SetPersistence(pers);
-//
-//  // -----   MVD hit producers   ---------------------------------
-//  ((PndMvdDigiTask*)GetListOfBranchTasks()->At(digi.kPndMvdDigiTask))->SetPersistance(pers);
-//  ((PndMvdClusterTask*)GetListOfBranchTasks()->At(digi.kPndMvdClusterTask))->SetPersistance(pers);
-//
-//  // -----   EMC hit producers   ---------------------------------
-//  ((PndEmcHitsToWaveform*)GetListOfBranchTasks()->At(digi.kPndEmcHitsToWaveform))->SetStorageOfData(kFALSE);
-//  ((PndEmcWaveformToDigi*)GetListOfBranchTasks()->At(digi.kPndEmcWaveformToDigi))->SetStorageOfData(kFALSE);
-//  ((PndEmcMakeCluster*)GetListOfBranchTasks()->At(digi.kPndEmcMakeCluster))->SetStorageOfData(kFALSE);
-//  ((PndEmcMakeBump*)GetListOfBranchTasks()->At(digi.kPndEmcMakeBump))->SetStorageOfData(kFALSE);
-//
-//  // -----   SciT hit producers   -------------------------------
-//  //((PndSciTHitProducerIdeal*)GetListOfBranchTasks()->At(digi.kPndSciTHitProducerIdeal))->SetPersistence(pers);
-//  ((PndSciTDigiTask*)GetListOfBranchTasks()->At(digi.kPndSciTDigiTask))->SetPersistence(pers);
-//
-//  // -----   MDT hit producers   ---------------------------------
-//  ((PndMdtHitProducerIdeal*)GetListOfBranchTasks()->At(digi.kPndMdtHitProducerIdeal))->SetPersistency(pers);
-//  ((PndMdtTrkProducer*)GetListOfBranchTasks()->At(digi.kPndMdtTrkProducer))->SetPersistency(pers);
-//
-//  // -----   DRC hit producers   ---------------------------------
-//  ((PndDrcHitProducerReal*)GetListOfBranchTasks()->At(digi.kPndDrcHitProducerReal))->SetPersistency(pers);
-//
-//  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
-//    {
-//      // -----   GEM hit producers   ---------------------------------
-//      ((PndGemDigitize*)GetListOfBranchTasks()->At(digi.kPndGemDigitize))->SetPersistency(pers);
-//      ((PndGemFindHits*)GetListOfBranchTasks()->At(digi.kPndGemFindHits))->SetPersistency(pers);
-//    }
-//
-//  // -----   FTS hit producers   ---------------------------------
-//  ((PndFtsHitProducerRealFast*)GetListOfBranchTasks()->At(digi.kPndFtsHitProducerRealFast))->SetPersistence(pers);
-//
-//  // -----   Ftof hit producers   ---------------------------
-//  ((PndFtofHitProducerIdeal*)GetListOfBranchTasks()->At(digi.kPndFtofHitProducerIdeal))->SetPersistency(pers);
-//
-//   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
-//     {
-//       // -----   Rich hit producers   ---------------------------
-//       ((PndRichHitProducer*)GetListOfBranchTasks()->At(digi.kPndRichHitProducer))->SetPersistency(pers);
-//     }
-//
   return;
 }
 
