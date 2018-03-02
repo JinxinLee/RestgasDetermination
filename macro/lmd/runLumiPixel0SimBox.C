@@ -180,6 +180,11 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
 
+	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
+        gGeoManager->GetListOfVolumes()->Delete();
+        gGeoManager->GetListOfShapes()->Delete();
+        delete gGeoManager;
+
 	return 0;
 }
 
