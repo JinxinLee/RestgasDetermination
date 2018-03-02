@@ -109,8 +109,8 @@ int createPndLmdMisalignmentMatrices(bool debug = false) {
 		for (auto &i : paths) {
 			// TODO: cerate sigma parameters another way
 
-			double shift = 100e-4;
-			double rot = TMath::RadToDeg() * 1000e-6;
+			double shift = 1000e-4;				// this is 1 mm!
+			double rot = TMath::RadToDeg() * 1000e-3;	// this is... large
 
 			TGeoHMatrix tempMat = createRandomMatrix(rot, shift);
 			matrices[i] = tempMat;

@@ -6,7 +6,7 @@
  */
 
 
-void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0)
+void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="tmpOutput", const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;

@@ -29,7 +29,7 @@
 //	return 0;
 //}
 
-int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/",
+int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput",
     TString binaryPairFilePath = "", TString LMDmatrixDir = "", bool incentimeters = true,
     const int verboseLevel = 2) {
 	// -----   Timer   --------------------------------------------------------
