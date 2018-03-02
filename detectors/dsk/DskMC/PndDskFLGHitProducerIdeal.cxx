@@ -39,7 +39,7 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDskFLGHitProducerIdeal::PndDskFLGHitProducerIdeal() 
-:PndBranchTask("PndDskFLGHitProducerIdeal")
+:PndPersistencyTask("PndDskFLGHitProducerIdeal")
 {
 
   fGeo         = new PndGeoDskFLG();  
@@ -49,7 +49,7 @@ PndDskFLGHitProducerIdeal::PndDskFLGHitProducerIdeal()
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
 PndDskFLGHitProducerIdeal::PndDskFLGHitProducerIdeal(Int_t verbose) 
-  :PndBranchTask("PndDskFLGHitProducerIdeal")
+  :PndPersistencyTask("PndDskFLGHitProducerIdeal")
 {
   fGeo         = new PndGeoDskFLG();
   fVerbose = verbose;  

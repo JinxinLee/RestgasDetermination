@@ -50,7 +50,7 @@ using std::setw;
 
 // -----   Default constructor   ------------------------------------------
 PndGemFindHits::PndGemFindHits() : 
-  PndBranchTask("GEM Hit Finder", 1),
+  PndPersistencyTask("GEM Hit Finder", 1),
   fMonitor(NULL),
   fDigiPar(NULL),
   fDigis  (NULL),
@@ -79,7 +79,7 @@ PndGemFindHits::PndGemFindHits() :
 
 // -----   Standard constructor   ------------------------------------------
 PndGemFindHits::PndGemFindHits(Int_t iVerbose) 
-  : PndBranchTask("GEMFindHits", iVerbose),
+  : PndPersistencyTask("GEMFindHits", iVerbose),
   fMonitor(NULL),
   fDigiPar(NULL),
   fDigis  (NULL),
@@ -108,7 +108,7 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
 
 // -----   Constructor with name   -----------------------------------------
 PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose) 
-  : PndBranchTask(name, iVerbose),
+  : PndPersistencyTask(name, iVerbose),
   fMonitor(NULL),
   fDigiPar(NULL),
   fDigis  (NULL),

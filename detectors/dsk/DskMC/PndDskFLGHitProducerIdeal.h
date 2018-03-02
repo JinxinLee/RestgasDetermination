@@ -16,7 +16,7 @@
 #ifndef PNDDSKHITPRODUCERIDEAL_H
 #define PNDDSKHITPRODUCERIDEAL_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "TClonesArray.h"
 #include "PndMCTrack.h"
 #include "PndDskFLGHit.h" 
@@ -36,7 +36,7 @@
 #endif
 
 
-class PndDskFLGHitProducerIdeal : public PndBranchTask {
+class PndDskFLGHitProducerIdeal : public PndPersistencyTask {
 
 public:
 

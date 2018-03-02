@@ -1,27 +1,27 @@
 // -------------------------------------------------------------------------
-// -----                  PndBranchTask source file                    -----
+// -----                  PndPersistencyTask source file                    -----
 // -----             Created 28/02/18  by T.Stockmanns                 -----
 // -------------------------------------------------------------------------
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 
 
 
 // -----   Default constructor   -------------------------------------------
-PndBranchTask::PndBranchTask() : fPersistency(kFALSE)
+PndPersistencyTask::PndPersistencyTask() : fPersistency(kFALSE)
 {
 }
 
 // -------------------------------------------------------------------------
 
-PndBranchTask::PndBranchTask(const char* name, Int_t iVerbose) : FairTask(name, iVerbose), fPersistency(kFALSE)
+PndPersistencyTask::PndPersistencyTask(const char* name, Int_t iVerbose) : FairTask(name, iVerbose), fPersistency(kFALSE)
 {
 
 }
 
 // -----   Destructor   ----------------------------------------------------
-PndBranchTask::~PndBranchTask() {
+PndPersistencyTask::~PndPersistencyTask() {
 }
 // -------------------------------------------------------------------------
 
 
-ClassImp(PndBranchTask)
+ClassImp(PndPersistencyTask)

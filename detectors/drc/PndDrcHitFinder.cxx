@@ -22,7 +22,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitFinder::PndDrcHitFinder() :
-PndBranchTask("DrcHitFinder", 1)
+PndPersistencyTask("DrcHitFinder", 1)
 {
 	SetPersistency(kTRUE);
   fPixelHits = 0;
@@ -47,7 +47,7 @@ PndBranchTask("DrcHitFinder", 1)
 // -------------------------------------------------------------------------
 
 PndDrcHitFinder::PndDrcHitFinder(Int_t iVerbose) :
-  PndBranchTask("DrcHitFinder", iVerbose)
+  PndPersistencyTask("DrcHitFinder", iVerbose)
 {
   SetPersistency(kTRUE);
   fPixelHits = 0;
@@ -71,7 +71,7 @@ PndDrcHitFinder::PndDrcHitFinder(Int_t iVerbose) :
 }
 
 PndDrcHitFinder::PndDrcHitFinder(const char* name, Int_t iVerbose) :
-PndBranchTask(name, iVerbose)
+PndPersistencyTask(name, iVerbose)
 {
   fPixelHits = 0;
   fEventNr = 0;   

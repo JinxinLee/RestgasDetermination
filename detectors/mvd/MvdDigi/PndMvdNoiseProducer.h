@@ -15,7 +15,7 @@
 #ifndef PNDMVDNOISEPRODUCER_H
 #define PNDMVDNOISEPRODUCER_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "FairMCEventHeader.h"
 
 #include <vector>
@@ -35,7 +35,7 @@
 
 class TClonesArray;
 
-class PndMvdNoiseProducer : public PndBranchTask
+class PndMvdNoiseProducer : public PndPersistencyTask
 {
  public:
 

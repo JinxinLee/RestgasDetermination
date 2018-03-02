@@ -2,7 +2,7 @@
 #define PNDSTTHELIXHITPRODUCER_H 1
 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndSttHelixHit.h"
 #include "PndGeoSttPar.h"
 
@@ -13,7 +13,7 @@
 class TClonesArray;
 class TObjectArray;
 
-class PndSttHelixHitProducer : public PndBranchTask
+class PndSttHelixHitProducer : public PndPersistencyTask
 {
 
  public:

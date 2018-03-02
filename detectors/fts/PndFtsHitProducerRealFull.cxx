@@ -37,7 +37,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFull::PndFtsHitProducerRealFull() :
-  PndBranchTask("Real FTS Hit Producer",0), fPointArray(0),  //fHitArray(0),
+  PndPersistencyTask("Real FTS Hit Producer",0), fPointArray(0),  //fHitArray(0),
   fHitInfoArray(0), fFtsParameters(new PndGeoFtsPar()), fTimeOrderedDigi(kFALSE)
 {
 	SetPersistency(kTRUE);

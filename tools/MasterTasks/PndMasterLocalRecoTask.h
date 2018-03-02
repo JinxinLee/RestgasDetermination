@@ -13,9 +13,9 @@
 #ifndef PndMasterLocalRecoTask_H
 #define PndMasterLocalRecoTask_H
 
+#include <PndPersistencyTask.h>
 #include "PndMasterTask.h"
 #include "FairTask.h"
-#include "PndBranchTask.h"
 
 class TClonesArray;
 
@@ -48,9 +48,9 @@ class PndMasterLocalRecoTask : public PndMasterTask
 
  private:
 
-  std::vector<PndBranchTask*> fBranchTasks;
+  std::vector<PndPersistencyTask*> fBranchTasks;
   std::vector<FairTask*> fStandardTasks;
-  std::map<PndBranchTask*, bool> fFixedPersistency;
+  std::map<PndPersistencyTask*, bool> fFixedPersistency;
 
   TString fOptions;          ///< Options parsed to the digitization
 

@@ -40,7 +40,7 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerIdeal::PndSttHitProducerIdeal() :
-  PndBranchTask("Ideal STT Hit Producer",0)
+  PndPersistencyTask("Ideal STT Hit Producer",0)
 { 
   SetPersistency(kTRUE);
   

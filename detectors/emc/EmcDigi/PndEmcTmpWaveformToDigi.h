@@ -21,7 +21,7 @@
 #ifndef PndEmcTmpWaveformToDigi_H
 #define PndEmcTmpWaveformToDigi_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include <string>		
 //#include <vector>
 
@@ -37,7 +37,7 @@ class PndEmcRecoPar;
  * @brief currently not used, not in CMakeLists.txt
  * @ingroup PndEmc
  */
-class PndEmcTmpWaveformToDigi : public PndBranchTask
+class PndEmcTmpWaveformToDigi : public PndPersistencyTask
 {
 
 public:

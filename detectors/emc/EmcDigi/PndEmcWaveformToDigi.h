@@ -19,7 +19,7 @@
 #ifndef PndEmcWaveformToDigi_H
 #define PndEmcWaveformToDigi_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndEmcDigiWriteoutBuffer.h"
 #include <string>		
 #include "FairTSBufferFunctional.h"
@@ -47,7 +47,7 @@ class PndEmcAbsCrystalCalibrator;
  * @brief Takes list of PndEmcWaveform and creates PndEmcDigi
  * @ingroup PndEmc
  */
-class PndEmcWaveformToDigi : public PndBranchTask
+class PndEmcWaveformToDigi : public PndPersistencyTask
 {
 public:
 	// Constructors

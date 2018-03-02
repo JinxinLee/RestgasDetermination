@@ -145,7 +145,7 @@ PidData/PndPidProbability.cxx
 PidData/PndPidBremCorrected4Mom.cxx
 
 PndRecoCandidate.cxx
-PndBranchTask.cxx
+PndPersistencyTask.cxx
 )
 
 set(HEADERS
@@ -251,7 +251,7 @@ PidData/PndPidProbability.h
 PidData/PndPidBremCorrected4Mom.h
 
 PndRecoCandidate.h
-PndBranchTask.h
+PndPersistencyTask.h
 )
 
 set(LINKDEF  PndDataLinkDef.h)

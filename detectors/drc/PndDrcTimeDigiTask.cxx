@@ -41,7 +41,7 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcTimeDigiTask::PndDrcTimeDigiTask() 
-:PndBranchTask("PndDrcTimeDigiTask")
+:PndPersistencyTask("PndDrcTimeDigiTask")
 {
   fGeo = new PndGeoDrc();
   fGeoH = NULL;  
@@ -62,7 +62,7 @@ PndDrcTimeDigiTask::PndDrcTimeDigiTask()
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
 PndDrcTimeDigiTask::PndDrcTimeDigiTask(Int_t verbose) 
-  :PndBranchTask("PndDrcTimeDigiTask",verbose)
+  :PndPersistencyTask("PndDrcTimeDigiTask",verbose)
 {
   fVerbose = verbose;  
   fDetType= 1; 

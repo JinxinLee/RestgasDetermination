@@ -31,7 +31,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtTrkProducer::PndMdtTrkProducer() :
-  PndBranchTask(" MDT Tracklet Producer") {
+  PndPersistencyTask(" MDT Tracklet Producer") {
   Reset();
   SetPersistency(kTRUE);
   fRec_method = 0;  //default, not use lhetrack as seed

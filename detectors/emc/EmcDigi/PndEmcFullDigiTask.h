@@ -6,13 +6,13 @@
 #ifndef PNDEMCFULLDIGITASK_H
 #define PNDEMCFULLDIGITASK_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 
 /**
  * @brief combines the tasks PndEmcHitsToWaveform and PndEmcWaveformToDigi
  * @ingroup PndEmc
  */
-class PndEmcFullDigiTask  : public PndBranchTask
+class PndEmcFullDigiTask  : public PndPersistencyTask
 {
 public:
 

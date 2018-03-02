@@ -9,7 +9,7 @@
 #define PNDDISCTASKRECONSTRUCTION_H
 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndDetectorList.h"
 #include "FairMCEventHeader.h"
 #include "FairTSBufferFunctional.h"
@@ -20,7 +20,7 @@ class TClonesArray;
 
 
 
-class PndDiscTaskReconstruction : public PndBranchTask
+class PndDiscTaskReconstruction : public PndPersistencyTask
 {
 public:
     PndDiscTaskReconstruction();

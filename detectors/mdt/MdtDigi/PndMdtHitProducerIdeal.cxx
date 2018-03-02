@@ -28,7 +28,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtHitProducerIdeal::PndMdtHitProducerIdeal() :
-  PndBranchTask("Ideal MDT Hit Producer"), fPosResolution(-1.)
+  PndPersistencyTask("Ideal MDT Hit Producer"), fPosResolution(-1.)
 {
 	SetPersistency(kTRUE);
 }

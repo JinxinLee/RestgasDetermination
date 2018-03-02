@@ -37,7 +37,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerRealFull::PndSttHitProducerRealFull() :
-  PndBranchTask("Ideal STT Hit Producer",0), fDataBuffer(0), fTimeOrderedDigi(kFALSE)
+  PndPersistencyTask("Ideal STT Hit Producer",0), fDataBuffer(0), fTimeOrderedDigi(kFALSE)
 {
 	SetPersistency(kTRUE);
 }

@@ -34,7 +34,7 @@ using std::endl;
 using std::cout;
 
 // -----   Default constructor   -------------------------------------------
-PndDrcDigiTask::PndDrcDigiTask() :PndBranchTask("PndDrcDigiTask"){
+PndDrcDigiTask::PndDrcDigiTask() :PndPersistencyTask("PndDrcDigiTask"){
   fGeo = new PndGeoDrc();
   fGeoH = NULL;  
   fPDPointArray   = NULL;
@@ -44,7 +44,7 @@ PndDrcDigiTask::PndDrcDigiTask() :PndBranchTask("PndDrcDigiTask"){
 }
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
-PndDrcDigiTask::PndDrcDigiTask(Int_t verbose) :PndBranchTask("PndDrcDigiTask",verbose){
+PndDrcDigiTask::PndDrcDigiTask(Int_t verbose) :PndPersistencyTask("PndDrcDigiTask",verbose){
   fVerbose = verbose;  
   fGeo = new PndGeoDrc();
   fGeoH = NULL;  

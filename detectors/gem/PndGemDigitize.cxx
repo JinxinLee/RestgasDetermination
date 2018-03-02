@@ -48,7 +48,7 @@ using std::map;
 
 // -----   Default constructor   ------------------------------------------
 PndGemDigitize::PndGemDigitize()
-  : PndBranchTask("GEM Digitizer", 0),
+  : PndPersistencyTask("GEM Digitizer", 0),
     fDigiPar(NULL),
     fPoints(NULL),
     fDigis(NULL),
@@ -73,7 +73,7 @@ PndGemDigitize::PndGemDigitize()
 
 // -----   Standard constructor   ------------------------------------------
 PndGemDigitize::PndGemDigitize(Int_t iVerbose) 
-  : PndBranchTask("GEM Digitizer", iVerbose),
+  : PndPersistencyTask("GEM Digitizer", iVerbose),
     fDigiPar(NULL),
     fPoints(NULL),
     fDigis(NULL),
@@ -98,7 +98,7 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
 
 // -----   Constructor with name   -----------------------------------------
 PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose) 
-  : PndBranchTask(name, iVerbose),
+  : PndPersistencyTask(name, iVerbose),
     fDigiPar(NULL),
     fPoints(NULL),
     fDigis(NULL),

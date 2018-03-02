@@ -407,7 +407,7 @@ double PndDiscTaskReconstruction::deviation(double mean_value, std::vector<doubl
 
 //---------------------------------------------------------------------------
 
-PndDiscTaskReconstruction::PndDiscTaskReconstruction() : PndBranchTask("DiscDircTaskReconstruction"), tclarr_digits(NULL), tclarr_particles(NULL), tclarr_tracks(NULL), is_time_based(kTRUE), flag_export_patterns(kFALSE), average_wl(420.), minimum_wl(385.)
+PndDiscTaskReconstruction::PndDiscTaskReconstruction() : PndPersistencyTask("DiscDircTaskReconstruction"), tclarr_digits(NULL), tclarr_particles(NULL), tclarr_tracks(NULL), is_time_based(kTRUE), flag_export_patterns(kFALSE), average_wl(420.), minimum_wl(385.)
 {
     branch_name_digits    = "DiscDigit";
     folder_name_digits    = "DiscDIRC";

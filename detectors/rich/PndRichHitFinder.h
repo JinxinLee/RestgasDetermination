@@ -6,6 +6,7 @@
 #ifndef PNDRICHHITFINDER_H
 #define PNDRICHHITFINDER_H
 
+#include <PndPersistencyTask.h>
 #include "PndRichDigi.h"
 #include "FairTSBufferFunctional.h"
 #include "FairGeoVector.h"
@@ -19,14 +20,12 @@
 
 #include "PndRichGeo.h"
 #include "PndRichPDHit.h"
-#include "PndBranchTask.h"
-
 #include <string>
 #include <vector>
 
 class TClonesArray;
 
-class PndRichHitFinder : public PndBranchTask
+class PndRichHitFinder : public PndPersistencyTask
 {
  public:
 

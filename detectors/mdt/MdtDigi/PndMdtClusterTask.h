@@ -1,7 +1,7 @@
 #ifndef PNDMDTCLUSTERTASK_H
 #define PNDMDTCLUSTERTASK_H 1
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndMdtCluster.h"
 
 class TClonesArray;
@@ -9,7 +9,7 @@ class TClonesArray;
 using std::map;
 using std::vector;
 
-class PndMdtClusterTask : public PndBranchTask
+class PndMdtClusterTask : public PndPersistencyTask
 {
 
  public:

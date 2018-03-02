@@ -25,7 +25,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSciTDigiTask::PndSciTDigiTask() :
-  PndBranchTask("PndSciT Hit Producer")
+  PndPersistencyTask("PndSciT Hit Producer")
 {
 	fInBranchName 	= "SciTPoint";
 	fOutBranchName 	= "SciTHit";
@@ -46,7 +46,7 @@ PndSciTDigiTask::PndSciTDigiTask() :
 
 // -----   Default constructor   -------------------------------------------
 PndSciTDigiTask::PndSciTDigiTask(Double_t dt, Double_t deadtime) :
-  PndBranchTask("Ideal PndSciT Hit Producer")
+  PndPersistencyTask("Ideal PndSciT Hit Producer")
 {
 	fInBranchName 	= "SciTPoint";
 	fOutBranchName 	= "SciTHit";

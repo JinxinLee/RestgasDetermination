@@ -72,7 +72,7 @@ using std::endl;
 // Constructors --
 //----------------
 
-PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):PndBranchTask("PndEmcPhiBumpSplitter", verbose),
+PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):PndPersistencyTask("PndEmcPhiBumpSplitter", verbose),
   fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fClusterPosParam()
 	
 {

@@ -16,8 +16,8 @@
 #ifndef PNDDRCTIMEDIGITASK_H
 #define PNDDRCTIMEDIGITASK_H
 
+#include <PndPersistencyTask.h>
 #include "FairTimeStamp.h"
-#include "PndBranchTask.h"
 #include "TClonesArray.h"
 #include "PndMCTrack.h"
 #include "PndDrcDigi.h"
@@ -44,7 +44,7 @@
 
 #include <map>
 class PndDrcDigiWriteoutBuffer;
-class PndDrcTimeDigiTask : public PndBranchTask {
+class PndDrcTimeDigiTask : public PndPersistencyTask {
 
 public:
 

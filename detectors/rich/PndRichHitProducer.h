@@ -2,7 +2,7 @@
 #define PNDRICHHITPRODUCER_H 1
 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndRichDigi.h"
 #include "PndRichHit.h"
 #include "PndRichGeo.h"
@@ -14,7 +14,7 @@
 class TClonesArray;
 class PndRichHitWriteoutBuffer;
 
-class PndRichHitProducer : public PndBranchTask
+class PndRichHitProducer : public PndPersistencyTask
 {
 
  public:

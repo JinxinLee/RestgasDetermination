@@ -31,10 +31,10 @@
 //---------------
 // C++ Headers --
 //---------------
+#include <PndPersistencyTask.h>
 #include <vector>
 #include <map>
 
-#include "PndBranchTask.h"
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
 //#include "PndEmcDigiCalibrator.h"
@@ -58,7 +58,7 @@ class PndEmcSharedDigi;
  * direction for use with Bremstrahlung correction.
  * @ingroup PndEmc
  */
-class PndEmcPhiBumpSplitter: public PndBranchTask
+class PndEmcPhiBumpSplitter: public PndPersistencyTask
 {
 public:
 	// Constructor

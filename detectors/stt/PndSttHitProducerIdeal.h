@@ -18,7 +18,7 @@
 #ifndef PNDSTTHITPRODUCERIDEAL_H
 #define PNDSTTHITPRODUCERIDEAL_H 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndGeoSttPar.h"
 
 #include "TVector3.h"
@@ -26,7 +26,7 @@
  
 class TClonesArray;
 
-class PndSttHitProducerIdeal : public PndBranchTask
+class PndSttHitProducerIdeal : public PndPersistencyTask
 {
  public:
 

@@ -41,7 +41,7 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFast::PndFtsHitProducerRealFast():
-  PndBranchTask("Ideal FTS Hit Producer",0), fPointArray(0),  fHitArray(0),
+  PndPersistencyTask("Ideal FTS Hit Producer",0), fPointArray(0),  fHitArray(0),
   fVolumeArray(0), fHitInfoArray(0), fevtn(0), fFtsParameters(new PndGeoFtsPar()), fOverlap(kFALSE)
 {
 	SetPersistency(kTRUE);

@@ -65,7 +65,7 @@ double PndDiscTaskPID::deviation(double mean_value, std::vector<double> values)
 
 //---------------------------------------------------------------------------
 
-PndDiscTaskPID::PndDiscTaskPID() : PndBranchTask("PndDiscTaskPID")
+PndDiscTaskPID::PndDiscTaskPID() : PndPersistencyTask("PndDiscTaskPID")
 {
     branch_name_digits    = "DiscPatternPrediction";
     folder_name_digits    = "DiscDIRC";

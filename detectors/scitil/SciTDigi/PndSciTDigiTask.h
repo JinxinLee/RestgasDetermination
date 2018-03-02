@@ -16,12 +16,12 @@
 #ifndef PNDSCITDIGITASK_H
 #define PNDSCITDIGITASK_H 
 
+#include <PndPersistencyTask.h>
 #include "PndSciTPoint.h"
 #include "PndGeoHandling.h"
 #include "PndGeoSciTPar.h"
 #include "PndSciTHitWriteoutBuffer.h"
 
-#include "PndBranchTask.h"
 #include "FairMCEventHeader.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
@@ -33,7 +33,7 @@
 
 class TClonesArray;
 
-class PndSciTDigiTask : public PndBranchTask
+class PndSciTDigiTask : public PndPersistencyTask
 {
  public:
 

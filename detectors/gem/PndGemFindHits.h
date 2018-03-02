@@ -21,8 +21,7 @@
 #define PNDGEMFINDHITS_H 1
 
 
-#include "PndBranchTask.h"
-
+#include <PndPersistencyTask.h>
 #include "TStopwatch.h"
 #include "TH2F.h"
 #include "TVector3.h"
@@ -40,7 +39,7 @@ class PndGemStation;
 class PndGemCluster;
 class PndGemDigitize;
 
-class PndGemFindHits : public PndBranchTask
+class PndGemFindHits : public PndPersistencyTask
 {
 
 

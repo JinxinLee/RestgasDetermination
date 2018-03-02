@@ -2,7 +2,7 @@
 #define PNDMDTDIGITIZATION_H 1
 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "TVector3.h"
 
 class TClonesArray;
@@ -10,7 +10,7 @@ class PndMdtIGeometry;
 class PndMdtDigi;
 class PndMdtWaveform;
 
-class PndMdtDigitization : public PndBranchTask
+class PndMdtDigitization : public PndPersistencyTask
 {
 
   public:

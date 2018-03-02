@@ -15,7 +15,7 @@
 #ifndef PNDDRCHITPRODUCERREAL_H
 #define PNDDRCHITPRODUCERREAL_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "TClonesArray.h"
 #include "PndMCTrack.h"
 #include "PndDrcHit.h"
@@ -36,7 +36,7 @@
 #include "TDatabasePDG.h"
 #endif
 
-class PndDrcHitProducerReal : public PndBranchTask {
+class PndDrcHitProducerReal : public PndPersistencyTask {
 
 public:
 

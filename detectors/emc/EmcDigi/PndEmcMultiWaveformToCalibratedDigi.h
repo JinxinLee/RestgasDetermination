@@ -21,7 +21,7 @@
 #ifndef PndEmcMultiWaveformToCalibratedDigi_H
 #define PndEmcMultiWaveformToCalibratedDigi_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include <string>		
 #include <map>
 #include "TString.h"
@@ -44,7 +44,7 @@ class PndEmcAbsPulseshape;
  * @ingroup PndEmc
  * @author Ch. Hammann <chammann@hiskp.uni-bonn.de>
  */
-class PndEmcMultiWaveformToCalibratedDigi : public PndBranchTask
+class PndEmcMultiWaveformToCalibratedDigi : public PndPersistencyTask
 {
 
 public:

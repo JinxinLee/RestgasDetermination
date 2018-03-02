@@ -5,11 +5,11 @@
 #ifndef PNDEMCHITPRODUCER_H
 #define PNDEMCHITPRODUCER_H
 
+#include <PndPersistencyTask.h>
 #include <map>
 #include <string>
 #include <limits>
 
-#include "PndBranchTask.h"
 #include "TH1F.h"
 #include "TFile.h"
 #include "TVector3.h"
@@ -34,7 +34,7 @@ using std::map;
  * @brief creates PndEmcHit%s from PndEmcPoint%s
  * @ingroup PndEmc
  */
-class PndEmcHitProducer : public PndBranchTask
+class PndEmcHitProducer : public PndPersistencyTask
 {
   
  public:

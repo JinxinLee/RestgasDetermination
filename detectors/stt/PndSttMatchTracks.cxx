@@ -20,7 +20,7 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndSttMatchTracks::PndSttMatchTracks() 
-  : PndBranchTask("STT track match") {
+  : PndPersistencyTask("STT track match") {
   fMatches    = NULL;
   fVerbose    = 1;
   fCollectionsComplete = kFALSE;
@@ -32,7 +32,7 @@ PndSttMatchTracks::PndSttMatchTracks()
 
 // -----   Constructor with verbosity level   ------------------------------
 PndSttMatchTracks::PndSttMatchTracks(Int_t verbose) 
-  : PndBranchTask("STT track match") {
+  : PndPersistencyTask("STT track match") {
   fMatches    = NULL;
   fVerbose    = verbose;
   fCollectionsComplete = kFALSE;
@@ -45,7 +45,7 @@ PndSttMatchTracks::PndSttMatchTracks(Int_t verbose)
 // -----   Constructor with name, title and verbosity  ---------------------
 PndSttMatchTracks::PndSttMatchTracks(const char* name, const char* title,
 				     Int_t verbose) 
-  : PndBranchTask(name) {
+  : PndPersistencyTask(name) {
   fMatches    = NULL;
   fVerbose    = verbose;
   fCollectionsComplete = kFALSE;

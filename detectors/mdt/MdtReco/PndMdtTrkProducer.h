@@ -1,10 +1,10 @@
 #ifndef PNDMDTTRKPRODUCER_H
 #define PNDMDTTRKPRODUCER_H 1
 
+#include <PndPersistencyTask.h>
 #include <map>
 #include <vector>
 
-#include "PndBranchTask.h"
 #include "PndMdtTrk.h"
 #include "PndMdtRecoPar.h"
 
@@ -16,7 +16,7 @@ class TClonesArray;
 using std::map;
 using std::vector;
 
-class PndMdtTrkProducer : public PndBranchTask
+class PndMdtTrkProducer : public PndPersistencyTask
 {
 
  public:

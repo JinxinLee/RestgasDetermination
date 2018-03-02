@@ -27,7 +27,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdNoiseProducer::PndMvdNoiseProducer() :
-PndBranchTask("Charge Noise Producer"),
+PndPersistencyTask("Charge Noise Producer"),
     fTimeOrderedDigi(kFALSE),
     fBranchName("MVDStripDigis"),
     fDigiStripArray(NULL),

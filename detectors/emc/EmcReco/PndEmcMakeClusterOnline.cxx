@@ -41,7 +41,7 @@ static Int_t evtCounter = 0;
 static Int_t digiCounter = 0;
 
 PndEmcMakeClusterOnline::PndEmcMakeClusterOnline(Int_t verbose, Bool_t storeclusters):
-	PndBranchTask("EmcClusteringTask", verbose),
+	PndPersistencyTask("EmcClusteringTask", verbose),
 	fDigiArray(NULL), 
 	fClusterArray(NULL), 
 	fGeoPar(new PndEmcGeoPar()), 

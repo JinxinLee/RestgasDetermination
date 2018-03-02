@@ -42,7 +42,7 @@ static Int_t HowManyHitsAboveThreshold = 0;
 
 // -----   Default constructor   -------------------------------------------
 PndEmcHitProducer::PndEmcHitProducer() :
-	PndBranchTask("Ideal EMC hit Producer"),
+	PndPersistencyTask("Ideal EMC hit Producer"),
 	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar()
 {
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
@@ -52,7 +52,7 @@ PndEmcHitProducer::PndEmcHitProducer() :
 // -------------------------------------------------------------------------
 
 PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
-	PndBranchTask("Ideal EMC hit Producer"),
+	PndPersistencyTask("Ideal EMC hit Producer"),
 	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar()
 { 
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");

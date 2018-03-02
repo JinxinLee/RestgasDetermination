@@ -14,8 +14,8 @@
 #ifndef PndMdtPointsToWaveform_H
 #define PndMdtPointsToWaveform_H
 
+#include <PndPersistencyTask.h>
 #include "PndMdtWaveform.h"
-#include "PndBranchTask.h"
 #include "TVector3.h"
 #include <TFile.h>
 #include <TTree.h>
@@ -27,7 +27,7 @@ class PndMdtWaveformWriteoutBuffer;
 class PndMdtParamDigi;
 class PndMdtIGeometry;
 
-class PndMdtPointsToWaveform : public PndBranchTask
+class PndMdtPointsToWaveform : public PndPersistencyTask
 {
 
   public:

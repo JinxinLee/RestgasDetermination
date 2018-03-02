@@ -23,7 +23,7 @@
 #ifndef PNDEMC2DLOCALMAXFINDER_H
 #define PNDEMC2DLOCALMAXFINDER_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
 
@@ -38,7 +38,7 @@ class PndEmcRecoPar;
  * @brief Searches for local maxima in a cluster
  * @ingroup PndEmc
  */
-class PndEmc2DLocMaxFinder: public PndBranchTask
+class PndEmc2DLocMaxFinder: public PndPersistencyTask
 {
 public:
   // Constructors
@@ -87,7 +87,7 @@ private:
   Int_t fTheNeighbourLevel;
 
   /* Verbosity level */
-  // Int_t fVerbose;	//do not shadow PndBranchTask::fVerbose
+  // Int_t fVerbose;	//do not shadow PndPersistencyTask::fVerbose
  
   ClassDef(PndEmc2DLocMaxFinder,2);
 };

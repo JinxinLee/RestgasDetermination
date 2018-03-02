@@ -8,7 +8,7 @@
 #include "PndSdsTask.h"
 
 PndSdsTask::PndSdsTask() :
-  PndBranchTask("SdsTask", 0),
+  PndPersistencyTask("SdsTask", 0),
   fInBranchName(""),
 	fOutBranchName(""),
 	fFolderName(""),

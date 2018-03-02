@@ -7,17 +7,17 @@
 
 #ifndef PNDSDSTASK_H_
 #define PNDSDSTASK_H_
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "FairRootManager.h"
 
 #include <iostream>
 
-class PndSdsTask: public PndBranchTask {
+class PndSdsTask: public PndPersistencyTask {
 public:
 	PndSdsTask();
 
 	PndSdsTask(const char* name, Int_t iVerbose = 1) : 
-  PndBranchTask(name, iVerbose),
+  PndPersistencyTask(name, iVerbose),
   fInBranchName(""),
 	fOutBranchName(""),
 	fFolderName(""),

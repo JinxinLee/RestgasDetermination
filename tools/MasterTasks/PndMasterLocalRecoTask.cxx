@@ -62,8 +62,8 @@ PndMasterLocalRecoTask::PndMasterLocalRecoTask(TString options) :
 /** Set the Persistency of all the tasks in the same way **/
 void PndMasterLocalRecoTask::SetPersistency(Bool_t pers)
 {
-  std::for_each(fBranchTasks.begin(), fBranchTasks.end(), [pers](PndBranchTask* task){task->SetPersistency(pers);});
-  std::for_each(fFixedPersistency.begin(), fFixedPersistency.end(), [](std::pair<PndBranchTask*, bool> task){task.first->SetPersistency(task.second);});
+  std::for_each(fBranchTasks.begin(), fBranchTasks.end(), [pers](PndPersistencyTask* task){task->SetPersistency(pers);});
+  std::for_each(fFixedPersistency.begin(), fFixedPersistency.end(), [](std::pair<PndPersistencyTask*, bool> task){task.first->SetPersistency(task.second);});
 
   return;
 }

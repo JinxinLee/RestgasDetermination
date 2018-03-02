@@ -23,7 +23,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndRichHitFinder::PndRichHitFinder() :
-PndBranchTask("RichHitFinder", 1)
+PndPersistencyTask("RichHitFinder", 1)
 {
   SetPersistency(kTRUE);
   fPixelHits = 0;
@@ -66,7 +66,7 @@ PndBranchTask("RichHitFinder", 1)
 // -------------------------------------------------------------------------
 
 PndRichHitFinder::PndRichHitFinder(Int_t iVerbose) :
-  PndBranchTask("RichHitFinder", iVerbose)
+  PndPersistencyTask("RichHitFinder", iVerbose)
 {
   SetPersistency(kTRUE);
   fPixelHits = 0;
@@ -107,7 +107,7 @@ PndRichHitFinder::PndRichHitFinder(Int_t iVerbose) :
 }
 
 PndRichHitFinder::PndRichHitFinder(const char* name, Int_t iVerbose) :
-PndBranchTask(name, iVerbose)
+PndPersistencyTask(name, iVerbose)
 {
   SetPersistency(kTRUE);
   fPixelHits = 0;

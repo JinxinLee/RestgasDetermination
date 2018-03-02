@@ -18,7 +18,7 @@
 #ifndef PNDSTTFINDTRACKS
 #define PNDSTTFINDTRACKS 1
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndGeoSttPar.h"
 
 #include <string>
@@ -27,7 +27,7 @@
 class PndSttTrackFinder;
 class TClonesArray;
 
-class PndSttFindTracks : public PndBranchTask
+class PndSttFindTracks : public PndPersistencyTask
 {
 
  public:
@@ -49,7 +49,7 @@ class PndSttFindTracks : public PndBranchTask
    *@param finder   Pointer to STT track finder concrete class
    *@param verbose  Verbosity level
    **/
-  PndSttFindTracks(const char* name, const char* title = "PndBranchTask",
+  PndSttFindTracks(const char* name, const char* title = "PndPersistencyTask",
 		   PndSttTrackFinder* finder = NULL, Int_t verbose = 1);
 
 

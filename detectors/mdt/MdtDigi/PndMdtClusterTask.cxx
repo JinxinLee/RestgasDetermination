@@ -22,7 +22,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtClusterTask::PndMdtClusterTask() :
-  PndBranchTask("MDT Cluster Task")
+  PndPersistencyTask("MDT Cluster Task")
 {
   SetPersistency(kTRUE);
 }

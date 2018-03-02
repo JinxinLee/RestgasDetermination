@@ -24,7 +24,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSciTHitProducerIdeal::PndSciTHitProducerIdeal() :
-  PndBranchTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(0.1) //auto time resolution 0.1 ns
+  PndPersistencyTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(0.1) //auto time resolution 0.1 ns
 {
 	fInBranchName 	= "SciTPoint";
 	fGeoH =  NULL;
@@ -35,7 +35,7 @@ PndSciTHitProducerIdeal::PndSciTHitProducerIdeal() :
 
 // -----   Default constructor   -------------------------------------------
 PndSciTHitProducerIdeal::PndSciTHitProducerIdeal(Double_t dt) :
-  PndBranchTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(dt)
+  PndPersistencyTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(dt)
 {
 	fInBranchName 	= "SciTPoint";
 	fGeoH =  NULL;

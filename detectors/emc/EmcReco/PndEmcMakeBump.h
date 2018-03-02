@@ -23,7 +23,7 @@
 #ifndef PNDEMCMAKEBUMP_H
 #define PNDEMCMAKEBUMP_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 
 class TClonesArray;
 class TObjectArray;
@@ -41,7 +41,7 @@ class PndEmcTwoCoordIndex;
  * This task is mostly empty and just calls the subtasks.
  * @ingroup PndEmc
  */
-class PndEmcMakeBump  : public PndBranchTask
+class PndEmcMakeBump  : public PndPersistencyTask
 {
 public:
   // Constructors

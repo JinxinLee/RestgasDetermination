@@ -7,7 +7,7 @@
 #ifndef PNDEMCMAKECLUSTERONLINE_H
 #define PNDEMCMAKECLUSTERONLINE_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include <vector>		
 
 #include "FairTSBufferFunctional.h"
@@ -22,7 +22,7 @@ class PndEmcRecoPar;
 class BinaryFunctor;
 
 
-class PndEmcMakeClusterOnline : public PndBranchTask
+class PndEmcMakeClusterOnline : public PndPersistencyTask
 {
 public:
 

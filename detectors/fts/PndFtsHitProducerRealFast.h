@@ -4,7 +4,7 @@
 #define PNDFTSHITPRODUCERREALFAST_H 1
 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndGeoFtsPar.h"
 #include "TVector3.h"
 
@@ -13,7 +13,7 @@ class PndFtsHitInfo;
 class TClonesArray;
 class TObjectArray;
 
-class PndFtsHitProducerRealFast : public PndBranchTask
+class PndFtsHitProducerRealFast : public PndPersistencyTask
 {
 
  public:

@@ -23,7 +23,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtDigitization::PndMdtDigitization(Int_t verbose, Bool_t store) :
-  PndBranchTask(" MDT Digitization"), fTimeOrderedDigi(kFALSE)
+  PndPersistencyTask(" MDT Digitization"), fTimeOrderedDigi(kFALSE)
 {
   SetVerbose(verbose);
   SetPersistency(store);

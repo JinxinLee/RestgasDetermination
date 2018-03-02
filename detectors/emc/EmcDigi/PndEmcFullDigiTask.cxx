@@ -30,7 +30,7 @@ using std::cout;
 // Constructors --
 //----------------
 PndEmcFullDigiTask::PndEmcFullDigiTask(Int_t verbose, Bool_t persistance):
-  PndBranchTask("EMC Full digitization Task"), fVerbose(verbose)
+  PndPersistencyTask("EMC Full digitization Task"), fVerbose(verbose)
 {
   this->Add(new PndEmcHitsToWaveform());
   this->Add(new PndEmcWaveformToDigi());
@@ -40,7 +40,7 @@ PndEmcFullDigiTask::PndEmcFullDigiTask(Int_t verbose, Bool_t persistance):
   TList* thistasks = this->GetListOfTasks();
   for(Int_t i=0;i<thistasks->GetEntries();i++)
   {
-    ((PndBranchTask*)thistasks->At(i))->SetVerbose(fVerbose);
+    ((PndPersistencyTask*)thistasks->At(i))->SetVerbose(fVerbose);
   }
   
 	StoreDigi(GetPersistency());

@@ -28,10 +28,10 @@
 //---------------
 // C++ Headers --
 //---------------
+#include <PndPersistencyTask.h>
 #include <vector>
 #include <map>
 
-#include "PndBranchTask.h"
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
 #include "PndEmcDigiCalibrator.h"
@@ -54,7 +54,7 @@ class PndEmcRecoPar;
  * @brief splits clusters on the basis of exponential distance from the bump centroid
  * @ingroup PndEmc
  */
-class PndEmcExpClusterSplitter: public PndBranchTask
+class PndEmcExpClusterSplitter: public PndPersistencyTask
 {
 public:
 	// Constructor
@@ -105,7 +105,7 @@ private:
 	Double_t fMinDigiEnergy;
 	
 	/* Verbosity level */
-	// Int_t fVerbose;	//do not shadow PndBranchTask::fVerbose
+	// Int_t fVerbose;	//do not shadow PndPersistencyTask::fVerbose
 	
 	//added for time information
 	PndEmcDigiCalibrator digiCalibrator;

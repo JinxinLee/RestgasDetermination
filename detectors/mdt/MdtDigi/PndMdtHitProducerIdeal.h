@@ -2,13 +2,13 @@
 #define PNDMDTHITPRODUCERIDEAL_H 1
 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndMdtHit.h"
 #include "TVector3.h"
 
 class TClonesArray;
 
-class PndMdtHitProducerIdeal : public PndBranchTask
+class PndMdtHitProducerIdeal : public PndPersistencyTask
 {
 
  public:

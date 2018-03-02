@@ -42,14 +42,14 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHelixHitProducer::PndSttHelixHitProducer() :
-  PndBranchTask("STT HELIX Hit Producer") {
+  PndPersistencyTask("STT HELIX Hit Producer") {
   SetPersistency(kTRUE);
   fVerbose = 1;
 }
 // -------------------------------------------------------------------------
 
 PndSttHelixHitProducer::PndSttHelixHitProducer(Int_t verbose) :
-  PndBranchTask("STT HELIX Hit Producer") {
+  PndPersistencyTask("STT HELIX Hit Producer") {
   SetPersistency(kTRUE);
   fVerbose = verbose;
 }

@@ -9,7 +9,7 @@
 #ifndef PndEmcFWEndcapTimebasedWaveforms_H
 #define PndEmcFWEndcapTimebasedWaveforms_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 
 class PndEmcMapper;
 class PndEmcFWEndcapDigiPar;
@@ -31,7 +31,7 @@ class TClonesArray;
  * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
  * @ingroup PndEmc
  */
-class PndEmcFWEndcapTimebasedWaveforms : public PndBranchTask
+class PndEmcFWEndcapTimebasedWaveforms : public PndPersistencyTask
 {
 public:
   // Constructors

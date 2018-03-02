@@ -9,7 +9,7 @@
 
 #pragma link C++ class PndStack+;
 #pragma link C++ class PndMCTrack+;
-#pragma link C++ class PndBranchTask+;
+#pragma link C++ class PndPersistencyTask+;
 
 #pragma link C++ class PndDskCerenkov+;
 #pragma link C++ class PndDskParticle+;

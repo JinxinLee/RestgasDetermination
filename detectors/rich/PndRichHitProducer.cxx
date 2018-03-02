@@ -3,9 +3,8 @@
 // -----                  Created 11/06/08  by  S.Spataro              -----
 // -------------------------------------------------------------------------
 
+#include <PndPersistencyTask.h>
 #include "PndRichHitProducer.h"
-
-#include "PndBranchTask.h"
 
 #include "PndRichDigi.h"
 #include "PndRichHit.h"
@@ -37,7 +36,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndRichHitProducer::PndRichHitProducer() :
-  PndBranchTask("Rich Hit Producer") {
+  PndPersistencyTask("Rich Hit Producer") {
   fPosResolution = -1.;
   fGeoVersion = 313;
   fPhDetNoise = kFALSE;

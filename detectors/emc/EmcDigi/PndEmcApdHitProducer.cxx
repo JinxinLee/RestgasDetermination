@@ -37,7 +37,7 @@ using std::map;
 		
 // -----   Default constructor   -------------------------------------------
 PndEmcApdHitProducer::PndEmcApdHitProducer() :
-  PndBranchTask("Ideal EMC APD hit Producer"), fPointArray(0), fDigiArray(0), fVolumeArray(new TObjArray),
+  PndPersistencyTask("Ideal EMC APD hit Producer"), fPointArray(0), fDigiArray(0), fVolumeArray(new TObjArray),
   fMapVersion(0), emcX(), emcY(), emcZ(), fEmcStr()
 { 
 }

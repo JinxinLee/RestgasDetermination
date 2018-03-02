@@ -16,7 +16,7 @@
 #include "PndDiscSensorGrid.h"
 
 // FAIR/PROOT
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndDetectorList.h"
 #include "FairMCEventHeader.h"
 
@@ -33,7 +33,7 @@
 
 
 
-class PndDiscTaskDigitization : public PndBranchTask
+class PndDiscTaskDigitization : public PndPersistencyTask
 {
 public:
     PndDiscTaskDigitization();

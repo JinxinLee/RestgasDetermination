@@ -43,13 +43,13 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitProducerReal::PndDrcHitProducerReal() 
-  :PndBranchTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fGeo(new PndGeoDrc()),fVerbose(0),fDetType(1){
+  :PndPersistencyTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fGeo(new PndGeoDrc()),fVerbose(0),fDetType(1){
   SetParameters();
 }
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
 PndDrcHitProducerReal::PndDrcHitProducerReal(Int_t verbose, Int_t det_type)  
-  :PndBranchTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fGeo(new PndGeoDrc()),fVerbose(verbose),fDetType(det_type){
+  :PndPersistencyTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fGeo(new PndGeoDrc()),fVerbose(verbose),fDetType(det_type){
   SetParameters();
 }
 

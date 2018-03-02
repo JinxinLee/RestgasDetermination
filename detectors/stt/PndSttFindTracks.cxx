@@ -26,7 +26,7 @@ using std::string;
 
 // -----   Default constructor   -------------------------------------------
 PndSttFindTracks::PndSttFindTracks() 
-  : PndBranchTask("STT Find Tracks")
+  : PndPersistencyTask("STT Find Tracks")
 {
   fFinder      = NULL;
   fTrackCandArray  = NULL; 
@@ -43,7 +43,7 @@ PndSttFindTracks::PndSttFindTracks()
 // -----   Standard constructor   ------------------------------------------
 PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder, 
 				   Int_t verbose)
-  : PndBranchTask("STT Find Tracks")
+  : PndPersistencyTask("STT Find Tracks")
 {
   fFinder      = finder;
   fTrackCandArray  = NULL; 
@@ -62,7 +62,7 @@ PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder,
 PndSttFindTracks::PndSttFindTracks(const char* name, const char* title, 
 				   PndSttTrackFinder* finder,
 				   Int_t verbose) 
-  : PndBranchTask(name)
+  : PndPersistencyTask(name)
 {
   fFinder      = finder;
   fTrackCandArray  = NULL; 

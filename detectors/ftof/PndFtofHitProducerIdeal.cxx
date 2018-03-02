@@ -22,7 +22,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndFtofHitProducerIdeal::PndFtofHitProducerIdeal() :
-  PndBranchTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE)
+  PndPersistencyTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE)
 {
 	fBranchName 	= "FtofPoint";
 	SetPersistency(kTRUE);
@@ -32,7 +32,7 @@ PndFtofHitProducerIdeal::PndFtofHitProducerIdeal() :
 
 // -----   Default constructor   -------------------------------------------
 PndFtofHitProducerIdeal::PndFtofHitProducerIdeal(Double_t dt, Double_t dt2) :
-  PndBranchTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE)
+  PndPersistencyTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE)
 {
 	fBranchName 	= "FtofPoint";
 	fdt= dt;	fdt2= dt2;

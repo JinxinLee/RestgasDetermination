@@ -19,10 +19,10 @@
 #ifndef PndEmcHitsToWaveform_H
 #define PndEmcHitsToWaveform_H
 
+#include <PndPersistencyTask.h>
 #include "PndEmcWaveform.h"
 #include "PndEmcTwoCoordIndex.h"
 
-#include "PndBranchTask.h"
 
 //class PndEmcTwoCoordIndex;
 //class PndEmcWaveform;
@@ -38,7 +38,7 @@ class PndEmcAbsPulseshape;
  * @brief Takes list of PndEmcHits and creates PndEmcWaveform
  * @ingroup PndEmc
  */
-class PndEmcHitsToWaveform : public PndBranchTask
+class PndEmcHitsToWaveform : public PndPersistencyTask
 {
 public:
 	// Constructors

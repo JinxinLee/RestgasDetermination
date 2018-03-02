@@ -7,7 +7,7 @@
 #define PNDEMCAPDHITPRODUCER_H
 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndEmcApdHit.h"
 #include "TVector3.h"
 #include "TArrayI.h"
@@ -18,7 +18,7 @@
 class TClonesArray;
 class TObjectArray;
 
-class PndEmcApdHitProducer : public PndBranchTask
+class PndEmcApdHitProducer : public PndPersistencyTask
 {
 
  public:

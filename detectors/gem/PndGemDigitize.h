@@ -20,8 +20,7 @@
 #ifndef PNDGEMDIGITIZE_H
 #define PNDGEMDIGITIZE_H 1
 
-#include "PndBranchTask.h"
-
+#include <PndPersistencyTask.h>
 #include "TStopwatch.h"
 #include "TRandom2.h"
 #include "PndGemMCPoint.h"
@@ -35,7 +34,7 @@ class PndGemDigiPar;
 class PndGemDigiWriteoutBuffer;
 
 
-class PndGemDigitize : public PndBranchTask
+class PndGemDigitize : public PndPersistencyTask
 {
 
  public:

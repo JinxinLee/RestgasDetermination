@@ -4,7 +4,7 @@
 #define PNDSTTHITPRODUCERREALFULL_H 1
 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndGeoSttPar.h"
 
 //#include "PndSttHit.h"
@@ -18,7 +18,7 @@ class TClonesArray;
 class TObjectArray;
 class PndSttHitWriteoutBuffer;
 
-class PndSttHitProducerRealFull : public PndBranchTask
+class PndSttHitProducerRealFull : public PndPersistencyTask
 {
 
  public:

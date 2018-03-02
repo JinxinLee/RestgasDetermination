@@ -59,7 +59,7 @@ Int_t PndEmcMakeBump::fEventCounter=1;
 // Constructors --
 //----------------
 PndEmcMakeBump::PndEmcMakeBump(Int_t verbose, Bool_t persistance):
-PndBranchTask("EMC Bump splitting Task"), fVerbose(verbose)
+PndPersistencyTask("EMC Bump splitting Task"), fVerbose(verbose)
 {
 	SetPersistency(persistance);
   this->Add(new PndEmc2DLocMaxFinder());
@@ -69,7 +69,7 @@ PndBranchTask("EMC Bump splitting Task"), fVerbose(verbose)
   TList* thistasks = this->GetListOfTasks();
   for(Int_t i=0;i<thistasks->GetEntries();i++)
   {
-    ((PndBranchTask*)thistasks->At(i))->SetVerbose(fVerbose);
+    ((PndPersistencyTask*)thistasks->At(i))->SetVerbose(fVerbose);
   }
   
 	SetStorageOfData(GetPersistency());

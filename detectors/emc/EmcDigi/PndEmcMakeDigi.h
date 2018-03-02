@@ -15,7 +15,7 @@
 #ifndef PndEmcMakeDigi_H
 #define PndEmcMakeDigi_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include <string>
 
 class PndEmcTwoCoordIndex;
@@ -34,7 +34,7 @@ class PndEmcRecoPar;
  * analysis of waveforms.
  * @ingroup PndEmc
  */
-class PndEmcMakeDigi : public PndBranchTask
+class PndEmcMakeDigi : public PndPersistencyTask
 {
 public:
   // Constructors

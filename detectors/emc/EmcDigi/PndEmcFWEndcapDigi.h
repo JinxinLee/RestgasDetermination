@@ -3,12 +3,11 @@
 #ifndef PNDEMCFWENDCAPDIGI_H_
 #define PNDEMCFWENDCAPDIGI_H_
 
+#include <PndPersistencyTask.h>
 #include "PndEmcPSAFPGA/PndEmcHighLowPSA.h"
 #include "PndEmcDigiWriteoutBuffer.h"
 #include "PndEmcSimCrystalCalibrator.h"
 #include "PndEmcPSAFPGA/PndEmcPSAFPGASampleAnalyser.h"
-
-#include "PndBranchTask.h"
 
 #include <string>
 //#include <vector>
@@ -32,7 +31,7 @@ class PndEmcAbsPulseshape;
  * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
  * @ingroup PndEmc
  */
-class PndEmcFWEndcapDigi : public PndBranchTask
+class PndEmcFWEndcapDigi : public PndPersistencyTask
 {
 public:
   // Constructors

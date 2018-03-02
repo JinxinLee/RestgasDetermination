@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----                 PndBranchTask header file                    -----
-// -----           Created 28/02/18  by T. StockmannsD.		         -----
+// -----                 PndPersistencyTask header file                    -----
+// -----           Created 28/02/18  by T. Stockmanns		         -----
 // -------------------------------------------------------------------------
 
 
-/** PndBranchTask.h
+/** PndPersistencyTask.h
  *@author T.Stockmanns <t.stockmanns@fz-juelich.de>
  **
  ** Version 28/02/18 by T.Stockmanns
@@ -19,14 +19,14 @@
 
 #include "FairTask.h"
 
-class PndBranchTask : public FairTask
+class PndPersistencyTask : public FairTask
 {
 
  public:
 
-  PndBranchTask();
-  PndBranchTask(const char* name, Int_t iVerbose = 1);
-  virtual ~PndBranchTask();
+  PndPersistencyTask();
+  PndPersistencyTask(const char* name, Int_t iVerbose = 1);
+  virtual ~PndPersistencyTask();
 
   void SetPersistency(Bool_t val=kTRUE){ fPersistency = val; }
   Bool_t GetPersistency(){ return fPersistency; }
@@ -35,7 +35,7 @@ class PndBranchTask : public FairTask
   Bool_t fPersistency;                    //!   ///< Persistency flag
 
 
-  ClassDef(PndBranchTask,1)
+  ClassDef(PndPersistencyTask,1)
 
 
 };

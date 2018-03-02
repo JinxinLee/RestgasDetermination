@@ -18,7 +18,7 @@
 #ifndef PNDFTSHITPRODUCERIDEAL_H
 #define PNDFTSHITPRODUCERIDEAL_H 
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include "PndGeoFtsPar.h"
 #include "PndFtsMapCreator.h"
 
@@ -27,7 +27,7 @@
  
 class TClonesArray;
 
-class PndFtsHitProducerIdeal : public PndBranchTask
+class PndFtsHitProducerIdeal : public PndPersistencyTask
 {
  public:
 

@@ -47,7 +47,7 @@ using std::endl;
 Int_t PndEmcMakeCluster::fEventCounter=0;
 
 PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters):
-PndBranchTask("EmcClusteringTask", verbose),
+PndPersistencyTask("EmcClusteringTask", verbose),
 fDigiArray(NULL), fHitArray(NULL), fMCTrackArray(NULL), fClusterArray(NULL), fWriteOutArray(NULL), fDigiFunctor(NULL), fClusterList(), fDigiEnergyTresholdBarrel(0), fDigiEnergyTresholdFWD(0), fDigiEnergyTresholdBWD(0), fDigiEnergyTresholdShashlyk(0), fClusterPosParam(), fMapVersion(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreClusters(storeclusters)
 {
 	fClusterList.clear();

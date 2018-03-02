@@ -7,7 +7,7 @@
 #ifndef PNDEMCMAKERECOHIT_H
 #define PNDEMCMAKERECOHIT_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 //#include <string>
 //#include <vector>		
 
@@ -20,7 +20,7 @@ class PndEmcRecoPar;
  * @brief Create PndEmcRecoHit from PndEmcBump
  * @ingroup PndEmc
  */
-class PndEmcMakeRecoHit : public PndBranchTask
+class PndEmcMakeRecoHit : public PndPersistencyTask
 {
 public:
 

@@ -4,11 +4,10 @@
 //----------------------------------------------------------------------
 //
 //
+#include <PndPersistencyTask.h>
 #include "PndEmcFWEndcapTimebasedWaveforms.h"
 
 #include "FairRun.h"
-#include "PndBranchTask.h"
-
 #include "PndEmcWaveform.h"
 #include "PndEmcWaveformData.h"
 #include "PndEmcWaveformBuffer.h"
@@ -45,7 +44,7 @@ using std::fstream;
 
 
 PndEmcFWEndcapTimebasedWaveforms::PndEmcFWEndcapTimebasedWaveforms(Int_t verbose, Bool_t storewaves) :
-	PndBranchTask("PndEmcFWEndcapTimebasedWaveforms", verbose),
+	PndPersistencyTask("PndEmcFWEndcapTimebasedWaveforms", verbose),
 	fHitArray(NULL), fWaveformBuffer(NULL), fStoreDataClass(kFALSE), fActivateBuffering(kFALSE), fDigiPar(NULL), fGeoPar(NULL), fUse_photon_statistic(kFALSE), fNPhotoElectronsPerMeV(0), fExcessNoiseFactor(0.), fExternalSimulator(NULL), fAPD_LOWHIGH(NULL)
 {
 	SetPersistency(storewaves);

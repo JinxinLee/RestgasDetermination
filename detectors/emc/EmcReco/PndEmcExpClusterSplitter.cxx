@@ -68,7 +68,7 @@ using std::endl;
 // Constructors --
 //----------------
 
-PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose):PndBranchTask("PndEmcExpClusterSplitter", verbose),
+PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose):PndPersistencyTask("PndEmcExpClusterSplitter", verbose),
 fDigiArray(0), fClusterArray(0), fBumpArray(0), fSharedDigiArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fClusterPosParam(), fMoliereRadius(0), fMoliereRadiusShashlyk(0), fExponentialConstant(0), fMaxIterations(0), fCentroidShift(0), fMaxBumps(0), fMinDigiEnergy(0)
 {
   fClusterPosParam.clear();

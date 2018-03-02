@@ -21,7 +21,7 @@
 #ifndef PndEmcWaveformToCalibratedDigi_H
 #define PndEmcWaveformToCalibratedDigi_H
 
-#include "PndBranchTask.h"
+#include <PndPersistencyTask.h>
 #include <string>		
 #include <map>
 #include "TString.h"
@@ -42,7 +42,7 @@ class PndEmcAbsPulseshape;
  * calorimeter and make ADC waveforms from them.
  * @ingroup PndEmc
  */
-class PndEmcWaveformToCalibratedDigi : public PndBranchTask
+class PndEmcWaveformToCalibratedDigi : public PndPersistencyTask
 {
 
 public:

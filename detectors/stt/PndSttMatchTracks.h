@@ -17,9 +17,9 @@
 #ifndef PNDSTTMATCHTRACKS_H
 #define PNDSTTMATCHTRACKS_H 1
 
+#include <PndPersistencyTask.h>
 #include <vector>
 #include <map>
-#include "PndBranchTask.h"
 #include "PndSttHit.h"
 #include "FairMCPoint.h"
 
@@ -27,7 +27,7 @@ class TClonesArray;
 
 
 
-class PndSttMatchTracks : public PndBranchTask
+class PndSttMatchTracks : public PndPersistencyTask
 {
 
  public:
@@ -43,7 +43,7 @@ class PndSttMatchTracks : public PndBranchTask
   /** Constructor with name, title and verbosity
    **
    *@param name     Name of taks
-   *@param title    Title of task   (default PndBranchTask)
+   *@param title    Title of task   (default PndPersistencyTask)
    *@param verbose  Verbosity level (default 1)
    **/
   PndSttMatchTracks(const char* name, const char* title = "Pnd Stt Match Tracks Task",
