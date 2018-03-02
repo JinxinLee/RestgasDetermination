@@ -150,6 +150,10 @@ class PndMasterRunAna : public FairRunAna
    */
   void SetEventCounterRate(Int_t par) { fEventCounterRate = par;}
 
+  void GenerateRunInfo(Bool_t val) { fGenerateRunInfo = val; }
+
+  void UseFairLinks(Bool_t val) { fUseFairLinks = val; }
+
  private:
 
   TString fInput;            ///< Name of the input for the simulation
@@ -164,6 +168,8 @@ class PndMasterRunAna : public FairRunAna
 
   Int_t fEventCounterRate;   ///< After how many events the counter will print
   Bool_t fNoGeane;           ///< Protect GEANE from being loaded twice
+  Bool_t fGenerateRunInfo;	///< Switches on/off the generation of Run info
+  Bool_t fUseFairLinks;		///< Switches on/off the usage of FairLinks
 
   TStopwatch fTimer;         ///< Timer
 

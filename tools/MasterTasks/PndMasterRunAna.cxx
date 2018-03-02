@@ -26,7 +26,10 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
-  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fOptions(), fEventCounterRate(100), fNoGeane(kTRUE), fTimer()
+  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(),
+  fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(),
+  fOptions(), fEventCounterRate(100), fNoGeane(kTRUE), fTimer(),
+  fGenerateRunInfo(kFALSE), fUseFairLinks(kTRUE)
 {
   fTimer.Start();
 }
@@ -84,8 +87,8 @@ Bool_t PndMasterRunAna::Setup(TString outprefix)
   // This set the string for the output file name, used by Finish()
   SetOutput(creator.GetCustomFileName(fOutFile.Data()));
   SetParamRootFile(creator.GetParFileName().data());
-  SetGenerateRunInfo(kFALSE);
-  SetUseFairLinks(kTRUE);
+  SetGenerateRunInfo(fGenerateRunInfo);
+  SetUseFairLinks(fUseFairLinks);
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
