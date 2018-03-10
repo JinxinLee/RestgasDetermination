@@ -18,7 +18,7 @@
 #define PNDRECOMULTIKALMANTASK_HH
 
 // Base Class Headers ----------------
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 
 // Collaborating Class Headers -------
 #include "TString.h"
@@ -30,7 +30,7 @@ class TClonesArray;
 class GFRecoHitFactory;
  
 
-class PndRecoMultiKalmanTask : public FairTask {
+class PndRecoMultiKalmanTask : public PndPersistencyTask {
 public:
 
   // Constructors/Destructors ---------
@@ -47,7 +47,6 @@ public:
   void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; }
   void SetMvdBranchName(const TString& name)       { fMvdBranchName = name; }
   void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
-  void SetPersistence(Bool_t opt = kTRUE)        { fPersistence = opt;      }
   void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;         }
   void SetNumIterations(Int_t num)               { fNumIt = num;        }
  
@@ -74,8 +73,6 @@ private:
   TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
   
   PndRecoKalmanFit *fFitter;
-  
-  Bool_t fPersistence;
 
   Bool_t fUseGeane;              //! Flag to use Geane 
   Bool_t fSmoothing;             //! Flag to set on smoothing

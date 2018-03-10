@@ -20,7 +20,7 @@
 ClassImp(PndIdealTrackFinder);
 
 PndIdealTrackFinder::PndIdealTrackFinder() :
-  fOutBranchName("IdealTrack"), fTrackCand(0), fTrack(0), fMCTrack(0), fTrackSelector(0), fPdg(0), fHitCount(0), fPersistence(kTRUE), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.)
+  fOutBranchName("IdealTrack"), fTrackCand(0), fTrack(0), fMCTrack(0), fTrackSelector(0), fPdg(0), fHitCount(0), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.)
 {
 	fPointBranchMap["MVDHitsPixel"] = "MVDPoint";
 	fPointBranchMap["MVDHitsStrip"] = "MVDPoint";
@@ -34,6 +34,8 @@ PndIdealTrackFinder::PndIdealTrackFinder() :
 	fPointBranchMap["DircHit"] = "";	 // no FairLinks Provided!
 	fPointBranchMap["FTofHit"] = "";	 // no FairLinks Provided!
 	fPointBranchMap["RichHit"] = "";	 // no FairLinks Provided!
+
+	SetPersistency(kTRUE);
 }
 
 PndIdealTrackFinder::~PndIdealTrackFinder() {
@@ -71,9 +73,9 @@ InitStatus PndIdealTrackFinder::Init()
 
 
 	fTrackCand = new TClonesArray("PndTrackCand");
- 	ioman->Register(fOutBranchName + "Cand", "MC", fTrackCand, fPersistence);
+ 	ioman->Register(fOutBranchName + "Cand", "MC", fTrackCand, GetPersistency());
 	fTrack = new TClonesArray("PndTrack");
-	ioman->Register(fOutBranchName, "MC", fTrack, fPersistence);
+	ioman->Register(fOutBranchName, "MC", fTrack, GetPersistency());
 
 	if (fTrackSelector == 0){
 		std::cout << "-W- PndIdealTrackFinder::Init() no fTrackSelector set! All possible tracks will be taken!" << std::endl;

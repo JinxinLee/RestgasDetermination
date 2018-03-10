@@ -20,7 +20,7 @@
 #ifndef PNDBARRELTRACKFINDER_H
 #define PNDBARRELTRACKFINDER_H 1
 
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 #include "FairHit.h"
 
 #include "TStopwatch.h"
@@ -62,7 +62,7 @@ struct TrackBasis{
 }; 
 
 
-class PndBarrelTrackFinder : public FairTask
+class PndBarrelTrackFinder : public PndPersistencyTask
 {
 
  public:

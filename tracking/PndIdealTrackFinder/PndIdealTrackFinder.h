@@ -13,7 +13,7 @@
 
 
 // framework includes
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 #include "FairMCPoint.h"
 #include "PndTrackCand.h"
 #include "PndTrackFunctor.h"
@@ -22,7 +22,7 @@
 #include "TDatabasePDG.h"
 #include <math.h>
 
-class PndIdealTrackFinder : public FairTask {
+class PndIdealTrackFinder : public PndPersistencyTask {
 public:
 	PndIdealTrackFinder();
 	virtual ~PndIdealTrackFinder();
@@ -60,7 +60,7 @@ public:
 		  fTrackSelector = PndTrackFunctor::make_PndTrackFunctor(selector.Data());
 	  }
 
-	  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+	  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
 
 
 protected:
@@ -87,7 +87,6 @@ protected:
 	  TDatabasePDG *fPdg;            //!<! Particle DB
 
 	  Int_t fHitCount;
-	  Bool_t fPersistence;
 
 	  // Parameters for fake tracking taken from sttmvdtracking/PndSttMvdGemTrackingIdeal.h
 	  TVector3 fMomSigma;          ///< Momentum smearing sigma [GeV]

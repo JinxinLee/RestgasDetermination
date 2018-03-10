@@ -63,7 +63,7 @@ vector <int> allFwdTrackIds;
 bool compareFtsPoints (PndFtsPoint* const a, PndFtsPoint* const b) { return (a->GetTime()<b->GetTime()); }
 
 PndFtsCATracking::PndFtsCATracking(const char* name, Int_t iVerbose ):
-  FairTask(name, iVerbose), fMCTracks(0), fTracks(0), fDoPerformance(0), fTracker(0), fPerfHistoFile(0) //, fTracksArrayName("FTSCATracks")
+  PndPersistencyTask(name, iVerbose), fMCTracks(0), fTracks(0), fDoPerformance(0), fTracker(0), fPerfHistoFile(0) //, fTracksArrayName("FTSCATracks")
 {
   fVerbose = iVerbose;
   
@@ -125,6 +125,8 @@ PndFtsCATracking::PndFtsCATracking(const char* name, Int_t iVerbose ):
   std::istringstream settings(fts_geometry_str);
   fTracker->ReadSettings(settings);
   
+  SetPersistency(kTRUE);
+
   //cout<<"READGEOM \n";
   //fTracker->ReadSettingsFromFile(fP);
   

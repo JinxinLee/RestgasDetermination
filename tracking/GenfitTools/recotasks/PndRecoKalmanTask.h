@@ -18,7 +18,7 @@
 #define PNDRECOKALMANTASK_HH
 
 // Base Class Headers ----------------
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 
 // Collaborating Class Headers -------
 #include "TString.h"
@@ -30,7 +30,7 @@ class TClonesArray;
 class GFRecoHitFactory;
  
 
-class PndRecoKalmanTask : public FairTask {
+class PndRecoKalmanTask : public PndPersistencyTask {
 public:
 
   // Constructors/Destructors ---------

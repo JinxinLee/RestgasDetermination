@@ -63,7 +63,7 @@ using std::map;
 
 
 // -----   Default constructor   ------------------------------------------
-PndBarrelTrackFinder::PndBarrelTrackFinder() : FairTask("Barrel Track Finder", 1) {
+PndBarrelTrackFinder::PndBarrelTrackFinder() : PndPersistencyTask("Barrel Track Finder", 1) {
   for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet  [idet] = kFALSE;
     fHitArray    [idet] = NULL;
@@ -107,7 +107,7 @@ PndBarrelTrackFinder::PndBarrelTrackFinder() : FairTask("Barrel Track Finder", 1
 
 // -----   Standard constructor   ------------------------------------------
 PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose) 
-  : FairTask("Barrel Track Finder", iVerbose) { 
+  : PndPersistencyTask("Barrel Track Finder", iVerbose) {
   for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fHitArray  [idet] = NULL;
@@ -148,7 +148,7 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose)
 
 // -----   Constructor with name   -----------------------------------------
 PndBarrelTrackFinder::PndBarrelTrackFinder(const char* name, Int_t iVerbose) 
-  : FairTask(name, iVerbose) { 
+  : PndPersistencyTask(name, iVerbose) {
   for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet[idet] = kFALSE;
     fHitArray  [idet] = NULL;
@@ -180,6 +180,7 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(const char* name, Int_t iVerbose)
   fTubeArray = NULL;
   fSttParameters = NULL;
  
+  SetPersistency(kTRUE);
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -1738,10 +1739,10 @@ InitStatus PndBarrelTrackFinder::Init() {
   
   // Create and register PndTrack and PndTrackCand arrays
   fBarrelTrackArray = new TClonesArray("PndTrack",100);
-  ioman->Register("BarrelTrack", "Barrel Track", fBarrelTrackArray, kTRUE);
+  ioman->Register("BarrelTrack", "Barrel Track", fBarrelTrackArray, GetPersistency());
 
   fBarrelTrackCandArray = new TClonesArray("PndTrackCand",100);
-  ioman->Register("BarrelTrackCand", "Barrel TrackCand", fBarrelTrackCandArray, kTRUE);
+  ioman->Register("BarrelTrackCand", "Barrel TrackCand", fBarrelTrackCandArray, GetPersistency());
 
   std::cout << "-I- " << GetName() << ": Initialization successfull" << std::endl;
   std::cout << "-I- " << GetName() << ": Looking for tracks in " << flush;

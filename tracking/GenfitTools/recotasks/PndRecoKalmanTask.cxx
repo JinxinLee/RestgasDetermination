@@ -36,7 +36,7 @@
 #include "FairRuntimeDb.h"
 
 PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
-: FairTask(name, iVerbose),fFitTrackArray(), fTrackInBranchName(""),
+: PndPersistencyTask(name, iVerbose),fFitTrackArray(), fTrackInBranchName(""),
 fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
  fFitter(), fDafFitter(),  fPersistence(kTRUE),
 fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE),
@@ -46,6 +46,7 @@ fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE),
   fFitTrackArray = new TClonesArray("PndTrack");  
   fFitter = new PndRecoKalmanFit(); 
   fDafFitter = new PndRecoDafFit();
+  SetPersistency(kTRUE);
 }
 
 
@@ -129,7 +130,7 @@ PndRecoKalmanTask::Init()
 	}
     }
   
-  ioman->Register(fTrackOutBranchName,"Gen", fFitTrackArray, fPersistence);
+  ioman->Register(fTrackOutBranchName,"Gen", fFitTrackArray, GetPersistency());
   
   return kSUCCESS;
 }

@@ -33,7 +33,7 @@
 #include "FairRuntimeDb.h"
 
 PndRecoMultiKalmanTask::PndRecoMultiKalmanTask(const char* name, Int_t iVerbose)
-  : FairTask(name, iVerbose), fPersistence(kFALSE)
+  : PndPersistencyTask(name, iVerbose)
 {
   fTrackInBranchName  = "LheTrack"; 
   fTrackOutBranchName = "LheGenTrack";
@@ -47,6 +47,7 @@ PndRecoMultiKalmanTask::PndRecoMultiKalmanTask(const char* name, Int_t iVerbose)
   fUseGeane = kTRUE;
   fNumIt = 1;
   fFitter = new PndRecoKalmanFit();
+  SetPersistency(kTRUE);
 }
 
 
@@ -81,11 +82,11 @@ PndRecoMultiKalmanTask::Init()
       return kERROR;
     }
   
-  ioman->Register(fTrackOutBranchName+"Electron","Gen", fFitTrackArrayElectron, kTRUE); 
-  ioman->Register(fTrackOutBranchName+"Muon",    "Gen", fFitTrackArrayMuon,     kTRUE); 
-  ioman->Register(fTrackOutBranchName+"Pion",    "Gen", fFitTrackArrayPion,     kTRUE); 
-  ioman->Register(fTrackOutBranchName+"Kaon",    "Gen", fFitTrackArrayKaon,     kTRUE); 
-  ioman->Register(fTrackOutBranchName+"Proton",  "Gen", fFitTrackArrayProton,   kTRUE); 
+  ioman->Register(fTrackOutBranchName+"Electron","Gen", fFitTrackArrayElectron, GetPersistency());
+  ioman->Register(fTrackOutBranchName+"Muon",    "Gen", fFitTrackArrayMuon,     GetPersistency());
+  ioman->Register(fTrackOutBranchName+"Pion",    "Gen", fFitTrackArrayPion,     GetPersistency());
+  ioman->Register(fTrackOutBranchName+"Kaon",    "Gen", fFitTrackArrayKaon,     GetPersistency());
+  ioman->Register(fTrackOutBranchName+"Proton",  "Gen", fFitTrackArrayProton,   GetPersistency());
  	return kSUCCESS;
 }
 

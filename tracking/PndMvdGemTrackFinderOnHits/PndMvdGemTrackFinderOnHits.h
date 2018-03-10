@@ -16,7 +16,7 @@
 #ifndef PNDMVDGEMTRACKFINDERONHITS_H
 #define PNDMVDGEMTRACKFINDERONHITS_H
 
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 #include "FairMCPoint.h"
 #include "PndMCTrack.h"
 
@@ -36,7 +36,7 @@ struct TrackSegment {
   Int_t recoTrackIndex;
 };
 
-class PndMvdGemTrackFinderOnHits : public FairTask
+class PndMvdGemTrackFinderOnHits : public PndPersistencyTask
 {
 
  public:

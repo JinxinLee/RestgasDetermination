@@ -63,8 +63,7 @@
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-PndTrkTracking2::PndTrkTracking2() : FairTask("Tracking") { 
- fPersistence = kTRUE;
+PndTrkTracking2::PndTrkTracking2() : PndPersistencyTask("Tracking") {
  istampa = 0;
  iplotta = false;
  doMcComparison = false;
@@ -79,11 +78,11 @@ PndTrkTracking2::PndTrkTracking2() : FairTask("Tracking") {
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
  sprintf(fMvdStripBranch,"MVDHitsStrip");
+ SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
-PndTrkTracking2::PndTrkTracking2(Int_t verbose) : FairTask("Tracking") { 
- fPersistence = kTRUE;
+PndTrkTracking2::PndTrkTracking2(Int_t verbose) : PndPersistencyTask("Tracking") {
  istampa = verbose;
  iplotta = false;
  doMcComparison = false;
@@ -96,12 +95,12 @@ PndTrkTracking2::PndTrkTracking2(Int_t verbose) : FairTask("Tracking") {
  sprintf(fSttBranch,"STTHit");
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
  sprintf(fMvdStripBranch,"MVDHitsStrip");
+ SetPersistency(kTRUE);
 }
 // -------------------------------------------------------------------------
 
 PndTrkTracking2::PndTrkTracking2(int istamp, bool  iplot, bool imc)
-		: FairTask("Tracking") { 
- fPersistence = kTRUE;
+		: PndPersistencyTask("Tracking") {
  istampa = istamp;
  iplotta = iplot;
  doMcComparison = imc;
@@ -114,14 +113,14 @@ PndTrkTracking2::PndTrkTracking2(int istamp, bool  iplot, bool imc)
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
 
  sprintf(fMvdStripBranch,"MVDHitsStrip");
+ SetPersistency(kTRUE);
 }
 
 
 // -------------------------------------------------------------------------
 
 PndTrkTracking2::PndTrkTracking2(int istamp, bool  iplot, bool imc, bool doSciTil)
-		: FairTask("Tracking") { 
- fPersistence = kTRUE;
+		: PndPersistencyTask("Tracking") {
  istampa = istamp;
  iplotta = iplot;
  doMcComparison = imc;
@@ -134,6 +133,7 @@ PndTrkTracking2::PndTrkTracking2(int istamp, bool  iplot, bool imc, bool doSciTi
  sprintf(fMvdPixelBranch,"MVDHitsPixel");
 
   sprintf(fMvdStripBranch,"MVDHitsStrip");
+  SetPersistency(kTRUE);
 }
 // -----   Destructor   ----------------------------------------------------
 PndTrkTracking2::~PndTrkTracking2() {}
@@ -757,13 +757,13 @@ gGeoManager->SetTopVisible();
 
  fSttMvdPndTrackCandArray = new TClonesArray("PndTrackCand");
 // ioman->Register("SttMvdTrackCand","SttMvd",fSttMvdPndTrackCandArray, kTRUE);
- ioman->Register("SttMvdTrackCand","SttMvd",fSttMvdPndTrackCandArray, fPersistence);
+ ioman->Register("SttMvdTrackCand","SttMvd",fSttMvdPndTrackCandArray, GetPersistency());
 
 
  // Create and register output array for PndTrack of Stt+Mvd combined
 
  fSttMvdPndTrackArray = new TClonesArray("PndTrack");
- ioman->Register("SttMvdTrack","SttMvd",fSttMvdPndTrackArray, fPersistence);
+ ioman->Register("SttMvdTrack","SttMvd",fSttMvdPndTrackArray, GetPersistency());
 
 //-----------------------
 

@@ -35,7 +35,7 @@ using std::endl;
 using std::map;
 
 // -----   Default constructor   -------------------------------------------
-PndMvdGemTrackFinderOnHits::PndMvdGemTrackFinderOnHits() : FairTask("MvdGem TrackFinder On Hits", 0) {
+PndMvdGemTrackFinderOnHits::PndMvdGemTrackFinderOnHits() : PndPersistencyTask("MvdGem TrackFinder On Hits", 0) {
   fMvdPixelHitArray = NULL;
   fMvdStripHitArray = NULL;
   fGemHitArray      = NULL;
@@ -51,7 +51,7 @@ PndMvdGemTrackFinderOnHits::PndMvdGemTrackFinderOnHits() : FairTask("MvdGem Trac
 
 // -----   Default constructor   -------------------------------------------
 PndMvdGemTrackFinderOnHits::PndMvdGemTrackFinderOnHits(Int_t iVerbose) 
-  : FairTask("MvdGem TrackFinder On Hits", iVerbose) {
+  : PndPersistencyTask("MvdGem TrackFinder On Hits", iVerbose) {
   fMvdPixelHitArray = NULL;
   fMvdStripHitArray = NULL;
   fGemHitArray      = NULL;
@@ -63,6 +63,8 @@ PndMvdGemTrackFinderOnHits::PndMvdGemTrackFinderOnHits(Int_t iVerbose)
   fMCGemPointArray  = NULL;
   fMCMvdPointArray  = NULL;
   fNofEvents        = 0;
+
+  SetPersistency(kTRUE);
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -136,11 +138,11 @@ InitStatus PndMvdGemTrackFinderOnHits::Init() {
 
   // Create and register output PndTrack array
   fTrackArray = new TClonesArray("PndTrack",100);
-  ioman->Register("MVDGEMTrack", "Gem Tracks", fTrackArray, kTRUE);
+  ioman->Register("MVDGEMTrack", "Gem Tracks", fTrackArray, GetPersistency());
 
   // Create and register output PndTrackCand array
   fTrackCandArray = new TClonesArray("PndTrackCand",100);
-  ioman->Register("MVDGEMTrackCand", "Gem Track Cands", fTrackCandArray, kTRUE);
+  ioman->Register("MVDGEMTrackCand", "Gem Track Cands", fTrackCandArray, GetPersistency());
 
   
   fDigiPar = (PndGemDigiPar*)(rtdb->getContainer("PndGemDetectors"));

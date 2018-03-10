@@ -2,7 +2,7 @@
 #define PNDFTSCATRACKING_HH
 
 
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 #include "FairTrackParP.h"
 
 #include "TString.h"
@@ -23,7 +23,7 @@ class TFile;
 class PndFTSCAPerformance;
 class PndFTSCAGBTracker;
 
-class PndFtsCATracking : public FairTask {
+class PndFtsCATracking : public PndPersistencyTask {
  public:
 
   // Constructors/Destructors ---------

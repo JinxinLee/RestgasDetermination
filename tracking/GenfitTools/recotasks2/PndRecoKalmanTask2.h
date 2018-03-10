@@ -18,7 +18,7 @@
 #define PNDRECOKALMANTASK2_HH
 
 // Base Class Headers ----------------
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 
 // Collaborating Class Headers -------
 #include "TString.h"
@@ -30,7 +30,7 @@ class TClonesArray;
 class MeasurementFactory;
  
 
-class PndRecoKalmanTask2 : public FairTask {
+class PndRecoKalmanTask2 : public PndPersistencyTask {
 public:
 
   // Constructors/Destructors ---------
@@ -48,7 +48,6 @@ public:
   void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; } 
   void SetMvdBranchName(const TString& name)       { fMvdBranchName = name;      }
   void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
-  void SetPersistence(Bool_t opt = kTRUE)          { fPersistence = opt;         }
   void SetGeane(Bool_t opt = kTRUE)                { fUseGeane = opt;            } 
   void SetIdealHyp(Bool_t opt = kTRUE)             { fIdealHyp = opt;            }
   void SetDaf(Bool_t opt = kTRUE)                  { fDaf = opt;                 }
@@ -83,8 +82,6 @@ protected:
   PndRecoKalmanFit2 *fFitter;    //! Standard Kalman Filter class
   PndRecoDafFit2 *fDafFitter;    //! Deterministic Annealing class
   TDatabasePDG *pdg;             //! Particle DB
-
-  Bool_t fPersistence;           //! Persistence
 
   Bool_t fUseGeane;              //! Flag to use Geane 
   Bool_t fSmoothing;             //! Flag to set on smoothing (not used) 

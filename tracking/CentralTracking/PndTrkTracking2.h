@@ -4,7 +4,7 @@
 
 
 // #include "FairRootManager.h"
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 #include "PndGeoSttPar.h"
 #include "PndMCTrack.h"
 #include "PndTrkPrintouts.h"
@@ -23,7 +23,7 @@
 
 class FairMCPoint;
 
-class PndTrkTracking2 : public FairTask
+class PndTrkTracking2 : public PndPersistencyTask
 {
 
  public:
@@ -89,7 +89,7 @@ class PndTrkTracking2 : public FairTask
   void SetParContainers();
 
   /** set persistence flag **/
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistence(Bool_t persistence) { SetPersistency(persistence); }
 
   void YesMvdAloneTracking( ){ fMvdAloneTracking=true; return;};
 
@@ -140,10 +140,6 @@ class PndTrkTracking2 : public FairTask
 	finMvdTrackCandPixel[MAXMVDPIXELHITS],
 	finMvdTrackCandStrip[MAXMVDSTRIPHITS],
 	fTypeConf[MAXTRACKSPEREVENT];
-
-  /** object persistence **/
-  Bool_t
-		fPersistence;
 
 
 

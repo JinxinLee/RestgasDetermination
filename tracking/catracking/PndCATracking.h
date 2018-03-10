@@ -9,7 +9,7 @@
 #ifndef PndCATracking_HH
 #define PndCATracking_HH
 
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 
 #include "TString.h"
 #include "PndCAGBHit.h"
@@ -26,7 +26,7 @@ class FairTrackParP;
 class PndGeoHandling;
 class PndCAPerformance;
 
-class PndCATracking : public FairTask {
+class PndCATracking : public PndPersistencyTask {
  public:
 
   // Constructors/Destructors ---------

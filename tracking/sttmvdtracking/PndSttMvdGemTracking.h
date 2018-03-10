@@ -7,7 +7,7 @@
 #include "PndSttHit.h"
 #include "PndTrackCand.h"
 #include "PndTrack.h"
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 #include "FairGeanePro.h"
 
 #include "TCanvas.h"
@@ -15,7 +15,7 @@
 
 class TClonesArray; 
 
-class PndSttMvdGemTracking : public FairTask {
+class PndSttMvdGemTracking : public PndPersistencyTask {
 
  public:
 
@@ -38,7 +38,7 @@ class PndSttMvdGemTracking : public FairTask {
 
 
   /** set persistence flag **/
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SetPersistenc(Bool_t persistence) { SetPersistency(persistence); }
  
 
   virtual void SetParContainers();
@@ -166,8 +166,6 @@ class PndSttMvdGemTracking : public FairTask {
   /** from parameters array of PndSttTube **/ 
   TClonesArray* fTubeArray;
 
-  /** object persistence **/
-  Bool_t  fPersistence; //!
  Bool_t  fPdgFromMC; //!
 
 

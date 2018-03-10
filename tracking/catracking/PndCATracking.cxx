@@ -68,7 +68,7 @@ bool compareSdsPoints (PndSdsMCPoint* const a, PndSdsMCPoint* const b) { return 
 bool compareSttPoints (PndSttPoint* const a, PndSttPoint* const b) { return (a->GetTime()<b->GetTime()); }
 
 PndCATracking::PndCATracking(const char* name, Int_t iVerbose):
-  FairTask(name, iVerbose), fMvdPixelHitsBranchName("MVDHitsPixel"), fMvdStripHitsBranchName("MVDHitsStrip"),
+  PndPersistencyTask(name, iVerbose), fMvdPixelHitsBranchName("MVDHitsPixel"), fMvdStripHitsBranchName("MVDHitsStrip"),
   fMvdPixelClusterBranchName("MVDPixelClusterCand"), fMvdStripClusterBranchName("MVDStripClusterCand"),
   fMvdPixelDigiBranchName("MVDPixelDigis"), fMvdStripDigiBranchName("MVDStripDigis"),
   fSttHitsBranchName("STTHit"),
@@ -79,6 +79,7 @@ PndCATracking::PndCATracking(const char* name, Int_t iVerbose):
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
   fDoPerformance = 1;
 #endif
+  SetPersistency(kTRUE);
 }
 
 PndCATracking::~PndCATracking()

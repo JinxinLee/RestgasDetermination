@@ -58,8 +58,7 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndSttMvdGemTracking::PndSttMvdGemTracking() :
-  FairTask("MVD-STT-GEM tracking") { 
-  fPersistence = kTRUE;
+  PndPersistencyTask("MVD-STT-GEM tracking") {
   fVerbose = 1;
   fEvaluate = kTRUE;
   fDisplayOn = false;
@@ -80,12 +79,14 @@ PndSttMvdGemTracking::PndSttMvdGemTracking() :
   fStartTrackCandBranchName = "SttMvdTrackCand";
   fStartTrackIDBranchName = "SttMvdTrackID";
 
+  SetPersistency(kTRUE);
+
 }
 // -------------------------------------------------------------------------
 
 PndSttMvdGemTracking::PndSttMvdGemTracking(Int_t verbose) :
-  FairTask("MVD-STT-GEM tracking") { 
-  fPersistence = kTRUE;
+  PndPersistencyTask("MVD-STT-GEM tracking") {
+  SetPersistency(kTRUE);
   fVerbose = verbose;
   if(verbose > 0) fEvaluate = kTRUE;
   else fEvaluate = kFALSE;
@@ -239,10 +240,10 @@ InitStatus PndSttMvdGemTracking::Init() {
 
   // Create and register PndTrack array
   fCompleteTrackCandArray = new TClonesArray("PndTrackCand", 100);
-  ioman->Register("SttMvdGemTrackCand", "SttMvdGem", fCompleteTrackCandArray, fPersistence);  
+  ioman->Register("SttMvdGemTrackCand", "SttMvdGem", fCompleteTrackCandArray, GetPersistency());
 
   fCompleteTrackArray = new TClonesArray("PndTrack", 100); 
-  ioman->Register("SttMvdGemTrack", "SttMvdGem", fCompleteTrackArray, fPersistence);
+  ioman->Register("SttMvdGemTrack", "SttMvdGem", fCompleteTrackArray, GetPersistency());
   
   // GEANE propagation to volume
   fPro = new FairGeanePro();
