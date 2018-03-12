@@ -40,6 +40,14 @@ PndMasterLocalRecoTask::PndMasterLocalRecoTask(TString options) :
   PndMasterTask("Master Local Reco Task"), fOptions(options)
 {
 
+	fBranchTasks.push_back(new PndSttHitProducerRealFast());
+	fBranchTasks.push_back(new PndFtsHitProducerRealFast());
+	fBranchTasks.push_back(new PndSciTDigiTask());
+	fBranchTasks.push_back(new PndMdtHitProducerIdeal());
+	fBranchTasks.push_back(new PndDrcHitProducerReal());
+	fBranchTasks.push_back(new PndFtofHitProducerIdeal());
+	fBranchTasks.push_back(new PndRichHitProducer());
+
   fBranchTasks.push_back(new PndMvdClusterTask());
 
   fBranchTasks.push_back(new PndEmcMakeCluster());

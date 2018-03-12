@@ -38,7 +38,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   tracking->NoMvdAloneTracking();
   // do Cleanup only when there is Mixing;
   // tracking->Cleanup();
-  tracking->SetPersistence(kFALSE);
+  tracking->SetPersistency(kFALSE);
 
   // ----- MVD + STT + GEM Pattern Recognition --------------
   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
@@ -46,7 +46,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
       PndSttMvdGemTracking *SttMvdGemTracking = NULL;
       this->Add(SttMvdGemTracking = new PndSttMvdGemTracking(0)); // 2
       reco.kPndSttMvdGemTracking = GetListOfTasks()->GetSize()-1;
-      SttMvdGemTracking->SetPersistence(kFALSE);
+      SttMvdGemTracking->SetPersistency(kFALSE);
     }
   
   
@@ -92,6 +92,9 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   this->Add(trackFts = new PndIdealTrackFinder()); // 5
   reco.kPndFtsTrackerIdeal = GetListOfTasks()->GetSize()-1;
   trackFts->SetTrackSelector("FtsTrackFunctor");
+  trackFts->AddBranchName("FTSHit");
+  trackFts->AddBranchName("MVDHitsPixel");
+  trackFts->AddBranchName("MVDHitsStrip");
   trackFts->SetRelativeMomentumSmearing(0.05);
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
@@ -126,7 +129,7 @@ void PndMasterRecoTask::SetPersistency(Bool_t pers)
   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
     {
       // ----- MVD + STT + GEM Pattern Recognition --------------
-      ((PndSttMvdGemTracking*)GetListOfTasks()->At(reco.kPndSttMvdGemTracking))->SetPersistence(pers);
+      ((PndSttMvdGemTracking*)GetListOfTasks()->At(reco.kPndSttMvdGemTracking))->SetPersistency(pers);
     }
   
   
