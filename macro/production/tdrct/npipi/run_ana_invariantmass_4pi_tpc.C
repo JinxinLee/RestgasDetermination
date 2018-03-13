@@ -5,17 +5,17 @@ class TFitParams;
 int run_ana_invariantmass_4pi_tpc(int nEntries=0)
 {
   gStyle->SetOptFit(1011);
-  
+
   TStopwatch timer;
   timer.Start();
-  
+
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   TString inPidFile  = "evt_pid_tpc.root";
-  TString inSimFile = "evt_points_tpc.root";  
-  TFile *inFile = TFile::Open(inSimFile,"READ"); 
-  TTree *tree=(TTree *) inFile->Get("cbmsim") ;
-  tree->AddFriend("cbmsim",inPidFile);                                                                                 
+  TString inSimFile = "evt_points_tpc.root";
+  TFile *inFile = TFile::Open(inSimFile,"READ");
+  TTree *tree=(TTree *) inFile->Get("pndsim") ;
+  tree->AddFriend("pndsim",inPidFile);
   TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   tree->SetBranchAddress("MCTrack",&mc_array);
 
@@ -29,19 +29,19 @@ int run_ana_invariantmass_4pi_tpc(int nEntries=0)
 
   PndEventReader evr(inPidFile);
 
-  TH1F *nc=new TH1F("nc","Number of Charged Tracks; Charged Tracks",20,-0.5,19.5);  
+  TH1F *nc=new TH1F("nc","Number of Charged Tracks; Charged Tracks",20,-0.5,19.5);
   TH1F *invmassnosel=new TH1F("invmassnosel","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,0,10);
   TH1F *invmassnocut=new TH1F("invmassnocut","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
   // TH1F *invmassvtx=new TH1F("invmassvtx","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
-  TH1F *invmasswithpid=new TH1F("invmasswithpid","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,0,10); 
-  TH1F *invmasswithpid_sel=new TH1F("invmasswithpid_sel","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);  
+  TH1F *invmasswithpid=new TH1F("invmasswithpid","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,0,10);
+  TH1F *invmasswithpid_sel=new TH1F("invmasswithpid_sel","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
 TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
  TH1F *invmasschicut=new TH1F("invmasschicut","#2(pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
  TH1F *invmasschicut_best=new TH1F("invmasschicut_best","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
 
  TH2F *hvpos = new TH2F("hvpos","(x,y) projection of fitted decay vertex",100,-5,5,100,-5,5);
  TH1F *hvzpos = new TH1F("hvzpos","z position of fitted decay vertex",100,-4,4);
- 
+
  TH1F *chivtx=new TH1F("chivtx","Chi Square RhoKinVtxFitter; Chi Square / N_{df}",100,0,100);
   TH1F *hvtxresX = new TH1F("hvtxresX","X resolution of fitted decay vertex",100,-0.3,0.3);
   TH1F *hvtxresY = new TH1F("hvtxresY","Y resolution of fitted decay vertex",100,-0.3,0.3);
@@ -50,7 +50,7 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
 
    TPidPlusSelector *piplusSel=new TPidPlusSelector("piplus");
   TPidMinusSelector *piminusSel=new TPidMinusSelector("piminus");
- 
+
   TCandList pp, pm, pipi,pipinosel, pipiwithpid;
 
   int n_reco=0;
@@ -73,7 +73,7 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
 
     if (nEntries==0) nEntries=evr.GetEntries();
     while (evr.GetEvent() && i++<nEntries){
-   
+
       if (!((i+1)%100)) cout<<"evt " << i << "\n";
 
       evr.FillList(pp,"Charged");
@@ -91,17 +91,17 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
    for (Int_t l=0;l<pp.GetLength();l++){
       pp[l].SetMass(TRho::Instance()->GetPDG()->GetParticle(211)->Mass());
       momentumpplus=pp[l].GetMicroCandidate().GetMomentum().Mag();
-      
+
     }
     for (Int_t l=0;l<pm.GetLength();l++){
       pm[l].SetMass(TRho::Instance()->GetPDG()->GetParticle(211)->Mass());
       momentumpminus=pm[l].GetMicroCandidate().GetMomentum().Mag();
-      
+
 }
 
 
     pipinosel.Combine(pp,pm,pp,pm);
-    
+
     for (y=0;y<pipinosel.GetLength();++y){
       invmassnosel->Fill(pipinosel[y].M());
     }
@@ -114,16 +114,16 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
             if (momentumpplus>0.3 && momentumpminus >0.3){
 	invmass_trackhighmom->Fill(pipi[y].M());
 	}
-	   
+
 }
 
 
   //MonteCarlo PID
     tree->GetEntry(i-1);
-    
+
     TVector3 mcVertex;
     evthead->GetVertex(mcVertex);
-        
+
 // MC PID
     // Leave only pions in particle lists
     int n_removed=0;
@@ -146,8 +146,8 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
 	  }
       }
     }
-    
-    
+
+
     n_removed=0;
     ii=0;
     for (l=0;l<pm.GetLength();++l) {
@@ -168,14 +168,14 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
 	  }
       }
     }
-    
+
 
     pipiwithpid.Combine(pp,pm,pp,pm);
     for (y=0;y<pipiwithpid.GetLength();++y){
       invmasswithpid->Fill(pipiwithpid[y].M());
     }
-    
-    
+
+
     pipiwithpid.Combine(pp,pm,pp,pm);
     pipiwithpid.Select(pipisel); //Mass selector
     for (y=0;y<pipiwithpid.GetLength();++y){
@@ -192,25 +192,25 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
       RhoKinVtxFitter vtxfitter(pipiwithpid[y]);
       vtxfitter.Fit();
       TCandidate *pipifit=vtxfitter.FittedCand(pipiwithpid[y]);
-          
+
   TVector3 pipiVtx=pipifit->Pos();
       double chi2_vtx=vtxfitter.GlobalChi2();
-    
-      hvpos->Fill(pipiVtx.X(),pipiVtx.Y());   
-      hvzpos->Fill(pipiVtx.Z()); 
-  
+
+      hvpos->Fill(pipiVtx.X(),pipiVtx.Y());
+      hvzpos->Fill(pipiVtx.Z());
+
       if(chi2_vtx<best_chi2)
 	{
 	  best_chi2=chi2_vtx;
 	  best_i=y;
 	  pipifit_best=pipifit;
 	  pipivtx_mass=pipifit_best->M();
-	  bestPos = pipifit->Pos(); 
+	  bestPos = pipifit->Pos();
 	}
       chivtx->Fill(chi2_vtx/5); // Number degree of freedom 2N-3=5; N=number of charged tracks
-      
+
   }
-  
+
   if((pipiwithpid.GetLength()!=0))
     {
       invmasschicut_best->Fill(pipivtx_mass);
@@ -219,9 +219,9 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
       hvtxresY->Fill(mcVertex.Y()-bestPos.Y());
       hvtxresZ->Fill(mcVertex.Z()-bestPos.Z());
     }
-  
+
     }
- 
+
   out->cd();
   out->Write();
   out->Save();

@@ -293,7 +293,7 @@ int i=0,j=0;
 
 TFile outputstorage(outfilename, "UPDATE");
 TFile mcfile(simfname, "READ");
-TTree* mctree = (TTree*)mcfile.Get("cbmsim");
+TTree* mctree = (TTree*)mcfile.Get("pndsim");
 TClonesArray* mcarray = new TClonesArray("PndMCTrack");
 mctree->SetBranchAddress("MCTrack", &mcarray);
 
@@ -816,7 +816,7 @@ for (j=0;j<ptselpsivtx.GetLength();++j) {
 
 //TLorentzVector ini(0,0,6.5788,7.58364);
 
-//plot histograms    
+//plot histograms
 
 TCanvas *eventstatisticscanvas = new TCanvas("eventstatisticscanvas","eventstatisticscanvas",600,600);
 eventstatisticscanvas->Divide(2,3);
@@ -1178,8 +1178,8 @@ SaveAndUpdateHisto(hdmvertexzpocareso, outputstorage);
 timer.Stop();
 Double_t rtime = timer.RealTime();
 Double_t ctime = timer.CpuTime();
-    
+
 printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-    
+
   return 0;
 } // end macro

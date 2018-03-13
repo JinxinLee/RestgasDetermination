@@ -7,14 +7,14 @@ int track_check_4pi_tpc(Int_t nEntries = 0)
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  TString inPidFile  = " evt_pid_tpc.root"; 
+  TString inPidFile  = " evt_pid_tpc.root";
   TString inSimFile = " evt_points_tpc.root";
-  
+
   TFile *inFile = TFile::Open(inSimFile,"READ");
-  
-  TTree *tree=(TTree *) inFile->Get("cbmsim") ;
-  tree->AddFriend("cbmsim",inPidFile);
-    
+
+  TTree *tree=(TTree *) inFile->Get("pndsim") ;
+  tree->AddFriend("pndsim",inPidFile);
+
   TClonesArray* cand_array=new TClonesArray("PndPidCandidate");
   tree->SetBranchAddress("PidChargedCand", &cand_array);
 
@@ -31,7 +31,7 @@ int track_check_4pi_tpc(Int_t nEntries = 0)
     tree->GetEntry(j);
     //if (cand_array->GetEntriesFast()==0) continue;
     if ((j%100)==0)    cout << "processing event " << j << "\n";
-    
+
     Float_t mc_mom = 0, mc_theta = 0, mc_phi = 0;
     Float_t rec_mom = -1, rec_theta = -1, rec_phi = 0;
     Int_t stt_mccount = 0, tpc_mccount = 0, reco_stt = 0, reco_tpc = 0,reco_mvd = 0, reco_gem = 0, reco_count = 0, reco_ctcount = 0;
@@ -61,35 +61,35 @@ int track_check_4pi_tpc(Int_t nEntries = 0)
 		reco_stt = pidCand->GetSttHits();
                 reco_tpc = pidCand->GetTpcHits();
                 reco_mvd = pidCand->GetMvdHits();
-	      
+
 }
 	    cand_mult++;
-	    
+
 	  } // end of candidate loop
-	
+
 	if (cand_mult>0) reco_count++;
         if ((cand_mult>0) && ((reco_stt>0) || (reco_tpc>0)))  reco_ctcount++;
 
 	Float_t ntuple_nt[] = {
 	  j,mc, mc_mom,mc_theta,mc_phi, mc_pid,
-	  mctrack->GetNPoints(kSTT), mctrack->GetNPoints(kTPC), mctrack->GetNPoints(kMVD), mctrack->GetNPoints(kGEM), 
+	  mctrack->GetNPoints(kSTT), mctrack->GetNPoints(kTPC), mctrack->GetNPoints(kMVD), mctrack->GetNPoints(kGEM),
 	  rec_mom, rec_theta*TMath::RadToDeg(), rec_phi*TMath::RadToDeg(), cand_mult, reco_stt, reco_tpc, reco_mvd
 	};
 	nt->Fill(ntuple_nt);
-	
+
       } // end of MC loop
     mc_fourpi = mc_k[0] + mc_k[1]+mc_k[2]+mc_k[3];
     reco_fourpi = reco_k[0] + reco_k[1]+reco_k[2]+reco_k[3];
-    
+
     Float_t ntuple_evt[] = {
       j, stt_mccount, tpc_mccount, reco_count, reco_ctcount, cand_array->GetEntriesFast(),
-      mc_fourpi.M(), reco_fourpi.M() 
+      mc_fourpi.M(), reco_fourpi.M()
     };
     ntEvt->Fill(ntuple_evt);
-    
-    
+
+
   } // end of event loop
-  
+
   nt->Draw("mc_theta>>hMcTheta(75,0,150)");
   nt->Draw("mc_theta>>hMcSttTheta(75,0,150)","mc_stt>0");
   nt->Draw("mc_theta>>hMcSttMvdTheta(75,0,150)","(mc_stt>0)||(mc_mvd>0)");
@@ -153,8 +153,8 @@ int track_check_4pi_tpc(Int_t nEntries = 0)
 
   ntEvt->Draw("reco_fourpi>>hpi(100,2.00,4.00)","eff==4");
   out->cd();
-  
-  nt->Write();  
+
+  nt->Write();
   ntEvt->Write();
 
   hMcTheta->Write(); hMcSttTheta->Write(); hMcSttMvdTheta->Write(); hMcMvdTheta->Write(); hMcGemTheta->Write(); hRecoTheta->Write();
@@ -178,8 +178,8 @@ int track_check_4pi_tpc(Int_t nEntries = 0)
   hrestheta_p->Write();
   hresphi_phi->Write();
 
-  
+
   out->Save();
-  
+
   return 0;
-}	
+}
