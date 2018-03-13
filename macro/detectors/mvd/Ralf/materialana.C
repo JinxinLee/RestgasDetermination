@@ -49,7 +49,7 @@ int materialana(int nEvents = 10, bool verbose = false)
     std::string inFile = "../data/mvdTestGeo.root";
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
 
   TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
@@ -143,7 +143,7 @@ int materialana(int nEvents = 10, bool verbose = false)
         effradl = dist.Mag()/radlen;
         effradlsum += effradl;
         TGeoNode* node = geoMan->FindNode(point.x(),point.y(),point.z());
-        if( 0==node) 
+        if( 0==node)
         {
           std::cout<<"Warning: There is a node not defined properly!"<<std::endl;
           cout<<"\tEvent No "<<event<<" \t RadLenPoint No."<< k<<endl;
@@ -180,7 +180,7 @@ int materialana(int nEvents = 10, bool verbose = false)
         ((TH2D*)arrhisxy->At(selected))->Fill(point.X(),point.Y(),effradl);
         if(point.Y()>0.) ((TH2D*)arrhisrz->At(selected))->Fill(point.Z(),point.Perp(),effradl);
         else ((TH2D*)(arrhisrz->At(selected)))->Fill(point.Z(),-1.*point.Perp(),effradl);
-      }//radpoints 
+      }//radpoints
       thetaprofile->Fill(theta,effradlsum);
       phiprofile->Fill(phi,effradlsum);
       histhephi->Fill(theta,phi,effradlsum);
@@ -279,7 +279,7 @@ a=2,b=2;
 TCanvas* can4 = new TCanvas("can4","MCHit view in MVD",100,100,a*resol,b*resol);
 can4->Divide(a,b);
 
-/*EColor colors[12] = 
+/*EColor colors[12] =
   {kOrange,kAzure,kTeal ,kRed,kBlue,kGreen, kMagenta,kCyan,kYellow ,kPink,kViolet,kSpring };*/
 int colors[4] = {38,17,45,30};
 int coloff = -0;
@@ -300,13 +300,13 @@ for(int i=maxnames;i>=0;i--){
   can4->cd(i+1);
   gPad->SetLogy();
   ahist->DrawCopy("hist");
-  thetastack->Add(ahist);  
+  thetastack->Add(ahist);
 
   aprof=(TProfile*)arrprophi->At(i);
   ahist=aprof->ProjectionX();
   ahist->SetFillColor(colors[i] + coloff);
   ahist->SetLineColor(colors[i] + coloff);
-  phistack->Add(ahist);  
+  phistack->Add(ahist);
 }
 can2->cd(1);
 thetastack->SetMaximum(0.1);

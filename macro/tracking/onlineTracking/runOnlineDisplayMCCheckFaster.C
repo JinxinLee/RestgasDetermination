@@ -38,11 +38,11 @@ int runOnlineDisplayMCCheckFaster(Int_t maximumTime = 2050)  {
 	TFile filereco(recoFileName.Data());
 	TFile filerecopixel(recoFileName.Data());
 
-	TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
-	TTree *recotree = (TTree*) filereco.Get("cbmsim");
+	TTree *treedigi = (TTree*) filedigi.Get("pndsim");
+	TTree *recotree = (TTree*) filereco.Get("pndsim");
 
 	TFile simfile(simFileName.Data());
-	TTree* mctree = (TTree*) simfile.Get("cbmsim");
+	TTree* mctree = (TTree*) simfile.Get("pndsim");
 	TClonesArray* mcarray = new TClonesArray("PndMCTrack");
 	mctree->SetBranchAddress("MCTrack", &mcarray);
 
@@ -142,7 +142,7 @@ int runOnlineDisplayMCCheckFaster(Int_t maximumTime = 2050)  {
 	TH1D* hphiresmcbad = new TH1D("hphiresmcbad", "hphiresmcbad", 701, -3.505, 3.505);
 	TH2D* hptresmcbad = new TH2D("hptresmcbad", "hptresmcbad", 300, -1400, 1600, 200, -1, 1);
 
-    
+
 	for (current_time = 0; current_time < final_time; current_time += delta_t) {
 		online->Clear();
 		//online->LoadHits( PndOnlineManager::kHESRRevolution );
@@ -151,7 +151,7 @@ int runOnlineDisplayMCCheckFaster(Int_t maximumTime = 2050)  {
 		//online->LoadHits( current_time );
 		online->Process();
 		//online->Clear();
-	
+
 		online_tracks = online->GetTrackObjectList();
 		int maxmcid = 0;
 		int minmcid = 0;
@@ -296,7 +296,7 @@ int runOnlineDisplayMCCheckFaster(Int_t maximumTime = 2050)  {
 			if ( (mctrack->GetMomentum().Pt() < 0.052) && (mctrack->GetNPoints(kSTT) > 0) ) {
 				cout << "Low pt hit" << endl;
 			}
-			
+
 			int mcentrynumber = myTrack->MCEntryNumber();
 			if (mcentrynumber > maxmcid) {
 				maxmcid = mcentrynumber;
@@ -314,8 +314,8 @@ int runOnlineDisplayMCCheckFaster(Int_t maximumTime = 2050)  {
 			recotrackphi.push_back(trackphi);
 			recotrackstatus.push_back(0);
 			recotrackmcid.push_back(mcentrynumber);
-			
-			
+
+
 		}
 		if (maxmcid > globalmaxmcid) {
 			globalmaxmcid = maxmcid;
@@ -406,7 +406,7 @@ int runOnlineDisplayMCCheckFaster(Int_t maximumTime = 2050)  {
 								if (pdg->GetParticle(mctrack->GetPdgCode())->Charge() < 0) {
 									chargesign = -1;
 								}
-									
+
 								hphires->Fill(deltaphi*chargesign);
 								hptres->Fill(mcpt, deltapt/mcpt);
 
@@ -519,7 +519,7 @@ int runOnlineDisplayMCCheckFaster(Int_t maximumTime = 2050)  {
 	SaveAndUpdateHisto(hptresmc80, outputstorage);
 	SaveAndUpdateHisto(hphiresmcbad, outputstorage);
 	SaveAndUpdateHisto(hptresmcbad, outputstorage);
-   
+
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();
 	Double_t rtime = timer.RealTime();

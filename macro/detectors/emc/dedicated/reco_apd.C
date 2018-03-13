@@ -1,19 +1,19 @@
 {
 // Macro loads a file after reconstruction and plots difference between initial direction of particle and angular position of cluster
-  
+
 gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
 rootlogon();
 basiclibs();
-	
+
 TFile* f = new TFile("hit_emc_apd.root"); //file you want to analyse
-TTree *t=(TTree *) f->Get("cbmsim") ;
+TTree *t=(TTree *) f->Get("pndsim") ;
 
 TClonesArray* hit_array=new TClonesArray("PndEmcApdHit");
 t->SetBranchAddress("EmcApdHit",&hit_array);
-	
+
 TFile* fsim = new TFile("sim_emc_apd.root"); //file you want to analyse
-TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
+TTree *tsim=(TTree *) fsim->Get("pndsim") ;
 TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 tsim->SetBranchAddress("MCTrack",&mctrack_array);
 
@@ -28,15 +28,15 @@ TH1F *hMom = new TH1F("hMom","Particle  Momentum",150,0,1.5); hMom->GetXaxis()->
 // Loop over hit
 for (Int_t j=0; j< t->GetEntriesFast(); j++)
 {
-  t->GetEntry(j);	
+  t->GetEntry(j);
   tsim->GetEntry(j);
-  
+
     for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
       {
 	PndEmcApdHit *apd=(PndEmcApdHit*)hit_array->At(i);
 	hit_energy=apd->GetEnergy();
 	ntrack = apd->GetNPoints();
-			
+
 	hEnergy->Fill(hit_energy*1000.);
 	hMult->Fill(ntrack);
 	cout << "# Particles in APD: " << ntrack << endl;
@@ -52,15 +52,15 @@ for (Int_t j=0; j< t->GetEntriesFast(); j++)
 
 
 
-TCanvas* c1 = new TCanvas("c1", "Energy Loss in APDs", 100, 100, 800, 800); 	
+TCanvas* c1 = new TCanvas("c1", "Energy Loss in APDs", 100, 100, 800, 800);
 hEnergy->Draw();
 
-TCanvas* c2 = new TCanvas("c2", "Particles in APDs", 100, 100, 800, 800); 	
+TCanvas* c2 = new TCanvas("c2", "Particles in APDs", 100, 100, 800, 800);
 hMult->Draw();
-	
-TCanvas* c3 = new TCanvas("c3", "Particle Momentum in APDs", 100, 100, 800, 800); 	
+
+TCanvas* c3 = new TCanvas("c3", "Particle Momentum in APDs", 100, 100, 800, 800);
 hMom->Draw();
-	
+
 
 
 }

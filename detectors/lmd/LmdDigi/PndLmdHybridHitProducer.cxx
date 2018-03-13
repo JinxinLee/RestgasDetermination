@@ -78,7 +78,7 @@ void PndLmdHybridHitProducer::SetBranchNames()
   if(fVerbose>1) Info("SetBranchNames","Set Lmd Pixel names.");
   fInBranchName = "LMDPoint";
   fOutBranchName = "LMDPixelDigis";
-  fFolderName = "cbmsim";
+  fFolderName = "pndsim";
   SetInBranchId();
 }
 

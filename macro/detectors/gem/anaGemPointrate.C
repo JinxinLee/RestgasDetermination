@@ -11,7 +11,7 @@ int anaGemPointrate(int nEvents = 10, bool verbose = false)
   // ------------------------------------------------------------------------
 
   TFile* f = new TFile("Gem_Test.root"); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
 
   TClonesArray* hit_array=new TClonesArray("PndGemMCPoint");
   t->SetBranchAddress("GEMPoint",&hit_array);//Branch names

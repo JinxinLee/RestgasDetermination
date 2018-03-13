@@ -193,7 +193,7 @@ int online_monitoring_studies(){
 	for (int ifile = 0; ifile < nfiles; ifile++){
 		cout << endl << " file " << ifile << " of " << nfiles << "  = " <<  files[ifile] << endl;
 		// load the MC File
-		TChain tMC("cbmsim");
+		TChain tMC("pndsim");
 		tMC.Add((files[ifile]+"/Lumi_MC*.root").c_str());
 
 		//--- assign MC info -----------------------------------------------------

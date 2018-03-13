@@ -12,13 +12,13 @@
 //void plot_hitpattern(TString theRunName = "test", Int_t theWhat = 1, Int_t fEventMin = 0, Int_t fEventMax = -2)
 int plot_hitpattern()
 {
-  
+
   TString theRunName = "test";
   Int_t theWhat = 3;
   Int_t fEventMin = 0;
   Int_t fEventMax = -1;
   Bool_t   fSecondaries = kTRUE;
-  
+
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   rootlogon();
@@ -35,7 +35,7 @@ int plot_hitpattern()
   if (fFile == 0)
     fFile = new TFile(fFileName);
 
-  TTree *fTree = (TTree *)fFile->Get("cbmsim");
+  TTree *fTree = (TTree *)fFile->Get("pndsim");
   fTree->SetBranchStatus("*",0);
   fTree->SetBranchStatus("DskCerenkov.*",1);
   fTree->SetBranchStatus("DskParticle.*",1);
@@ -89,7 +89,7 @@ int plot_hitpattern()
     PndDskCerenkov* cEntry = 0;
     TIter cIter(cArray);
     while ( (cEntry = (PndDskCerenkov*)cIter.Next()) ) {
-      
+
       if ( cEntry->GetDetTime() > 0. ) { // is detected
 
         if ( cEntry->GetMotherTrackID() == 0  && theWhat != 2)  { // is primary

@@ -15,8 +15,8 @@
 #include "TEveTrans.h"
 #include "TEveManager.h"
 #include "TEveBoxSet.h"
-#include "TGLViewer.h" 
-#include "TGLSAViewer.h" 
+#include "TGLViewer.h"
+#include "TGLSAViewer.h"
 #include "TRandom.h"
 #include "TStyle.h"
 
@@ -49,7 +49,7 @@ InitStatus PndDrcAccuDigiPixelDraw::Init()
 {
   FairBoxSetDraw::Init();
   fGeoH = PndGeoHandling::Instance();
-	
+
   TIter next((TObjArray*)gGeoManager->GetListOfVolumes());
   TGeoVolume *vol;
   while((vol=(TGeoVolume*)next())){
@@ -62,11 +62,11 @@ InitStatus PndDrcAccuDigiPixelDraw::Init()
     if(volumename.Contains("DrcLENS")) vol->SetTransparency(95);
     if(volumename.Contains("DrcMirr")) vol->SetTransparency(50);
     if(volumename.Contains("DrcEVgrease")) vol->SetTransparency(60);
-	  
+
     //vol->SetTransparency(80);
     // vol->SetLineColor(17);
   }
-	
+
   gGeoManager->SetNsegments(400);
 
   TGLViewer *v = gEve->GetDefaultGLViewer();
@@ -87,9 +87,9 @@ InitStatus PndDrcAccuDigiPixelDraw::Init()
 
 void PndDrcAccuDigiPixelDraw::ReadAllHits(){
   TFile* f = new TFile(fDigiFile);
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
   TClonesArray* hit_array=new TClonesArray("PndDrcPDHit");
-  PndDrcPDHit *hit; 
+  PndDrcPDHit *hit;
   TVector3 recoVector,recoLocal;
   TEveBoxSet* bs;
   TGeoHMatrix testMatrix;
@@ -105,7 +105,7 @@ void PndDrcAccuDigiPixelDraw::ReadAllHits(){
 	Int_t sensorId = detId/100;
 
 	recoLocal = fGeoH->MasterToLocalShortId(recoVector, sensorId);
-	   
+
 	TString detName = Form("pix %d", detId);
 	bs = CreateNewBoxSet(detName);
 	Float_t pixSize=fGeo->PixelSize();
@@ -124,7 +124,7 @@ void PndDrcAccuDigiPixelDraw::ReadAllHits(){
 void PndDrcAccuDigiPixelDraw::Exec(Option_t*)
 {
   if(fFirstEvent) ReadAllHits();
-  
+
   gStyle->SetPalette(1);
   Int_t colnums = 256;
   TEveRGBAPalette* pal = new TEveRGBAPalette(0, colnums);
@@ -153,7 +153,7 @@ void PndDrcAccuDigiPixelDraw::Exec(Option_t*)
     gEve->AddElement(topbs, man);
   }
   gEve->Redraw3D(kFALSE);
-  
+
   fFirstEvent = false;
 }
 

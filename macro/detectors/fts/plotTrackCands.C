@@ -87,7 +87,7 @@ int PlotMCTracks(int iEvent, TString branchName, TString tcaName, TGraph *mcPoin
 		fSim = gFile;
 	}
 
-	TTree* tSim = (TTree*) (gFile->Get("cbmsim"));
+	TTree* tSim = (TTree*) (gFile->Get("pndsim"));
 	//tSim->StartViewer();
 	TClonesArray* Points = new TClonesArray(tcaName);
 	tSim->SetBranchAddress(branchName, &Points);
@@ -175,7 +175,7 @@ int PlotMCTracksPrintBField(PndMultiField *fField, int iEvent,
 
 	int verbose = 6;
 
-	TTree* tSim = (TTree*) (gFile->Get("cbmsim"));
+	TTree* tSim = (TTree*) (gFile->Get("pndsim"));
 	//tSim->StartViewer();
 	if (verbose > 5)
 	{
@@ -802,7 +802,7 @@ int plotTrackCands(int iEvent)
 
 	// get FTS Hits
 	TFile* fDigi = new TFile(DigiFile.Data());
-	TTree* tDigi = (TTree*) (fDigi->Get("cbmsim"));
+	TTree* tDigi = (TTree*) (fDigi->Get("pndsim"));
 	//tDigi->StartViewer();
 
 	TClonesArray* fFtsHitArray = new TClonesArray("PndFtsHit");
@@ -850,7 +850,7 @@ int plotTrackCands(int iEvent)
 
 
 
-	//	TTree *tree=(TTree *) fSim->Get("cbmsim") ;
+	//	TTree *tree=(TTree *) fSim->Get("pndsim") ;
 	//	TClonesArray* mc_array=new TClonesArray("PndMCTrack");
 	//	tree->SetBranchAddress("MCTrack", &mc_array);
 	//	tree->GetEntry(iEvent);
@@ -890,7 +890,7 @@ int plotTrackCands(int iEvent)
 
 	// get PndFtsHoughTrackCand
 	TFile* fReco = new TFile(RecoFile.Data());
-	TTree* tReco = (TTree*) (fReco->Get("cbmsim"));
+	TTree* tReco = (TTree*) (fReco->Get("pndsim"));
 	//tReco->StartViewer();
 
 	TClonesArray* fTrackCands = new TClonesArray("PndFtsHoughTrackCand");

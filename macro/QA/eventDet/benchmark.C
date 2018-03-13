@@ -85,7 +85,7 @@ int benchmark() {
 	//---------------------------------FairEventHeader ----------------------------
 	FairEventHeader* evtHeader = NULL;
 	TFile* digFile = TFile::Open(digiFile);
-	TTree* digTree = (TTree*) digFile->Get("cbmsim");
+	TTree* digTree = (TTree*) digFile->Get("pndsim");
 	digTree->SetBranchAddress("EventHeader.", &evtHeader);
 	//-------------------------------------------------------------------
 

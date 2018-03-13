@@ -7,7 +7,7 @@
    gSystem->Load("libEnDrc");          // our library
   TFile* f = new TFile("DpmSimu1000.root");
   //  TFile* f = new TFile("sim_endrcP.root");
-  TTree *t=f->Get("cbmsim") ;
+  TTree *t=f->Get("pndsim") ;
   TClonesArray *fT=new TClonesArray("PndEnDrcPoint");
   t->SetBranchAddress("EnDrcTrue",&fT) ;
 
@@ -30,13 +30,13 @@
     //end of evnt marker
     hitsfile<<-1<<" "<<-1<<" "<<-1<<" ";
     hitsfile<<-1<<" "<<-1<<" "<<-1<<" ";
-    hitsfile<<-1<<" "<<-1<<endl;  
+    hitsfile<<-1<<" "<<-1<<endl;
   }
   //end of file marker
   hitsfile<<-11<<" "<<-11<<" "<<-11<<" ";
   hitsfile<<-11<<" "<<-11<<" "<<-11<<" ";
-  hitsfile<<-11<<" "<<-11<<endl;  
-  
+  hitsfile<<-11<<" "<<-11<<endl;
+
 
   f->Close();
 }

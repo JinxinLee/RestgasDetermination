@@ -2,7 +2,7 @@
 gROOT->LoadMacro("Tools.C");
 LoadPandaStyle();
 TFile f("./data/Mvd_FlatG4Special_0G5_70k_Geane.root");
-TTree* t = (TTree*)f->Get("cbmsim");
+TTree* t = (TTree*)f->Get("pndsim");
 //gStyle->SetPalette(1);
 
 TH1D hpdX("hpdX","Pull distribution in x", 1000, -5, 5);

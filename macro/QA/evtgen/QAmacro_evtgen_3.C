@@ -160,7 +160,7 @@ int QAmacro_evtgen_3()
     PndMCTrack *mo;
   //  check_mc_tree_sums()
   {
-	  TChain *abc=new TChain("cbmsim");
+	  TChain *abc=new TChain("pndsim");
 	  abc->Add("qa_evtgen1.root");
 
     TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");

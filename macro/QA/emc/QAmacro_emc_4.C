@@ -39,13 +39,13 @@ int QAmacro_emc_4()
 	/////////////////////////////////////////////////////////////////////////////////
 
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
-	TTree *t=(TTree *) f->Get("cbmsim") ;
+	TTree *t=(TTree *) f->Get("pndsim") ;
 
 	TClonesArray* hit_array=new TClonesArray("PndEmcHit");
 	t->SetBranchAddress("EmcHit",&hit_array);
 
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
-	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
+	TTree *tsim=(TTree *) fsim->Get("pndsim") ;
 
 	TClonesArray* point_array=new TClonesArray("PndEmcPoint");
 	tsim->SetBranchAddress("EmcPoint",&point_array);

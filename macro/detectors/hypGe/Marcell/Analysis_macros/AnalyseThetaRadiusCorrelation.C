@@ -25,18 +25,18 @@ int AnalyseThetaRadiusCorrelation()
 
   gSystem->Load("libHyp");
    gSystem->Load("libHypGe");
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
 	TString CompleteFilename = "/data/work/kpha1/steinen/CrystalsOnly/TripleBall40Offset20STTCrystalsOnly_0.01MeV_10000000Evts.root";
 	TFile* g = new TFile(CompleteFilename);
-	
+
 //Output Files
 	TString Path = getenv("SIMDATADIR");
 	TString outfile= Path+"/CrystalsOnly/Ana/AnaTripleBall40Offset20STTCrystalsOnly_0.01MeV_10000000Evts";
-	
+
 	TString txtfileName =  outfile;
 	outfile +=".root";
 	txtfileName += ".txt";
@@ -46,7 +46,7 @@ int AnalyseThetaRadiusCorrelation()
 	txtfile.open(txtfileName);
 	txtfile << "File read:" << CompleteFilename << endl;
    //photons from hyp electromag. decay
-  TTree *b=(TTree *) g->Get("cbmsim") ;
+  TTree *b=(TTree *) g->Get("pndsim") ;
   TClonesArray* hit_bar=new TClonesArray("PndHypGePoint");
   b->SetBranchAddress("HypGePoint",&hit_bar);//Branch names
   TClonesArray* mc_bar=new TClonesArray("PndMCTrack");
@@ -55,7 +55,7 @@ int AnalyseThetaRadiusCorrelation()
 
 	TString Name = "#Theta detector distance correlation;#Theta [#circ];Distance [cm]";
 	TH2D* hThetaR = new TH2D("hThetaR",Name.Data(),180,90,180,250,15,40);
-	
+
 	TH2D* hRing1 = new TH2D("hRing1","#Theta detector ring 1 distance correlation;#Theta [#circ];Distance [cm]",180,90,180,250,15,40);
 	TH2D* hRing2 = new TH2D("hRing2","#Theta detector ring 2 distance correlation;#Theta [#circ];Distance [cm]",180,90,180,250,15,40);
 	TH2D* hRing3 = new TH2D("hRing3","#Theta detector ring 3 distance correlation;#Theta [#circ];Distance [cm]",180,90,180,250,15,40);
@@ -64,7 +64,7 @@ int AnalyseThetaRadiusCorrelation()
 	TH2D* hRing6 = new TH2D("hRing6","#Theta detector ring 6 distance correlation;#Theta [#circ];Distance [cm]",180,90,180,250,15,40);
 	TH2D* hRing7 = new TH2D("hRing7","#Theta detector ring 7 distance correlation;#Theta [#circ];Distance [cm]",180,90,180,250,15,40);
 	TH2D* hRing8 = new TH2D("hRing8","#Theta detector ring 8 distance correlation;#Theta [#circ];Distance [cm]",180,90,180,250,15,40);
-	
+
 	TH1D* hRing1Theta = new TH1D("hRing1Theta","#Theta distribution of ring 1 ;#Theta [#circ];Counts",180,90,180);
 	TH1D* hRing2Theta = new TH1D("hRing2Theta","#Theta distribution of ring 2 ;#Theta [#circ];Counts",180,90,180);
 	TH1D* hRing3Theta = new TH1D("hRing3Theta","#Theta distribution of ring 3 ;#Theta [#circ];Counts",180,90,180);
@@ -73,7 +73,7 @@ int AnalyseThetaRadiusCorrelation()
 	TH1D* hRing6Theta = new TH1D("hRing6Theta","#Theta distribution of ring 6 ;#Theta [#circ];Counts",180,90,180);
 	TH1D* hRing7Theta = new TH1D("hRing7Theta","#Theta distribution of ring 7 ;#Theta [#circ];Counts",180,90,180);
 	TH1D* hRing8Theta = new TH1D("hRing8Theta","#Theta distribution of ring 8 ;#Theta [#circ];Counts",180,90,180);
-	
+
 	TH1D* hRing1Distance = new TH1D("hRing1Distance","Crystal distance of ring 1 ;#Theta [#circ];Counts",250,15,40);
 	TH1D* hRing2Distance = new TH1D("hRing2Distance","Crystal distance of ring 2 ;#Theta [#circ];Counts",250,15,40);
 	TH1D* hRing3Distance = new TH1D("hRing3Distance","Crystal distance of ring 3 ;#Theta [#circ];Counts",250,15,40);
@@ -82,45 +82,45 @@ int AnalyseThetaRadiusCorrelation()
 	TH1D* hRing6Distance = new TH1D("hRing6Distance","Crystal distance of ring 6 ;#Theta [#circ];Counts",250,15,40);
 	TH1D* hRing7Distance = new TH1D("hRing7Distance","Crystal distance of ring 7 ;#Theta [#circ];Counts",250,15,40);
 	TH1D* hRing8Distance = new TH1D("hRing8Distance","Crystal distance of ring 8 ;#Theta [#circ];Counts",250,15,40);
-	
+
 	bool verbose = false;
 	Int_t MotherId,Motherpdg;
-	
-	
+
+
 	TVector3 vecs , pos;
 	int mcpdg = -1,ev;
 	Double_t mult,En,Eng,Enth;
-	
+
 	//vector<int> event;
 	int count;
 	set<int> SetOfCrystalHit;
 	set<int>::iterator it;
-	
+
 	Int_t nEvents = b->GetEntriesFast()/100;
 	cout<< "Number of Simulated Events: "<<nEvents<<endl;
 	txtfile<< "Number of Simulated Events: "<<nEvents<<endl;
 	TVector3 Hit;
-	
+
 	for (Int_t k=0; k<nEvents; k++)
-	{ 
+	{
 		b->GetEntry(k);
 		if (!((k*1000)% nEvents))
 		{
 			cout << k << endl;
 		}
-	    
+
 		for (Int_t i=0; i<hit_bar->GetEntriesFast(); i++)
-		{ 
+		{
 			PndHypGePoint *hitgam=(PndHypGePoint*)hit_bar->At(i);
 			PndMCTrack *mcgam = (PndMCTrack*)mc_bar->At(hitgam->GetTrackID());
-			
+
 			Hit.SetX(hitgam->GetX());
 			Hit.SetY(hitgam->GetY());
-			Hit.SetZ(hitgam->GetZ()+55);					
+			Hit.SetZ(hitgam->GetZ()+55);
 			Double_t theta = 180/TMath::Pi()*Hit.Theta();
 			//cout << 180/TMath::Pi()*Hit.Theta()<< ", " << Hit.Mag() << endl;
 			hThetaR->Fill(theta, Hit.Mag());
-			
+
 			switch (hitgam->GetDetectorID())
 					{
 						case 101:
@@ -165,7 +165,7 @@ int AnalyseThetaRadiusCorrelation()
 							break;
 						case 411:
 							//iRing1+=Content;
-							hRing1->Fill(theta, Hit.Mag()); hRing1Theta->Fill(theta); hRing1Distance->Fill(Hit.Mag()); 
+							hRing1->Fill(theta, Hit.Mag()); hRing1Theta->Fill(theta); hRing1Distance->Fill(Hit.Mag());
 							break;
 						case 412:
 							//iRing5+=Content;
@@ -233,7 +233,7 @@ int AnalyseThetaRadiusCorrelation()
 							break;
 						case 1028:
 							//iRing7+=Content;
-							hRing7->Fill(theta, Hit.Mag()); hRing7Theta->Fill(theta); hRing7Distance->Fill(Hit.Mag()); 
+							hRing7->Fill(theta, Hit.Mag()); hRing7Theta->Fill(theta); hRing7Distance->Fill(Hit.Mag());
 							break;
 						case 1029:
 							//iRing6+=Content;
@@ -315,23 +315,23 @@ int AnalyseThetaRadiusCorrelation()
 							//iRing5+=Content;
 							hRing5->Fill(theta, Hit.Mag()); hRing5Theta->Fill(theta); hRing5Distance->Fill(Hit.Mag());
 							break;
-						default: 
+						default:
 							break;
 					}
-			
+
 		}//end for i (points in event)
-		
+
 	}// end for j (events)
   cout << "event loop finished"<< endl;
 
-  
+
 	//TCanvas* can3 = new TCanvas("can3","germanium detector",0,0,1000,1000);
 	//can3->cd();
- 
+
   hThetaR->Draw("");
-  
+
   hThetaR->Write();
-  
+
   hRing1->Write();
   hRing2->Write();
   hRing3->Write();
@@ -349,7 +349,7 @@ int AnalyseThetaRadiusCorrelation()
 	hRing6Theta->Write();
 	hRing7Theta->Write();
 	hRing8Theta->Write();
-	
+
 	hRing1Distance->Write();
 	hRing2Distance->Write();
 	hRing3Distance->Write();
@@ -375,6 +375,6 @@ int AnalyseThetaRadiusCorrelation()
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	cout << endl;
 	// ------------------------------------------------------------------------
-	
+
   return 0;
 }

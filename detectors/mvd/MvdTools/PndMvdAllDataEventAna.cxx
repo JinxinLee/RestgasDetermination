@@ -93,11 +93,11 @@ void PndMvdAllDataEventAna::Init(TString fileName)
 {
   PndFileNameCreator nameCreator(fileName.Data());
   fFile = new TFile(fileName.Data());
-  fTree = (TTree*)fFile->Get("cbmsim");
+  fTree = (TTree*)fFile->Get("pndsim");
 
-  fTree->AddFriend("digi=cbmsim",nameCreator.GetDigiFileName().c_str());
-  fTree->AddFriend("reco=cbmsim",nameCreator.GetRecoFileName().c_str());
-  fTree->AddFriend("trackF=cbmsim",nameCreator.GetTrackFindingFileName().c_str());
+  fTree->AddFriend("digi=pndsim",nameCreator.GetDigiFileName().c_str());
+  fTree->AddFriend("reco=pndsim",nameCreator.GetRecoFileName().c_str());
+  fTree->AddFriend("trackF=pndsim",nameCreator.GetTrackFindingFileName().c_str());
 
   fHitArray=new TClonesArray("PndSdsMCPoint");
   fDigiArray = new TClonesArray("PndSdsDigiPixel");

@@ -29,9 +29,9 @@
   picture.ReplaceAll(".root",".ps");
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
-  t->AddFriend("cbmsim",digiFile.c_str()); // the digi file
-  t->AddFriend("cbmsim",recoFile.c_str()); // the reco file
+  TTree *t=(TTree *) f->Get("pndsim") ;
+  t->AddFriend("pndsim",digiFile.c_str()); // the digi file
+  t->AddFriend("pndsim",recoFile.c_str()); // the reco file
 
   TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names

@@ -23,18 +23,18 @@
 
   TFile* f = new TFile("/private/huagen/simdata/Lmd_Reco_DPM_elastic_6.2_1.9mrad_5M_2.root"); // the sim file
 //  TFile* f = new TFile("/private/huagen/simdata/Lmd_Test_Reco.root");
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
   TClonesArray* hit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("LMDHitsStrip",&hit_array);//Branch names
 
 //  TFile* F = new TFile("/private/huagen/simdata/Lmd_Test.root"); // the sim file
   TFile* F = new TFile("/private/huagen/simdata/Lmd_DPM_elastic_6.2_1.9mrad_5M_2.root");
-  TTree *T=(TTree *) F->Get("cbmsim") ;
+  TTree *T=(TTree *) F->Get("pndsim") ;
   TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   T->SetBranchAddress("LMDPoint",&mc_array);//Branch names
 /*
   TFile* digi = new TFile("/private/huagen/simdata/Lmd_Digi_DPM_elastic_6.2_2.72mrad_1M.root"); // the sim file
-  TTree *Tdigi=(TTree *) digi->Get("cbmsim") ;
+  TTree *Tdigi=(TTree *) digi->Get("pndsim") ;
   TClonesArray* digi_array=new TClonesArray("PndSdsDigiStrip");
   Tdigi->SetBranchAddress("LMDStripDigis",&digi_array);//Branch names
 */

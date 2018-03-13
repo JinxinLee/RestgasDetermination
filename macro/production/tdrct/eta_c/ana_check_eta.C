@@ -13,15 +13,15 @@ int ana_check(int nevts=0)
   TString inSimFile = "evt_points.root";
 
   TFile *inFile = TFile::Open(inSimFile,"READ");
-  TTree *tree=(TTree *) inFile->Get("cbmsim") ;
-  tree->AddFriend("cbmsim",inPidFile);
+  TTree *tree=(TTree *) inFile->Get("pndsim") ;
+  tree->AddFriend("pndsim",inPidFile);
 
   TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   tree->SetBranchAddress("MCTrack",&mc_array);
 
   FairMCEventHeader* evthead;
   tree->SetBranchAddress("MCEventHeader.", &evthead);
-  
+
   TFile *out = TFile::Open(OutFile,"RECREATE");
 
   // the PndEventReader takes care about file/event handling
@@ -32,13 +32,13 @@ int ana_check(int nevts=0)
 
   TH1F *h_etac_pid=new TH1F("h_etac_pid","m(eta_c), (MC PID);E, GeV",100,2.5,3.5);
   TH1F *h_mphi_pid=new TH1F("h_mphi_pid","#phi: m(K+ K-) (MC PID)",100,0.95,1.1);
-  
+
   TH1F *h_etac_4c=new TH1F("h_etac_4c","m(eta_c), 4C-fit",100,2.5,3.5);
   TH1F *h_mphi_4c=new TH1F("h_mphi_4c","#phi: m(K+ K-) (4C-fit)",100,0.95,1.1);
-  
+
   TH1F *h_etac_vtx=new TH1F("h_etac_vtx","m(eta_c), Vertex fit",100,2.5,3.5);
   TH1F *h_mphi_vtx=new TH1F("h_mphi_vtx","#phi: m(K+ K-) (Vertex fit)",100,0.95,1.1);
-        
+
   TH1F *h_etac_phimass=new TH1F("h_etac_phimass","m(eta_c), (cut on #phi mass);E, GeV",100,2.5,3.5);
   TH1F *h_mphi_final=new TH1F("h_mphi_final","#phi: m(K+ K-)",100,0.95,1.1);
 
@@ -52,7 +52,7 @@ int ana_check(int nevts=0)
   TH1F *hvtxresX = new TH1F("hvtxresX","X resolution of fitted decay vertex",100,-0.1,0.1);
   TH1F *hvtxresY = new TH1F("hvtxresY","Y resolution of fitted decay vertex",100,-0.1,0.1);
   TH1F *hvtxresZ = new TH1F("hvtxresZ","Z resolution of fitted decay vertex",100,-0.1,0.1);
-  
+
   TPidMassSelector *phiMassSel=new TPidMassSelector("phi",1.02,0.02);
 
   TPidPlusSelector *kplusSel=new TPidPlusSelector("kplus");
@@ -60,7 +60,7 @@ int ana_check(int nevts=0)
 
   // the candidates lists we need
   TCandList p1, p2, phi1, phi1_pid, etac, etac_pid,  etac_nocut;
-  
+
   int n_reco=0;
   // Number of events in file and number of reconstructed eta_c to store in root file
   TH1F *n_events=new TH1F("n_events","total number of events",1,0,1);
@@ -84,10 +84,10 @@ int ana_check(int nevts=0)
       //if (!((i+1)%100)) cout<<"evt " << i << "\n";
       evr.FillList(p1,"Charged");
       evr.FillList(p2,"Charged");
-      
+
       p1.Select(kplusSel);
       p2.Select(kminusSel);
-      
+
       int nchrg=p1.GetLength()+p2.GetLength();
       nc->Fill(nchrg);
 
@@ -97,22 +97,22 @@ int ana_check(int nevts=0)
       for (j=0;j<p2.GetLength();++j) {
 	p2[j].SetMass(TRho::Instance()->GetPDG()->GetParticle(321)->Mass());
       }
-      
+
       phi1.Combine(p1,p2);
-      
+
       for (j=0;j<phi1.GetLength();++j) h_mphi_nocuts->Fill(phi1[j].M());
-      
+
       phi1.Select(phiMassSel);
       etac_nocut.Combine(phi1,phi1);
-      
+
       for (l=0;l<etac_nocut.GetLength();++l) {
 	h_etac_nocut->Fill(etac_nocut[l].M());
       }
-      
+
       tree->GetEntry(i-1);
       TVector3 mcVertex, mcD1Vertex, mcD2vertex;
       evthead->GetVertex(mcVertex);
-      
+
       // MC PID
       // Leave only kaons in particle lists
       int n_removed=0;
@@ -151,24 +151,24 @@ int ana_check(int nevts=0)
 		{
 		  p2.Remove(p2[ii]);
 		  n_removed++;
-		} 
+		}
 	      if (mcTrack==1) mcD1Vertex = mcTrack->GetStartVertex();
 	      if (mcTrack==3) mcD2Vertex = mcTrack->GetStartVertex();
 	    }
 	  else
-	    { 
+	    {
 	      std::cout<<"stt h: " << p2[ii].GetMicroCandidate().GetSttHits() << std::endl;
 	      std::cout<<"Kaon list 2, element "<<l<<" has no assosiated mcTRack"<<std::endl;
 	    }
 	}
       }
-      
+
       phi1_pid.Combine(p1,p2);
-      
+
       for (j=0;j<phi1_pid.GetLength();++j) h_mphi_pid->Fill(phi1_pid[j].M());
       phi1_pid.Select(phiMassSel);
-      etac.Combine(phi1_pid,phi1_pid); 
-      
+      etac.Combine(phi1_pid,phi1_pid);
+
       for (l=0;l<etac.GetLength();++l) {
 	h_etac_pid->Fill(etac[l].M());
       }
@@ -204,9 +204,9 @@ int ana_check(int nevts=0)
 	      }
 	    h_chi2_4c->Fill(chi2/9); // Ndf=3N-3=9
 	  }
-	  
-	  if (etac.GetLength()!=0) cout << "evt: " << i << "\tbest: " << best_chi2 << "\tlen " << etac.GetLength() << endl;  
-	 
+
+	  if (etac.GetLength()!=0) cout << "evt: " << i << "\tbest: " << best_chi2 << "\tlen " << etac.GetLength() << endl;
+
 	  if(/*(best_chi2<270)&&*/(etac.GetLength()!=0))
 	    {
 	      h_chi2b_4c->Fill(best_chi2/9); // Ndf=3N-3=9
@@ -224,10 +224,10 @@ int ana_check(int nevts=0)
 	    }
 	}
 	// else // use vertex fit
-	{ 
+	{
 	  TCandList etac_vtx;
 	  TCandidate *k1, *k2, *k3, *k4, *phi1tmp, *phi2tmp, *etac_tmp;
-	  
+
 	  //Combine 4 kaons directly to candidates
 	  for (j=0;j<etac.GetLength();++j)
 	    {
@@ -238,7 +238,7 @@ int ana_check(int nevts=0)
 	      k2=phi1tmp->Daughter(1);
 	      k3=phi2tmp->Daughter(0);
 	      k4=phi2tmp->Daughter(1);
-			
+
 	      etac_tmp=k1->Combine(*k2,*k3,*k4);
 	      etac_vtx.Add(*etac_tmp);
 	    }
@@ -277,7 +277,7 @@ int ana_check(int nevts=0)
 		  k3fit_best=vtxfitter.FittedCand(*(etacfit_best->Daughter(2)));
 		  k4fit_best=vtxfitter.FittedCand(*(etacfit_best->Daughter(3)));
 		  etacvtx_mass = etacfit_best->M();
-		  bestPos = etacfit->Pos(); 
+		  bestPos = etacfit->Pos();
 		}
 
 	    }
@@ -296,7 +296,7 @@ int ana_check(int nevts=0)
 	      hvtxresX->Fill(mcVertex.X()-bestPos.X());
 	      hvtxresY->Fill(mcVertex.Y()-bestPos.Y());
 	      hvtxresZ->Fill(mcVertex.Z()-bestPos.Z());
- 
+
 	      if (((m_phi1>1.02-0.03)&&(m_phi1<1.02+0.03))&&((m_phi2>1.02-0.03)&&(m_phi2<1.02+0.03)))
 		{
 		  h_etac_phimass->Fill(etacfit_best->M());
@@ -304,7 +304,7 @@ int ana_check(int nevts=0)
 		    n_reco++;
 		}
 	    }
-	  
+
 	}
     }
   std::cout<<"Number of reconstructed eta_c = "<<n_reco<<std::endl;

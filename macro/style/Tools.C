@@ -485,7 +485,7 @@ bool plotntuplefromfile(TString filename = "ntps.root", TString ext=".pdf", Int_
   return true;
 }
 
-bool LoadManySimFiles(TString treename="cbmsim")
+bool LoadManySimFiles(TString treename="pndsim")
 { // to use that method you should have opened some files
   // containing the same tree structure, like splitted files of
   // mass production simulations. (like "root -f data/sim01*.root"

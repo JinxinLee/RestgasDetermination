@@ -13,7 +13,7 @@ int TrackHits(){
    const Int_t maxEvents = 1000000;
 
 	TString SensName[numSens];
-	
+
 	SensName[0] = "/TS_1/TTVol_0/TTDouble_0/StripActiveTD1_0";
 	SensName[1] = "/TS_1/TTVol_0/TTSingle_0/StripActiveTS3a_0";
 	SensName[2] = "/TS_1/TTVol_0/TTSingle_0/StripActiveTS3b_0";
@@ -34,7 +34,7 @@ int TrackHits(){
 
 
 	// Loading the geometry and defining the geo handler
-	
+
 	TFile *geo = new TFile(geomFile);
 
 	TGeoManager *myGeo = geo->Get("FAIRGeom");
@@ -65,13 +65,13 @@ int TrackHits(){
    TCanvas *can8 = new TCanvas();
 
 	TString name = "";
-	
+
 
 	// Load the hits
 	TFile *f = new TFile(HitsFile);
 
-	TTree *t=(TTree *) f->Get("cbmsim");
-	
+	TTree *t=(TTree *) f->Get("pndsim");
+
 	TClonesArray* tr_array=new TClonesArray("PndSdsHit");
 	t->SetBranchAddress("MVDHitsStrip",&tr_array);//Branch names
 
@@ -105,9 +105,9 @@ int TrackHits(){
 		    {
 			      if (name == SensName[h]) test->Fill(h+1);
           }
-		    
+
 		    // plotting Z of hits on the first sensor
-		   if (name == SensName[0]) { 
+		   if (name == SensName[0]) {
             h1->Fill(point->GetX(),point->GetY());
             h5->Fill(point->GetEloss()*1e+6);
             nrHits1++;

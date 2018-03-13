@@ -10,7 +10,7 @@ int analysis()
 
 	TFile *file=TFile::Open("sim.root","read");
 
-	TTree *tree = (TTree*)file->Get("cbmsim");
+	TTree *tree = (TTree*)file->Get("pndsim");
 
 	TClonesArray *particle = new TClonesArray("PndDiscParticleMCPoint");
 	TClonesArray *sensor = new TClonesArray("PndDiscSensorMCPoint");
@@ -81,8 +81,8 @@ int analysis()
 			//cout << "x = " << x << " y = " << y << " z = " << z << endl;
 
 			possensor->Fill(vol,y*10);
-		}		
-		
+		}
+
 	}
 
 	TCanvas *c2 = new TCanvas();
@@ -91,19 +91,19 @@ int analysis()
 
 	//Reading out digitization file
 	TFile *file2=TFile::Open("digi.root","read");
-	TTree *tree2 = (TTree*)file2->Get("cbmsim");
+	TTree *tree2 = (TTree*)file2->Get("pndsim");
 	TClonesArray *digit = new TClonesArray("PndDiscDigitizedHit");
 	tree2->SetBranchAddress("DiscDigit", &digit);
 
 	//Reading out reconstruction file
 	TFile *file3=TFile::Open("reco.root","read");
-	TTree *tree3 = (TTree*)file3->Get("cbmsim");
+	TTree *tree3 = (TTree*)file3->Get("pndsim");
 	TClonesArray *recon = new TClonesArray("PndDiscReconResult");
 	tree3->SetBranchAddress("DiscPatternPrediction", &recon);
 
 	//Reading out PID file
 	TFile *file4=TFile::Open("pid.root","read");
-	TTree *tree4 = (TTree*)file4->Get("cbmsim");
+	TTree *tree4 = (TTree*)file4->Get("pndsim");
 	TClonesArray *pid = new TClonesArray("PndDiscPID");
 	tree4->SetBranchAddress("DiscPID", &pid);
 
@@ -131,8 +131,8 @@ int analysis()
 			//cout << "Pixel: " << pixel << " Sensor: " << readout_id << endl;
 
 			hitpattern->Fill(readout_id+27*detector_id, pixel, tdc);
-		}		
-		
+		}
+
 	}
 
 	//Histogram for predicted hitpattern
@@ -159,9 +159,9 @@ int analysis()
 			{
 				hprediction->Fill(sensor_id, pixel, time/events/3);
 			}
-		}		
-		
-	}	
+		}
+
+	}
 
 	TCanvas *c3 = new TCanvas();
 	int width = c3->GetWw();
@@ -191,9 +191,9 @@ int analysis()
 			double diff = ((PndDiscPID*)pid->At(j))->loglikepion - ((PndDiscPID*)pid->At(j))->loglikekaon;
 
 			hlikelihood->Fill(diff);
-		}		
-		
-	}	
+		}
+
+	}
 
 	TCanvas *c4 = new TCanvas();
 	hlikelihood->Draw();

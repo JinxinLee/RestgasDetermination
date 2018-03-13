@@ -9,12 +9,12 @@ int anaGemSmearing(int  nEvents = 10,  bool verbose = false)
 
 
   TFile* f = new TFile("Gem_Test_Smeared.root"); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
   TClonesArray* hit_array=new TClonesArray("PndGemHit");
   t->SetBranchAddress("GEMHit",&hit_array);//Branch names
 
   TFile* F = new TFile("Gem_Test.root"); // the sim file you want to analyse
-  TTree *T=(TTree *) F->Get("cbmsim") ;
+  TTree *T=(TTree *) F->Get("pndsim") ;
   TClonesArray* mc_array=new TClonesArray("PndGemMCPoint");
   T->SetBranchAddress("GEMPoint",&mc_array);//Branch names
 

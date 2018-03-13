@@ -22,21 +22,21 @@
 
  	//opening tree
   TFile* inFile = new TFile("../data/MvdMC_Pid_10k.root","READ");
-  TTree* tree = (TTree *)inFile->Get("cbmsim");
+  TTree* tree = (TTree *)inFile->Get("pndsim");
   TClonesArray* pointlist=new TClonesArray("PndSdsMCPoint");
   tree->SetBranchAddress("MVDPoint",&pointlist);
-  
+
   //Creating canvas and diagramms
   TH2D * hist10 = new TH2D("specEnergyLossVsP","dE/dx(p)",200,0.0,1,200,0,0.0005);
   hist10->SetYTitle("(dE/dx)/(GeV/cm)");
   hist10->SetXTitle("p/(GeV/c)");
-  
+
  	//variable
   TVector3 vecFront,vecBack,vecP;
   Int_t nEvents = 5000; //1000;
   Double_t dx,dE,p,dEdX;
-    	
- 
+
+
   for(int j=0;j<nEvents && j<tree->GetEntriesFast();j++)
 	{
 		tree->GetEntry(j);

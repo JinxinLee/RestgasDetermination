@@ -5,27 +5,27 @@
   timer.Start();
 //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 //   rootlogon();
-  
+
   // MCpoints
   TFile filerun("testrun.root");
-  TTree *treemc = (TTree*) filerun.Get("cbmsim");
+  TTree *treemc = (TTree*) filerun.Get("pndsim");
   TClonesArray *pnt = new TClonesArray("PndSttPoint");
   treemc->SetBranchAddress("STTPoint",&pnt);
   TClonesArray *mctrack = new TClonesArray("PndMCTrack");
   treemc->SetBranchAddress("MCTrack",&mctrack);
-    
+
   // Hits
   TFile filedigi("testdigi.root");
-  TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
+  TTree *treedigi = (TTree*) filedigi.Get("pndsim");
   TClonesArray *digi = new TClonesArray("PndSttHit");
   treedigi->SetBranchAddress("STTHit",&digi);
 
   // HelixHits
   TFile filehelix("testreco.root");
-  TTree *treereco = (TTree*) filehelix.Get("cbmsim");
+  TTree *treereco = (TTree*) filehelix.Get("pndsim");
   TClonesArray *hh = new TClonesArray("PndSttHelixHit");
   treereco->SetBranchAddress("SttHelixHit",&hh);
-  
+
   // Helix Tracks
   TClonesArray *track = new TClonesArray("PndSttTrack");
   treereco->SetBranchAddress("STTTrack",&track);
@@ -36,7 +36,7 @@
   c->Divide(1,2);
   TH1F *samplenum = new TH1F("samplenum","number of sampling",50,0.,50.);
   TH2F *hdedxvsp = new TH2F("hdedxvsp","dedx vs p",100,0.,1.5, 100,0.,40.);
-  
+
   TCanvas *c1 = new TCanvas("c1", "c1", 0, 0, 600, 600);
   c1->Divide(2,2);
   TH2F *hdedxvsp_p = new TH2F("hdedxvsp_p","dedx vs p for p",100,0.,1.5, 100,0.,40.);
@@ -49,15 +49,15 @@
   TH2F *hdedxvsp_reco = new TH2F("hdedxvsp_reco","dedx vs reco p",100,0.,1.5, 100,0.,40.);
 
  cout << treereco->GetEntriesFast() << " events" << endl;
- 
+
   // loop on evts
  for(Int_t evt = 0; evt < treereco->GetEntriesFast(); evt++) {
     if(evt%100 == 0) cout << evt << endl;
-    
+
     treemc->GetEntry(evt);
     treedigi->GetEntry(evt);
     treereco->GetEntry(evt);
-  
+
     // tracks loop
     for (Int_t k = 0; k < track->GetEntriesFast(); k++) {
 
@@ -76,7 +76,7 @@
       Double_t tanl = stttrack->GetTanL();
       Double_t h = -(Int_t) stttrack->GetCharge();
       Double_t ptran = 0.003 * 2 * R;
-      
+
       Double_t plong = ptran * tanl;
       Double_t ptot = sqrt(plong*plong + ptran*ptran);
 
@@ -96,7 +96,7 @@
 	Int_t hitindex = helixhit->GetHitIndex();
 // 	PndSttHit* hit = (PndSttHit*) digi->At(hitindex);
 // 	PndSttPoint *point = (PndSttPoint*) pnt->At(hit->GetRefIndex());
-	
+
 	if(helixhit->GetdEdx() != 0) dedxvec.push_back(helixhit->GetdEdx());
 	else losthit++;
       }
@@ -122,7 +122,7 @@
 	  hdedxvsp_reco->Fill(ptot, tmean);
 
 	  samplenum->Fill(hitcounter);
-	  
+
  	  if(abs(PDGcode) == 11)       { hdedxvsp_e->Fill(momentum->Mag(), tmean);}
 	  else if(abs(PDGcode) == 13)  { hdedxvsp_mu->Fill(momentum->Mag(), tmean);}
 	  else if(abs(PDGcode) == 211) { hdedxvsp_pi->Fill(momentum->Mag(), tmean);}
@@ -133,7 +133,7 @@
       }
     }
   }
-  
+
   c->cd(1);
   hdedxvsp->Draw();
   c->cd(2);

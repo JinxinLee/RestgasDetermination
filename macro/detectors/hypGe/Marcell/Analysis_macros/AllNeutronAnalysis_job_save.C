@@ -8,8 +8,8 @@ int AllNeutronAnalysis_job(TString Filename_ext)
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-	
-	
+
+
 	//Files
 							//TString Path = getenv("SIMDATADIR");
 	TString Filename = "$SIMDATADIR/Neutron/"+Filename_ext;
@@ -17,9 +17,9 @@ int AllNeutronAnalysis_job(TString Filename_ext)
 	TString outfile= "$SIMDATADIR/Neutron/Ana/Ana" + Filename_ext;
 	TFile* InputFile = new TFile(Filename);
 	TFile* OutputFile = new TFile(outfile,"RECREATE");
-	
+
 	//getting simulation branches from input file
-  TTree *b=(TTree *) InputFile->Get("cbmsim") ;
+  TTree *b=(TTree *) InputFile->Get("pndsim") ;
   TClonesArray* hit_bar=new TClonesArray("PndHypGePoint");
   b->SetBranchAddress("HypGePoint",&hit_bar);//Branch names
   TClonesArray* mc_bar=new TClonesArray("PndMCTrack");
@@ -46,14 +46,14 @@ int AllNeutronAnalysis_job(TString Filename_ext)
 	TH1D* hCrystalHit = new TH1D("hCrystalHit","Hits per Crystal",1700,1,1700);
 	hCrystalHit->SetXTitle("Crystal number");
 	hCrystalHit->SetYTitle("Counts");
-  
+
 
 	Int_t *ActualTrackID ;
 	Int_t nEvents = b->GetEntriesFast();
 	cout<< "Number of Simulated Events: "<<nEvents<<endl;
 
 	for (Int_t k=0; k<nEvents; k++)
-	{ 
+	{
 		b->GetEntry(k);
 		if (!((k*100)% nEvents))
 		{
@@ -77,7 +77,7 @@ int AllNeutronAnalysis_job(TString Filename_ext)
 					NHit.SetY(hitgam->GetY());
 					NHit.SetZ(hitgam->GetZ()+55);
 					hNHits->Fill(180/TMath::Pi()*NHit.Theta());				//fill histogram with polar angle of detector interactions of primary neutrons
-					
+
 					TVector3 NHit_p;
 					NHit_p.SetX(hitgam->GetPx());
 					NHit_p.SetY(hitgam->GetPy());
@@ -124,17 +124,17 @@ int AllNeutronAnalysis_job(TString Filename_ext)
 					hNMom->Fill(1./2.*NAllMom.Mag2()/0.939);
 					//cout << 1./2.*NAllMom.Mag2()/0.939<<endl;
 				}
-				
+
 			}
 		}
-	    
-	    
-	  }// end for j (events)
-  
 
- 
+
+	  }// end for j (events)
+
+
+
   hNHits->Draw();
-  
+
   //Analysis of spectrum
   hNHits->Write();
   hNHits_p->Write();
@@ -153,10 +153,10 @@ int AllNeutronAnalysis_job(TString Filename_ext)
 	Double_t ctime = timer.CpuTime();
 	cout << endl << endl;
 	cout << "Macro finished succesfully." << endl;
-	
+
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	cout << endl;
 	// ------------------------------------------------------------------------
-	
+
   return 0;
 }

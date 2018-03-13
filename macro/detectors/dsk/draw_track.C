@@ -20,7 +20,7 @@ int draw_track(TString the_RunName = "test", Bool_t do_plot = kTRUE)
 
   // select trees in RootFile
   TFile* fFile = new TFile(fRootFile); // the sim file you want to analyse
-  TTree* fTree = fFile->Get("cbmsim");    // for the tracks
+  TTree* fTree = fFile->Get("pndsim");    // for the tracks
 
   fTree->SetBranchStatus("*",0);
 
@@ -116,7 +116,7 @@ int draw_track(TString the_RunName = "test", Bool_t do_plot = kTRUE)
           // now get all TrackPoints to the selected TrackID
           fStepCnt = 0;
           for (Int_t iT=0; iT<aryTrackPoints->GetEntriesFast(); iT++) {
- 
+
             fTrackPoint = (PndDskTrackPoint*)aryTrackPoints->At(iT);
             if (fStepCnt>=maxPos) {
               cout <<   "id = " << fCerenkov->GetTrackID()

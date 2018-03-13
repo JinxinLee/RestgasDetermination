@@ -13,7 +13,7 @@ int ReadHits(){
 	const Int_t numSens = 6;
 
 	TString SensName[numSens];
-	
+
 	SensName[0] = "/TS_1/TTVol_0/TTDouble_0/StripActiveTD1_0";
 	SensName[1] = "/TS_1/TTVol_0/TTSingle_0/StripActiveTS3a_0";
 	SensName[2] = "/TS_1/TTVol_0/TTSingle_0/StripActiveTS3b_0";
@@ -34,7 +34,7 @@ int ReadHits(){
 
 
 	// Loading the geometry and defining the geo handler
-	
+
 	TFile *geo = new TFile(geomFile);
 
 	TGeoManager *myGeo = geo->Get("FAIRGeom");
@@ -51,15 +51,15 @@ int ReadHits(){
 	TCanvas *can2 = new TCanvas();
 
 	TString name = "";
-	
+
 
 	// Load the hits
 
 
 	TFile *f = new TFile(HitsFile);
 
-	TTree *t=(TTree *) f->Get("cbmsim") ;
-	
+	TTree *t=(TTree *) f->Get("pndsim") ;
+
 	TClonesArray* tr_array=new TClonesArray("PndSdsHit");
 	t->SetBranchAddress("MVDHitsStrip",&tr_array);//Branch names
 
@@ -75,20 +75,20 @@ int ReadHits(){
 
 		for (Int_t y = 0 ; y < tr_array->GetEntries() ; y++) // loop on hits
 		  {
-			
+
 		    PndSdsHit*point = (PndSdsHit*)tr_array->At(y);
-		
+
 		    name =  fGeoH->GetPath(point->GetDetName());
 
 		    if (j < 10) cout << name << endl;
 
 		    for (Int_t h = 0 ; h < numSens ; h++) // loop on sensors
 		      {
-		 
+
 			if (name == SensName[h]) test->Fill(h+1);
-			
+
 		      }
-		    
+
 		    // plotting Z of hits on the first sensor
 
 		    if (name == SensName[0])

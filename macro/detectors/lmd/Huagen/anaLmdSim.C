@@ -16,7 +16,7 @@
   Int_t nEvents = 1e5;
 
   TFile* MCPoint = new TFile("/private/huagen/simdata/Lmd_DPM_elastic_6.2_1.9mrad_5M_1.root","READ");
-  TTree* tree    = (TTree*)MCPoint->Get("cbmsim");
+  TTree* tree    = (TTree*)MCPoint->Get("pndsim");
 
   TClonesArray* point = new TClonesArray("PndSdsMCPoint");
   tree->SetBranchAddress("LMDPoint", &point);

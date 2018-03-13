@@ -8,7 +8,7 @@
   gSystem->Load("libSttMvdTracking");
 
   TFile filereco("MvdStt_Test_reco.root");
-  TTree *treereco = (TTree*) filereco.Get("cbmsim");
+  TTree *treereco = (TTree*) filereco.Get("pndsim");
   TClonesArray *prefit = new TClonesArray("PndTrack");
   treereco->SetBranchAddress("SttMvdTrack",&prefit);
   TClonesArray *kalfit = new TClonesArray("PndTrack");
@@ -16,7 +16,7 @@
 
   TH1F *hkalmom = new TH1F("hkalmom", "genfit", 100, 0.5, 1.5);
   TH1F *hpremom = new TH1F("hpremom", "prefit", 100, 0.5, 1.5);
- 
+
   for(int evt = 0; evt < treereco->GetEntriesFast(); evt++)
     {
       treereco->GetEntry(evt);
@@ -33,7 +33,7 @@
 	  if(!pretrk) continue;
 
 	  if(kaltrk->GetFlag() < 0) continue;
-	  
+
 	  // FILL histos only when both kalman track
 	  // and prefit track are present and kalman
 	  // flag is not negative

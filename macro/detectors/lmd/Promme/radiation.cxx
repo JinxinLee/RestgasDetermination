@@ -96,7 +96,7 @@ int main(int nargs, char** args) {
 	TString MCFile = storePath + "/Lumi_MC";
 	MCFile += startEvent;
 	MCFile += ".root";
-	TChain tMC("cbmsim");
+	TChain tMC("pndsim");
 	tMC.Add(MCFile);
 
 	std::cout << "MCFile  : " << MCFile.Data() << std::endl;
@@ -346,37 +346,37 @@ int main(int nargs, char** args) {
  TString simMC = storePath + "/Lumi_MC_";
  simMC += startEvent;
  simMC += ".root";
- TChain tMC("cbmsim");
+ TChain tMC("pndsim");
  tMC.Add(simMC);
 
  TString DigiFile = storePath + "/Lumi_digi_";
  DigiFile += startEvent;
  DigiFile += ".root";
- TChain tdigiHits("cbmsim");
+ TChain tdigiHits("pndsim");
  tdigiHits.Add(DigiFile);
 
  TString recHit = storePath + "/Lumi_reco_";
  recHit += startEvent;
  recHit += ".root";
- TChain tHits("cbmsim");
+ TChain tHits("pndsim");
  tHits.Add(recHit);
 
  TString trkCand = storePath + "/Lumi_TCand_";
  trkCand += startEvent;
  trkCand += ".root";
- TChain tTrkCand("cbmsim");
+ TChain tTrkCand("pndsim");
  tTrkCand.Add(trkCand);
 
  TString recTrack = storePath + "/Lumi_Track_";
  recTrack += startEvent;
  recTrack += ".root";
- TChain tTrkRec("cbmsim");
+ TChain tTrkRec("pndsim");
  tTrkRec.Add(recTrack);
 
  TString geaneFile = storePath + "/Lumi_Geane_";
  geaneFile += startEvent;
  geaneFile += ".root";
- TChain tgeane("cbmsim");
+ TChain tgeane("pndsim");
  tgeane.Add(geaneFile);
 
  // Parameter file   << needed for geane back tracking

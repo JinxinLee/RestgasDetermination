@@ -1,7 +1,7 @@
 {
 	gROOT->Reset();
 	gStyle->SetOptFit(1);
-	
+
 
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
 	basiclibs();
@@ -17,13 +17,13 @@
         gSystem->Load("libGeaneEx");
         gSystem->Load("libTrkBase");
 
-	TFile *f=new TFile("ex2g.root");	
-	TTree *cbmsim=f->Get("cbmsim") ;
+	TFile *f=new TFile("ex2g.root");
+	TTree *simtree=f->Get("pndsim") ;
 
         fTrackParGeane = new TClonesArray("FairTrackParP");
  	fTrackParIni = new TClonesArray("FairTrackParP");
   	fTrackParFinal = new TClonesArray("FairTrackParP");
-		
+
 	TH1F *h1=new TH1F("h1","V ",100,-10.,10.);
 	TH1F *h2=new TH1F("h2","W",100,-10,10);
 	TH1F *h3=new TH1F("h3","TV",100,-10,10);
@@ -34,17 +34,17 @@
 	TH1F *h8=new TH1F("h8","Px",100,-10,10);
 	TH1F *h9=new TH1F("h9","Py",100,-10,10);
 	TH1F *h10=new TH1F("h10","Pz",100,-10,10);
-	
-	cbmsim->SetBranchAddress("GeaneTrackFinal",&fTrackParFinal);
-	cbmsim->SetBranchAddress("GeaneTrackPar",&fTrackParGeane);
+
+	simtree->SetBranchAddress("GeaneTrackFinal",&fTrackParFinal);
+	simtree->SetBranchAddress("GeaneTrackPar",&fTrackParGeane);
 	FairTrackParP *fTrkF  ;
 	FairTrackParP *fTrkG;
-	
-	Int_t Nevents= cbmsim->GetEntriesFast();
+
+	Int_t Nevents= simtree->GetEntriesFast();
 	for(Int_t i=0; i<Nevents; i++){
  	  fTrackParGeane->Delete();
- 	  fTrackParFinal->Delete();               
-	  cbmsim->GetEntry(i);
+ 	  fTrackParFinal->Delete();
+	  simtree->GetEntry(i);
 	  for (Int_t k=0; k<fTrackParGeane->GetEntriesFast(); k++)	{
 	    fTrkF = (FairTrackParP *)fTrackParFinal->At(k);
 	    fTrkG = (FairTrackParP *)fTrackParGeane->At(k);
@@ -96,7 +96,7 @@
 	h10->Draw();
 	h10-> Fit("gaus");
 
-  
+
  	c->cd();
-	
+
 }

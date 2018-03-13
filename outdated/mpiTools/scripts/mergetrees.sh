@@ -9,7 +9,7 @@
 #
 # An example line in the job description file could look like:
 #
-# JOB 1 $HOME/scripts/mergetrees.sh $HOME/input $HOME/output 3 cbmsim sim_emc.root sim_emc_merge.root 
+# JOB 1 $HOME/scripts/mergetrees.sh $HOME/input $HOME/output 3 pndsim sim_emc.root sim_emc_merge.root
 #
 #
 # Obtain overview of the available input files
@@ -44,7 +44,7 @@ rm -rf `cat inputstuff`
 #
 # Validate the output and return the appropiate value
 #
-for ofile in "logfile" "inputlist" "$4" ; do  
+for ofile in "logfile" "inputlist" "$4" ; do
   [ -f $ofile ]  || error="$error $ofile doesn't exist,";
 done
 
@@ -54,7 +54,7 @@ done
 #
 # Success
 #
-if [ -z "$error"  ] ; then 
+if [ -z "$error"  ] ; then
 
   rm -f inputstuff
   rm -f *.C

@@ -27,7 +27,7 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-	
+
 	TGeoManager *fgeom;
 	//Files
 							//TString Path = getenv("SIMDATADIR");
@@ -47,11 +47,11 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 	cout << outfile << endl;
 	TFile* InputFile = new TFile(Filename);
 	TFile* Parfile = new TFile(ParfileName);
-		Parfile->Get("FairBaseParSet"); 
+		Parfile->Get("FairBaseParSet");
 	TFile* OutputFile = new TFile(outfile,"RECREATE");
-	
+
 	//getting simulation branches from input file
-  TTree *b=(TTree *) InputFile->Get("cbmsim") ;
+  TTree *b=(TTree *) InputFile->Get("pndsim") ;
   TClonesArray* fHypGe=new TClonesArray("PndHypGePoint");
   b->SetBranchAddress("HypGePoint",&fHypGe);//Branch names
   TClonesArray* fMcTr=new TClonesArray("PndMCTrack");
@@ -63,7 +63,7 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 	TH1D*											hNHitsAngleGe;		// angular distribution of neutrons in the germanium
 	TH1D* 										hNeutronOriginGe;	// neutrons and their origin in the germanium
 	TH1D* 										hNHitsGeKermitBall;	// neutrons in ge, active and passive neutron detector
-	
+
 	TH1D*											hAllParticlesGe;		// all particles hitting the germanium
 	TH2D*											hAllParticlesEkinGe;	// 2D all E_kin distribution of particles hitting the germanium
 	TH1D*											hAllParticlesPiezo;		// all particles hitting the first pieo
@@ -78,7 +78,7 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 	TH1D*											hPEnergyLossGe;				// Energy loss of protons in the germanium
 	TH1D*											hGammaSpecGe;							// spectrum of gammas in the germanium
 
-	
+
 	TCanvas*									cNHitsGe;									//canvas for hNHitsAngleGe and hNeutronOriginGe
 	TCanvas*									cNHitsGeKermitBall;				//canvas for hNHitsGeKermitBall
 	TCanvas*									cAllParticlesGe;					//canvas for hAllParticlesGe and hAllParticlesEkinGe
@@ -88,7 +88,7 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 	TCanvas*									cNeutronEkinBall;					//canvas for hNEkinBall and hNEnergyLossBall
 	TCanvas*									cProtonEkinGe;						//canvas for hPEkinGe and hNEnergyLossGe
 	TCanvas*									cGammaEnergyGe;						//canvas for hGammaSpecGe
-	
+
 
 	TString										VertexVolumeName;
 	TVector3									NeutronMomentum;
@@ -98,15 +98,15 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 	TVector3									ParticleMomentum;
 	Double_t									ParticleEkin;
 
-	//----------Get GeoManager---------------------------------------------	
+	//----------Get GeoManager---------------------------------------------
 	fgeom = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 	//----------create histograms------------------------------------------
-	
+
 			//histogram with polar angle of detector interactions of primary neutrons
 	hNHitsAngleGe = new TH1D("hNHitsAngleGe","Polar angle of primary neutrons interacting with the crystals",180, 90,180);
 		hNHitsAngleGe->SetXTitle("#Theta [#circ]");
 		hNHitsAngleGe->SetYTitle("Counts / 0.5 #circ");
-	
+
 			//histogram to see where neutron is coming from
 	hNeutronOriginGe = new TH1D("hNeutronOriginGe","Origin of Neutrons",13,0,13);
 		hNeutronOriginGe->SetXTitle("Neutron Origin");
@@ -124,7 +124,7 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 		hNeutronOriginGe->GetXaxis()->SetBinLabel(11,"Lumi electronics test");		// neutrons created in the lumi electronics test stuff
 		hNeutronOriginGe->GetXaxis()->SetBinLabel(12,"Beam dump");								// neutrons created in the beam dump
 		hNeutronOriginGe->GetXaxis()->SetBinLabel(13,"Cave");											// neutrons created in the experimental area cave
-		
+
 			//histogram to see which detector is hit
 	hNHitsGeKermitBall = new TH1D("hNHitsGeKermitBall","Total number of neutron hits on the 3 detectors",3,0,1);
 		hNHitsGeKermitBall->SetXTitle("Crystal number");
@@ -153,7 +153,7 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 			//histogram with all particles in piezo created outside of the crystal
 	hAllParticlesPiezo2 = new TH1D("hAllParticlesPiezo2","Particles interaction in the second piezo;PDG Code of particle; Counts", 2e4,-1e4,1e4);
 
-		
+
 			//histogram for kin. energy of neutrons in the germanium
 	hNEkinGe = new TH1D("hNEkinGe","E_{kin} of neutrons in the germanium;E_{kin} of neutrons  [MeV]; Counts", 2000,0,200);
 			//histogram for kin. energy of neutrons in the active neutron detector
@@ -167,18 +167,18 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 	hNEnergyLossKermit = new TH1D("hNEnergyLossKermit","Energy loss of neutrons inside the active neutron detector;Energy loss of neutrons [MeV]; Counts", 2000,0,2);
 			//histogram with energy deposited by neutrons in the passive neutron detector
 	hNEnergyLossBall = new TH1D("hNEnergyLossBall","Energy loss of neutrons inside the passive neutron detecor;Energy loss of neutrons [MeV]; Counts", 2000,0,2);
-	
+
 			//histogram for kin. energy of protons in the germanium
 	hPEkinGe = new TH1D("hPEkinGe","E_{kin} of protons in the germanium;E_{kin} of protons  [MeV]; Counts", 2000,0,200);
 			//histogram with energy deposited by protons in the germanium
 	hPEnergyLossGe = new TH1D("hPEnergyLossGe","Energy loss of protons inside the germanium;Energy loss of protons [MeV]; Counts", 20000,0,200);
-	
+
 			//histogram of gamma spectrum in the germanium
 	hGammaSpecGe = new TH1D("hGammaSpecGe","Energy loss of gammas inside the germanium;Energy loss of gammas [MeV]; Counts/1 keV", 10000,0,10);
-	
-		
-		
-	
+
+
+
+
 	Int_t *ActualTrackID ;
 	//Int_t nEvents = b->GetEntriesFast();
 	//cout<< "Number of Simulated Events: "<<nEvents<<endl;
@@ -189,20 +189,20 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 	Int_t iNeutrons = 0;
 
 
-	
+
 	TVector3 NHit;
 	TVector3 NMom;
 	TVector3 NAllMom;
 	TVector3 StartVertex;
 	TVector3 PHit;
 	TVector3 PMom;
-	
-	Int_t EndEvent;	
+
+	Int_t EndEvent;
 	if (NoOfEvents ==0)
 		EndEvent = b->GetEntriesFast();
 	else
 		EndEvent = StartEvent + NoOfEvents;
-		
+
 	Double_t NeutronEnergyLossArrayGe[50];				// array to store the energy loss of all neutrons in the germanium during one event
 	Double_t NeutronEnergyLossArrayKermit[50];				// array to store the energy loss of all neutrons in the active neutron detector during one event
 	Double_t NeutronEnergyLossArrayBall[50];				// array to store the energy loss of all neutrons in the passive neutron detector during one event
@@ -212,8 +212,8 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 		//event loop
 	for (Int_t k=StartEvent; k< EndEvent; k++)
 	//for (Int_t k=569494; k<569498; k++)
-	{ 
-		
+	{
+
 		for(Int_t i = 0; i < 50; i++)	//init of array
 		{
 			NeutronEnergyLossArrayGe[i]=0;
@@ -244,7 +244,7 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 			cout << "Event number :\t" << k << endl;
 		}
 	    //if(verbose) cout<<"Event No "<<j<<endl;
-	  
+
 	  DetID=-10;
 	  TrackID=-10;
 
@@ -260,10 +260,10 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 			if (hitgam->GetpdgCode() == 2112)
 			{
 				//cout <<"Event " <<EvtCount<< " \t\tStartVertex Radius: " <<StartVertex.Mag()<<endl;
-				//Fill hNeutronOriginGe		
-				
+				//Fill hNeutronOriginGe
+
 				//cout << VertexVolumeName << endl;
-				
+
 				//calculate E_kin of neutron
 				NeutronMomentum.SetX(hitgam->GetPx());
 				NeutronMomentum.SetY(hitgam->GetPy());
@@ -484,7 +484,7 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 						hAllParticlesEkinGe->Fill( ParticleEkin , ParticleName.Data(),1);
 					}
 				}
-				
+
 			}		// end of all particles part
 			//piezos
 			if(hitgam->GetDetectorID()==1000)
@@ -543,7 +543,7 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 					}
 				}
 	}// end for k (events)
-  
+
 
 
 
@@ -569,27 +569,27 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 
 	cProtonEkinGe = new TCanvas("cProtonEkinGe","E_{kin} of protons", 1600, 600);
 		cProtonEkinGe->Divide(2,1);
-	
+
 	cGammaEnergyGe= new TCanvas("cGammaEnergyGe","#gamma spectrum", 800, 600);
-	
+
 	cNHitsGe->cd(1);
 	hNHitsAngleGe->DrawCopy();	// angular distribution of neutrons in the germanium
 	cNHitsGe->cd(2);
 	hNeutronOriginGe->DrawCopy();// neutrons and their origin in the germanium
-	
+
 	cNHitsGeKermitBall->cd();
 	hNHitsGeKermitBall->DrawCopy();// neutrons in ge, active and passive neutron detector
-	
+
 	cAllParticlesGe->cd(1);
 	hAllParticlesGe->DrawCopy();	// all particles hitting the germanium
 	cAllParticlesGe->cd(2);
 	hAllParticlesEkinGe->DrawCopy("colz");// 2D all E_kin distribution of particles hitting the germanium
-	
+
 	cAllParticlesPiezo->cd(1);
 	hAllParticlesPiezo->DrawCopy();	// all particles hitting the first pieo
 	cAllParticlesPiezo->cd(2);
 	hAllParticlesPiezo2->DrawCopy();// all particles hitting the germanium
-	
+
 	cNeutronEkinGe->cd(1);
 	hNEkinGe->DrawCopy();						// E_kin of neutrons entering the germanium
 	cNeutronEkinKermit->cd(1);
@@ -612,8 +612,8 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 	cGammaEnergyGe->cd();
 	hGammaSpecGe->DrawCopy();						// spectrum of gammas in the germanium
 
-	
-	
+
+
 	hNHitsAngleGe->Write();	// angular distribution of neutrons in the germanium
 	hNeutronOriginGe->Write();// neutrons and their origin in the germanium
 	hNHitsGeKermitBall->Write();// neutrons in ge, active and passive neutron detector
@@ -646,12 +646,12 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 			cout << "PDG code:\t" << hAllParticlesGe->GetBinCenter(i)-0.5 << "\tCount:\t"<<hAllParticlesGe->GetBinContent(i) << endl;
 		}
 	}
-		
+
 	cout << "HypGe COSYBackgroundSim Ana:\tAnalysis finished succesfully" << endl;
 
-	
+
 	OutputFile->Close();
-	
+
 
 
 	// -----   Finish   -------------------------------------------------------
@@ -660,10 +660,10 @@ int NeutronAnalysis_COSY_edit(TString Filename_ext = "hypGeCOSYBeamTime2014_prot
 	Double_t ctime = timer.CpuTime();
 	cout << endl << endl;
 	cout << "Macro finished succesfully." << endl;
-	
+
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	cout << endl;
-	
+
 	cout << "Hits\t" << Hits << endl;
 	// ------------------------------------------------------------------------
 	return iNeutrons;

@@ -30,8 +30,8 @@ int QAmacro_mvd_ana()
   picture.ReplaceAll(".root",".png");
 
   TFile* f = new TFile(inFile.Data()); // the sim file you want to analyse
-  TTree* t=(TTree*)f->Get("cbmsim");
-  t->AddFriend("cbmsim",recoFile.Data()); // the reco file you want to analyse
+  TTree* t=(TTree*)f->Get("pndsim");
+  t->AddFriend("pndsim",recoFile.Data()); // the reco file you want to analyse
   TFile* dbfile = new TFile(parFile.Data());
 
   PndGeoHandling* fGeoH = new PndGeoHandling(inFile,parFile);

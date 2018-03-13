@@ -15,7 +15,7 @@
   gSystem->Load("libGen");
   gSystem->Load("libPassive");
   gSystem->Load("libMvd");
-  
+
   gStyle->SetPalette(1);
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -32,24 +32,24 @@ for the conformal mapping stuff
   std::string inFile = namecreator.GetSimFileName(false);
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
- 
+  TTree *t=(TTree *) f->Get("pndsim") ;
+
   TClonesArray* hit_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&hit_array);//Branch names
-  
+
   TClonesArray* radlen_array = new TClonesArray("FairRadLenPoint");
   t->SetBranchAddress("RadLen", &radlen_array);
 
   TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
-  
+
   TH1D* hisRadLen = new TH1D("hisRadLen","Radiation Length", 1000,0,100);
   TH2D* hisRadLen2D = new TH2D("hisRadLen2D","Radiation Length 2D", 100,-1,1,100, -TMath::Pi(), TMath::Pi());
   TH2D* hisRadLenCount = new TH2D("hisRadLenCount","hisRadLenCount",100,-1,1,100, -TMath::Pi(), TMath::Pi());
-  
+
   TH1D* hisTrackP = new TH1D("hisTrackP","Hits per Track", 51,-0.5,50.5);
-  TH2D* hisTrackP2D = new TH2D("hisTrackP2D","Hits per Track 2D", 100,-1,1,100, -TMath::Pi(), TMath::Pi());  
-  TH2D* hisTrackPCount = new TH2D("hisTrackPCount","hisTrackPCount", 100,-1,1,100, -TMath::Pi(), TMath::Pi());  
+  TH2D* hisTrackP2D = new TH2D("hisTrackP2D","Hits per Track 2D", 100,-1,1,100, -TMath::Pi(), TMath::Pi());
+  TH2D* hisTrackPCount = new TH2D("hisTrackPCount","hisTrackPCount", 100,-1,1,100, -TMath::Pi(), TMath::Pi());
 
   int  nEvents = 1000;
   int startEvent = 0;
@@ -57,14 +57,14 @@ for the conformal mapping stuff
 
   TVector3 vecs,veco;
   std::map<int,int> trackHitMap;
-     
+
   for (Int_t j=startEvent; j<(nEvents+startEvent) && j<t->GetEntriesFast(); j++)
   {
     t->GetEntry(j);
     //if (verbose)
     cout<<">>>> Event No "<<j<<endl;
     std::vector<double> RadLengthOnTrack (10000,0.0); //trackID, vector with points on track
-     
+
     for (Int_t i=0; i<radlen_array->GetEntriesFast(); i++)
     {
       if(verbose) cout<<"Point No "<<i<<endl;
@@ -95,13 +95,13 @@ for the conformal mapping stuff
 		  hisRadLenCount->Fill(mcTrack->GetMomentum().CosTheta(), mcTrack->GetMomentum().Phi());
 	  }
     }
-    
+
     trackHitMap.clear();
     for (int k = 0; k < hit_array->GetEntriesFast(); k++){
     	PndSdsMCPoint* myHit = (PndSdsMCPoint*)(hit_array->At(k));
     	trackHitMap[myHit->GetTrackID()]++;
     }
-    
+
     for (map<int,int>::const_iterator ci = trackHitMap.begin(); ci != trackHitMap.end(); ci++){
     	PndMCTrack* track = (PndMCTrack*)(mc_array->At(ci->first));
     	hisTrackP->Fill(ci->second);
@@ -109,10 +109,10 @@ for the conformal mapping stuff
     	hisTrackPCount->Fill(track->GetMomentum().CosTheta(), track->GetMomentum().Phi());
     }
   }// end for j (events)
-  
+
   hisRadLen2D->Divide(hisRadLenCount);
   hisTrackP2D->Divide(hisTrackPCount);
-  
+
   TCanvas* can1 = new TCanvas();
   can1->Divide(2,2);
   gStyle->SetPalette(1);

@@ -5,11 +5,11 @@
 
    gSystem->Load("libEnDrc");          // our library
 
- 
+
 
   TFile* f = new TFile("testsimu10.root");
   //  TFile* f = new TFile("sim_endrcP.root");
-  TTree *t=f->Get("cbmsim") ;
+  TTree *t=f->Get("pndsim") ;
   TClonesArray *fT=new TClonesArray("TGeoTrack");
 
   t->SetBranchAddress("GeoTracks",&fT) ;
@@ -18,12 +18,12 @@
  TCanvas* c1 = new TCanvas("glcanvas", "openGL", 100, 100, 800, 800);
  c1->SetFillColor(10);
 
- 
-// geoMan->SetVisLevel(10);   
+
+// geoMan->SetVisLevel(10);
  geoMan->GetTopVolume()->Draw("ogl");
- 
+
  TGeoTrack *tr;
- TObjArray *TrList= geoMan->GetListOfTracks(); 
+ TObjArray *TrList= geoMan->GetListOfTracks();
    geoMan->SetAnimateTracks();
   for (Int_t j=0; j< t->GetEntriesFast(); j++)	{
  	t->GetEntry(j);
@@ -31,7 +31,7 @@
 	for (Int_t i=0; i<fT->GetEntriesFast(); i++)	{
     		tr=(TGeoTrack *)fT->At(i);
                 Int_t Np=tr->GetNpoints();
-                FairVTrack *pt = new FairVTrack(Np); 
+                FairVTrack *pt = new FairVTrack(Np);
                 pt->SetLineColor(tr->GetLineColor());
                 pt->SetLineWidth(2);
                 pt->SetTrack(tr);

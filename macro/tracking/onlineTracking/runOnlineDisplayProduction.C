@@ -31,8 +31,8 @@ int runOnlineDisplayProduction()  {
 	TFile filereco(recoFileName.Data());
 	TFile filerecopixel(recoFileName.Data());
 
-	TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
-	TTree *recotree = (TTree*) filereco.Get("cbmsim");
+	TTree *treedigi = (TTree*) filedigi.Get("pndsim");
+	TTree *recotree = (TTree*) filereco.Get("pndsim");
 
 	FairRunAna *fRun = new FairRunAna();
 	fRun->SetInputFile(simFileName.Data());
@@ -87,7 +87,7 @@ int runOnlineDisplayProduction()  {
 	TObjArray* online_tracks2 = 0;
 	TObjArray* online_fairhits_mvdpixel = 0;
 	TObjArray* online_fairhits_mvdstrip = 0;
-    
+
 	for (current_time = 0; current_time < final_time; current_time += delta_t) {
 		//online->LoadHits( PndOnlineManager::kHESRRevolution );
 		online->ClearTracks();
@@ -95,7 +95,7 @@ int runOnlineDisplayProduction()  {
 		//online->LoadHits( current_time );
 		online->Process();
 		//online->Clear();
-	
+
 		//Draw the results
 
 	for (drawtime = current_time; drawtime < (current_time + delta_t) && (drawtime < final_time); drawtime += drawdeltat) {
@@ -137,7 +137,7 @@ int runOnlineDisplayProduction()  {
 	}
 
 	c1->Print("hitdisplay.gif++");
-    
+
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();
 	Double_t rtime = timer.RealTime();

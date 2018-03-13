@@ -7,7 +7,7 @@
 //# add_executable(hits_align_pixel CreateHitsForAlignmentPixel.C)
 //# target_link_libraries(hits_align_pixel ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
 //#
-//# to run it (and see options): 
+//# to run it (and see options):
 //# ${PANDAROOT}/build/bin/./hits_align_pixel --help
 //################################################################
 #include <iostream>
@@ -73,7 +73,7 @@ int main(int __argc,char *__argv[]) {
   // decode arguments
   if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
 		    || strcmp( __argv[1], "--help" ) == 0 ) ){
-    
+
     std::cout << "This is script for alignment data creation with pixel sensors design \n"
 	      << "with parameters\n"
 	      <<"-s start event \n"
@@ -86,7 +86,7 @@ int main(int __argc,char *__argv[]) {
 	      <<"Have fun! \n"
 	      << std::endl;
     return 0;
-  } 
+  }
   while ((optind < (__argc-1) ) && (__argv[optind][0]=='-')) {
     bool found=false;
     std::string sw = __argv[optind];
@@ -135,13 +135,13 @@ int main(int __argc,char *__argv[]) {
 	       << __argv[optind] <<std::endl;
       optind++;
     }
-  
-  while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
+
+  while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++;
   }
 
   std::stringstream startSStr(startStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr),sectorSStr(sectorStr);
 
-  startSStr >> startEvent; 
+  startSStr >> startEvent;
   nSStr >> nEvents;
   pathSStr >> storePath;
   verbSStr >> verboseLevel;
@@ -155,58 +155,58 @@ int main(int __argc,char *__argv[]) {
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libLmdTrk");
   // ------------------------------------------------------------------------
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-  
+
   // ---- Input files --------------------------------------------------------
- 
+
   TString DigiFile = storePath+"/Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
-  TChain tdigiHits("cbmsim");
+  TChain tdigiHits("pndsim");
   tdigiHits.Add(DigiFile);
-  
+
   TString recHit=storePath+"/Lumi_reco_";
   recHit += startEvent;
   recHit += ".root";
-  TChain tHits("cbmsim");
+  TChain tHits("pndsim");
   tHits.Add(recHit);
-  
+
   TString recHitmerged=storePath+"/Lumi_recoMerged_";
   recHitmerged += startEvent;
   recHitmerged += ".root";
-  TChain tHitsMerged("cbmsim");
+  TChain tHitsMerged("pndsim");
   tHitsMerged.Add(recHitmerged);
 
   // TString recHitmerged=storePath+"/Lumi_reco_";
   // recHitmerged += startEvent;
   // recHitmerged += ".root";
-  // TChain tHitsMerged("cbmsim");
+  // TChain tHitsMerged("pndsim");
   // tHitsMerged.Add(recHitmerged);
 
 
   TString trkCand = storePath+"/Lumi_TCand_";
   trkCand += startEvent;
   trkCand += ".root";
-  TChain tTrkCand("cbmsim");
+  TChain tTrkCand("pndsim");
   tTrkCand.Add(trkCand);
-  
+
   TString recTrack = storePath+"/Lumi_Track_"; //NOTE: make sure kinematic filter was switched off, but filtering on hit base was done!
   //TString recTrack = storePath+"/Lumi_TrackNotFiltered_";
   recTrack += startEvent;
   recTrack += ".root";
-  TChain tTrkRec("cbmsim");
+  TChain tTrkRec("pndsim");
   tTrkRec.Add(recTrack);
 
   TString simMC=storePath+"/Lumi_MC_";
   simMC += startEvent;
   simMC += ".root";
-  TChain tMC("cbmsim");
+  TChain tMC("pndsim");
   tMC.Add(simMC);
-  
+
   // ---------------------------------------------------------------------------------
 
   //--- Digitization info ------------------------------------------------------------
@@ -217,36 +217,36 @@ int main(int __argc,char *__argv[]) {
   fStripDigiArray = new TClonesArray("PndSdsDigiPixel");
   tdigiHits.SetBranchAddress("LMDPixelDigis",&fStripDigiArray);
   //----------------------------------------------------------------------------------
-  
+
   //--- Real Hits --------------------------------------------------------------------
   TClonesArray* rechit_array=new TClonesArray("PndSdsMergedHit");
   tHitsMerged.SetBranchAddress("LMDHitsMerged",&rechit_array);  //Points for Tracks
   // TClonesArray* rechit_array=new TClonesArray("PndSdsHit");
   // tHitsMerged.SetBranchAddress("LMDHits",&rechit_array);  //Points for Tracks
   //----------------------------------------------------------------------------------
-  
+
   //--- Track Candidate ---------------------------------------------------------------
   TClonesArray* trkcand_array=new TClonesArray("PndTrackCand");
-  tTrkCand.SetBranchAddress("LMDTrackCand",&trkcand_array); //Points for Track Canidates 
+  tTrkCand.SetBranchAddress("LMDTrackCand",&trkcand_array); //Points for Track Canidates
   //-----------------------------------------------------------------------------------
-  
+
   //--- Real tracks -------------------------------------------------------------------
   // TClonesArray* rec_trk=new TClonesArray("PndLinTrack");
   // tTrkRec.SetBranchAddress("LMDTrack",&rec_trk);  //Tracks
   TClonesArray* rec_trk=new TClonesArray("PndTrack");
   tTrkRec.SetBranchAddress("LMDPndTrack",&rec_trk);  //Tracks
-  //----------------------------------------------------------------------------------  
-  
+  //----------------------------------------------------------------------------------
+
   //--- MC info -----------------------------------------------------------------
   TClonesArray* true_tracks=new TClonesArray("PndMCTrack");
   tMC.SetBranchAddress("MCTrack",&true_tracks);  //True Track to compare
-  
+
   TClonesArray* true_points=new TClonesArray("PndSdsMCPoint");
   tMC.SetBranchAddress("LMDPoint",&true_points);  //True Points to compare
   //----------------------------------------------------------------------------------
 
   //Histograms with residuals---------------------------------------------------------
- //Create and fill histogramms 
+ //Create and fill histogramms
  TObjArray *m_res_x = new TObjArray;
  TObjArray *m_res_y = new TObjArray;
  TObjArray *m_res_r = new TObjArray;
@@ -288,32 +288,32 @@ int main(int __argc,char *__argv[]) {
   //     char histoResXName[100];
   //     char histoResYName[100];
   //     char histoResRName[100];
-      
+
   //     char histoResMCXName[100];
   //     char histoResMCYName[100];
   //     char histoResMCZName[100];
   //     sprintf(histoResXName, "residuals_x_%d",histID);
   //     TH1F* aHisto = new TH1F(histoResXName, histoResXName, 1000, -misal_scales[0], misal_scales[0]);
   //     m_res_x->Add(aHisto);
-      
+
   //     sprintf(histoResYName, "residuals_y_%d",histID);
   //     TH1F* aHisto2 = new TH1F(histoResYName, histoResYName, 1000, -misal_scales[1], misal_scales[1]);
-      
+
   //     m_res_y->Add(aHisto2);
-      
+
   //     sprintf(histoResRName, "residuals_r_%d",histID);
   //     TH1F* aHisto3 = new TH1F(histoResRName, histoResRName, 1000, -misal_scales[2], misal_scales[2]);
   //     m_res_r->Add(aHisto3);
-      
+
   //     sprintf(histoResMCXName, "residuals_mc_x_%d",histID);
   //     TH1F* aHistomc = new TH1F(histoResMCXName, histoResMCXName, 1000, -misal_scales[0], misal_scales[0]);
   //     m_res_mc_x->Add(aHistomc);
-      
+
   //     sprintf(histoResMCYName, "residuals_mc_y_%d",histID);
   //     TH1F* aHistomc2 = new TH1F(histoResMCYName, histoResMCYName, 1000, -misal_scales[1], misal_scales[1]);
-      
+
   //     m_res_mc_y->Add(aHistomc2);
-      
+
   //     sprintf(histoResMCZName, "residuals_mc_z_%d",histID);
   //     TH1F* aHistomc3 = new TH1F(histoResMCZName, histoResMCZName, 1000, -misal_scales[2], misal_scales[2]);
   //     m_res_mc_z->Add(aHistomc3);
@@ -323,7 +323,7 @@ int main(int __argc,char *__argv[]) {
     //Load lumi geo params
     PndLmdDim *lmddim = PndLmdDim::Instance();
     // lmddim -> Read_transformation_matrices("matrices.txt", true);
-    
+
     //    TString mtx_perfect = "${VMCWORKDIR}/macro/lmd/matrices_perfect.txt";
 
     TString mtx_corr =  storePath+"/matrices_corrected.txt";
@@ -331,7 +331,7 @@ int main(int __argc,char *__argv[]) {
     //    lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
     lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
     lmddim -> Read_transformation_matrices(mtx_corr.Data(), true);
-    // 
+    //
     // lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_corrected.txt", true);
     int icounter=0;
     cout<<"In total there are "<<nEvents<<" events"<<endl;
@@ -371,7 +371,7 @@ int main(int __argc,char *__argv[]) {
       //    cout<<"Ntrkcandhits = "<<Ntrkcandhits<<endl;
       if(Ntrkcandhits<4) continue; //!!! TEST with 4 hits tracks only !!!
       //    if(Ntrkcandhits<3) continue; //!!! TEST with > 2 hits tracks only !!!
-      //      if(Ntrkcandhits<2) continue; //!!! TEST 
+      //      if(Ntrkcandhits<2) continue; //!!! TEST
       //if(Ntrkcandhits>4) continue; //!!! TEST with single hits  only !!!
       double phiMCgl;
       //check if these hits are sutiable for sector aligment
@@ -393,7 +393,7 @@ int main(int __argc,char *__argv[]) {
 	module1=ihalf*5+imodule;
       }
       bool flagSector = true;
-      if(sectorPos<10){    
+      if(sectorPos<10){
 	for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
 	  if(trkModules[iHit]!=sectorPos) flagSector=false;// TODO: check on diff trkModules[iHit] for alignment between sectors
 	}
@@ -408,12 +408,12 @@ int main(int __argc,char *__argv[]) {
       //(end) check if these hits are sutiable for sector aligment
       if(!flagSector) continue;
       icounter++;
-      if(iN==0) htrks->Fill(nRecTrks);//fill only if trk was accepted 
+      if(iN==0) htrks->Fill(nRecTrks);//fill only if trk was accepted
 	for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
 	  PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	  Int_t hitID = candhit.GetHitId();
 	  PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
-	  TVector3 HitPos = myHit->GetPosition(); 
+	  TVector3 HitPos = myHit->GetPosition();
 	  int sensorID = myHit->GetSensorID();
 	  int ihalf, iplane, imodule, iside, idie, isensor;
 	  // calculate the plane and sensor on this plane
@@ -428,7 +428,7 @@ int main(int __argc,char *__argv[]) {
 	  PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fStripClusterArray->At(myHit->GetClusterIndex()));
 	  PndSdsDigiPixel* astripdigi = (PndSdsDigiPixel*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
 	  PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(true_points->At(astripdigi->GetIndex(0)));
-	  // TVector3 MCtrue = MCPoint->GetPosition(); 
+	  // TVector3 MCtrue = MCPoint->GetPosition();
 	  // MCtrue = lmddim->Transform_global_to_lmd_local(MCtrue,false,false);
 	  // MCtrue = lmddim->Transform_lmd_local_to_module_side(MCtrue,ihalf,0,imodule,0, false,false);
 	  // TVector3 recMCdiff = HitPosLoc - MCtrue;
@@ -436,13 +436,13 @@ int main(int __argc,char *__argv[]) {
 	  // recMCdiff.Print();
 
 
-	  mcTop = MCPoint->GetPosition(); 
+	  mcTop = MCPoint->GetPosition();
 	  mcTopOUT = MCPoint->GetPositionOut();
 	  // mcTop = TVector3(lmddim->Transform_global_to_lmd_local(mcTop, false, true));
 	  // mcTopOUT = TVector3(lmddim->Transform_global_to_lmd_local(mcTopOUT, false, true));
 	  TVector3 mcMid = mcTop+(mcTopOUT-mcTop)*0.5;
-	 
-	
+
+
 
 	// cout<<"ResRecMC: ";
 	// ResRecMC.Print();
@@ -462,7 +462,7 @@ int main(int __argc,char *__argv[]) {
 	  resxy->Fill(resx_d,resy_d);
 	  // if(fabs(resx_d)>0.1 || fabs(resy_d)>0.1)
 	  //   cout<<"Track #"<<iN<<" from event #"<<j<<" has: resx="<<resx_d<<", resy="<<resy_d<<endl;
-	
+
 	  x_id->Fill(sensorID,HitPos.X());
 	  y_id->Fill(sensorID,HitPos.Y());
 	  z_id->Fill(sensorID,HitPos.Z());
@@ -482,7 +482,7 @@ int main(int __argc,char *__argv[]) {
 	  // HitErrLoc.Print();
  // TMatrixD  HitErrLoc = lmddim->Transform_global_to_sensor(HitErr, ihalf, iplane, imodule, iside, idie, isensor,true);
  //  HitErrLoc = lmddim->Transform_sensor_to_module_side(HitErrLoc,ihalf,0,imodule,0,idie, isensor,false);
-  
+
   //  HitErrLoc = lmddim->Transform_lmd_local_to_module_side(HitErrLoc,ihalf,iplane,imodule,0,true);//TEST
 	  TVector3 MCHitPosLoc(lmddim->Transform_global_to_lmd_local(mcMid,false,true));
 	  MCHitPosLoc = TVector3(lmddim->Transform_lmd_local_to_module_side(MCHitPosLoc,ihalf,0,imodule,0, false,true));
@@ -516,12 +516,12 @@ int main(int __argc,char *__argv[]) {
   //   ((TH1F*)m_res_mc_y->At(histID))->Write();
   //   ((TH1F*)m_res_mc_z->At(histID))->Write();
   // }
- 
+
 
 //   TCanvas* c0 = new TCanvas("respl1x","residuals, pl#1",200,500,700,800);
 //   c0->SetFillColor(0);
-//   c0->SetBorderMode(0); 
-//   c0->Divide(10,10);     
+//   c0->SetBorderMode(0);
+//   c0->Divide(10,10);
 //   for (unsigned int histID = 0; histID < 100; ++histID){
 //     c0->cd(histID+1);
 //     ((TH1F*)m_res_x->At(histID))->GetXaxis()->SetTitle("(trk-hit)[x], cm");
@@ -534,8 +534,8 @@ int main(int __argc,char *__argv[]) {
 
 //  TCanvas* c1 = new TCanvas("respl2x","residuals, pl#2",200,500,700,800);
 //   c1->SetFillColor(0);
-//   c1->SetBorderMode(0); 
-//   c1->Divide(10,10);     
+//   c1->SetBorderMode(0);
+//   c1->Divide(10,10);
 //   for (unsigned int histID = 100; histID < 200; ++histID){
 //     c1->cd(histID+1-100);
 //     ((TH1F*)m_res_x->At(histID))->GetXaxis()->SetTitle("(trk-hit)[x], cm");
@@ -548,8 +548,8 @@ int main(int __argc,char *__argv[]) {
 
 // TCanvas* c2 = new TCanvas("respl3x","residuals, pl#3",200,500,700,800);
 //   c2->SetFillColor(0);
-//   c2->SetBorderMode(0); 
-//   c2->Divide(10,10);     
+//   c2->SetBorderMode(0);
+//   c2->Divide(10,10);
 //   for (unsigned int histID = 200; histID < 300; ++histID){
 //     c2->cd(histID+1-200);
 //     ((TH1F*)m_res_x->At(histID))->GetXaxis()->SetTitle("(trk-hit)[x], cm");
@@ -562,8 +562,8 @@ int main(int __argc,char *__argv[]) {
 
 // TCanvas* c3 = new TCanvas("respl4x","residuals, pl#4",200,500,700,800);
 //   c3->SetFillColor(0);
-//   c3->SetBorderMode(0); 
-//   c3->Divide(10,10);     
+//   c3->SetBorderMode(0);
+//   c3->Divide(10,10);
 //   for (unsigned int histID = 300; histID < 400; ++histID){
 //     c3->cd(histID+1-300);
 //     ((TH1F*)m_res_x->At(histID))->GetXaxis()->SetTitle("(trk-hit)[x], cm");
@@ -577,8 +577,8 @@ int main(int __argc,char *__argv[]) {
 
 //  TCanvas* c01 = new TCanvas("respl1y","residuals, pl#1",200,500,700,800);
 //   c01->SetFillColor(0);
-//   c01->SetBorderMode(0); 
-//   c01->Divide(10,10);     
+//   c01->SetBorderMode(0);
+//   c01->Divide(10,10);
 //   for (unsigned int histID = 0; histID < 100; ++histID){
 //     c01->cd(histID+1);
 //     ((TH1F*)m_res_y->At(histID))->GetXaxis()->SetTitle("(trk-hit)[y], cm");
@@ -591,8 +591,8 @@ int main(int __argc,char *__argv[]) {
 
 //  TCanvas* c11 = new TCanvas("respl2y","residuals, pl#2",200,500,700,800);
 //   c11->SetFillColor(0);
-//   c11->SetBorderMode(0); 
-//   c11->Divide(10,10);     
+//   c11->SetBorderMode(0);
+//   c11->Divide(10,10);
 //   int i11=1;
 //   for (unsigned int histID = 100; histID < 200; ++histID){
 //     c11->cd(i11);
@@ -608,8 +608,8 @@ int main(int __argc,char *__argv[]) {
 //  i11=1;
 // TCanvas* c21 = new TCanvas("respl3y","residuals, pl#3",200,500,700,800);
 //   c21->SetFillColor(0);
-//   c21->SetBorderMode(0); 
-//   c21->Divide(10,10);     
+//   c21->SetBorderMode(0);
+//   c21->Divide(10,10);
 //   for (unsigned int histID = 200; histID < 300; ++histID){
 //     c21->cd(i11);
 //     i11++;
@@ -624,8 +624,8 @@ int main(int __argc,char *__argv[]) {
 //  i11=1;
 // TCanvas* c31 = new TCanvas("respl4y","residuals, pl#4",200,500,700,800);
 //   c31->SetFillColor(0);
-//   c31->SetBorderMode(0); 
-//   c31->Divide(10,10);     
+//   c31->SetBorderMode(0);
+//   c31->Divide(10,10);
 //   for (unsigned int histID = 300; histID < 400; ++histID){
 //     c31->cd(i11);
 //     i11++;
@@ -641,8 +641,8 @@ int main(int __argc,char *__argv[]) {
 
 //   TCanvas* c0mc = new TCanvas("resmcpl1x","residuals, pl#1",200,500,700,800);
 //   c0mc->SetFillColor(0);
-//   c0mc->SetBorderMode(0); 
-//   c0mc->Divide(10,10);     
+//   c0mc->SetBorderMode(0);
+//   c0mc->Divide(10,10);
 //   for (unsigned int histID = 0; histID < 100; ++histID){
 //     c0mc->cd(histID+1);
 //     ((TH1F*)m_res_mc_x->At(histID))->GetXaxis()->SetTitle("(rec-mc)[x], cm");
@@ -655,8 +655,8 @@ int main(int __argc,char *__argv[]) {
 
 //  TCanvas* c1mc = new TCanvas("resmcpl2x","residuals, pl#2",200,500,700,800);
 //   c1mc->SetFillColor(0);
-//   c1mc->SetBorderMode(0); 
-//   c1mc->Divide(10,10);     
+//   c1mc->SetBorderMode(0);
+//   c1mc->Divide(10,10);
 //   for (unsigned int histID = 100; histID < 200; ++histID){
 //     c1mc->cd(histID+1-100);
 //     ((TH1F*)m_res_mc_x->At(histID))->GetXaxis()->SetTitle("(rec-mc)[x], cm");
@@ -669,8 +669,8 @@ int main(int __argc,char *__argv[]) {
 
 // TCanvas* c2mc = new TCanvas("resmcpl3x","residuals, pl#3",200,500,700,800);
 //   c2mc->SetFillColor(0);
-//   c2mc->SetBorderMode(0); 
-//   c2mc->Divide(10,10);     
+//   c2mc->SetBorderMode(0);
+//   c2mc->Divide(10,10);
 //   for (unsigned int histID = 100; histID < 200; ++histID){
 //     c2mc->cd(histID+1-100);
 //     ((TH1F*)m_res_mc_x->At(histID))->GetXaxis()->SetTitle("(rec-mc)[x], cm");
@@ -683,8 +683,8 @@ int main(int __argc,char *__argv[]) {
 
 // TCanvas* c3mc = new TCanvas("resmcpl4x","residuals, pl#4",200,500,700,800);
 //   c3mc->SetFillColor(0);
-//   c3mc->SetBorderMode(0); 
-//   c3mc->Divide(10,10);     
+//   c3mc->SetBorderMode(0);
+//   c3mc->Divide(10,10);
 //   for (unsigned int histID = 200; histID < 300; ++histID){
 //     c3mc->cd(histID+1-200);
 //     ((TH1F*)m_res_mc_x->At(histID))->GetXaxis()->SetTitle("(rec-mc)[x], cm");
@@ -698,8 +698,8 @@ int main(int __argc,char *__argv[]) {
 
 //  TCanvas* c01mc = new TCanvas("resmcpl1y","residuals, pl#1",200,500,700,800);
 //   c01mc->SetFillColor(0);
-//   c01mc->SetBorderMode(0); 
-//   c01mc->Divide(10,10);     
+//   c01mc->SetBorderMode(0);
+//   c01mc->Divide(10,10);
 //   for (unsigned int histID = 0; histID < 100; ++histID){
 //     c01mc->cd(histID+1);
 //     ((TH1F*)m_res_mc_y->At(histID))->GetXaxis()->SetTitle("(rec-mc)[y], cm");
@@ -712,8 +712,8 @@ int main(int __argc,char *__argv[]) {
 
 //  TCanvas* c11mc = new TCanvas("resmcpl2y","residuals, pl#2",200,500,700,800);
 //   c11mc->SetFillColor(0);
-//   c11mc->SetBorderMode(0); 
-//   c11mc->Divide(10,10);     
+//   c11mc->SetBorderMode(0);
+//   c11mc->Divide(10,10);
 //   i11=1;
 //   for (unsigned int histID = 100; histID < 200; ++histID){
 //     c11mc->cd(i11);
@@ -729,8 +729,8 @@ int main(int __argc,char *__argv[]) {
 //  i11=1;
 // TCanvas* c21mc = new TCanvas("resmcpl3y","residuals, pl#3",200,500,700,800);
 //   c21mc->SetFillColor(0);
-//   c21mc->SetBorderMode(0); 
-//   c21mc->Divide(10,10);     
+//   c21mc->SetBorderMode(0);
+//   c21mc->Divide(10,10);
 //   for (unsigned int histID = 200; histID < 300; ++histID){
 //     c21mc->cd(i11);
 //     i11++;
@@ -745,8 +745,8 @@ int main(int __argc,char *__argv[]) {
 //  i11=1;
 // TCanvas* c31mc = new TCanvas("resmcpl4y","residuals, pl#4",200,500,700,800);
 //   c31mc->SetFillColor(0);
-//   c31mc->SetBorderMode(0); 
-//   c31mc->Divide(10,10);     
+//   c31mc->SetBorderMode(0);
+//   c31mc->Divide(10,10);
 //   for (unsigned int histID = 300; histID < 400; ++histID){
 //     c31mc->cd(i11);
 //     i11++;
@@ -761,8 +761,8 @@ int main(int __argc,char *__argv[]) {
 
 //  TCanvas* c02mc = new TCanvas("resmcpl1z","residuals, pl#1",200,500,700,800);
 //   c02mc->SetFillColor(0);
-//   c02mc->SetBorderMode(0); 
-//   c02mc->Divide(10,10);     
+//   c02mc->SetBorderMode(0);
+//   c02mc->Divide(10,10);
 //   for (unsigned int histID = 0; histID < 100; ++histID){
 //     c02mc->cd(histID+1);
 //     ((TH1F*)m_res_mc_z->At(histID))->GetXaxis()->SetTitle("(rec-mc)[y], cm");
@@ -775,8 +775,8 @@ int main(int __argc,char *__argv[]) {
 
 //  TCanvas* c12mc = new TCanvas("resmcpl2z","residuals, pl#2",200,500,700,800);
 //   c12mc->SetFillColor(0);
-//   c12mc->SetBorderMode(0); 
-//   c12mc->Divide(10,10);     
+//   c12mc->SetBorderMode(0);
+//   c12mc->Divide(10,10);
 //   i11=1;
 //   for (unsigned int histID = 100; histID < 200; ++histID){
 //     c12mc->cd(i11);
@@ -792,8 +792,8 @@ int main(int __argc,char *__argv[]) {
 //  i11=1;
 // TCanvas* c22mc = new TCanvas("resmcpl3z","residuals, pl#3",200,500,700,800);
 //   c22mc->SetFillColor(0);
-//   c22mc->SetBorderMode(0); 
-//   c22mc->Divide(10,10);     
+//   c22mc->SetBorderMode(0);
+//   c22mc->Divide(10,10);
 //   for (unsigned int histID = 200; histID < 300; ++histID){
 //     c22mc->cd(i11);
 //     i11++;
@@ -808,8 +808,8 @@ int main(int __argc,char *__argv[]) {
 //  i11=1;
 // TCanvas* c32mc = new TCanvas("resmcpl4z","residuals, pl#4",200,500,700,800);
 //   c32mc->SetFillColor(0);
-//   c32mc->SetBorderMode(0); 
-//   c32mc->Divide(10,10);     
+//   c32mc->SetBorderMode(0);
+//   c32mc->Divide(10,10);
 //   for (unsigned int histID = 300; histID < 400; ++histID){
 //     c32mc->cd(i11);
 //     i11++;

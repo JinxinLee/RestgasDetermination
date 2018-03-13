@@ -38,7 +38,7 @@ int gem_material_ana1(int nEvents = 1000000, bool verbose = false)
   bool draw2    = true;
   bool draw3    = true;
   bool draw4    = true;
- 
+
 // -----  Load libraries   ------------------------------------------------
 //   gROOT->Macro("../Libs.C");
   gROOT->LoadMacro("../run/Tools.C");
@@ -46,12 +46,12 @@ int gem_material_ana1(int nEvents = 1000000, bool verbose = false)
 
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
 
- 
+
   TString MCFile  =  "gem_mat_sim_geantino.root";
   //TString MCFile  =  "gem_mat_sim_withoutpipe.root";
   //TString MCFile  =  "gem_mat_sim_GemPipe.root";
   //TString MCFile  =  "gem_mat_sim_Gem.root";
-  
+
   TString parFile =  "gem_mat_simparams_geantino.root";
   //TString parFile =  "gem_mat_simparams_withoutpipe.root";
   //TString parFile =  "gem_mat_simparams_GemPipe.root";
@@ -70,7 +70,7 @@ int gem_material_ana1(int nEvents = 1000000, bool verbose = false)
   TString allDigiFile = sysFile+"/macro/params/gem_3Stations_realistic_v1.root";
 
   TFile* f = new TFile(MCFile.Data()); // the sim file you want to analyse
-  TTree* t =(TTree *) f->Get("cbmsim") ;
+  TTree* t =(TTree *) f->Get("pndsim") ;
   TFile* par = TFile::Open(parFile.Data());
 
   cout << "file name = " << f->GetName() << ", tree = " << t->GetName() << endl;
@@ -157,7 +157,7 @@ int gem_material_ana1(int nEvents = 1000000, bool verbose = false)
 //  TH2D* histhephi = new TH2D("hThePhi","",100,0.2,TMath::Pi()-0.3,100,-1.*TMath::Pi(),TMath::Pi());
   TProfile2D* histhephi = new TProfile2D("hThePhi","",angres,0.0,180.0,angres,-180.,180.);//-1.*TMath::Pi(),TMath::Pi());
   histhephi->SetTitle("(c)Radiation length map vs #theta & #phi;#theta[degree];#phi[degree];X/X_{0}");
-  
+
   TH1D* hisx = new TH1D("hX","X",100,-80.,80.);
   TH1D* hisy = new TH1D("hY","Y",100,-80.,80.);
   TH1D* hisz = new TH1D("hZ","Z",100,0.,210.);
@@ -185,36 +185,36 @@ int gem_material_ana1(int nEvents = 1000000, bool verbose = false)
       mapMCIndex[trackno] = trackno;
 	}
       else continue;
-     
+
       mom = aTrack->GetMomentum();
       //      cout << " got mom = " << mom.X() <<  endl;
-      
+
       theta = mom.Theta()*TMath::RadToDeg(); phi = mom.Phi()*TMath::RadToDeg();
 //       if(theta < 0.05 || theta > (TMath::Pi()-0.05)) continue; // cut strange angles
 //       vtx = aTrack->GetStartVertex();
-      
+
       effradl=0.;      effradlsum=0.;
       for(int i=0; i<100; i++) radlList[i]=0.;
-      
+
       //cout << "before radlen loop" << endl;
-      
+
       for (Int_t k=0; k<rad_array->GetEntriesFast(); k++){
         FairRadLenPoint* radpoint = (FairRadLenPoint*)rad_array->At(k);
         if (radpoint->GetTrackID() != trackno) continue;
 
 	//	cout << "got point " << k << endl;
-	
+
         radlen = radpoint->GetRadLength();
         in = radpoint->GetPosition();
         out = radpoint->GetPositionOut();
         dist = in - out;
         //point.SetXYZ(0.5*(in.x()+out.x()),0.5*(in.y()+out.y()),0.5*(in.z()+out.z()));
 	point.SetXYZ(0.5*(in.x()+in.x()),0.5*(in.y()+in.y()),0.5*(in.z()+in.z()));
-	
+
 	//	cout << "got dist = " << dist.X() << endl;
-	
+
         if(in.Mag() < 0.02) continue; // cut target  // Mag()= magnitude=rho in spherical coordinates=sqrt(x*x+y*y+z*z)
-	
+
         effradl = dist.Mag()/radlen;
 	//cout << " effradl = " << effradl << endl;
 	effradlsum += effradl;
@@ -222,18 +222,18 @@ int gem_material_ana1(int nEvents = 1000000, bool verbose = false)
 	//cout << "ADDED " << effradl << " to the sum (" << effradlsum << ")" << endl;
 
 	//cout << " effradlsum = " << effradlsum << endl;
-	
+
 	if ( !geoMan) 	cout << "have no manager" << endl;
 	//cout << "got manager at " << point.x() << " " << point.y() << " " << point.z() << endl;
-	
+
         TGeoNode* node = gGeoManager->FindNode(point.x(),point.y(),point.z());
-        if( 0==node) 
+        if( 0==node)
         {
           std::cout<<"Warning: There is a node not defined properly!"<<std::endl;
           cout<<"\tEvent No "<<event<<" \t RadLenPoint No."<< k <<endl;
           continue;
         }
-	
+
 	//cout << "got node!" << endl;
         node->cd();
 //         detname = geoMan->GetPath();
@@ -242,13 +242,13 @@ int gem_material_ana1(int nEvents = 1000000, bool verbose = false)
 	//<< volname.Data() << endl;
 
 	//         if(verbose)cout<<detname.Data()<<endl;
-	
+
 	   if("cave" == volname && point.Mag() > 20. ) {
 	       //  cout << " CONTINUE! in " << volname << " at " << point.Mag() << endl;
 	      continue; // cut mainly the outer cave
 	   	}
-	
-	
+
+
         if(verbose){
           cout<<"---> "<<volname.Data()<<endl;
         }
@@ -273,34 +273,34 @@ int gem_material_ana1(int nEvents = 1000000, bool verbose = false)
             break;
 	           }
 	}
-	
+
         radlList[selected]+=effradl;
 	//cout << "ADDING " << effradl << " (radlList[" << selected << "] = " << radlList[selected] << ") for volume " << volname << " //// " << radlList[0]+radlList[1] << endl;
         ((TH2D*)arrhisxy->At(selected))->Fill(point.X(),point.Y(),effradl);
         if(point.Y()>0.) ((TH2D*)arrhisrz->At(selected))->Fill(point.Z(),point.Perp(),effradl); // Perp() get transverse component
         else ((TH2D*)(arrhisrz->At(selected)))->Fill(point.Z(),-1.*point.Perp(),effradl);
       }//radpoints
-      
+
       thetaprofile->Fill(theta,effradlsum);
       phiprofile->Fill(phi,effradlsum);
       histhephi->Fill(theta,phi,effradlsum);
 
       // here add cout for effradlsum
       //cout << "effradlsum = " << "   " << effradlsum << endl;
-      
+
       for(int i=0;i<=maxnames;i++){
         effradl=radlList[i];
-	
+
 	//here add cout for effradl
 	//cout << "effradl(" << i << ") = " << "   " << effradl << endl;
-	
+
         ((TProfile*)arrprothe->At(i))->Fill(theta,effradl);
         ((TProfile*)arrprophi->At(i))->Fill(phi,effradl);
 	((TProfile2D*)arrprothephi->At(i))->Fill(theta,phi,effradl);
       }
-     
+
     }//tracks
-      
+
   }// end for event
   cout << "finished the loop" << endl;
 
@@ -443,7 +443,7 @@ phiprofile->Draw("hist");
  can1->cd(9);
  histhephi->SetStats(false);
  histhephi->DrawCopy("colz");
-  
+
 }
 
 
@@ -459,18 +459,18 @@ resol = 300;
 TCanvas* can4 = new TCanvas("can4","MCHit view in GEM",100,100,a*resol,b*resol);
 can4->Divide(a,b);
 //can4->Divide(3,b);
-/*EColor colors[12] = 
+/*EColor colors[12] =
   {kOrange,kAzure,kTeal ,kRed,kBlue,kGreen, kMagenta,kCyan,kYellow ,kPink,kViolet,kSpring };*/
 //int colors[8] = {60,15,45,30,30,50,80,55};
 //int colors[8] = {1,2,3,4,5,6,7,8};
 int colors[5] = {60,45,15,30,80};
 int coloff = -0;
- 
+
 THStack* thetastack = new THStack("thetastack","");
 thetastack->SetTitle("(a)Radiation length vs #theta;#theta[degree];X/X_{0}    ");
 THStack* phistack = new THStack("phistack","");
 phistack->SetTitle("(b)Radiation length vs #phi;#phi[degree];X/X_{0}    ");
- 
+
 TProfile* aprof=0;
 TH1D* ahist=0;
 TLegend* legMat=new TLegend(0.6, 0.75, 0.8, 0.98);
@@ -484,15 +484,15 @@ for(int i=maxnames;i>=0;i--){
   can4->cd(i+1);
   gPad->SetLogy();
   ahist->DrawCopy("hist");
-  thetastack->Add(ahist);  
+  thetastack->Add(ahist);
 
   aprof=(TProfile*)arrprophi->At(i);
   ahist=aprof->ProjectionX();
   ahist->SetFillColor(colors[i] + coloff);
   ahist->SetLineColor(colors[i] + coloff);
   phistack->Add(ahist);
-  
-  } 
+
+  }
  can2->cd(1);
  thetastack->SetMaximum(2.0);
  //thetastack->SetMaximum(7.6);
@@ -507,7 +507,7 @@ for(int i=maxnames;i>=0;i--){
  //phistack->SetMaximum(1.5);
  phistack->Draw("hist,nostack");
  legMat->Draw();
- 
+
  }
 //-------------------------------------------------------------------------------------
 if(draw4){
@@ -530,8 +530,8 @@ if(draw4){
    thephimap->SetStats(false);
    bprof->DrawCopy("colz");
    //legMat->Draw();
-    } 
-  
+    }
+
  }
  //------------------------------------------------------------------------------------------------
 
@@ -542,7 +542,7 @@ if(draw3){
 if(a>4) resol = int(1200/a);
 TCanvas* can3 = new TCanvas("can3","MCHit view in GEM",150,150,a*resol,b*resol);
 can3->Divide(a,b);
- 
+
 for(int i=0; i<a ;i++){
   can3->cd(i+1);
   ((TH2D*)arrhisxy->At(i))->DrawCopy("colz");

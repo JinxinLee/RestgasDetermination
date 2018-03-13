@@ -21,7 +21,7 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
         TFile *f=new TFile(InputSimFile);
 	TGeoManager *fGeoManager = (TGeoManager *) f->Get("FAIRGeom");
 
-	TChain *c=new TChain("cbmsim");
+	TChain *c=new TChain("pndsim");
 
 	c->Add(InputSimFile);
 
@@ -38,7 +38,7 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 
 	TClonesArray* hit_array=new TClonesArray("PndEmcHit");
         c->SetBranchAddress("EmcHit",&hit_array);
-	
+
 	TFile *fs=new TFile(OutputFile,"recreate");
 	TNtuple *n = new TNtuple("myntup","My Ntuple","et:tht:pht:ec:thc:phc:nc:sc:edbar:edfw:edbw:eh:ecc:thd:phd");
 
@@ -50,18 +50,18 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	Double_t tot_hit_energy;
 	Double_t theta_digi,phi_digi;
 	int ndigi;
-       
+
 //	PndEmcMapper *fEmcMap=PndEmcMapper::Instance(1);
 
 	// Cluster energy
 	for (Int_t j=0; j< c->GetEntries(); j++)
 	{
-	  if (0 == (j%1000)) 
+	  if (0 == (j%1000))
 	    {
 	      printf(".%i.",j);fflush(stdout);
 	    }
 	  c->GetEntry(j);
-	  
+
 		PndMCTrack *track=(PndMCTrack*)track_array->At(0);
 		TLorentzVector p4mom=track->Get4Momentum();
 
@@ -86,17 +86,17 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	          Double_t digi_energy=digi->GetEnergy();
 		  Int_t detid=digi->GetDetectorId()/100000000;
 		  //cout << digi->GetDetectorId() << "/" << detid << endl;
-	          if (detid==3) 
+	          if (detid==3)
 		      {
 			  tot_digi_energy_fwendcap+=digi_energy;
 		      }
-		  else if (detid==4) 
+		  else if (detid==4)
 		      {
-			  tot_digi_energy_bwendcap+=digi_energy;	      
+			  tot_digi_energy_bwendcap+=digi_energy;
 		      }
 	          else
 		      {
-			  tot_digi_energy_barrel+=digi_energy;	      
+			  tot_digi_energy_barrel+=digi_energy;
 		      }
 
 	          }
@@ -104,16 +104,16 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	         {
 	          PndEmcHit *hit=(PndEmcHit*)hit_array->At(i);
 	          Double_t hit_energy=hit->GetEnergy();
-	          tot_hit_energy+=hit_energy;	      
+	          tot_hit_energy+=hit_energy;
 	          }
 
 		if (cluster_array->GetEntriesFast()>0)
 		  {
 		    Int_t    idWithHighestEnergy = 0;
 		    Double_t highestEnergy = -1.;
-		    
+
 		    // First find the cluster with the highest energy
-		    
+
 		    for (Int_t i=0; i<cluster_array->GetEntriesFast(); i++)
 		      {
 			PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
@@ -123,19 +123,19 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 			    idWithHighestEnergy = i;
 			    highestEnergy = cluster_energy;
 			  }
-			
+
 		      }
 
-		// Lets analyze that cluster! 
+		// Lets analyze that cluster!
 
 
-		    
+
 		    PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(idWithHighestEnergy);
 /*
 		    std::vector<PndEmcDigi*> digiList=cluster->DigiList();
 		    ndigi=digiList.size();
 		    ndigi=0;
-	    
+
 		    cluster_energy_check=0;
 		    digi_low=digiList[0]->GetEnergy();
 		    digi_high=digiList[0]->GetEnergy();
@@ -163,7 +163,7 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 		    cluster_phi=cluster_pos.Phi();
 		    cluster_energy=cluster->energy();
 
-		    /*		    
+		    /*
 		    cout << "<I>         E              = " << cluster_energy << endl;
 		    cout << "<I>         Theta          = " << cluster_theta*(180/TMath::Pi()) << endl;
 		    cout << "<I>         Phi            = " << cluster_phi*(180/TMath::Pi()) << endl;

@@ -21,7 +21,7 @@
 //To open the data file, MC point and Recon Hit
 	TFile *mcf = new TFile("/private/huagen/simdata/Lmd_MC_BD_DPM_elastic_6.2_1.9mrad_5M_1.root");
 //	TFile *mcf = new TFile("/private/huagen/simdata/Lmd_Test.root");
-	TTree *tree1 = (TTree*)mcf->Get("cbmsim");
+	TTree *tree1 = (TTree*)mcf->Get("pndsim");
 	TClonesArray *mc_array = new TClonesArray("PndSdsMCPoint");
 	tree1->SetBranchAddress("LMDPoint",&mc_array);
 
@@ -30,7 +30,7 @@
 
 	TFile *rcf = new TFile("/private/huagen/simdata/Lmd_Reco_BD_DPM_elastic_6.2_1.9mrad_5M_1.root");
 //	TFile *rcf = new TFile("/private/huagen/simdata/Lmd_Test_Reco.root");
-	TTree  *tree2 = (TTree*)rcf->Get("cbmsim");
+	TTree  *tree2 = (TTree*)rcf->Get("pndsim");
 	TClonesArray *hit_array = new TClonesArray("PndSdsHit");
 	tree2->SetBranchAddress("LMDHitsStrip",&hit_array);
 

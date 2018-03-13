@@ -16,12 +16,12 @@ void config_histo(TH1F *h, TString tx, TString ty,double offy=1.65)
   h->GetXaxis()->SetLabelSize(0.05);
   h->GetXaxis()->SetTitleSize(0.05);
   h->GetXaxis()->SetNdivisions(505);
-  
+
   h->GetYaxis()->SetTitleOffset(offy);
   h->GetYaxis()->SetTitleFont(42);
   h->GetYaxis()->SetLabelSize(0.05);
   h->GetYaxis()->SetTitleSize(0.05);
-  
+
   h->SetXTitle(tx);
   h->SetYTitle(ty);
 
@@ -34,16 +34,16 @@ int ana_pid(TString fname="dsdsj_10k.root",int num=0)
   timer.Start();
 
   int i;
-  
+
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
 
-  
+
   gSystem->Load("libRho");
   /*
   TCanvas *c1=new TCanvas("c1","2-dim",1100 ,750);
   c1->Divide(3,2);
-  
+
   TCanvas *c2=new TCanvas("c2","1-dim",1100 ,750);
   c2->Divide(3,2);
 
@@ -53,19 +53,19 @@ int ana_pid(TString fname="dsdsj_10k.root",int num=0)
   TCanvas *c3=new TCanvas("c3","mom+tht",600,350);
   c3->Divide(2,1);
 */
-  
+
   TFile* f = new TFile(fname.Data());
-  TTree *t=f->Get("cbmsim") ;
+  TTree *t=f->Get("pndsim") ;
   //TClonesArray *fTr=new TClonesArray("TParticle");
   //TClonesArray *fTrMc=new TClonesArray("TParticle");
   TClonesArray *fCands=new TClonesArray("TCandidate");
-  
+
   //t->SetBranchAddress("PndParticles",&fTr) ;
   //t->SetBranchAddress("PndMcParticles",&fTrMc);
   t->SetBranchStatus("*",0);
   t->SetBranchStatus("PndChargedCandidates*",1);
   t->SetBranchAddress("PndChargedCandidates",&fCands);
-  
+
   //TParticle  *tr1;
   //TParticle  *tr2;
   TCandidate *tc;
@@ -73,25 +73,25 @@ int ana_pid(TString fname="dsdsj_10k.root",int num=0)
 
   TH1F *hmom= new TH1F("hmom","momentum charged tracks",100,0,6);
   TH1F *htht= new TH1F("htht","theta charged tracks",100,0,180);
-  
+
   TH2F *thtcbar = new TH2F("thtcbar","#theta_{c} DrcBarrel",200,0,8,200,0.,0.9);
   thtcbar->SetMarkerSize(0.1);
-  
+
   TH2F *thtcdsc = new TH2F("thtcdsc","#theta_{c} DrcDisc",200,0,8,200,0.0,0.9);
   thtcdsc->SetMarkerSize(0.1);
 
   TH2F *thtcrch = new TH2F("thtcrch","#theta_{c} Rich",200,0.,8,200,0.,0.35);
   thtcrch->SetMarkerSize(0.1);
-  
+
   TH2F *m2tof = new TH2F("m2tof","m^{2} Tof",100,0,1.5,100,0.,1.2);
   m2tof->SetMarkerSize(0.1);
-  
+
   TH2F *dedxmvd = new TH2F("dedxmvd","dE/dx Mvd",100,0,1.5,100,0.,20);
   dedxmvd->SetMarkerSize(0.1);
-  
+
   TH2F *dedxstt = new TH2F("dedxstt","dE/dx Stt",100,0,1.5,100,0.,20);
   dedxstt->SetMarkerSize(0.1);
-  
+
   TH1F *thtcB[5], *thtcD[5], *thtcR[5];
   TH1F *m2T[5], *dedxM[5],*dedxS[5];
 
@@ -134,18 +134,18 @@ int ana_pid(TString fname="dsdsj_10k.root",int num=0)
 
   if (num==0) num= t->GetEntriesFast();
   cout <<"\n####### Processing "<<num <<" events...\n"<<endl;
-  
+
   TCandList allCands,neutralCands,chargedCands, plusCands,minusCands;
 
   TCandList kpCands,kmCands,piCands;
-  
+
    TPidChargedSelector *chargedSel = new TPidChargedSelector;
 
   //  TPidSimpleKaonSelector *kSel    = new TPidSimpleKaonSelector();
   //  kSel->SetCriterion("loose");
   //  TPidSimplePionSelector *piSel   = new TPidSimplePionSelector();
   //  piSel->SetCriterion("loose");
-  
+
   int i2;
 
   int pidhypo[2213];
@@ -163,36 +163,36 @@ int ana_pid(TString fname="dsdsj_10k.root",int num=0)
   {
     t->GetEntry(j);
     if (!(j%100)) cout <<"evt:"<<j<<endl;
-    
+
     //allCands.Cleanup();
     //chargedCands.Cleanup();
-    
+
     for (Int_t i1=0; i1<fCands->GetEntriesFast(); i1++)
     {
       tc = (TCandidate *)fCands->At(i1);
       // allCands.Add(*tc);
-    
-    
+
+
       //chargedCands.Select(allCands, chargedSel);
 
       float valvect[28];
-      
+
       double pmin=0.5;
       double pmax=0.7;
-      
+
       double thtmin=0./180.*3.1415;
       double thtmax=180./180.*3.1415;
-      
+
       //TCandListIterator iterch(chargedCands);
       //while (tc=iterch.Next()){
       double *pi=tc->GetPidInfo();
       double p=tc->P();
       double tht=tc->GetVect().Theta();
-      
+
       double pt = p*sin(tht);
       int pid=abs((int)pi[29]);
       int hypo=pidhypo[pid];
-      
+
       //  TNtuple *ntp=new TNtuple("ntp","ntp","pid:p:px:py:pz:e:pt:tht:ctht:le:lmu:lpi:lk:lp:tcb:tcd:tcr:mt:dem:des:det:tcbr:tcdr:tcrr:mtr:demr:desr:detr");
       valvect[0]=(float)hypo;
       valvect[1]=(float)p;
@@ -203,10 +203,10 @@ int ana_pid(TString fname="dsdsj_10k.root",int num=0)
       valvect[6]=(float)tc->Pt()  ;
       valvect[7]=(float)tht  ;
       valvect[8]=(float)cos(tht)  ;
-      
-      valvect[9]=(float)pi[0]  ; // LH e 
+
+      valvect[9]=(float)pi[0]  ; // LH e
       valvect[10]=(float)pi[1]  ;// LH mu
-      valvect[11]=(float)pi[2]  ;// LH pi 
+      valvect[11]=(float)pi[2]  ;// LH pi
       valvect[12]=(float)pi[3]  ;// LH K
       valvect[13]=(float)pi[4]  ;// LH p
 
@@ -228,14 +228,14 @@ int ana_pid(TString fname="dsdsj_10k.root",int num=0)
 
       ntp->Fill(valvect);
     }
-   
+
 
   }
-  
- 
+
+
   ntp->Write();
   tf->Close();
-  
+
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

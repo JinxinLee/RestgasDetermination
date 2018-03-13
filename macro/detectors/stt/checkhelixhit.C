@@ -4,23 +4,23 @@
   timer.Start();
 //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 //   rootlogon();
-  
+
   // MCpoints
   TFile filerun("testrun.root");
-  TTree *treepnt = (TTree*) filerun.Get("cbmsim");
+  TTree *treepnt = (TTree*) filerun.Get("pndsim");
   TClonesArray *pnt = new TClonesArray("PndSttPoint");
   treepnt->SetBranchAddress("STTPoint",&pnt);
-  
-  
+
+
   // Hits
   TFile filedigi("testdigi.root");
-  TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
+  TTree *treedigi = (TTree*) filedigi.Get("pndsim");
   TClonesArray *digi = new TClonesArray("PndSttHit");
   treedigi->SetBranchAddress("STTHit",&digi);
 
   // HelixHits
   TFile filehelix("testreco.root");
-  TTree *treereco = (TTree*) filehelix.Get("cbmsim");
+  TTree *treereco = (TTree*) filehelix.Get("pndsim");
   TClonesArray *hh = new TClonesArray("PndSttHelixHit");
   treereco->SetBranchAddress("SttHelixHit",&hh);
 
@@ -32,9 +32,9 @@
   c->Divide(1,2);
   TH2F *hxy = new TH2F("hxy","hxy",100,-42,42, 100,-42,42);
   TH2F *hyz = new TH2F("hyz","hyz",100,0,50, 100,-40,110);
-   
+
   int evt = 0;
- 
+
   treepnt->GetEntry(evt);
   treedigi->GetEntry(evt);
   treereco->GetEntry(evt);
@@ -61,7 +61,7 @@
     Double_t R = stttrack->GetRad();
     Double_t z0 = stttrack->GetZ();
     Double_t tanl = stttrack->GetTanL();
-    Double_t h = -(Int_t) stttrack->GetCharge(); 
+    Double_t h = -(Int_t) stttrack->GetCharge();
     Double_t ptran = 0.003 * 2 * R;
 
     Double_t plong = ptran * tanl;
@@ -83,7 +83,7 @@
       Double_t x1 = d0 * cos(phi0);
       Double_t y1 = d0 * sin(phi0);
       Double_t scoslT = stttrack->CalculateScosl(x1, y1);
-     
+
       TLine* line = new TLine(scoslT, scoslT*tanl+ z0, 50, 50*tanl + z0);
       line->SetLineColor(k+1);
       line->Draw("SAME");
@@ -98,7 +98,7 @@
       PndSttPoint *mcpoint = (PndSttPoint*) pnt->At(hit->GetRefIndex());
 
       c->cd(1);
-    
+
       // points/hits
       TMarker *mrkpnt = new TMarker(mcpoint->GetXtot(), mcpoint->GetYtot(), 2);
       mrkpnt->SetMarkerColor(4);
@@ -109,9 +109,9 @@
       TMarker *mrkhh = new TMarker(helixhit->GetX(), helixhit->GetY(), 5);
       mrkhh->SetMarkerColor(2);
       mrkhh->Draw("SAME");
-	
+
       c->cd(2);
-    
+
       /**
 	 TMarker *mrkpnt = new TMarker(mcpoint->GetYtot(), mcpoint->GetZtot(), 2);
 	 mrkpnt->SetMarkerColor(4);
@@ -123,17 +123,17 @@
 	 mrkhh->SetMarkerColor(2);
 	 mrkhh->Draw("SAME");
       **/
-	
-      //    cout << "MC " <<  mcpoint->GetXtot() 
-      // 	   << " " <<             mcpoint->GetYtot() 
-      // 	   << " " <<             mcpoint->GetZtot() << endl;
-      
-      //   cout << "helixhit " <<  helixhit->GetX() 
-      //        << " " <<             helixhit->GetY() 
-      //        << " " <<             helixhit->GetZ() << endl;
-      
 
-     
+      //    cout << "MC " <<  mcpoint->GetXtot()
+      // 	   << " " <<             mcpoint->GetYtot()
+      // 	   << " " <<             mcpoint->GetZtot() << endl;
+
+      //   cout << "helixhit " <<  helixhit->GetX()
+      //        << " " <<             helixhit->GetY()
+      //        << " " <<             helixhit->GetZ() << endl;
+
+
+
       Double_t scoslMC = stttrack->CalculateScosl(mcpoint->GetXtot(), mcpoint->GetYtot());
       TMarker *mrkpnt = new TMarker(scoslMC, mcpoint->GetZtot(), 2);
       mrkpnt->SetMarkerColor(4);
@@ -148,9 +148,9 @@
       TMarker *mrkhh = new TMarker(scoslHH, helixhit->GetZ(),  5);
       mrkhh->SetMarkerColor(2);
       mrkhh->Draw("SAME");
-	
+
       //      cout <<  scoslMC<< " " << mcpoint->GetZtot() << endl;
     }
 
   }
-} 
+}

@@ -38,7 +38,7 @@ PndMvdMQFileSink::PndMvdMQFileSink()
   : FairMQDevice()
   , fFileName()
   , fTreeName()
- 
+
   , fBranchNames()
   , fClassNames()
   , fFileOption()
@@ -58,23 +58,23 @@ void PndMvdMQFileSink::Init()
   LOG(INFO) << "SHOULD CREATE THE FILE AND TREE";
   //  fFileName = "/Users/karabowi/fairroot/pixel9_dev/FairRoot/examples/MQ/9-PixelDetector/macros/tmpOut.root";
   fFileOption = "RECREATE";
-  fTreeName = "cbmsim";  
+  fTreeName = "pndsim";
 
   // fBranchNames.push_back("EventHeader.");
   // fClassNames .push_back("FairEventHeader");
   // fBranchNames.push_back("PixelHits");
   // fClassNames .push_back("TClonesArray(PixelHit)");
-  
+
   fOutFile = TFile::Open(fFileName.c_str(),fFileOption.c_str());
-  
+
   fTree = new TTree(fTreeName.c_str(), "/cbmout");
 
   fFolder = new TFolder("cbmout", "Main Output Folder");
   TFolder* foldEventHeader = fFolder->AddFolder("EvtHeader","EvtHeader");
   TFolder* foldPixel       = fFolder->AddFolder("Pixel","Pixel");
-  
+
   TList* BranchNameList = new TList();
-  
+
   LOG(INFO) << "PndMvdMQFileSink: " << fBranchNames.size();
 
   for ( fNObjects = 0 ; fNObjects < fBranchNames.size() ; fNObjects++ ) {
@@ -95,13 +95,13 @@ void PndMvdMQFileSink::Init()
     else {
       LOG(ERROR) << "!!! Unknown output object \"" << fClassNames[fNObjects] << "\" !!!";
     }
-  }  
+  }
 
   fFolder->Write();
   BranchNameList->Write("BranchList", TObject::kSingleKey);
   BranchNameList->Delete();
   delete BranchNameList;
-  
+
 }
 
 void PndMvdMQFileSink::Run()
@@ -109,18 +109,18 @@ void PndMvdMQFileSink::Run()
   while (CheckCurrentState(RUNNING))
     {
       FairMQParts parts;
-      
+
       if (Receive(parts, "data-in") >= 0)
 	{
 
 	  TObject* tempObjects[10];
-	  for ( int ipart = 0 ; ipart < parts.Size() ; ipart++ ) 
+	  for ( int ipart = 0 ; ipart < parts.Size() ; ipart++ )
 	    {
 	      Ex9TMessage tm(parts.At(ipart)->GetData(), parts.At(ipart)->GetSize());
 	      tempObjects[ipart] = (TObject*)tm.ReadObject(tm.GetClass());
-	      for ( unsigned int ibr = 0 ; ibr < fBranchNames.size() ; ibr++ ) 
+	      for ( unsigned int ibr = 0 ; ibr < fBranchNames.size() ; ibr++ )
 		{
-		  if ( strcmp(tempObjects[ipart]->GetName(),fBranchNames[ibr].c_str()) == 0 ) 
+		  if ( strcmp(tempObjects[ipart]->GetName(),fBranchNames[ibr].c_str()) == 0 )
 		    {
 		      fOutputObjects[ibr] = tempObjects[ipart];
 		      fTree->SetBranchAddress(fBranchNames[ibr].c_str(),&fOutputObjects[ibr]);
@@ -129,7 +129,7 @@ void PndMvdMQFileSink::Run()
 	    }
 	  fTree->Fill();
 	}
-      else 
+      else
 	{
 	  LOG(INFO) << "oops!";
 	}
@@ -173,7 +173,7 @@ int PndMvdMQFileSink::GetProperty(const int key, const int value)
 }
 
 PndMvdMQFileSink::~PndMvdMQFileSink()
-{ 
+{
   if (fTree)
     {
       fTree->Write();

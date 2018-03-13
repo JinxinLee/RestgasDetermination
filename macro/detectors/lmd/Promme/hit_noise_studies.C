@@ -48,20 +48,20 @@ int hit_noise_studies(){
 	canvas->Divide(3,2);
 
 	// load the MC File
-	TChain tMC("cbmsim");
+	TChain tMC("pndsim");
 	tMC.Add("./Lumi_digi_0.root");
 
-	TChain thits("cbmsim");
+	TChain thits("pndsim");
 	thits.Add("./Lumi_recoMerged_0.root");
 
-	TChain ttrk("cbmsim");
+	TChain ttrk("pndsim");
 	ttrk.Add("./Lumi_TrackNotFiltered_0.root");
 
-	TChain ttrk_filt("cbmsim");
+	TChain ttrk_filt("pndsim");
 	ttrk_filt.Add("./Lumi_Track_0.root");
 
 	bool usefiltered(true);
-	TChain ttrk_prop("cbmsim");
+	TChain ttrk_prop("pndsim");
 	if (usefiltered)
 		ttrk_prop.Add("./Lumi_GeaneFiltered_0.root");
 	else

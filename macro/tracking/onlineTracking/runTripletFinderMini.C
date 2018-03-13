@@ -38,11 +38,11 @@ int runTripletFinderMini()  {
 	TFile filereco(recoFileName.Data());
 	TFile filerecopixel(recoFileName.Data());
 
-	TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
-	TTree *recotree = (TTree*) filereco.Get("cbmsim");
+	TTree *treedigi = (TTree*) filedigi.Get("pndsim");
+	TTree *recotree = (TTree*) filereco.Get("pndsim");
 
 	TFile simfile(simFileName.Data());
-	TTree* mctree = (TTree*) simfile.Get("cbmsim");
+	TTree* mctree = (TTree*) simfile.Get("pndsim");
 	TClonesArray* mcarray = new TClonesArray("PndMCTrack");
 	mctree->SetBranchAddress("MCTrack", &mcarray);
 
@@ -127,7 +127,7 @@ int runTripletFinderMini()  {
 	TH2D* hmcrecoed = new TH2D("hmcrecoed", "hmcrecoed", 1500, -15, 15, 75, 0, 1.5);
 	TH2D* hmcnotrecoed = new TH2D("hmcnotrecoed", "hmcnotrecoed", 1500, -15, 15, 75, 0, 1.5);
 
-    
+
 	for (current_time = 0; current_time < final_time; current_time += delta_t) {
 		online->Clear();
 		//online->LoadHits( PndOnlineManager::kHESRRevolution );
@@ -136,7 +136,7 @@ int runTripletFinderMini()  {
 		//online->LoadHits( current_time );
 		online->Process();
 		//online->Clear();
-	
+
 		online_tracks = online->GetTrackObjectList();
 		int maxmcid = 0;
 		int minmcid = 0;
@@ -191,7 +191,7 @@ int runTripletFinderMini()  {
 				} else {
 					mcidbad++;
 				}
-				
+
 				int mcentrynumber = myTrack->MCEntryNumber();
 				if (mcentrynumber > maxmcid) {
 					maxmcid = mcentrynumber;
@@ -376,7 +376,7 @@ int runTripletFinderMini()  {
 	SaveAndUpdateHisto(hdafuq, outputstorage);
 	SaveAndUpdateHisto(hmcrecoed, outputstorage);
 	SaveAndUpdateHisto(hmcnotrecoed, outputstorage);
-   
+
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();
 	Double_t rtime = timer.RealTime();

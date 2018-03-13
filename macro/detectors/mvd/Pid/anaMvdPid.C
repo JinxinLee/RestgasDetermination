@@ -1,8 +1,8 @@
 {
-// Analysis for PndMvdAdvancedPidAlgo: run runMvdSim.C and runMvdPidIdeal.C 
+// Analysis for PndMvdAdvancedPidAlgo: run runMvdSim.C and runMvdPidIdeal.C
 // before running this. An energyloss over momentum plot is drawn as well as
-// a histo of the generated likelihoods, and a histo of 'fake' likelihoods 
-// that are created with the algo's own parameterisation. 
+// a histo of the generated likelihoods, and a histo of 'fake' likelihoods
+// that are created with the algo's own parameterisation.
 // This macro has been tested with rev 2503 so far.
 
   // -----  Load libraries   ------------------------------------------------
@@ -15,7 +15,7 @@
   // ------------------------------------------------------------------------
   //opening tree
   TFile* inFile = new TFile("MvdPidIdeal.root","READ");
-  TTree* tree = (TTree *)inFile->Get("cbmsim");
+  TTree* tree = (TTree *)inFile->Get("pndsim");
   TClonesArray* pointlist=new TClonesArray("PndMvdPidCand");
   tree->SetBranchAddress("PndMvdPidCand", &pointlist);
 
@@ -24,7 +24,7 @@
   TH2F* h2=new TH2F("h2", "energy loss", 100, 0.0, 2.5, 100, 0.0, 0.05);
   TH2F* h3=new TH2F("h3", "ideal likelihood count", 100, 0.0, 2.5, 100, 0.0, 1.0);
 
-  //variable 
+  //variable
 
   Int_t nEvents = 10000;
 
@@ -45,7 +45,7 @@
         momentum+=cand->GetMvdHitMomentum(k);
       }
 
-      if (dx>0) 
+      if (dx>0)
         momentum/=cand->GetMvdHits();
 
       PndMvdAdvancedPidAlgo::CalcLikelihood(PndMvdAdvancedPidAlgo::proton, momentum, idealcand);

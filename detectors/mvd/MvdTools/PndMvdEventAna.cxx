@@ -18,7 +18,7 @@ void PndMvdEventAna::Init(TString fileName)
 	InitHistos();
 	InitBranch();
 	fFile = new TFile(fileName.Data());
-	fTree = (TTree*)(fFile->Get("cbmsim"));
+	fTree = (TTree*)(fFile->Get("pndsim"));
 	fHitArray=new TClonesArray(fClassName.Data());
 	fTree->SetBranchAddress(fBranchName.Data(),&fHitArray);//Branch names
 	fActiveEvent = 0;
@@ -29,7 +29,7 @@ void PndMvdEventAna::AnaEventNr(Int_t Nr)
 {
 	TVector3 vecs;
 	BeginOfEventAction();
-	
+
 	fAnaEvents = 1;
 	InitHistos();
 	ClearHistos();
@@ -40,7 +40,7 @@ void PndMvdEventAna::AnaEventNr(Int_t Nr)
 	AnaHits();
 	EndOfEventAction();
 	//InitCanvas();
-	//DrawHistos();	
+	//DrawHistos();
 }
 
 void PndMvdEventAna::NextEvent()
@@ -88,7 +88,7 @@ void PndMvdEventAna::AnaEvents(Int_t count)
 		AnaHits();
 	}
 	//InitCanvas();
-	//DrawHistos();		
+	//DrawHistos();
 }
 
 void PndMvdEventAna::AnaHits()

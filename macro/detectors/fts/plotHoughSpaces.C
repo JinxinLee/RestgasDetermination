@@ -53,7 +53,7 @@ int plotHoughSpaces()
 
 	// get Hough spaces
 	TFile* fReco = new TFile(RecoFile.Data());
-	TTree* tReco = (TTree*) (fReco->Get("cbmsim"));
+	TTree* tReco = (TTree*) (fReco->Get("pndsim"));
 	//tReco->StartViewer();
 
 	PndFtsHoughSpace* fHoughSpace = new PndFtsHoughSpace();

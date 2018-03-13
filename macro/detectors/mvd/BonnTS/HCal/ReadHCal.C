@@ -15,7 +15,7 @@ int ReadHCal(){
 
   TString ScintName[numStages];
   TString AbsName[numStages];
-	
+
   bool ScintBool[numStages];
   bool AbsBool[numStages];
 
@@ -26,7 +26,7 @@ int ReadHCal(){
       ScintName[w] = Form("TestHCalScintillator%d_",w+1);
       AbsName[w] = Form("TestHCalAbsorber%d_",w+1);
       cout << ScintName[w] << "\t" << AbsName[w] << endl;
-	    
+
     }
 
 
@@ -54,8 +54,8 @@ int ReadHCal(){
 
   fGeoH = new PndGeoHandling();
 
-  TTree *t=(TTree *) f->Get("cbmsim") ;
-	
+  TTree *t=(TTree *) f->Get("pndsim") ;
+
   TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
@@ -65,7 +65,7 @@ int ReadHCal(){
   cout << "Events: " << t->GetEntries() << endl;
 
   TString name;
-	
+
   Double_t eLoss = 0.; // eloss in one event
   Double_t Zv = 99.;
 
@@ -86,11 +86,11 @@ int ReadHCal(){
 
       for (Int_t y = 0 ; y < mc_array->GetEntries() ; y++) // loop on hits
 	{
-			
+
 	  PndSdsMCPoint *point = (PndSdsMCPoint*)mc_array->At(y);
 
 	  PndMCTrack *track = (PndMCTrack*)tr_array->At(point->GetTrackID());
-		
+
 	  eLoss += point->GetEnergyLoss();
 
 	  Zv = (track->GetStartVertex()).Z();
@@ -98,7 +98,7 @@ int ReadHCal(){
 	  if (track->GetMotherID()<0.5 && track->GetPdgCode()==2212 && Zv<-1.) // check if primary
 	    {
 	      name =  fGeoH->GetPath(point->GetDetName());
-		    
+
 	      for (Int_t r = 0; r < numStages ; r++)
 		{
 
@@ -112,16 +112,16 @@ int ReadHCal(){
 		      AbsBool[o] = true;
 		      steps->Fill(2*(r+1));
 		    }
-			
+
 		} // end loop on names
 	    }
 
 	} // end loop on entries
 
       elossTot->Fill(eLoss);
-	
+
     } // end loop on events
-	
+
   c1->cd();
   steps->Draw();
   steps->GetXaxis()->SetTitle("# of stages");

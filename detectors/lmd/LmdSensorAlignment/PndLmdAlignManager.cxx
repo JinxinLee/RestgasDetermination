@@ -291,7 +291,7 @@ void PndLmdAlignManager::readFiles(){
 		exit(0);
 	}
 
-	TChain* chainPairs = new TChain("cbmsim");
+	TChain* chainPairs = new TChain("pndsim");
 	for(size_t i=0; i<fileNames.size(); i++){
 		//cout << files[i] << endl;
 		if( fileNames[i].find("Lumi_Pairs") != std::string::npos ){
@@ -353,7 +353,7 @@ void PndLmdAlignManager::readFilesAndAlign(){
 		exit(0);
 	}
 
-	TChain* chainPairs = new TChain("cbmsim");
+	TChain* chainPairs = new TChain("pndsim");
 	for(size_t i=0; i<fileNames.size(); i++){
 		//cout << files[i] << endl;
 		if( fileNames[i].find("Lumi_Pairs") != std::string::npos ){

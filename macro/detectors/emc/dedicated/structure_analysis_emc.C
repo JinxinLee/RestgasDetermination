@@ -5,7 +5,7 @@
 // The input file, which macro uses set at the top of the macro "file_name="
 // it is output of the simulation, which contain the FAIRGeom object, from which PndEmcStructure is initialised
 // Button "Recreate" recreate "structure.txt" from which GUI read positions of crystals and their indexes
-	
+
 
 #include <TApplication.h>
 #include <TGClient.h>
@@ -25,7 +25,7 @@ string file_name="sim_emc.root";
 int structure_analysis_emc()
 {
   gROOT->SetStyle("Plain");
-	
+
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   rootlogon();
@@ -34,16 +34,16 @@ int structure_analysis_emc()
   // The file structure.txt which contain for each detector in Fwd Endcap detectorId, two indexes and x,y,z coordinates
 	ifstream f;
 	f.open("structure.txt");
-		
+
 	if (!f.is_open())
 	{
 		std::cout<<"File does not exist"<<std::endl;
-		TFile* fsim = new TFile(file_name.c_str()); 
-		TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
+		TFile* fsim = new TFile(file_name.c_str());
+		TTree *tsim=(TTree *) fsim->Get("pndsim") ;
 		PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
 		PndEmcStructure::Instance()->Print("structure.txt",2);
 		std::cout<<"File with emc structure is created"<<std::endl;
-		
+
 		// Delete lines from the file, which are not relatd to forward EMC
 		string line;
 		ifstream in("structure.txt");
@@ -51,13 +51,13 @@ int structure_analysis_emc()
 		//copy first line
 		getline(in,line);
 		out<<line<<"\n";
-				
+
 		while (getline(in,line))
 		{
 			if (line[0]!='3') continue; // Forward endcap start from 3
 			out<<line<<"\n";
 		}
-		
+
 		in.close();
 		out.close();
 		remove("structure.txt");
@@ -65,15 +65,15 @@ int structure_analysis_emc()
 		std::cout<<"All but Forward emc is removed"<<std::endl;
 		std::cout<<"Done"<<std::endl;
 	}
-	else 
+	else
 	{
 		f.close();
 	}
-	
-	
+
+
    // Popup the GUI...
    new MyMainFrame(gClient->GetRoot(), 200, 200);
-	
+
   return 0;
 }
 
@@ -84,7 +84,7 @@ class MyMainFrame : public TGMainFrame {
 private:
    TRootEmbeddedCanvas  *fEcan;
    TGStatusBar          *fStatusBar;
-   
+
 public:
    MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h);
    virtual ~MyMainFrame();
@@ -92,10 +92,10 @@ public:
    void DoDraw();
 	void DoSave();
 	void DoRecreate();
-	
+
    void SetStatusText(const char *txt, Int_t pi);
    void EventInfo(Int_t event, Int_t px, Int_t py, TObject *selected);
-   
+
    ClassDef(MyMainFrame, 0)
 };
 
@@ -105,14 +105,14 @@ void MyMainFrame::DoDraw()
 	ifstream f;
 	f.open("structure.txt");
    c1->Range(-120,-120,120,120);
-	
+
 	Double_t x,y,z;
 	long index;
 	Int_t iX, iY;
 	TPaveLabel *pt[5000];
 	Int_t i_crys=0;
 	Double_t tr = 2.51875;             // Size of the Crystal in its center (cm)
-	  
+
 	//Position of the first line with numbers
 	f.seekg(30);
 	while (f>>index>>iX>>iY>>x>>y>>z)
@@ -121,12 +121,12 @@ void MyMainFrame::DoDraw()
 		if ((iX<200)||(iX>300)) continue;
 		if (i_crys%100==0) std::cout<<"Crystal in fwd endcap = "<<i_crys<<std::endl;
 		i_crys++;
-		
+
 		TString label="";
 		label+=iX;
 		label+=",";
 		label+=iY;
-		
+
 		TString name="";
 		name+=index;
 
@@ -135,7 +135,7 @@ void MyMainFrame::DoDraw()
 		pt[i_crys]->SetName(name);
 		pt[i_crys]->Draw();
 	}
-	   
+
 	// TCanvas::Update() draws the frame, after which it can be changed
    c1->Update();
    c1->Modified();
@@ -151,12 +151,12 @@ void MyMainFrame::DoExit()
 void MyMainFrame::DoRecreate()
 {
 	std::cout<<"Recreate structure.txt"<<std::endl;
-	TFile* fsim = new TFile(file_name.c_str()); 
-	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
+	TFile* fsim = new TFile(file_name.c_str());
+	TTree *tsim=(TTree *) fsim->Get("pndsim") ;
 	PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
 	PndEmcStructure::Instance()->Print("structure.txt",2);
 	std::cout<<"File with emc structure is created"<<std::endl;
-	
+
 	// Delete lines from the file, which are not relatd to forward EMC
 	string line;
 	ifstream infile("structure.txt");
@@ -164,13 +164,13 @@ void MyMainFrame::DoRecreate()
 	//copy first linef
 	getline(infile,line);
 	outfile<<line<<"\n";
-			
+
 	while (getline(infile,line))
 	{
 		if (line[0]!='3') continue; // Forward endcap start from 3
 		outfile<<line<<"\n";
 	}
-	
+
 	infile.close();
 	outfile.close();
 	remove("structure.txt");
@@ -178,12 +178,12 @@ void MyMainFrame::DoRecreate()
 	std::cout<<"All but Forward emc is removed"<<std::endl;
 	std::cout<<"Done"<<std::endl;
 
-	
+
 }
 
 void MyMainFrame::DoSave()
 {
-	
+
 	TCanvas *c1 = fEcan->GetCanvas();
 	c1->SaveAs("emc_structure.ps");
 	std::cout<<"Structure is saved to emc_structure.ps"<<std::endl;
@@ -217,10 +217,10 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) :
    Int_t wid = fEcan->GetCanvasWindowId();
    TCanvas *myc = new TCanvas("MyCanvas", 10,10,wid);
    fEcan->AdoptCanvas(myc);
-   myc->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)","MyMainFrame",this, 
+   myc->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)","MyMainFrame",this,
                "EventInfo(Int_t,Int_t,Int_t,TObject*)");
 
-   AddFrame(fEcan, new TGLayoutHints(kLHintsTop | kLHintsLeft | 
+   AddFrame(fEcan, new TGLayoutHints(kLHintsTop | kLHintsLeft |
                                      kLHintsExpandX  | kLHintsExpandY,0,0,1,1));
    // status bar
    Int_t parts[] = {34, 33, 33};
@@ -228,17 +228,17 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) :
    fStatusBar->SetParts(parts, 3);
    fStatusBar->Draw3DCorner(kFALSE);
    AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 10, 0));
-   
+
    // Create a horizontal frame containing two buttons
    TGHorizontalFrame *hframe = new TGHorizontalFrame(this, 200, 40);
-  
+
    TGTextButton *draw = new TGTextButton(hframe, "&Draw");
    draw->Connect("Clicked()", "MyMainFrame", this, "DoDraw()");
    hframe->AddFrame(draw, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
    TGTextButton *exit = new TGTextButton(hframe, "&Exit ");
    exit->Connect("Pressed()", "MyMainFrame", this, "DoExit()");
    hframe->AddFrame(exit, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
-   
+
 	TGTextButton *save = new TGTextButton(hframe, "&Save ");
    save->Connect("Clicked()", "MyMainFrame", this, "DoSave()");
    hframe->AddFrame(save, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
@@ -246,10 +246,10 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) :
 	TGTextButton *recreate = new TGTextButton(hframe, "&Recreate ");
    recreate->Connect("Clicked()", "MyMainFrame", this, "DoRecreate()");
    hframe->AddFrame(recreate, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
-   
+
 	AddFrame(hframe, new TGLayoutHints(kLHintsCenterX, 2, 2, 2, 2));
 
-   // Set a name to the main frame   
+   // Set a name to the main frame
    SetWindowName("EMC Forward Endcap structure");
    MapSubwindows();
 

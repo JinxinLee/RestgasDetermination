@@ -20,11 +20,11 @@
   std::string parfile = "/private/huagen/simdata/LmdParams.root";
 
   TFile* Digis = new TFile(digiFile.c_str(),"READ"); // the sim file you want to analyse
-  TTree* tree=(TTree *) Digis->Get("cbmsim") ;
+  TTree* tree=(TTree *) Digis->Get("pndsim") ;
 
   TFile* MCPoint = new TFile(inFile.c_str(),"READ");
-  TTree* tree2 = (TTree*)MCPoint->Get("cbmsim");
- // tree->AddFriend("cbmsim",inFile.c_str()); // the digi file
+  TTree* tree2 = (TTree*)MCPoint->Get("pndsim");
+ // tree->AddFriend("pndsim",inFile.c_str()); // the digi file
 
   TClonesArray* point=new TClonesArray("PndSdsMCPoint");
   tree2->SetBranchAddress("LMDPoint",&point);//Branch names

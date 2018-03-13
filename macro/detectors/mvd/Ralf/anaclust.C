@@ -29,9 +29,9 @@ int anaclust()
   picture.ReplaceAll(".root",".ps");
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
-  TTree* t=(TTree*)f->Get("cbmsim");
-  t->AddFriend("cbmsim",digiFile.c_str()); // the digi file
-  t->AddFriend("cbmsim",recoFile.c_str()); // the reco file you want to analyse
+  TTree* t=(TTree*)f->Get("pndsim");
+  t->AddFriend("pndsim",digiFile.c_str()); // the digi file
+  t->AddFriend("pndsim",recoFile.c_str()); // the reco file you want to analyse
 
   TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
@@ -173,7 +173,7 @@ int anaclust()
       if(verbose) cout<<"Hit No "<<i;//<<endl;
       if(verbose) cout<< "  |  ";
       PndSdsHit *hit=(PndSdsHit*)stripHit_array->At(i);
-      if( detFilter!="" && 
+      if( detFilter!="" &&
           fGeoH->GetPath(hit->GetDetName()).Contains(detFilter))
          continue;
 //       if(fGeoH->GetPath(hit->GetDetName()).Contains("Rect")) continue;
@@ -237,7 +237,7 @@ int anaclust()
         std::cout<<"### warning ### large difference to MC info "<<endl;
         if(verbose) std::cout<< fGeoH->GetPath(hit->GetDetName())<<endl;
       }*/
-      
+
       difftheta = vecmc.Theta() - vecs.Theta();
       diffphi = vecmc.Phi() - vecs.Phi();
       //convert deg to mrad

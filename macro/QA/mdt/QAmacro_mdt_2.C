@@ -4,7 +4,7 @@ int QAmacro_mdt_2()
   Bool_t Test=kTRUE;
 
   TFile* f = new TFile("pygen_sim_01_test04_test2.root");
-  TTree *tree=(TTree *) f->Get("cbmsim") ;
+  TTree *tree=(TTree *) f->Get("pndsim") ;
   TGeoManager *geoMan = (TGeoManager*) f->Get("FAIRGeom");
 
 
@@ -38,7 +38,7 @@ int QAmacro_mdt_2()
 
     } // end loop trk
   */
-  
+
     for (Int_t i=0; i<NPoints ; i++){
       PndMdtPoint* point = (PndMdtPoint*)fMdt->At(i);
       PndMCTrack* track = (PndMCTrack*)fMC->At(point->GetTrackID());
@@ -48,18 +48,18 @@ int QAmacro_mdt_2()
       Test=kFALSE;
       }
     } // end loop trk
-  
-  
+
+
     fMC->Delete();
 
   } // end loop on events
 
   if (Test){
      cout << " Test passed" << endl;
-     cout << " All ok " << endl;  
+     cout << " All ok " << endl;
   }else{
      cout << " Test Failed" << endl;
-     cout << " Not Ok " << endl;         
+     cout << " Not Ok " << endl;
   }
   return 0;
 

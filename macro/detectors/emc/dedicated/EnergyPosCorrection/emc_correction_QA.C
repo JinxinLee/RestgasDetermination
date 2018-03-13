@@ -33,7 +33,7 @@ int emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, In
 	hEnergyRatioCorrEnergyOld->GetXaxis()->SetTitle("Cluster Reconstructed Energy (GeV)");
 	TH2F *hEnergyRatioCorrThetaOld=new TH2F("hEnergyRatioCorrThetaOld","Energy_reco (corrected)/Energy_MC, (old)",100, 0., 180., 100, 0.8, 1.2);
 	hEnergyRatioCorrThetaOld->GetXaxis()->SetTitle("Cluster Reconstructed #theta Angle (#circ)");
-  
+
 	// test=3
 	TH1F *h_mpi0= new TH1F("h_mpi0","pi0 invariant mass",100,0.05,0.2);
 	TH1F *h_mpi0_corr1= new TH1F("h_mpi0_corr1","pi0 invariant mass (corrected) (hist)",100,0.05,0.2);
@@ -41,8 +41,8 @@ int emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, In
 	TH1F *h_mpi0_corr_old= new TH1F("h_mpi0_corr_old","pi0 invariant mass (corrected) (old)",100,0.05,0.2);
 
 	TFile *f=new TFile(InputFile);
-	TTree *t=(TTree *) f->Get("cbmsim") ;
-	
+	TTree *t=(TTree *) f->Get("pndsim") ;
+
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	t->SetBranchAddress("MCTrack",&mctrack_array);
 
@@ -53,13 +53,13 @@ int emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, In
 	TVector3 mc_momentum;
 	Double_t thetaMC, phiMC, energyMC;
 	Double_t max_energy;
-	
+
 	// Here the cluster calibrator is set
 	// first parameter is method (1-histogram, 2-parametrization)
 	// second parameter is version (defined by geometry)
 	PndEmcAbsClusterCalibrator * calibrator1= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(1, version);
 	PndEmcAbsClusterCalibrator * calibrator2= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2, version);
-	
+
 	if ((test==1)||(test==2))
 	{
 		for (Int_t j=0; j<t->GetEntriesFast(); j++)
@@ -84,7 +84,7 @@ int emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, In
 					Double_t energy_corr2 = calibrator2->Energy(cluster);
 					Double_t energy_corr_old = cluster->GetEnergyCorrected();
 				}
-				
+
 				Double_t e_ratio=max_energy/energyMC;
 				Double_t e_ratio_corr1=energy_corr1/energyMC;
 				Double_t e_ratio_corr2=energy_corr2/energyMC;
@@ -102,7 +102,7 @@ int emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, In
 					h_energy_corr2->Fill(energy_corr2);
 					h_energy_corr_old->Fill(energy_corr_old);
 				}
-				
+
 				hEnergyRatioEnergy->Fill( energyMC, e_ratio);
 				hEnergyRatioTheta->Fill( thetaMC, e_ratio);
 				hEnergyRatioCorrEnergy1->Fill(energyMC, e_ratio_corr1);
@@ -114,7 +114,7 @@ int emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, In
 			}
 		}
 	}
-	
+
 	if (test==3)
 	{
 		double threshold=0.02;
@@ -138,7 +138,7 @@ int emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, In
 				energy1_corr2 = calibrator2->Energy(cluster1);
 				v1_corr2 = calibrator2->Where(cluster1);
 				energy1_corr_old = cluster1->GetEnergyCorrected();
-				
+
 				for (Int_t k=i; k<cluster_array->GetEntriesFast(); k++)
 				{
 					PndEmcCluster *cluster2=(PndEmcCluster*)cluster_array->At(k);
@@ -164,9 +164,9 @@ int emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, In
 				}
 			}
 		}
-	}	
-		
-	
+	}
+
+
 if (test==1)
 {
 	TCanvas* c1 = new TCanvas("c1", "Energy reconstruction vs Energy", 100, 100, 800, 800);
@@ -177,14 +177,14 @@ if (test==1)
 	l->SetLineColor(2);
 	l->SetLineWidth(2);
 	l->Draw();
-	
+
 	c1->cd(2);
 	hEnergyRatioCorrEnergy1->Draw("contz");
 	TLine *l=new TLine(0.,1.,10.,1.0);
 	l->SetLineColor(2);
 	l->SetLineWidth(2);
 	l->Draw();
-	
+
 	c1->cd(3);
 	hEnergyRatioCorrEnergy2->Draw("contz");
 	TLine *l=new TLine(0.,1.,10.,1.0);
@@ -198,7 +198,7 @@ if (test==1)
 // 	l->SetLineColor(2);
 // 	l->SetLineWidth(2);
 // 	l->Draw();
-	
+
 	TCanvas* c2 = new TCanvas("c2", "Energy reconstruction vs Theta", 100, 100, 800, 800);
 	c2->Divide(2,2);
 	c2->cd(1);
@@ -239,7 +239,7 @@ if (test==2)
 	h_energy_corr2->Draw();
 // 	c3->cd(4);
 // 	h_energy_corr_old->Draw();
-	
+
 	TCanvas* c4 = new TCanvas("c4", "Energy (shashlyk)", 100, 100, 800, 800);
 	c4->Divide(2,2);
 	c4->cd(1);
@@ -254,7 +254,7 @@ if (test==2)
 if (test==3)
 {
 	gStyle->SetOptFit(kTRUE);
-	
+
 	double pars[5]={800,0.13,0.01,100,-500};
 	TF1 *f1 = new TF1("f1","gaus(0)+pol1(3)",0.08,0.18);
 	TF1 *f2 = new TF1("f2","gaus(0)+pol1(3)",0.08,0.18);
@@ -264,7 +264,7 @@ if (test==3)
 	f2->SetParameters(pars);
 	f3->SetParameters(pars);
 	f4->SetParameters(pars);
-	
+
 	TCanvas* c5 = new TCanvas("c5", "pi0 mass", 100, 100, 800, 800);
 	c5->Divide(2,2);
 	c5->cd(1);

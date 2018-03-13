@@ -129,7 +129,7 @@
 using namespace std;
 int main(int __argc,char *__argv[]) {
   //gROOT->Macro("/PANDA/pandaroot/macro/lmd/Style_Imported_Style.C");
-  // gROOT->SetStyle("Imported_Style"); 
+  // gROOT->SetStyle("Imported_Style");
 
   //TODO: read this like params!
   //  const int nEvents=500000;
@@ -145,7 +145,7 @@ int main(int __argc,char *__argv[]) {
   // decode arguments
   if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
 		    || strcmp( __argv[1], "--help" ) == 0 ) ){
-    
+
     std::cout << "This is script for comparision reconstructed and simulated tracks with parameters\n"
 	      <<"-s start event \n"
 	      <<"-n Number of events \n"
@@ -158,7 +158,7 @@ int main(int __argc,char *__argv[]) {
 	      <<"Have fun! \n"
 	      << std::endl;
     return 0;
-  } 
+  }
   while ((optind < (__argc-1) ) && (__argv[optind][0]=='-')) {
     bool found=false;
     std::string sw = __argv[optind];
@@ -207,8 +207,8 @@ int main(int __argc,char *__argv[]) {
 	       << __argv[optind] <<std::endl;
       optind++;
     }
-  
-  while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
+
+  while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++;
   }
 
   std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr), mcTrkSStr(mcTrkStr),useNewDSStr(useNewDStr), usedMHSStr(usedMHStr);
@@ -235,49 +235,49 @@ int main(int __argc,char *__argv[]) {
   gSystem->Load("libLmdTrk");
   // gROOT->LoadMacro("line3Dfit.C");
   // ------------------------------------------------------------------------
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-  
+
   // ---- Input files --------------------------------------------------------
   TString simMC=storePath+"/Lumi_MC_";
   simMC += startEvent;
   simMC += ".root";
-  TChain tMC("cbmsim");
+  TChain tMC("pndsim");
   tMC.Add(simMC);
-  
+
   TString DigiFile = storePath+"/Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
-  TChain tdigiHits("cbmsim");
+  TChain tdigiHits("pndsim");
   tdigiHits.Add(DigiFile);
-  
+
   TString recHit=storePath+"/Lumi_reco";
   // if(dnu>0) recHit+="Merged";
   recHit +="_";
   recHit += startEvent;
   recHit += ".root";
-  TChain tHits("cbmsim");
+  TChain tHits("pndsim");
   tHits.Add(recHit);
-  
+
   TString recHitmerged=storePath+"/Lumi_recoMerged_";
   recHitmerged += startEvent;
   recHitmerged += ".root";
-  TChain tHitsMerged("cbmsim");
+  TChain tHitsMerged("pndsim");
   if(mh)
     tHitsMerged.Add(recHitmerged);
 
-  
+
   TString trkCand = storePath+"/Lumi_TCand_";
   trkCand += startEvent;
   trkCand += ".root";
-  TChain tTrkCand("cbmsim");
+  TChain tTrkCand("pndsim");
   tTrkCand.Add(trkCand);
 
   TString recTrack;
-  TChain tTrkRec("cbmsim");
+  TChain tTrkRec("pndsim");
   recTrack = storePath+"/Lumi_Track_";
   recTrack += startEvent;
   recTrack += ".root";
@@ -288,31 +288,31 @@ int main(int __argc,char *__argv[]) {
   //   recTrack += ".root";
   //   tTrkRec.Add(recTrack);
   // }
-  
+
   TString geaneFile = storePath+"/Lumi_Geane_";
   geaneFile += startEvent;
   geaneFile += ".root";
-  TChain tgeane("cbmsim");
+  TChain tgeane("pndsim");
   tgeane.Add(geaneFile);
-  
+
   // ---------------------------------------------------------------------------------
-  
+
   // ---- Output file ----------------------------------------------------------------
   TString out=storePath+"/Lumi_out_MC_and_REC_trks_matches_with_IDs";
   out += startEvent;
   out += ".root";
   TFile *f = new TFile(out,"RECREATE");
   // ---------------------------------------------------------------------------------
-  
+
   //--- MC info -----------------------------------------------------------------
   TClonesArray* true_tracks=new TClonesArray("PndMCTrack");
   tMC.SetBranchAddress("MCTrack",&true_tracks);  //True Track to compare
-  
+
   TClonesArray* true_points=new TClonesArray("PndSdsMCPoint");
   tMC.SetBranchAddress("LMDPoint",&true_points);  //True Points to compare
   //----------------------------------------------------------------------------------
-  
-  
+
+
   //--- Digitization info ------------------------------------------------------------
   TClonesArray* fStripClusterArray;
   if(dnu>0){
@@ -321,10 +321,10 @@ int main(int __argc,char *__argv[]) {
   }
   else{
     fStripClusterArray = new TClonesArray("PndSdsClusterStrip");
-    tHits.SetBranchAddress("LMDStripClusterCand",&fStripClusterArray); 
+    tHits.SetBranchAddress("LMDStripClusterCand",&fStripClusterArray);
   }
 
-  
+
   TClonesArray* fStripDigiArray;
   if(dnu>0){
     fStripDigiArray = new TClonesArray("PndSdsDigiPixel");
@@ -332,14 +332,14 @@ int main(int __argc,char *__argv[]) {
   }
   else{
     fStripDigiArray = new TClonesArray("PndSdsDigiStrip");
-    tdigiHits.SetBranchAddress("LMDStripDigis",&fStripDigiArray); 
+    tdigiHits.SetBranchAddress("LMDStripDigis",&fStripDigiArray);
   }
   //----------------------------------------------------------------------------------
-  
+
   //--- Real Hits --------------------------------------------------------------------
   TClonesArray* rechit_array;
   if(dnu>0){
-    if(mh>0){  
+    if(mh>0){
       rechit_array = new TClonesArray("PndSdsMergedHit");
       tHitsMerged.SetBranchAddress("LMDHitsMerged",&rechit_array);  //Points for Tracks
     }
@@ -353,13 +353,13 @@ int main(int __argc,char *__argv[]) {
     tHits.SetBranchAddress("LMDHitsStrip",&rechit_array);  //Points for Tracks
   }
   //----------------------------------------------------------------------------------
-  
-  
+
+
   //--- Track Candidate ---------------------------------------------------------------
   TClonesArray* trkcand_array=new TClonesArray("PndTrackCand");
-  tTrkCand.SetBranchAddress("LMDTrackCand",&trkcand_array); //Points for Track Canidates 
+  tTrkCand.SetBranchAddress("LMDTrackCand",&trkcand_array); //Points for Track Canidates
   //-----------------------------------------------------------------------------------
-  
+
   //--- Real tracks -------------------------------------------------------------------
   TClonesArray* rec_trk=new TClonesArray("PndLinTrack");
   tTrkRec.SetBranchAddress("LMDTrack",&rec_trk);  //Tracks
@@ -375,12 +375,12 @@ int main(int __argc,char *__argv[]) {
 
   cout<<"Here we go to GEANE file: "<<endl;
   //----------------------------------------------------------------------------------
-  
+
   //--- Geane info ------------------------------------------------------------------
   // TClonesArray* geaneArray =new TClonesArray("FairTrackParP");
   TClonesArray* geaneArray =new TClonesArray("FairTrackParH");
   tgeane.SetBranchAddress("GeaneTrackFinal",&geaneArray);  //Tracks with parabolic parametrisation
-  
+
   cout<<"And we'll make some hists"<<endl;
   //--- Output histogram -----------------------------------------------------
   TH1 *hchi2 = new TH1F("hchi2","#chi^2 for reconstructed tracks;#chi^2;",1.5e2,0,15.);
@@ -402,7 +402,7 @@ int main(int __argc,char *__argv[]) {
   TH2 *hntrkcandvsMC = new TH2F("hntrkcandvsMC","Number of per event vs. Number of simulated tracks; N_{MC};N_{trk-cand}",100,0,100,100,0,100);
 
   TH2 *hnhitsvsIDs = new TH2F("hnhitsvsIDs","Number of hits per track-candidate vs Number of track-candidates with hits from diff. MC-track;N_{IDs};Number of hits",10,0,10,10,2,12);
- 
+
   TH1 * hallTheta = new TH1F("hallTheta","#theta for all MC-track;#theta, rad",50,2e-3,10e-3);
   TH1 * hgoodTheta = new TH1F("hgoodTheta","#theta for good track-candidates",50,2e-3,10e-3);
   TH1 * hallPhi = new TH1F("hallPhi","#phi for all MC-track;#phi, rad",50,-355./113,355./113);
@@ -412,7 +412,7 @@ int main(int __argc,char *__argv[]) {
 
   TH2 * hgoodPhichi2 = new TH2F("hgoodPhichi2","#phi for good track-candidates vs. #chi^{2} ",5e2,0,50,20,-355./113,355./113);
   TH2 * hgoodThetachi2 = new TH2F("hgoodThetachi2","#theta for good track-candidates vs. #chi^{2} ",5e2,0,50,20,3.5e-3,8.5e-3);
-  
+
   //  TH1 *hMomMC = new TH1F("hMomMC","P_{MC};P,GeV/c",1e3,0,16.);
   TNtuple *nmomMC = new TNtuple("nmomMC","MCmomentum","p0:p_nearLUMI:p_afterLUMI");
   TNtuple *ntuprecTrk = new TNtuple("ntuprecTrk","Info about reconstructed trks: goodTrk [0=good,+1=ghost]","x:y:z:mom:theta:phi:goodTrk");
@@ -477,26 +477,26 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   TH1 *hResPointPx = new TH1F("hResPointPx","Px_{MC}-Px_{rec};#deltaPx, GeV/c",1e2,-0.01,0.01);
   TH1 *hErrPointPx = new TH1F("hErrPointPx","#sigma_{Px};#sigmaPx, GeV/c",1e3,0,0.01);
   TH1 *hPullPointPx = new TH1F("hPullPointPx","(Px_{MC}-Px_{rec})/#sigma_{Px};(Px_{MC}-Px_{rec})/#sigma_{Px}",1e2,-10,10);
-  
+
   TH1 *hResPointPy = new TH1F("hResPointPy","Py_{MC}-Py_{rec};#deltaPy, GeV/c",1e2,-0.01,0.01);
   TH1 *hErrPointPy = new TH1F("hErrPointPy","#sigma_{Py};#sigmaPy, GeV/c",1e3,0,0.01);
   TH1 *hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{rec})/#sigma_{Py};(Py_{MC}-Py_{rec})/#sigma_{Py}",1e2,-10,10);
-  
+
   TH1 *hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{rec};#deltaPz, GeV/c",1e2,-1e-3,1e-3);
   TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-1);
   TH1 *hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{rec})/#sigma_{Pz};(Pz_{MC}-Pz_{rec})/#sigma_{Pz}",1e2,-10,10);
-  
+
   TH1 *hResDCA = new TH1F("hDCA","|DCA|;|DCA|,cm",1e3,0,10.);
   TH1 *hErrDCA = new TH1F("hErrDCA","#sigma_{DCA};#sigmaDCA,cm",1e3,0,1.);
   TH1 *hPullDCA = new TH1F("hPullDCA","|DCA|/#sigma_{DCA};",1e2,0,10);
-  
+
   TH2 *hPointXY = new TH2F("hPointXY","PCA;X,cm;Y,cm",1e3,-10,10.,1e3,-10,10.);
   TH2 *hPointXYcut = new TH2F("hPointXYcut","PCA;#X,cm;#Y,cm",1e3,-1.,1.,1e3,-1.,1.);
   TH2 *hErrPointXY = new TH2F("hErrPointXY","#sigma_{PCA};#sigmaX,cm;#sigmaY,cm",1e3,0,30.,1e3,0,30.);
-  
+
   TH2 *hHitIDHitX = new TH2F("hHitIDHitX",";MC_{ID} ;hit_{X}, cm;",6,-1,5,1e3,24.,45.);
   TH2 *hHitIDHitY = new TH2F("hHitIDHitY",";MC_{ID} ;hit_{Y}, cm;",6,-1,5,1e3,-10.,10.);
-  
+
   TH2 *hRecGEANEX = new TH2F("hRecGEANEX",";X_{rec}, cm;X_{GEANE}, cm",1e3,-15.,15.,1e3,-100,100.);
   TH2 *hRecGEANEY = new TH2F("hRecGEANEY",";Y_{rec}, cm;Y_{GEANE}, cm",1e3,-15.,15.,1e3,-100,100.);
   TH2 *hRecGEANEZ = new TH2F("hRecGEANEZ",";Z_{rec}, cm;Z_{GEANE}, cm",1e3,-15.,15.,1e3,-1.,1.);
@@ -504,7 +504,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   TH2 *hRecGEANETheta = new TH2F("hRecGEANETheta",";#theta_{rec}, rad;#theta_{GEANE}, rad",1e3,0,1,1e3,0,1);
   TH2 *hRecGEANEPhi = new TH2F("hRecGEANEPhi",";#phi_{rec}, rad;#phi_{GEANE}, rad",1e3,-7,7,1e3,-7,7);
   TH2 *hRecThetaPhi = new TH2F("hRecThetaPhi",";#theta_{rec}, rad;#phi_{rec}, rad",1e3,0,1.,1e3,-7,7);
-  
+
   TH2 *hSeedGEANEX = new TH2F("hSeedGEANEX",";X_{cand}, cm;X_{GEANE}, cm",1e3,-100.,100.,1e3,-100.,100.);
   TH2 *hSeedGEANEY = new TH2F("hSeedGEANEY",";Y_{cand}, cm;Y_{GEANE}, cm",1e3,-100.,100.,1e3,-100.,100.);
   TH2 *hSeedGEANEZ = new TH2F("hSeedGEANEZ",";Z_{cand}, cm;Z_{GEANE}, cm",1e3,-0.015,0.015,1e3,-0.05,0.05);
@@ -512,16 +512,16 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   TH2 *hSeedGEANETheta = new TH2F("hSeedGEANETheta",";#theta_{cand}, rad;#theta_{GEANE}, rad",1e3,0,0.1,1e3,0,0.1);
   TH2 *hSeedGEANEPhi = new TH2F("hSeedGEANEPhi",";#phi_{cand}, rad;#phi_{GEANE}, rad",1e3,-7,7,1e3,-7,7);
   TH2 *hSeedThetaPhi = new TH2F("hSeedThetaPhi",";#theta_{cand}, rad;#phi_{cand}, rad",1e3,0,1.,1e3,-1.,1.);
-  
+
   TH2 *hSeedThetaDiffIDs = new TH2F("hSeedThetaDiffIDs",";# IDs;#theta_{cand}, rad",7,0,7,1e3,0,0.1);
   TH2 *hSeedPhiDiffIDs = new TH2F("hSeedPhiDiffIDs",";# IDs;#phi_{cand}, rad",7,0,7,1e3,-4.,4.);
   TH2 *hDiffIDsPointX = new TH2F("hDiffIDsPointX",";# IDs;X,cm",7,0,7,1e3,-10,10.);
   TH2 *hDiffIDsPointY = new TH2F("hDiffIDsPointY",";# IDs;Y,cm",7,0,7,1e3,-10,10.);
   TH2 *hDiffIDsPointZ = new TH2F("hDiffIDsPointZ",";# IDs;Z,cm",7,0,7,1e3,-1.,1.);
-  
+
   TH2 *hMCThetaGEANETheta = new TH2F("hMCThetaGEANETheta",";#theta_{MC}, rad;#theta_{GEANE}, rad",1e3,0,0.012,1e3,0,0.012);
   TH2 *hMCPhiGEANEPhi = new TH2F("hMCPhiGEANEPhi",";#phi_{MC}, rad;#phi_{GEANE}, rad",1e3,-3.15,3.15,1e3,-3.15,3.15);
-  
+
   TH2 *hMCThetaResTheta = new TH2F("hMCThetaResTheta",";#theta_{MC}, rad;#Delta#theta, rad",1e2,0,0.012,1e3,-1e-2,1e-2);
   TH2 *hMCPhiResPhi = new TH2F("hMCPhiResPhi",";#phi_{MC}, rad;#Delta#phi, rad",1e2,-3.15,3.15,1e2,-5e-1,5e-1);
   TH2 *hMCThetaResSeedTheta = new TH2F("hMCThetaResSeedTheta",";#theta_{MC}, rad;#Delta#theta, rad",1e2,0.,0.1,1e3,-1e-2,1e-2);
@@ -537,7 +537,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   TH1 *hLumiTrkD = new TH1F("hLumiTrkD","param d [y=c*z+d];",1e3,-10.,10.);
 
   //-----------------------------------------------------------------------------
-  
+
   TH2 *hchi2Errx = new TH2F("hchi2Errx","#sigma_{X} vs. #chi^2 for reconstructed tracks;#chi^2;#sigma_{X}, cm",
 			    1e3,0,100,2e1,0,0.2);
   TH2 *hchi2Erry = new TH2F("hchi2Erry","#sigma_{Y} vs. #chi^2 for reconstructed tracks;#chi^2;#sigma_{X}, cm",
@@ -558,7 +558,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   for (Int_t j=0; j<nEvents; j++){
     //  cout<<"Event #"<<j<<endl;
     // Read GEANE & MC info -----------------------------------------------------------------
-    //    if(kf<1) 
+    //    if(kf<1)
     tTrkRec.GetEntry(j);
     tgeane.GetEntry(j);
     tMC.GetEntry(j);
@@ -572,10 +572,10 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
     const int numTrk = nGeaneTrks;
     const int nRecHits = rechit_array->GetEntriesFast();
     const int nMCHits = true_points->GetEntriesFast();
-    
+
     const int nTrkCandidates = trkcand_array->GetEntriesFast();
     const int nRecTrks = rec_trk->GetEntriesFast();
-    if(verboseLevel>0)  
+    if(verboseLevel>0)
       cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
     hnRecnMC->Fill(nParticles,nGeaneTrks);
@@ -586,13 +586,13 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
     // if(nRecHits<3*nMCtracks) continue;
     double chi2Cont[5*numTrk];
     double ndiffIDCont[5*numTrk];
-   
+
     hMCtrkvshits->Fill(nRecHits,nParticles);
     if(nTrkCandidates>numTrk) cout<<"Event #"<<j<<" has "<<nTrkCandidates<<" trk-cands and "<<numTrk<<" tracks!"<<endl;
-   
+
     hntrkcand->Fill(nTrkCandidates);
     hntrkcandvsMC->Fill(nParticles,nTrkCandidates);
-    
+
     /// Set MC ID for each track ----------------------------------------------------
     Int_t nRecGEANEtrk = 0;
     int MCtrk[nParticles]; //Number of participation this MCid in rec.tracks
@@ -610,7 +610,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
     int goodRectrk=0;//for missed trk-search
     for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
 
-    
+
       vector<int> MCtrkID; //arrray of hits MCid
       Int_t diffIDs=1;
       FairTrackParH *fRes = (FairTrackParH*)geaneArray->At(iN);
@@ -624,7 +624,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
       // }
       if(fabs(PosRec.X())>pca_lim && fabs(PosRec.Y())>pca_lim) continue; // PCA_x and PCA_y should be < 10sigmaX
 
-     
+
       ///get rid from most probably ghost track (END) ---
       Double_t lyambda = fRes->GetLambda();
       if(lyambda==0){
@@ -643,21 +643,21 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
       Int_t trkSensor;
 	trk = (PndLinTrack*)rec_trk->At(iN);
 	trk->GetPar(linpar);
-	hLumiTrkA->Fill(linpar[1]); 
-	hLumiTrkB->Fill(linpar[0]); 
-	hLumiTrkC->Fill(linpar[3]); 
-	hLumiTrkD->Fill(linpar[2]); 
+	hLumiTrkA->Fill(linpar[1]);
+	hLumiTrkB->Fill(linpar[0]);
+	hLumiTrkC->Fill(linpar[3]);
+	hLumiTrkD->Fill(linpar[2]);
 	trk->GetParErr(errparlin);
 	candID = trk->GetTCandID();
 	trkcand = (PndTrackCand*)trkcand_array->At(candID);
 	chi2 = trk->GetChiSquare();
 	chi2Cont[iN] = chi2;
 	hchi2nTrkCand->Fill(nTrkCandidates,chi2);
-      
+
 	// PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(iN); //TODO: find out how to check trk-cand in case then cut are applied to trk-fit results
 	const int Ntrkcandhits= trkcand->GetNHits();
 	PndSdsMCPoint* MCPointHit;
-	
+
 	//Matching between MC & Rec on hits level-----------------------------------
 	if(verboseLevel>1) cout<<"MCidTOP:"<<endl;
 	double momMC0,momMC1,momMC2;
@@ -734,9 +734,9 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
       // TNtuple *nmomMC = new TNtuple("nmomMC","MCmomentum","p0:p_nearLUMI:p_afterLUMI");
       nmomMC->Fill(momMC0,momMC1,momMC2);
       if(verboseLevel>1) cout<<""<<endl;
-      //   Sorting MC IDs ---------------------------------------- 
+      //   Sorting MC IDs ----------------------------------------
       Int_t k, x;
-      bool ch=false; //Was element changed? 
+      bool ch=false; //Was element changed?
       Int_t nch = 0; //How many times?
       for(Int_t n=0; n<MCtrkID.size(); n++) { // n - current position
 	k=n; x=MCtrkID[n];
@@ -748,15 +748,15 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	MCtrkID[k] = MCtrkID[n]; MCtrkID[n] = x; // change position between the least and current elements
       }
       ///--------------------------------------------------------------------------
-      
-      /// Counting number of diff MC ids ----------------------------------------      
+
+      /// Counting number of diff MC ids ----------------------------------------
       Int_t prevID = MCtrkID[0];
       for(int nk=0;nk<nParticles;nk++){
 	if(MCtrkID[0]==nk)
 	  MCtrk[nk]=MCtrk[nk]+1;
       }
       diffIDs = 1;
-      for(Int_t n=1; n<MCtrkID.size(); n++){ 
+      for(Int_t n=1; n<MCtrkID.size(); n++){
 	if(prevID<MCtrkID[n]){
 	  diffIDs++;
 	  prevID=MCtrkID[n];
@@ -766,7 +766,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	  }
 	}
       }
-    
+
       ndiffIDCont[iN]=diffIDs;
       hDiffIDs->Fill(diffIDs);
       hntrkcandvsIDs->Fill(diffIDs,nTrkCandidates);
@@ -800,8 +800,8 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	  else{
 	    if(!goodTrk[iN]) ghostTrk[iN] = true;
 	  }
-	  
-	  if(countMC_IDs[kn]>maxID){ 
+
+	  if(countMC_IDs[kn]>maxID){
 	    maxID=countMC_IDs[kn];
 	    posIDmax = kn;
 	  }
@@ -817,12 +817,12 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	}
       }
       ///------------------------------------------------------------------------
-      
+
       /// Comporision MC, trk-candidates and REConstructed tracks --------------------------------------------
       TVector3 posSeed = trkcand->getPosSeed();
       TVector3 dirSeed = trkcand->getDirSeed();
       hSeedThetaDiffIDs->Fill(diffIDs,dirSeed.Theta());
-      hSeedPhiDiffIDs->Fill(diffIDs,dirSeed.Phi()); 
+      hSeedPhiDiffIDs->Fill(diffIDs,dirSeed.Phi());
       if(diffIDs>-1){ // All tracks
 	/// Try to find connection between position of -----------
 	/// reconstructed track and track after GEANE propagation
@@ -840,7 +840,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	  hRecGEANETheta->Fill(dir_rec_trk.Theta(), theta_prop_geane_trk);
 	  hRecGEANEPhi->Fill(dir_rec_trk.Phi(), phi_prop_geane_trk);
 	  hRecThetaPhi->Fill(dir_rec_trk.Theta(),dir_rec_trk.Phi());
-	  
+
 	  hSeedGEANEX->Fill(posSeed.X(),pos_prop_geane_trk.X());
 	  hSeedGEANEY->Fill(posSeed.Y(),pos_prop_geane_trk.Y());
 	  hSeedGEANEZ->Fill(posSeed.Z(),pos_prop_geane_trk.Z());
@@ -850,7 +850,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	  hSeedThetaPhi->Fill(dirSeed.Theta(),dir_rec_trk.Phi());
 
 	///-------------------------------------------------------
-	
+
 	/// CUT: Check position and coordinates errors of PCA ---------------------------------------
 
 	hDiffIDsPointX->Fill(diffIDs,PosRec.X());
@@ -858,18 +858,18 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	hDiffIDsPointZ->Fill(diffIDs,PosRec.Z());
 	Double_t CovGEANELAB[6][6];
 	fRes->GetMARSCov(CovGEANELAB);
-	
+
 	Double_t errX = fRes->GetDX();
 	Double_t errY = fRes->GetDY();
 	Double_t errZ = fRes->GetDZ();
-	
+
 	Double_t errXlin = errparlin[0];
 	Double_t errYlin = errparlin[1];
 	hchi2Errx->Fill(chi2,errX);
 	hchi2Erry->Fill(chi2,errY);
 	nRecGEANEtrk++;
 	///-----------------------------------------------------------------------------------
-	
+
 	/// Read MC track parameters ----------------------------------------------------------
 	int MCidforREC = RECtrkMCid[iN];
 	PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(MCidforREC);
@@ -878,7 +878,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	Double_t thetaMC = MomMC.Theta();
 	Double_t phiMC = MomMC.Phi();
 	///------------------------------------------------------------------------------------
-	
+
 	/// Read track-parameters after back-propagation ---------------------------------------
 	//TODO: problem with covarance matrix in FairTrackParH???
 
@@ -909,7 +909,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	hgoodPhiTheta->Fill(thetaMC,phiMC);
 	hgoodThetachi2->Fill(chi2,thetaMC);
 	hgoodPhichi2->Fill(chi2,phiMC);
-	
+
 	hMCThetaGEANETheta->Fill(thetaMC,thetaBP);
 	hMCPhiGEANEPhi->Fill(phiMC,phiBP);
 	hMCThetaResTheta->Fill(thetaMC,thetaMC-thetaBP);
@@ -959,7 +959,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	hErrPhi->Fill(err_phi);
 	hPullPhi->Fill(resPhi/err_phi);
 	hResZResPhi->Fill(resPhi,PosRec.Z());
-	
+
 	Double_t angMCRec = MomMC.Angle(MomRecBP); // Angle between two vectors
 	hangMCRec->Fill(angMCRec);
 	hchi2->Fill(chi2);
@@ -979,7 +979,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	      double diffPhi2=fabs(phiMC1-phiBP)/err_phi;
 	      if(diffPhi2<diffPhi) diffPhi = diffPhi2;
 	    }
-	
+
 	    hntrkmissedPhiTheta->Fill(diffTheta,diffPhi);
 	    if(diffTheta<4. && diffPhi<4.) goodRectrk++;
 	  }
@@ -992,8 +992,8 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 			 dir_rec_trk.X(),dir_rec_trk.Y(),dir_rec_trk.Z(),
 			 dirSeed.X(),dirSeed.Y(),dirSeed.Z());
 	///==================================
-	
-	
+
+
 	///Compare lin trk and MC trk in LUMI frame========================
 	// cout<<" "<<endl;
 	// cout<<"=============================="<<endl;
@@ -1007,32 +1007,32 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	//   dirLumi = lmddim->Transform_lmd_local_to_global(dirLumi, true, false);
 	//   vtxLumiErr = lmddim->Transform_lmd_local_to_global(vtxLumiErr, true, false);
 	//   dirLumiErr = lmddim->Transform_lmd_local_to_global(dirLumiErr, true, false);
-	// } 
+	// }
 	// else{
 	//   combitransFromLumiFrame(vtxLumi,dnu);
 	//   rotateFromLumiFrame(dirLumi, false, dnu);
 	//   rotateFromLumiFrame(dirLumiErr, true, dnu);
-	//   rotateFromLumiFrame(vtxLumiErr, true, dnu);	
+	//   rotateFromLumiFrame(vtxLumiErr, true, dnu);
 	// }
 	double xTrue = MCPointHit->GetX();
 	double yTrue = MCPointHit->GetY();
 	double zTrue = MCPointHit->GetZ();
 	TVector3 vtxLumiMC = TVector3(xTrue,yTrue,zTrue);
-	
-	
+
+
 	double pxTrue =  MCPointHit->GetPx();
 	double pyTrue =  MCPointHit->GetPy();
 	double pzTrue =  MCPointHit->GetPz();
 	TVector3 dirLumiMC = TVector3(pxTrue,pyTrue,pzTrue);
 	//	hMomMC->Fill(dirLumiMC.Mag());
 	dirLumiMC *=1./dirLumiMC.Mag();
-	
+
 	double dz = -zTrue+vtxLumi.Z();//Correct definition Z coord for comparision
 	//	double dz = 0;//TEST
 	double dx = dirLumiMC.X()*dz;
 	double dy = dirLumiMC.Y()*dz;
 	vtxLumiMC += TVector3(dx,dy,dz);
-	
+
 	hResLumiTrkMom->Fill(dirLumiMC.Mag()-dirLumi.Mag());
 	hResLumiTrkTheta->Fill(dirLumiMC.Theta()-dirLumi.Theta());
 	hResLumiTrkPhi->Fill(dirLumiMC.Phi()-dirLumi.Phi());
@@ -1043,19 +1043,19 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
 	hResLumiTrkPointX->Fill(vtxLumiMC.X()-vtxLumi.X());
 	hResLumiTrkPointY->Fill(vtxLumiMC.Y()-vtxLumi.Y());
 	hResLumiTrkPointZ->Fill(vtxLumiMC.Z()-vtxLumi.Z());
-	
+
 	hResLumiTrkPointPx->Fill(dirLumiMC.X()-dirLumi.X());
 	hResLumiTrkPointPy->Fill(dirLumiMC.Y()-dirLumi.Y());
 	hResLumiTrkPointPz->Fill(dirLumiMC.Z()-dirLumi.Z());
-	
+
 	hResLumiTrkPointXPull->Fill((vtxLumiMC.X()-vtxLumi.X())/vtxLumiErr.X());
 	hResLumiTrkPointYPull->Fill((vtxLumiMC.Y()-vtxLumi.Y())/vtxLumiErr.Y());
 	hResLumiTrkPointZPull->Fill((vtxLumiMC.Z()-vtxLumi.Z())/vtxLumiErr.Z());
-	
+
 	hResLumiTrkPointPxPull->Fill((dirLumiMC.X()-dirLumi.X())/dirLumiErr.X());
 	hResLumiTrkPointPyPull->Fill((dirLumiMC.Y()-dirLumi.Y())/dirLumiErr.Y());
 	hResLumiTrkPointPzPull->Fill((dirLumiMC.Z()-dirLumi.Z())/dirLumiErr.Z());
-	
+
 	hMCThetaResSeedTheta->Fill(dirLumiMC.Theta(),(dirLumiMC.Theta()-dirLumi.Theta()));
 	hMCPhiResSeedPhi->Fill(dirLumiMC.Phi(),(dirLumiMC.Phi()-dirLumi.Phi()));
 	///================================================================
@@ -1100,17 +1100,17 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
     }
     hntrkgood_II->Fill(goodRecII);
     if(ghostRecII>0) hntrkghost_II->Fill(ghostRecII);
-    if((nMCtracks-goodRecII)>0){ 
+    if((nMCtracks-goodRecII)>0){
       hntrkmissed_II->Fill(nMCtracks-goodRecII);
     }
-    
+
     for(int imc=0;imc<nParticles;imc++){//MC trks
       bool missTrk=true;
       for(int irec=0;irec<nGeaneTrks;irec++){//RECids assigment
 	int mc_comp = RECtrkMCid[irec];
 	if(mc_comp==imc) missTrk=false;
       }
-      
+
       PndMCTrack *mctrk =(PndMCTrack*) true_tracks->At(imc);
       TVector3 MomMC = mctrk->GetMomentum();
       TVector3 PosMC = mctrk->GetStartVertex();
@@ -1128,7 +1128,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
     }
     //  cout<<"number of good: "<<goodRecII<<" number of missed: "<<nMCtracks-goodRecII<<" number of ghost: "<<ghostRecII<<endl;
     ///-------------------------------------------------------------------------------------
-  
+
     //    cout<<"nGeaneTrks = "<<nGeaneTrks<<" nRecGEANEtrk = "<<nRecGEANEtrk<<endl;
     hntrk->Fill(nRecGEANEtrk);
     ///-------------------------------------------------------------------------------------------
@@ -1146,7 +1146,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
       }
     }
   }
-  
+
   // TCanvas *c1 = new TCanvas("IDsINFO");
   // c1->Divide(2,2);
   // c1->cd(1);
@@ -1179,7 +1179,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   //hchi2->Draw();
   c1->Write();
   c1->Close();
-  
+
   TH1F *heffTheta = (TH1F*)hgoodTheta->Clone("heffTheta");
   heffTheta->SetTitle("Efficiency vs. #theta");
   heffTheta->Divide(hallTheta);
@@ -1230,19 +1230,19 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   TF1 *funrp = new TF1("fitrp","gaus",-1e-5,1e-5);
   funrp->SetParameters(100,0,3e-3);
   funrp->SetParNames("Constant","Mean","Sigma");
-  
+
   TF1 *funrth = new TF1("fitrth","gaus",-0.01,0.01);
   funrth->SetParameters(100,0,3e-3);
   funrth->SetParNames("Constant","Mean","Sigma");
-  
+
   TF1 *funrphi = new TF1("fitrphi","gaus",-1,1);
   funrphi->SetParameters(100,0,3e-3);
   funrphi->SetParNames("Constant","Mean","Sigma");
-  
+
   TF1 *funp = new TF1("fitp","gaus",-20,20);
   funp->SetParameters(100,0,3e-3);
   funp->SetParNames("Constant","Mean","Sigma");
-  
+
   TCanvas *c3 = new TCanvas("ResMomINFO");
   c3->Divide(3,3);
   c3->cd(1);
@@ -1273,11 +1273,11 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   c3->Write();
   c3->Close();
 
-  
+
   TF1 *funcoord = new TF1("fitcoord","gaus",-1,1.);
   funcoord->SetParameters(1e4,0,1e-1);
   funcoord->SetParNames("Constant","Mean","Sigma");
-  
+
   // TF1 *funp = new TF1("fitp","gaus",-10,10);
   funp->SetParameters(100,0,1);
   funp->SetParNames("Constant","Mean","Sigma");
@@ -1361,7 +1361,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   // hHitIDHitY->Draw();
   // c5->Write();
   // c5->Close();
- 
+
   TCanvas *c6 = new TCanvas("VertexINFO");
   c6->Divide(2,2);
   c6->cd(1);
@@ -1372,7 +1372,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   hErrPointXY->Draw();
   c6->Write();
   c6->Close();
-  
+
   TCanvas *c7 = new TCanvas("GEANEvsRecINFO");
   c7->Divide(3,2);
   c7->cd(1);
@@ -1431,7 +1431,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   Double_t neff = hSeedGEANETheta->Integral(binx1, binx2);
   // cout<<"Number of track-candidate with #theta from [30-50] mrad = "<<neff<<endl;
   cout<<"Total number of track-candidate = "<<nall<<endl;
- 
+
   //----------------------------------------------------------------------
   c8->cd(5);
   hSeedGEANEPhi->Draw();
@@ -1486,7 +1486,7 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   hRecGEANEZ->Write();
   hchi2Errx->Write();
   hchi2Erry->Write();
-  
+
   TCanvas *c10 = new TCanvas("ThetaPhiDistr");
   c10->Divide(4,2);
   // c10->cd(1);
@@ -1667,11 +1667,11 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
   hMCPhiGEANEPhi->Write();
   hMCThetaResTheta->Write();
   hMCPhiResPhi->Write();
-  
+
   hDiffIDsPointX->Write();
   hDiffIDsPointY->Write();
   hDiffIDsPointZ->Write();
-  
+
   hResPointPx->Write();
   hErrPointPx->Write();
   hPullPointPx->Write();
@@ -1733,10 +1733,10 @@ TH2 *hPullPointYtheta = new TH2F("hPullPointYtheta","(Y_{MC}-Y_{rec})/#sigma_{Y}
  hLumiTrkD->Draw();
  c134->Write();
  c134->Close();
- hLumiTrkA->Write(); 
- hLumiTrkB->Write(); 
- hLumiTrkC->Write(); 
- hLumiTrkD->Write(); 
+ hLumiTrkA->Write();
+ hLumiTrkB->Write();
+ hLumiTrkC->Write();
+ hLumiTrkD->Write();
  hMCThetaResSeedTheta->Write();
  hMCPhiResSeedPhi->Write();
  hntrkmissedPhiTheta->Write();

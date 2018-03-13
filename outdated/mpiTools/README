@@ -2,12 +2,12 @@ mpiTools
 --------
 
 This repository contains tools which can be used in a batch system environment, on an SMP computer,
-or on any self-defined network of computers, and which eases the administration of running many 
-jobs in parallel. The code is based on MPI and exploits the boss/worker (also known as master/slave) 
-scheme. MPI allows to run the code on various batch systems, SMP computers with shared memory, 
-all with a high scalability. This toolbox is continuously under development, and during course of 
-time more tools might be added. Feel, however, free to modify the code according to your needs. 
-The code has been tested with Open-MPI, MPICH, and MPICH2. Since the code has been written completely 
+or on any self-defined network of computers, and which eases the administration of running many
+jobs in parallel. The code is based on MPI and exploits the boss/worker (also known as master/slave)
+scheme. MPI allows to run the code on various batch systems, SMP computers with shared memory,
+all with a high scalability. This toolbox is continuously under development, and during course of
+time more tools might be added. Feel, however, free to modify the code according to your needs.
+The code has been tested with Open-MPI, MPICH, and MPICH2. Since the code has been written completely
 according to the MPI standards, we expect that it will also run smoothly using other implementations of MPI.
 
 The documentation of these tools are also available on
@@ -17,7 +17,7 @@ http://panda-wiki.gsi.de/cgi-bin/viewauth/Computing/PandaRootTools
 Installation
 ------------
 
-Prior to the installation of the mpiTools, make sure that MPI is installed on your system. 
+Prior to the installation of the mpiTools, make sure that MPI is installed on your system.
 You can download the code from
 
 http://www.open-mpi.org/
@@ -29,10 +29,10 @@ http://www.mcs.anl.gov/research/projects/mpich2/
 
 for MPICH and MPICH2.
 
-For the installation of the mpiTools, one can make use of the Makefile in the root directory. 
+For the installation of the mpiTools, one can make use of the Makefile in the root directory.
 Please set the environment variable "MPI" to the path which contains the mpi compilers. For example,
 
-export MPI=/opt/mpi/mpich-gcc/   
+export MPI=/opt/mpi/mpich-gcc/
 make boss_worker_mpi
 
 It is advised to place the MPI variable in your profile, .bashrc, or .bash_login. Furthermore, we
@@ -42,8 +42,8 @@ in case it is not set by your system. For example:
 export PATH=$MPI/bin
 export LD_LIBRARY_PATH=$MPI/lib:$LD_LIBRARY_PATH
 
-A "make install_xxx" will try to copy the executables into the directory $INSTALLDIR/bin (xxx=bin), the scripts 
-in $INSTALLDIR/scripts (xxx=scripts), the example macros in $INSTALLDIR/macros (xxx=macros), and example 
+A "make install_xxx" will try to copy the executables into the directory $INSTALLDIR/bin (xxx=bin), the scripts
+in $INSTALLDIR/scripts (xxx=scripts), the example macros in $INSTALLDIR/macros (xxx=macros), and example
 job-related files in $INSTALLDIR/jobs. The variable $INSTALLDIR can be set in the Makefile. A "make" without
 arguments will compile and link all programs and installs the binaries in $INSTALLDIR/bin.
 
@@ -62,21 +62,21 @@ boss_worker_mpi
 ----------------- read	--------   <===============	----------  =======> 	---------- thread  -------------
 | JOB DES. FILE |<===== | BOSS |       send job		| WORKER |   result	| SCRIPT | ======> | MOVE DATA |
 -----------------	--------   ===============>	----------  <=======	----------	   -------------
-				   				    		    
-				   <===============	----------		 
-				     			| WORKER |   		
-				   ===============>	----------		
+
+				   <===============	----------
+				     			| WORKER |
+				   ===============>	----------
 				   			  .....
 
 This is a generic boss worker tool. The mechanism is based on a worker/boss or master/slave model as illustrated
-in the diagram above. Jobs, defined in an ASCII database file (JOB DES. FILE), are distributed by a BOSS process 
-who listens for a job request of the WORKERS. The worker carries out the job (SCRIPT) and sends the data (MOVE DATA) 
-to the specified location. Report results are send back to the boss process. The MOVE process is a detached (pthread) 
+in the diagram above. Jobs, defined in an ASCII database file (JOB DES. FILE), are distributed by a BOSS process
+who listens for a job request of the WORKERS. The worker carries out the job (SCRIPT) and sends the data (MOVE DATA)
+to the specified location. Report results are send back to the boss process. The MOVE process is a detached (pthread)
 process, and can, therefore, run in parallel with the SCRIPT process. The "MOVE" process reports back to the boss
 process whether the data transfer was successful or not (not shown in the diagram above). A job is considered to
-be successful if the SCRIPT AND MOVE processes return back a positive response to the boss process. The core engine, 
-boss_worker_mpi, is setup in a very generic way and can therefore be used for any type of job with an excellent 
-load balance and scalable to any multi-computer/cpu system. In essence it is a parallelized wrapper for your 
+be successful if the SCRIPT AND MOVE processes return back a positive response to the boss process. The core engine,
+boss_worker_mpi, is setup in a very generic way and can therefore be used for any type of job with an excellent
+load balance and scalable to any multi-computer/cpu system. In essence it is a parallelized wrapper for your
 programs (setup in a scripts). This tool is composed of
 
 bin/boss_worker_mpi		- executable which contains the MPI protocols for boss/worker model
@@ -87,7 +87,7 @@ jobs/do_boss_worker_mpi.sh	- script which performs a qsub with as input run_boss
 jobs/jobs.in			- job description file for boss_worker_mpi code (see below)
 scripts/...			- various example bash scripts which call your programs or macros (see below)
 macros/...			- example ROOT macros used for PandaRoot simulations
-bin/movefiles			- script which defines the copying method used to transfer locally stored data 
+bin/movefiles			- script which defines the copying method used to transfer locally stored data
 				  of the workers to a storage place as defined by the user in "jobs.in"
 bin/runmpi			- script which helps you to start a MPI boss-worker session
 
@@ -124,16 +124,16 @@ JOB 10 messchendorp@kvip81.kvi.nl:~/scripts/runemc.sh  NULL        messchendorp@
 ...
 --------------------------------------------------------------------------------------------
 
-Each line which starts with the keyword "JOB" is interpreted by the boss process as one or a 
-collection of jobs which will be transmitted to the workers. The second argument "Multiplicity" 
-gives the number of jobs (split). The third argument "ScriptToRun" is the corresponding script 
-file which belongs to these series of jobs. The following argument, "Input", refers to a directory, 
-which possibly contains files needed to run the job. The directory will be copied prior to 
-the call to the "ScriptToRun" using the script specified by the option "-m" to the working 
-directory specified by the option "-s". A default script can be found in bin/movefiles. 
-This copy/move script will be called with four arguments, specifying the source 
-directory and its destination, which corresponds to the "Output" in the job description file, and two 
-binary flags which indicate whether the files should be copied and deleted afterwards. The source and 
+Each line which starts with the keyword "JOB" is interpreted by the boss process as one or a
+collection of jobs which will be transmitted to the workers. The second argument "Multiplicity"
+gives the number of jobs (split). The third argument "ScriptToRun" is the corresponding script
+file which belongs to these series of jobs. The following argument, "Input", refers to a directory,
+which possibly contains files needed to run the job. The directory will be copied prior to
+the call to the "ScriptToRun" using the script specified by the option "-m" to the working
+directory specified by the option "-s". A default script can be found in bin/movefiles.
+This copy/move script will be called with four arguments, specifying the source
+directory and its destination, which corresponds to the "Output" in the job description file, and two
+binary flags which indicate whether the files should be copied and deleted afterwards. The source and
 destination can be a remote disk. The user can set the "Input" to "NULL" (case sensitive), which
 will prevent the program to try to copy input files to the working directory. The next argument in
 the "JOB" line specifies the "Output" device/directory. All the files which remain in the working
@@ -141,20 +141,20 @@ directory will be copied to this device/directory. The output files are stored o
 device in a subdirectory which carries the name of the runid. The starting runid can
 be set via the option "-r" in the call of the program or by placing a special keyword, "RUNID", in
 the job description file followed by a integer number. All jobs after this keyword will be identified
-based on this number in stead. Important is that for each new job the runid is incremented by one, to 
-define a unique number. The user can set the output field to "NULL" (case sensitive), which omits all 
-output to be written. The last arguments in each "JOB" line are user-defined parameters. 
-The first element, "NrOfPars", specifies the number of following parameters, "Par1", "Par2", etc. 
-A special keyword "STOP" can be placed in the job description file, which prevents all the jobs below 
-that keyword to be submitted. In the example above, one job has been defined which using the 
+based on this number in stead. Important is that for each new job the runid is incremented by one, to
+define a unique number. The user can set the output field to "NULL" (case sensitive), which omits all
+output to be written. The last arguments in each "JOB" line are user-defined parameters.
+The first element, "NrOfPars", specifies the number of following parameters, "Par1", "Par2", etc.
+A special keyword "STOP" can be placed in the job description file, which prevents all the jobs below
+that keyword to be submitted. In the example above, one job has been defined which using the
 "testscript.sh" script. The directory $HOME/input will be copied to the working directory prior
-to the call of the script. The "testscript.sh" script will be called with two the user-defined arguments, 
-namely "hello" and "world". The output is not written. Furthermore, 10 jobs will be carried out by running 
-the "runemc.sh" script with one user-defined parameter, "10000" (which for instance could be the number 
-of events to run), and the output will be stored to "messchendorp@kvip81.kvi.nl:/panda/". The "runemc.sh" 
-script itself is stored on a remote device. The program will call the "movefiles" script (defined by option -m) 
-automatically to transfer this script to the local worker node. Note that only the "movefiles" program 
-itself is called directly! No input files are requested for the last ten jobs (NULL). 
+to the call of the script. The "testscript.sh" script will be called with two the user-defined arguments,
+namely "hello" and "world". The output is not written. Furthermore, 10 jobs will be carried out by running
+the "runemc.sh" script with one user-defined parameter, "10000" (which for instance could be the number
+of events to run), and the output will be stored to "messchendorp@kvip81.kvi.nl:/panda/". The "runemc.sh"
+script itself is stored on a remote device. The program will call the "movefiles" script (defined by option -m)
+automatically to transfer this script to the local worker node. Note that only the "movefiles" program
+itself is called directly! No input files are requested for the last ten jobs (NULL).
 
 A special keyword "BARRIER" can be used in the job description file to indicate that all the JOBS
 defined below that word, will only be carried out if all the JOBS above the line have been finished.
@@ -164,12 +164,12 @@ An overview of all the keywords, can be found below:
 
 ---------------------------------------------------------------------------------------------
 
----> JOB <split level> <input> <output> <nr_of_pars> <par1> <par2> ...  
+---> JOB <split level> <input> <output> <nr_of_pars> <par1> <par2> ...
 
      Defines the job and its split level.
 
 ---> RUNID <number>
-   
+
      (Re)set the run number to <number>. The run number is incremented by one for each job, unless
      reset by "RUNID".
 
@@ -185,18 +185,18 @@ An overview of all the keywords, can be found below:
 
 ---> TIMEOUT <secs>
 
-     The jobs following this keyword will run with a timeout of <secs> seconds. After the timeout period, 
-     the process is killed by signalling the corresponding (thread) processes with a SIGINT, followed by 
-     a SIGHUP, followed by a SIGTERM, and if the process still survives, a SIGKILL. This TIMEOUT also 
-     corresponds to the sleep period, in <secs>, of a worker in case of too many runnings jobs or not 
-     enough disk space. 
+     The jobs following this keyword will run with a timeout of <secs> seconds. After the timeout period,
+     the process is killed by signalling the corresponding (thread) processes with a SIGINT, followed by
+     a SIGHUP, followed by a SIGTERM, and if the process still survives, a SIGKILL. This TIMEOUT also
+     corresponds to the sleep period, in <secs>, of a worker in case of too many runnings jobs or not
+     enough disk space.
 
 ---> TIMEOUTS <secs> <secs>
 
-     Same as the option TIMEOUT, however, the first arguments corresponds to the timeout period before 
-     a process is killed and the second arguments corresponds to the sleep period of a worker in case 
-     of too many running jobs, not enough disk space, or load level exceeded. The timeouts should be specified 
-     in <secs>. 
+     Same as the option TIMEOUT, however, the first arguments corresponds to the timeout period before
+     a process is killed and the second arguments corresponds to the sleep period of a worker in case
+     of too many running jobs, not enough disk space, or load level exceeded. The timeouts should be specified
+     in <secs>.
 
 ---> SCRATCH <path>
 
@@ -225,10 +225,10 @@ An overview of all the keywords, can be found below:
 ---> NICE <lvl>
 
      Set the nice/priority level of the job to <lvl>.
- 
+
 ---------------------------------------------------------------------------------------------
 
-A more advanced example job description file could looks as follows, including the special keywords 
+A more advanced example job description file could looks as follows, including the special keywords
 "TIMEOUTS", "RUNID", "STOP", "SCRATCH", "MOVECMD", and "BARRIER":
 
 --------------------------------------------------------------------------------------------
@@ -273,7 +273,7 @@ JOB 10 $HOME/scripts/runemc.sh NULL messchendorp@kvip81.kvi.nl:/panda/ 2 10000 5
 #
 BARRIER
 #
-JOB 1 $HOME/scripts/mergetrees.sh messchendorp@kvip81.kvi.nl:/panda/  messchendorp@kvip81.kvi.nl:/panda/ 3 cbmsim full_emc.root full_emc_merge.root
+JOB 1 $HOME/scripts/mergetrees.sh messchendorp@kvip81.kvi.nl:/panda/  messchendorp@kvip81.kvi.nl:/panda/ 3 pndsim full_emc.root full_emc_merge.root
 #
 # Don't run jobs following below "STOP"
 #
@@ -281,18 +281,18 @@ STOP
 ...
 --------------------------------------------------------------------------------------------
 
-The boss process creates a log file with the name 
+The boss process creates a log file with the name
 
 "<your_job_description_file>.log"
 
 which contains a quick overview of the statistics of all the jobs accomplished or failed.
-Failed jobs will not be resubmitted. The log file is updated run time and can, therefore, 
-be used to obtain the present status/results of the program (tip: use tail -f <logfile>). 
+Failed jobs will not be resubmitted. The log file is updated run time and can, therefore,
+be used to obtain the present status/results of the program (tip: use tail -f <logfile>).
 Below, an example printout of a logfile is given for a run with 4 workers and 7 jobs:
 
 ---------------------------------------------------------------------------------------------
 
-mac-work:jobs johan$ tail -f jobs_treemerge.in.log 
+mac-work:jobs johan$ tail -f jobs_treemerge.in.log
 -----------------------------------------------------------------------------------------------------------
 HH:MM:SS        Link            Action          What            Run ID          Wall Time       RUN/OK/FAIL
 -----------------------------------------------------------------------------------------------------------
@@ -349,13 +349,13 @@ $1		- run identification
 		  it can be used as a random seed for the Monte-Carlo simulations. The user
 		  can set the initial value via the option "-r" in the call of the program,
 		  or via the keyword "RUNID" in the job description file.
-                                 
+
 $2..$i		- user-defined parameters specified in the job description file
 		  This corresponds to "Par1", "Par2", etc. Note that with "$#" one can obtain
-		  the total number of parameters which were defined in the call.	
+		  the total number of parameters which were defined in the call.
 
 For a successful run, the script should exit with value "0" (exit 0). Any other return values are considered
-as a failure, and consequently, the job is not saved. Also, check out the example scripts given in 
+as a failure, and consequently, the job is not saved. Also, check out the example scripts given in
 "scripts/..." for more information.
 
 To run the code, use the "mpirun" program, which comes with the MPI software package
@@ -366,16 +366,16 @@ mpirun -np <number_of_processes> -machinefile <file> <path_to>boss_worker_mpi <o
 
 where <number_of_processes> specifies the sum of the workers and the boss process. The option "-machinefile"
 can be used to specify a list of computers names which will take part in the network. On a batch farm,
-this file is usually defined by the system itself. It is useful in case you like to define your own network 
+this file is usually defined by the system itself. It is useful in case you like to define your own network
 of computers who should take part in the process. There are many more options you can specify with mpirun.
-For that, take a look at its manual, e.g. "mpirun --help" or "man mpirun". For a description of all 
+For that, take a look at its manual, e.g. "mpirun --help" or "man mpirun". For a description of all
 possible <options> which are passed to the boss_worker_mpi engine, read the description above.
 A wrapper script for "mpirun" is "runmpi", which can be found in "bin/runmpi".
 
 Running on a PBS farm
 ---------------------
 
-For an example setup for a PBS farm (such as used at the Opteron cluster at the University of Groningen), 
+For an example setup for a PBS farm (such as used at the Opteron cluster at the University of Groningen),
 please take a look at the script "jobs/do_boss_worker.sh" :
 
 ------------------------------------------------------------------------------------------------
@@ -385,15 +385,15 @@ qsub run_boss_worker_mpi.job -q short -N TestRun -l nodes=5:ppn=2 -v JOBFILE="$H
 
 In this script, a call to "qsub" is made with as input the job description file of PBS ("run_boss_worker_mpi.job").
 Important is the option "-l nodes=5:ppn=2". The "run_boss_worker_mpi.job" file will use this information
-to calculate the number of processes to create. In this example, 5 node computers will be allocated by PBS, 
-and for each node two CPUs. The "run_boss_worker_mpi.job" script will run "mpirun" with 11 processes 
+to calculate the number of processes to create. In this example, 5 node computers will be allocated by PBS,
+and for each node two CPUs. The "run_boss_worker_mpi.job" script will run "mpirun" with 11 processes
 (10 workers and 1 boss process) spread over the allocated machines. In principle you can overwrite the
 number of processes MPI has to create. For this, take a look at the "run_boss_worker_mpi.job" file.
 The allocation of nodes should be balanced with the number of jobs you have specified in "jobs.in".
-It certainly does not make sense to - for example - allocate 20 nodes with two processors per node 
-if you run less than 40 jobs. The minimum of number of nodes is one. Note that the boss process does 
-not require a lot of CPU resources and, therefore, this process will run on the same machine/cpu as 
-one of the worker processes. Important is to set the variable "JOBFILE" to the location of your job 
+It certainly does not make sense to - for example - allocate 20 nodes with two processors per node
+if you run less than 40 jobs. The minimum of number of nodes is one. Note that the boss process does
+not require a lot of CPU resources and, therefore, this process will run on the same machine/cpu as
+one of the worker processes. Important is to set the variable "JOBFILE" to the location of your job
 description file for this mpi tool.
 
 In the "run_boss_worker.job" script you can find the following line
@@ -402,9 +402,9 @@ export ARGS="-j $JOBFILE -r $RUNID -v"
 
 These arguments will be fed to the "boss_worker_mpi" executable. You might want to add an argument
 option "-m" to specify a more proper script which can move files on your system. Note that this can
-also be specified in the job description file of the boss_worker_mpi program ($JOBFILE). The available 
-"movefiles" script exploits "scp" to transfer files, which requires to setup key sharing in case of 
-copying remotely. It also supports the xrdcp (xrootd) protocol. To use this, specify the input/output as 
+also be specified in the job description file of the boss_worker_mpi program ($JOBFILE). The available
+"movefiles" script exploits "scp" to transfer files, which requires to setup key sharing in case of
+copying remotely. It also supports the xrdcp (xrootd) protocol. To use this, specify the input/output as
 "root://server.name:port//path/"
 
 The line
@@ -415,8 +415,8 @@ in the file "run_boss_worker_mpi.job" is the heart of it all. On a properly conf
 will automatically start the processes on the requested nodes (e.g. option -machinefile is not needed).
 
 The job description file of PBS, "run_boss_worker_mpi.job" is also compatible with MPI2. For this,
-"mpd" daemons need to be started on the worker nodes (and terminated after the run). This is done 
-automatically if you set the variable "MPIVERSION=2" in the qsub call, e.g. qsub ..... -v MPIVERSION=2,... 
+"mpd" daemons need to be started on the worker nodes (and terminated after the run). This is done
+automatically if you set the variable "MPIVERSION=2" in the qsub call, e.g. qsub ..... -v MPIVERSION=2,...
 
 Running on an LSF farm
 ----------------------
@@ -431,7 +431,7 @@ file "run_boss_worker_mpi.lsf", which contains the following:
 #
 # Example job description file for LSF batch farm
 #
- 
+
 NPROC=7
 RUNDIR=$HOME/bin
 PROG=boss_worker_mpi
@@ -442,10 +442,10 @@ for host in $LSB_HOSTS
 do
   echo $host >> $RUNDIR/nodes_lsf
 done
- 
+
 echo ---------------------------------------------------------------------------
 echo Ready to run $PROG on $LSB_HOSTS
-echo mpirun -v -np $NPROC -machinefile $RUNDIR/nodes_lsf $RUNDIR/$PROG $ARGS 
+echo mpirun -v -np $NPROC -machinefile $RUNDIR/nodes_lsf $RUNDIR/$PROG $ARGS
 echo ---------------------------------------------------------------------------
 
 mpirun -v -np $NPROC -machinefile $RUNDIR/nodes_lsf $RUNDIR/$PROG $ARGS
@@ -456,9 +456,9 @@ an argument in the "mpirun". To submit this job, use
 
 bsub < run_boss_worker_mpi.lsf
 
-and the rest should be taken care of. There also exists a script "mpijob" which can be used to 
+and the rest should be taken care of. There also exists a script "mpijob" which can be used to
 find out for you in a more friendlier way the list of nodes available. The usage is something
-like 
+like
 
 bsub -n <nr_of_nodes> mpijob mpirun -v -np $NPROC -machinefile $RUNDIR/nodes_lsf $RUNDIR/$PROG $ARGS
 

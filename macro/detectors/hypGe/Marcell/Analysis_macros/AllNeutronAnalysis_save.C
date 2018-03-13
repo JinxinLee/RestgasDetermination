@@ -1,13 +1,13 @@
-int AllNeutronAnalysis() 
+int AllNeutronAnalysis()
 {
 
   // -----  Load libraries   ------------------------------------------------
 //``gSystem->Load("fstream.h");
    gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-  
+
    gSystem->Load("libHypGe");
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -22,43 +22,43 @@ int AllNeutronAnalysis()
 	TFile* g = new TFile(Filename);
 	TFile* fi = new TFile(outfile,"RECREATE");
 
-	
+
 
    //photons from hyp electromag. decay
-  TTree *b=(TTree *) g->Get("cbmsim") ;
+  TTree *b=(TTree *) g->Get("pndsim") ;
   TClonesArray* hit_bar=new TClonesArray("PndHypGePoint");
   b->SetBranchAddress("HypGePoint",&hit_bar);//Branch names
   TClonesArray* mc_bar=new TClonesArray("PndMCTrack");
   b->SetBranchAddress("MCTrack",&mc_bar);//Branch names
 
 
-      
-  
+
+
   //****photons from hyp elect. decay
-	
+
 	string Name = "Neutrons hitting the germaniums";
 	TH1D* hNHits = new TH1D("hNHits",Name.c_str(),180, 90,180);
 	TH1D* hNAll = new TH1D("hNAll","All Neutrons",180, 90,180);
- 
-  
+
+
 	bool verbose = false;
 	Int_t MotherId,Motherpdg;
-	
 
-	
+
+
 	TVector3 vecs,pos;
 	int mcpdg = -1,ev;
 	Double_t mult,En,Eng,Enth;
-	
+
 	//vector<int> event;
 	int count;
 	Int_t nEvents = b->GetEntriesFast();
 	cout<< "Number of Simulated Events: "<<nEvents<<endl;
 
-	
+
 	Double_t Resolution = 2.;	//keV
 	for (Int_t k=0; k<nEvents; k++)
-	{ 
+	{
 			//cout << k << endl;
 		Eng=0.;
 		b->GetEntry(k);
@@ -67,8 +67,8 @@ int AllNeutronAnalysis()
 			cout << k << endl;
 		}
 	    //if(verbose) cout<<"Event No "<<j<<endl;
-		
-		
+
+
 			//cout << hit_bar->GetEntriesFast()<<endl;
 			PndHypGePoint *hitgam0=(PndHypGePoint*)hit_bar->At(0);
 			PndHypGePoint *hitgam1=(PndHypGePoint*)hit_bar->At(1);
@@ -112,13 +112,13 @@ int AllNeutronAnalysis()
 				hNAll->Fill(180/TMath::Pi()*NAllMom.Theta());
 			}
 		}
-	    
-	}// end for j (events)
-  
 
- 
+	}// end for j (events)
+
+
+
   hNHits->Draw();
-  
+
   //Analysis of spectrum
   hNHits->Write();
 	hNAll->Write();
@@ -133,10 +133,10 @@ int AllNeutronAnalysis()
 	Double_t ctime = timer.CpuTime();
 	cout << endl << endl;
 	cout << "Macro finished succesfully." << endl;
-	
+
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	cout << endl;
 	// ------------------------------------------------------------------------
-	
+
   return 0;
 }

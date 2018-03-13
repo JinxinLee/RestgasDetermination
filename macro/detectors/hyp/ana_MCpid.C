@@ -6,7 +6,7 @@ int ana_MCpid()
   // -----  Load libraries   ------------------------------------------------
 //``gSystem->Load("fstream.h");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  
+
   gSystem->Load("libHypGe");
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -14,16 +14,16 @@ int ana_MCpid()
   // ------------------------------------------------------------------------
 
   gStyle->SetPalette(1);
-  
+
   TFile* f = new TFile("sim_pidC.root"); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
   TClonesArray* hit_array=new TClonesArray("PndHypPoint");
   t->SetBranchAddress("HypPoint",&hit_array);//Branch names
 
   TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
-  
+
 
   // histos
   TH2D* hisxy = new TH2D("hisxy","HYP MC Points, xy view",200,-5.,5.,200,-5.,5.);
@@ -37,7 +37,7 @@ int ana_MCpid()
 
 
   TH1D* hismom = new TH1D("hismom","HYP MC Points, momentum",100,0.,1.5);
- 
+
 
   int  nEvents = 100;
   bool verbose = false;
@@ -45,13 +45,13 @@ int ana_MCpid()
   TVector3 vecs,veco;
   TVector3 vecFront,vecBack,vecP;
   Double_t dx,dE,p,dEdX;
-  
+
   TString detname;
 
   for (Int_t j=0; j<t->GetEntriesFast(); j++)
   {
     t->GetEntry(j);
-    
+
     for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
     {
       if(verbose) cout<<"Point No "<<i<<endl;
@@ -81,14 +81,14 @@ int ana_MCpid()
         dEdX=(dE/dx);
         hisdedx->Fill(p,dEdX);
       }
-     
+
 
     }//end for i (points in event)
   }// end for j (events)
 
 TCanvas* can1 = new TCanvas("can1","MCHit view in HYP",0,0,800,800);
 can1->Divide(3,2);
-can1->cd(1);  
+can1->cd(1);
 hisxy->Draw("colz");
 can1->cd(2);
 hisrz->Draw("colz");

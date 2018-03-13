@@ -27,8 +27,8 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-	
-	
+
+
 	//Files
 							//TString Path = getenv("SIMDATADIR");
 	TString Filename = "$SIMDATADIR/COSY/"+Filename_ext;
@@ -45,9 +45,9 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 	cout << outfile << endl;
 	TFile* InputFile = new TFile(Filename);
 	//TFile* OutputFile = new TFile(outfile,"RECREATE");
-	
+
 	//getting simulation branches from input file
-  TTree *b=(TTree *) InputFile->Get("cbmsim") ;
+  TTree *b=(TTree *) InputFile->Get("pndsim") ;
   TClonesArray* hit_bar=new TClonesArray("PndHypGePoint");
   b->SetBranchAddress("HypGePoint",&hit_bar);//Branch names
   TClonesArray* mc_bar=new TClonesArray("PndMCTrack");
@@ -66,12 +66,12 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 	TH1D* hNAll = new TH1D("hNAll","All Neutrons",360, 0,180);
 	hNAll->SetXTitle("#Theta [#circ]");
 	hNAll->SetYTitle("Counts / 0.5 #circ");
-	
+
 		//histogram with the polar momentum of primary neutrons in the solid angle of the crystal (not necessarily interacting with the crystal)
 	TH1D* hPAll = new TH1D("hPAll","All Protons",360, 0,180);
 	hPAll->SetXTitle("#Theta [#circ]");
 	hPAll->SetYTitle("Counts / 0.5 #circ");
-	
+
 	//histogram with E_kin of primary neutrons
 	TH1D* hNMom = new TH1D("hNMom","E_{kin} of neutrons",1000, 0,0.5);
 	hNMom->SetXTitle("E_{kin} of neutrons [GeV]");
@@ -83,16 +83,16 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
  		//histogram to see the energy deposited by the neutron
 	TH1D* hNeutronEnergyDeposit = new TH1D("hNeutronEnergyDeposit","Energy deposited by Neutrons per Hit",500,0,0.005);
 	hNeutronEnergyDeposit->SetXTitle("Energy [GeV]");
-	hNeutronEnergyDeposit->SetYTitle("Counts / 10 keV"); 
-	
+	hNeutronEnergyDeposit->SetYTitle("Counts / 10 keV");
+
 		//histogram to visualize the x-y-distribution of neutrons
 	TH2D* hNeutronXYDistribution = new TH2D("hNeutronXYDistribution","Distribution of Neutrons",40, -40,40,40,-40,40);
 	hNeutronXYDistribution->SetXTitle("X-postion [cm]");
 	hNeutronXYDistribution->SetYTitle("Y-postion [cm]");
 	gStyle->SetPalette(1);
-	
-	
-	
+
+
+
 	Int_t *ActualTrackID ;
 	//Int_t nEvents = b->GetEntriesFast();
 	//cout<< "Number of Simulated Events: "<<nEvents<<endl;
@@ -104,14 +104,14 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 	Int_t NuclearInteractionCounter=0;
 
 
-	
+
 	TVector3 NHit;
 	TVector3 NMom;
 	TVector3 NAllMom;
 	TVector3 StartVertex;
-	
-	
-	Int_t EndEvent;	
+
+
+	Int_t EndEvent;
 	if (NoOfEvents ==0)
 	{
 		EndEvent = b->GetEntriesFast();
@@ -119,18 +119,18 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 	}
 	else
 		EndEvent = StartEvent + NoOfEvents;
-		
+
 		//event loop
 	for (Int_t k=StartEvent; k< EndEvent; k++)
 	//for (Int_t k=569494; k<569498; k++)
-	{ 
+	{
 		b->GetEntry(k);
 		if (!((k*100)% NoOfEvents))	// mark every % of proceeded events
 		{
 			cout << "Event number :\t" << k << endl;
 		}
 	    //if(verbose) cout<<"Event No "<<j<<endl;
-	  
+
 	  DetID=-10;
 	  TrackID=-10;
 
@@ -140,16 +140,16 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 														////if (i==0)
 															////Hits++;
 														////cout <<"Hit "<< i << endl;
-			
+
 			//PndHypGePoint *hitgam=(PndHypGePoint*)hit_bar->At(i);
 			//PndMCTrack *mcgam = (PndMCTrack*)mc_bar->At(hitgam->GetTrackID());
-			
+
 			////NMom = mcgam->GetMomentum();
 			//if (hitgam->GetpdgCode() == 2112)
 			//{
 				//StartVertex = mcgam->GetStartVertex();
 				//cout <<"Event " <<k<< " \t\tStartVertex Radius: " <<StartVertex.Mag()<< endl;
-				
+
 				//if (StartVertex.Mag() <20)	// prevent counting of neutrons created by nuclear reactions inside the detector	20 (cm) is random value, must be smaller than the distance from (0,0,0) to detector (here 30 cm)
 				//{
 					//if (!(DetID == hitgam->GetDetectorID() && TrackID==hitgam->GetTrackID())) // used to prevent counting of neutrons that reenter a crystal (neutrons left crystal through the central hole skewly and reentered the same crystal afterwards) and of neutrons that enter multiple crystals by scattering
@@ -159,31 +159,31 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 						////cout << "Event :\t" << k <<"\tHit : \t" << i << "\tDetector :\t" << DetID << "\tTrackID :\t"<< TrackID<<"\tMother :\t"<< mcgam->GetMotherID()<<endl;
 						//iNeutrons++;
 						//hCrystalHit->Fill(hitgam->GetDetectorID());				//fill histogram to see which detector is hit
-						
-						
+
+
 						//// fill vector with hit coordinates to get theta of the hit
 						//NHit.SetX(hitgam->GetX());
 						//NHit.SetY(hitgam->GetY());
 						//NHit.SetZ(hitgam->GetZ());					// no shift like in PANDA!!!!
 						//hNHits->Fill(180/TMath::Pi()*NHit.Theta());				//fill histogram with polar angle of detector interactions of primary neutrons
 						//cout << "Event " << k <<" Theta " <<180/TMath::Pi()*NHit.Theta()<<endl;
-						
+
 						//TVector3 NHit_p;
 						//// fill vector with hit momentum to get theta of the hit momentum
 						//NHit_p.SetX(hitgam->GetPx());
 						//NHit_p.SetY(hitgam->GetPy());
 						//NHit_p.SetZ(hitgam->GetPz());
 						//hNHits_p->Fill(180/TMath::Pi()*NHit_p.Theta());		//fill histogram with the polar momentum of primary neutrons interacting with the crystals
-						
+
 						//hNeutronXYDistribution->Fill(hitgam->GetX(),hitgam->GetY());
 						////hNMom->Fill(1./2.* NMom.Mag2()/0.939);				//fill histogram with E_kin of primary neutrons
 						//hNeutronEnergyDeposit->Fill(hitgam->GetEnergyLoss());
-					
+
 					//}
 				//}
 			//}
 		//}
-		
+
 		// loop over all entries in mctrack
 		//cout << "mcbar length :\t" <<mc_bar->GetEntriesFast() << endl;
 		int verboseMC = 0;
@@ -195,7 +195,7 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 			{
 				//cout << "mcbar length :\t" <<mc_bar->GetEntriesFast() << endl;
 				PndMCTrack *mcgam = (PndMCTrack*)mc_bar->At(m);
-			
+
 				if (mcgam->GetPdgCode() != 2212 && mcgam->GetPdgCode() != 11 && mcgam->GetPdgCode() !=-2212)
 				{
 					if (verboseMC)cout << "\t Found Particle with PDG code: " << mcgam->GetPdgCode() << endl;
@@ -209,16 +209,16 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 		}
 		else
 			if (verboseMC)cout << endl;
-			
-		
+
+
 	}// end for k (events)
-  
+
 
 	//hNeutronXYDistribution->DrawCopy("colz");
 	////hNAll->DrawCopy();
   ////hNHits->SetLineColor(kRed);
   ////hNHits->DrawCopy("same");
-  
+
   ////Analysis of spectrum
   //hNHits->Write();
   //hNHits_p->Write();
@@ -229,12 +229,12 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 	//hNeutronEnergyDeposit->Write();
 	//hNeutronXYDistribution->Write();
 
-	
-	
+
+
 	//hNeutronEnergyDeposit->DrawCopy();
-	
+
 	//OutputFile->Close();
-	
+
 	//hNeutronEnergyDeposit->Draw();
   //hNHits->Draw();
 
@@ -245,10 +245,10 @@ int NeutronAnalysis_COSY_CrossSec(TString Filename_ext, Int_t StartEvent=0, Int_
 	Double_t ctime = timer.CpuTime();
 	cout << endl << endl;
 	cout << "Macro finished succesfully." << endl;
-	
+
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	cout << endl;
-	
+
 	cout << "Hits\t" << Hits << endl;
 	// ------------------------------------------------------------------------
 	return iNeutrons;

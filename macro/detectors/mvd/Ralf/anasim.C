@@ -23,7 +23,7 @@ for the conformal mapping stuff
   picture.ReplaceAll(".root",".ps");
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
   TClonesArray* hit_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&hit_array);//Branch names
 
@@ -110,7 +110,7 @@ for the conformal mapping stuff
 
 TCanvas* can1 = new TCanvas("can1","MCHit view in MVD",0,0,800,800);
 can1->Divide(3,3);
-can1->cd(1);  
+can1->cd(1);
 DrawNice2DHisto(hisxy);
 can1->cd(2);
 DrawNice2DHisto(hisrz);

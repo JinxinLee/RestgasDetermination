@@ -1,11 +1,11 @@
 int EventListing()
-{ 
+{
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gSystem->Load("libriemann.C");
-	
+
 	TString MCFile = "Mvd_Test.root";
 	TH1D* h1 = new TH1D("h1","PixError",100,-0.01,0.01);
-	
+
 	PndFileNameCreator creator(MCFile.Data());
 	TString DigiFile = creator.GetDigiFileName(false).c_str();
 	TString RecoFile = creator.GetRecoFileName(false).c_str();
@@ -15,15 +15,15 @@ int EventListing()
 	TFile* fDigi = new TFile(DigiFile.Data());
 	TFile* fReco = new TFile(RecoFile.Data());
 	//TFile* fTrack = new TFile(TrackFFile.Data());
-	
-	TTree* t = (TTree*)(fMC->Get("cbmsim"));
 
-	t->AddFriend("cbmsim", fDigi);
-	t->AddFriend("cbmsim", fReco);
-	//t->AddFriend("cbmsim", fTrack);
-	
+	TTree* t = (TTree*)(fMC->Get("pndsim"));
+
+	t->AddFriend("pndsim", fDigi);
+	t->AddFriend("pndsim", fReco);
+	//t->AddFriend("pndsim", fTrack);
+
 	t->StartViewer();
-	
+
 	TClonesArray* MCHits = new TClonesArray("PndSdsMCPoint");
 	TClonesArray* PixDigis = new TClonesArray("PndSdsDigiPixel");
 	TClonesArray* StripDigis = new TClonesArray("PndSdsDigiStrip");
@@ -32,7 +32,7 @@ int EventListing()
 	TClonesArray* PixCluster = new TClonesArray("PndSdsClusterPixel");
 	TClonesArray* StripCluster = new TClonesArray("PndSdsClusterStrip");
 	//TClonesArray* TrackCand = new TClonesArray("TrackCand");
-		
+
 	t->SetBranchAddress("MVDPoint", &MCHits);
 	t->SetBranchAddress("MVDPixelDigis", &PixDigis);
 	t->SetBranchAddress("MVDStripDigis", &StripDigis);
@@ -40,14 +40,14 @@ int EventListing()
 	t->SetBranchAddress("MVDHitsStrip", &StripReco);
 	t->SetBranchAddress("MVDPixelClusterCand", &PixCluster);
 	t->SetBranchAddress("MVDStripClusterCand", &StripCluster);
-	
+
 	t->GetEntry(0);
-	
+
 	for (int i = 0; i < MCHits->GetEntriesFast(); i++){											//get all MC Hits
 		PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(MCHits->At(i));
 		std::cout << "<<<<<<<<<<< MCPoint >>>>>>>>>> " << std::endl;
 		myPoint->Print();																		//write out MC info
-		
+
 		for (int j = 0; j < PixDigis->GetEntriesFast(); j++){									//get all Digis
 			PndSdsDigiPixel* myPixDigi = (PndSdsDigiPixel*)PixDigis->At(j);
 			bool dig = false;
@@ -71,7 +71,7 @@ int EventListing()
 				}
 			}
 		}
-		
+
 		for (int j = 0; j < StripDigis->GetEntriesFast(); j++){
 			PndSdsDigiStrip* myStripDigi = (PndSdsDigiStrip*)StripDigis->At(j);
 			dig = false;
@@ -97,5 +97,5 @@ int EventListing()
 		}
 	}
   return 0;
-	
+
 }

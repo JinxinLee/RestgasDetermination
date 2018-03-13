@@ -25,11 +25,11 @@ int runTimestampCheck()  {
     TFile filereco(recoFileName.Data());
     TFile filerecopixel(recoFileName.Data());
 
-    TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
+    TTree *treedigi = (TTree*) filedigi.Get("pndsim");
     //TClonesArray *sttsortedhits = new TClonesArray("PndSttHit");
     //treedigi->SetBranchAddress("STTSortedHits",&sttsortedhits);
-    
-    TTree *recotree = (TTree*) filereco.Get("cbmsim");
+
+    TTree *recotree = (TTree*) filereco.Get("pndsim");
     //TClonesArray *mvdstripreco = new TClonesArray("PndSdsHit");
     //recotree->SetBranchAddress("MVDHitsStrip",&mvdstripreco);
     //TClonesArray *mvdpixelreco = new TClonesArray("PndSdsHit");
@@ -56,13 +56,13 @@ int runTimestampCheck()  {
     /**
     ///// works around the "geometry not supported by map" error
     ///// HACK
-   
+
     PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
     PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
     sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
     sttFindTracks->SetPersistence(kFALSE);
     fRun->AddTask(sttFindTracks);
-    
+
     fRun->Init();
     ///////////////////////////////////////////////////////////
     **/
@@ -76,8 +76,8 @@ int runTimestampCheck()  {
     PndOnlineManager *online = new PndOnlineManager();
     online->AddHitProducer(online_hit_producer);
     online->AddGeometryManager(online_geometry);
-    online->SetActiveDetector(kSTT,stthitlifetime);   
-    //online->SetActiveDetector(kMVD,stthitlifetime);   
+    online->SetActiveDetector(kSTT,stthitlifetime);
+    //online->SetActiveDetector(kMVD,stthitlifetime);
 
     TClonesArray* tubearray = online_geometry->GetDetectorGeometry(kSTT);
 
@@ -91,7 +91,7 @@ int runTimestampCheck()  {
     //c1->Range(-42,-42,42,42);
     //c1->SetCanvasSize(1200, 1200);
     TText* mytext = new TText();
-	
+
 
     // event loop!
     int current_time = 0;
@@ -101,7 +101,7 @@ int runTimestampCheck()  {
     online->Init();
 
 	Int_t timeviolationcount = 0;
-    
+
     while( current_time < final_time ) {
 	//online->LoadHits( PndOnlineManager::kHESRRevolution );
 	online->LoadHits( delta_t );
@@ -109,8 +109,8 @@ int runTimestampCheck()  {
 	online->Process();
 	//online->Clear();
 	current_time += delta_t;
-	
-    
+
+
 	//Draw the results
 	//c1->Clear();
 	//c1->cd();
@@ -129,7 +129,7 @@ int runTimestampCheck()  {
 	// now print out the triplets
 	//online->PrintTracks();
 	TObjArray *tracks = online->GetTrackObjectList();
-	for(int i=0; i<tracks->GetEntriesFast(); ++i) {		       
+	for(int i=0; i<tracks->GetEntriesFast(); ++i) {
 	    PndOnlineTrack *trk_ptr = (PndOnlineTrack *)(tracks->At(i));
 	    //cout << " triplet cms;  ";  trk_ptr->Vertex().Print();
 	}
@@ -142,7 +142,7 @@ int runTimestampCheck()  {
 	//c1->Print("hitdisplay.png");
 	//c1->Print("hitdisplay.gif+15");
     }
-    
+
 	cout << endl << endl << endl << "-----" << endl << "Number of Time Window Violations: " << timeviolationcount << endl << "-----" << endl;
 
     // -----   Finish   -------------------------------------------------------
@@ -174,10 +174,10 @@ void DrawIsochrones(Int_t currenttime, TObjArray* stthits, TObjArray* stttubes, 
 	//setting the single straw tube simulation constants
 	// 3 options currently available:
 	// TConst(tube radius (cm), gas pressure (bar), Ar%, CO2%)
-	// stt.TConst(0.4, 1, 0.9, 0.1); 
+	// stt.TConst(0.4, 1, 0.9, 0.1);
 	// stt.TConst(0.5, 1, 0.9, 0.1);
 	stt.TConst(0.5, 2, 0.8, 0.2);
-	// wire positioning   
+	// wire positioning
 	stt.PutWireXYZ(0.,  0., -75., 0., 0., 75.);
 
 
@@ -216,7 +216,7 @@ void DrawIsochrones(Int_t currenttime, TObjArray* stthits, TObjArray* stttubes, 
 		//std::cout << currenttime << " " << drawhit->GetTubeID() << " " << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() << " " << tube->GetWireDirection().X() << " " << tube->GetWireDirection().Y() << " " << tube->GetWireDirection().Z() << " " << timestamp << " " << isochrone << " " << recoisochrone << std::endl;
 		mylipse.SetX1(tube->GetPosition().X());
 		mylipse.SetY1(tube->GetPosition().Y());
-		
+
 		//conformal transformation
 		//Double_t r2 = tube->GetPosition().X() * tube->GetPosition().X() + tube->GetPosition().Y() * tube->GetPosition().Y();
 		//Double_t u = tube->GetPosition().X() / r2;

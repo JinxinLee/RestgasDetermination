@@ -7,7 +7,7 @@
 //# add_executable(simple_mc_rec_match simpleMCandRECmatch.C)
 //# target_link_libraries(simple_mc_rec_match ${ROOT_LIBRARIES} Lmd GeoBase ParBase Geom PndData TrkBase  VMC EG GeomPainter generalTools FairTools  LmdReco LmdTrk Geane trackrep RecoHits genfitAdapters genfit SdsReco Sds Stt Fts Proof MathMore Minuit FairDB Base)
 //#
-//# to run it (and see options): 
+//# to run it (and see options):
 //# ${PANDAROOT}/build/bin/./simple_mc_rec_match --help
 //################################################################
 
@@ -65,7 +65,7 @@
 using namespace std;
 int main(int __argc,char *__argv[]) {
   //gROOT->Macro("/PANDA/pandaroot/macro/lmd/Style_Imported_Style.C");
-  // gROOT->SetStyle("Imported_Style"); 
+  // gROOT->SetStyle("Imported_Style");
 
   //TODO: read this like params!
   //  const int nEvents=500000;
@@ -81,7 +81,7 @@ int main(int __argc,char *__argv[]) {
   // decode arguments
   if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
 		    || strcmp( __argv[1], "--help" ) == 0 ) ){
-    
+
     std::cout << "This is script for comparision reconstructed and simulated tracks with parameters\n"
 	      <<"-s start event \n"
 	      <<"-n Number of events \n"
@@ -91,7 +91,7 @@ int main(int __argc,char *__argv[]) {
 	      <<"Have fun! \n"
 	      << std::endl;
     return 0;
-  } 
+  }
   while ((optind < (__argc-1) ) && (__argv[optind][0]=='-')) {
     bool found=false;
     std::string sw = __argv[optind];
@@ -125,8 +125,8 @@ int main(int __argc,char *__argv[]) {
 	       << __argv[optind] <<std::endl;
       optind++;
     }
-  
-  while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
+
+  while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++;
   }
 
   std::stringstream startSStr(startStr), momSStr(momStr), nSStr(nStr), pathSStr(pathStr), verbSStr(verbStr);
@@ -147,111 +147,111 @@ int main(int __argc,char *__argv[]) {
   gSystem->Load("libLmdTrk");
   // gROOT->LoadMacro("line3Dfit.C");
   // ------------------------------------------------------------------------
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-  
+
   // ---- Input files --------------------------------------------------------
   TString simMC=storePath+"/Lumi_MC_";
   simMC += startEvent;
   simMC += ".root";
-  TChain tMC("cbmsim");
+  TChain tMC("pndsim");
   tMC.Add(simMC);
-  
+
   TString DigiFile = storePath+"/Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
-  TChain tdigiHits("cbmsim");
+  TChain tdigiHits("pndsim");
   tdigiHits.Add(DigiFile);
-  
+
   TString recHit=storePath+"/Lumi_reco";
   // if(dnu>0) recHit+="Merged";
   recHit +="_";
   recHit += startEvent;
   recHit += ".root";
-  TChain tHits("cbmsim");
+  TChain tHits("pndsim");
   tHits.Add(recHit);
-  
+
   TString recHitmerged=storePath+"/Lumi_recoMerged_";
   recHitmerged += startEvent;
   recHitmerged += ".root";
-  TChain tHitsMerged("cbmsim");
+  TChain tHitsMerged("pndsim");
   tHitsMerged.Add(recHitmerged);
 
-  
+
   TString trkCand = storePath+"/Lumi_TCand_";
   trkCand += startEvent;
   trkCand += ".root";
-  TChain tTrkCand("cbmsim");
+  TChain tTrkCand("pndsim");
   tTrkCand.Add(trkCand);
 
   TString recTrack;
-  TChain tTrkRec("cbmsim");
+  TChain tTrkRec("pndsim");
   recTrack = storePath+"/Lumi_Track_";
   recTrack += startEvent;
   recTrack += ".root";
   tTrkRec.Add(recTrack);
- 
+
   TString geaneFile = storePath+"/Lumi_Geane_";
   geaneFile += startEvent;
   geaneFile += ".root";
-  TChain tgeane("cbmsim");
+  TChain tgeane("pndsim");
   tgeane.Add(geaneFile);
-  
+
   // ---------------------------------------------------------------------------------
-  
+
   // ---- Output file ----------------------------------------------------------------
   TString out=storePath+"/Lumi_compare_MC_and_REC_trks_";
   out += startEvent;
   out += ".root";
   TFile *f = new TFile(out,"RECREATE");
   // ---------------------------------------------------------------------------------
-  
+
   //--- MC info -----------------------------------------------------------------
   TClonesArray* true_tracks=new TClonesArray("PndMCTrack");
   tMC.SetBranchAddress("MCTrack",&true_tracks);  //True Track to compare
-  
+
   TClonesArray* true_points=new TClonesArray("PndSdsMCPoint");
   tMC.SetBranchAddress("LMDPoint",&true_points);  //True Points to compare
   //----------------------------------------------------------------------------------
-  
-  
+
+
   //--- Digitization info ------------------------------------------------------------
   TClonesArray* fStripClusterArray;
   fStripClusterArray = new TClonesArray("PndSdsClusterPixel");
   tHits.SetBranchAddress("LMDPixelClusterCand",&fStripClusterArray);
 
-  
+
   TClonesArray* fStripDigiArray;
   fStripDigiArray = new TClonesArray("PndSdsDigiPixel");
   tdigiHits.SetBranchAddress("LMDPixelDigis",&fStripDigiArray);
   //----------------------------------------------------------------------------------
-  
+
   //--- Real Hits --------------------------------------------------------------------
   TClonesArray* rechit_array;
   rechit_array = new TClonesArray("PndSdsMergedHit");
   tHitsMerged.SetBranchAddress("LMDHitsMerged",&rechit_array);  //Points for Tracks
   //----------------------------------------------------------------------------------
-  
-  
+
+
   //--- Track Candidate ---------------------------------------------------------------
   TClonesArray* trkcand_array=new TClonesArray("PndTrackCand");
-  tTrkCand.SetBranchAddress("LMDTrackCand",&trkcand_array); //Points for Track Canidates 
+  tTrkCand.SetBranchAddress("LMDTrackCand",&trkcand_array); //Points for Track Canidates
   //-----------------------------------------------------------------------------------
-  
+
   //--- Real tracks -------------------------------------------------------------------
   // TClonesArray* rec_trk=new TClonesArray("PndLinTrack");
   // tTrkRec.SetBranchAddress("LMDTrack",&rec_trk);  //Tracks
   TClonesArray* rec_trk=new TClonesArray("PndTrack");
   tTrkRec.SetBranchAddress("LMDPndTrack",&rec_trk);  //Tracks
   //----------------------------------------------------------------------------------
-  
+
   //--- Geane info ------------------------------------------------------------------
   TClonesArray* geaneArray =new TClonesArray("FairTrackParH");
   tgeane.SetBranchAddress("GeaneTrackFinal",&geaneArray);  //Tracks with helix parametrisation
-  
+
   cout<<"And we'll make some hists"<<endl;
   //--- Output histogram -----------------------------------------------------
   double thetarange[2]={0.001,0.01};
@@ -274,11 +274,11 @@ int main(int __argc,char *__argv[]) {
   TH1 *hResPointPx = new TH1F("hResPointPx","Px_{MC}-Px_{REC};#deltaPx, GeV/c",1e2,-0.01,0.01);
   TH1 *hErrPointPx = new TH1F("hErrPointPx","#sigma_{Px};#sigmaPx, GeV/c",1e3,0,0.01);
   TH1 *hPullPointPx = new TH1F("hPullPointPx","(Px_{MC}-Px_{REC})/#sigma_{Px};(Px_{MC}-Px_{REC})/#sigma_{Px}",1e2,-10,10);
-  
+
   TH1 *hResPointPy = new TH1F("hResPointPy","Py_{MC}-Py_{REC};#deltaPy, GeV/c",1e2,-0.01,0.01);
   TH1 *hErrPointPy = new TH1F("hErrPointPy","#sigma_{Py};#sigmaPy, GeV/c",1e3,0,0.01);
   TH1 *hPullPointPy = new TH1F("hPullPointPy","(Py_{MC}-Py_{REC})/#sigma_{Py};(Py_{MC}-Py_{REC})/#sigma_{Py}",1e2,-10,10);
-  
+
   TH1 *hResPointPz = new TH1F("hResPointPz","Pz_{MC}-Pz_{REC};#deltaPz, GeV/c",1e2,-1e-3,1e-3);
   TH1 *hErrPointPz = new TH1F("hErrPointPz","#sigma_{Pz};#sigmaPz, GeV/c",1e3,0,1e-2);
   TH1 *hPullPointPz = new TH1F("hPullPointPz","(Pz_{MC}-Pz_{REC})/#sigma_{Pz};(Pz_{MC}-Pz_{REC})/#sigma_{Pz}",1e2,-10,10);
@@ -332,7 +332,7 @@ int main(int __argc,char *__argv[]) {
   //  int glNoisehit = 0;// total number of noise hits
   for (Int_t j=0; j<nEvents; j++){
     // Read GEANE & MC info -----------------------------------------------------------------
-    //    if(kf<1) 
+    //    if(kf<1)
     tTrkRec.GetEntry(j);
     tgeane.GetEntry(j);
     tMC.GetEntry(j);
@@ -345,10 +345,10 @@ int main(int __argc,char *__argv[]) {
     const int numTrk = nGeaneTrks;
     const int nRecHits = rechit_array->GetEntriesFast();
     const int nMCHits = true_points->GetEntriesFast();
-    
+
     const int nTrkCandidates = trkcand_array->GetEntriesFast();
     const int nRecTrks = rec_trk->GetEntriesFast();
-    if(verboseLevel>0)  
+    if(verboseLevel>0)
       cout<<"Event #"<<j<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
     //    if(nParticles!=nMCtracks) continue;
@@ -387,8 +387,8 @@ int main(int __argc,char *__argv[]) {
       double  sLmPCA= TMath::Sin(fLmPCA);
       Double_t fPPCA =sqrt(MomRecPCA.X()*MomRecPCA.X()+MomRecPCA.Y()*MomRecPCA.Y()+MomRecPCA.Z()*MomRecPCA.Z());
       Double_t fDPPCA= (2*MomRecPCA.X()*errMomRecPCA.X()+2*MomRecPCA.Y()*errMomRecPCA.Y()+2*MomRecPCA.Z()*errMomRecPCA.Z())/(2*fPPCA); //dp
-      Double_t err_lyambda = (-((MomRecPCA.Z()*fDPPCA)/pow(fPPCA,2)) + errMomRecPCA.Z()/fPPCA)/ TMath::Sqrt(1 - pow(MomRecPCA.Z(),2)/pow(fPPCA,2)); 
-      Double_t err_phi = (-((MomRecPCA.Y()*fDPPCA/cLmPCA)/pow(fPPCA,2)) + (errMomRecPCA.Y()/cLmPCA)/fPPCA +(MomRecPCA.Y()*err_lyambda*TMath::Tan(fLmPCA)/cLmPCA)/fPPCA) /TMath::Sqrt(1 - (pow(MomRecPCA.Y(),2)*pow(1/cLmPCA,2))/pow(fPPCA,2)); 
+      Double_t err_lyambda = (-((MomRecPCA.Z()*fDPPCA)/pow(fPPCA,2)) + errMomRecPCA.Z()/fPPCA)/ TMath::Sqrt(1 - pow(MomRecPCA.Z(),2)/pow(fPPCA,2));
+      Double_t err_phi = (-((MomRecPCA.Y()*fDPPCA/cLmPCA)/pow(fPPCA,2)) + (errMomRecPCA.Y()/cLmPCA)/fPPCA +(MomRecPCA.Y()*err_lyambda*TMath::Tan(fLmPCA)/cLmPCA)/fPPCA) /TMath::Sqrt(1 - (pow(MomRecPCA.Y(),2)*pow(1/cLmPCA,2))/pow(fPPCA,2));
 
 
 	// Double_t CovGEANELAB[6][6];
@@ -400,7 +400,7 @@ int main(int __argc,char *__argv[]) {
       // if(Plab<5) pca_lim = 2.;
       // if(Plab<2) pca_lim = 5.;
       // if(fabs(PosRecPCA.X())>pca_lim && fabs(PosRecPCA.Y())>pca_lim) continue; // PCA_x and PCA_y should be < 10sigmaX
-      // ///get rid from most probably ghost track (END) ---     
+      // ///get rid from most probably ghost track (END) ---
       // ///------------------------------------------------------------------------------------
 
       /// Read REC track parameters near LMD -----------------------------------
@@ -422,15 +422,15 @@ int main(int __argc,char *__argv[]) {
       double  sLm= TMath::Sin(fLm);
       Double_t fP =sqrt(MomRecLMD.X()*MomRecLMD.X()+MomRecLMD.Y()*MomRecLMD.Y()+MomRecLMD.Z()*MomRecLMD.Z());
       Double_t fDP= (2*MomRecLMD.X()*errMomRecLMD.X()+2*MomRecLMD.Y()*errMomRecLMD.Y()+2*MomRecLMD.Z()*errMomRecLMD.Z())/(2*fP); //dp
-      Double_t err_lyambdaLMD = (-((MomRecLMD.Z()*fDP)/pow(fP,2)) + errMomRecLMD.Z()/fP)/ TMath::Sqrt(1 - pow(MomRecLMD.Z(),2)/pow(fP,2)); 
-      Double_t err_phiLMD = (-((MomRecLMD.Y()*fDP/cLm)/pow(fP,2)) + (errMomRecLMD.Y()/cLm)/fP +(MomRecLMD.Y()*err_lyambdaLMD*TMath::Tan(fLm)/cLm)/fP) /TMath::Sqrt(1 - (pow(MomRecLMD.Y(),2)*pow(1/cLm,2))/pow(fP,2)); 
+      Double_t err_lyambdaLMD = (-((MomRecLMD.Z()*fDP)/pow(fP,2)) + errMomRecLMD.Z()/fP)/ TMath::Sqrt(1 - pow(MomRecLMD.Z(),2)/pow(fP,2));
+      Double_t err_phiLMD = (-((MomRecLMD.Y()*fDP/cLm)/pow(fP,2)) + (errMomRecLMD.Y()/cLm)/fP +(MomRecLMD.Y()*err_lyambdaLMD*TMath::Tan(fLm)/cLm)/fP) /TMath::Sqrt(1 - (pow(MomRecLMD.Y(),2)*pow(1/cLm,2))/pow(fP,2));
       ///---------------------------------------------------------------------------------------
 
-  
-  	
+
+
 	//Matching between MC & Rec on 1st hit level-----------------------------------
       int candID = trkpnd->GetRefIndex();
-      PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);    
+      PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
       const int Ntrkcandhits= trkcand->GetNHits();
       PndSdsMCPoint* MCPointHit;
       int MCid;
@@ -441,7 +441,7 @@ int main(int __argc,char *__argv[]) {
 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
 	Int_t hitID = candhit.GetHitId();
 	PndSdsHit* myHit = (PndSdsHit*)(rechit_array->At(hitID));
-	
+
 	//for pixel design
 	PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fStripClusterArray->At(myHit->GetClusterIndex()));
 	PndSdsDigiPixel* astripdigi = (PndSdsDigiPixel*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
@@ -463,7 +463,7 @@ int main(int __argc,char *__argv[]) {
       if(hitmix) continue;
       ///--------------------------------------------------------------------------
 
-      
+
       /// Comporision between MC tracks, reconstructed tracks near LMD  and back propagated tracks -------------
 
 	/// Read MC track parameters near IP ------------------------------------

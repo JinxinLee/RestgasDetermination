@@ -78,7 +78,7 @@ class MyMainFrame {
 public:
   MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h);
   virtual ~MyMainFrame();
-  
+
   void DrawPoints();
   void DrawDigis();
   void DrawHitErrors();
@@ -111,7 +111,7 @@ public:
   void ZoomIn   () { fPlotSize    =fPlotSize/ 2.; DoDraw(); ChangePlotParams(); }
   void ZoomOut  () { fPlotSize    =fPlotSize* 2.; DoDraw(); ChangePlotParams(); }
 
-  void PrevStat () {   
+  void PrevStat () {
     if ( fDrawStation == 0 ) fDrawStation = fNofStations;
     fDrawStation = fDrawStation - 1;
     DoDraw(); ChangePlotParams();
@@ -164,7 +164,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 
   hframe->AddFrame(v1frame, new TGLayoutHints(kLHintsLeft,2,2,2,2));
 
-  
+
   TGVerticalFrame *v2frame = new TGVerticalFrame(hframe,fWindowSize*.25,fWindowSize*1);
 
   fScanvas = new TRootEmbeddedCanvas("Scanvas",v2frame,fWindowSize*.25,fWindowSize*.25);
@@ -189,7 +189,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 
   TGHorizontalFrame *eventFrame = new TGHorizontalFrame(v2bframe,fWindowSize*.1,fWindowSize*.300);
   v2bframe->AddFrame(eventFrame, new TGLayoutHints(kLHintsCenterX|kLHintsCenterY,2,2,2,2));
-  
+
   TGTextButton *readEv = new TGTextButton(eventFrame,"&Draw event");
   readEv->Connect("Clicked()","MyMainFrame",this,"ReadEvent()");
   eventFrame->AddFrame(readEv, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
@@ -247,7 +247,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 				      TGNumberFormat::kNESRealThree);
   posizeFr->AddFrame(fPSizeEntry, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
   fPSizeEntry->Connect("TextChanged(char*)","MyMainFrame",this,"ChangePlotSize(char*)");
-  
+
   posizeFr->AddFrame(new TGLabel(posizeFr, new TGHotString("X center, cm")));
   fPCenXEntry = new TGNumberEntryField(posizeFr,-1,fPlotCenterX,
 							  TGNumberFormat::kNESRealThree);
@@ -314,7 +314,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
   moveDOWNBut->Connect("Clicked()","MyMainFrame",this,"MoveDOWN()");
   moveDOWNBut->SetToolTipText("move down by half frame");
   vHMframe->AddFrame(moveDOWNBut, new TGLayoutHints(kLHintsCenterX,5,5,5,5));
-  
+
   horMframe->AddFrame(vHMframe, new TGLayoutHints(kLHintsCenterX,0,0,0,0));
 
   TGVerticalFrame *vHM2frame = new TGVerticalFrame(horMframe,fWindowSize*.030,fWindowSize*.300);
@@ -349,7 +349,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 
   ChangePlotParams();
   DoDraw();
-  
+
   fMain->SetWindowName("Simple Example");
   // Map all subwindows of main frame
   fMain->MapSubwindows();
@@ -369,7 +369,7 @@ void MyMainFrame::DoDraw() {
   fEcanvas->SetName(Form("Station %d",fDrawStation+1));
 
   fCanvas->Clear();
-  
+
   //  cout << "plot size " << fPlotSize << " at " << fPlotCenterX << " " << fPlotCenterY << " " << fPlotCenterZ << endl;
 
   Double_t markerSize = 2.;
@@ -378,10 +378,10 @@ void MyMainFrame::DoDraw() {
 
   if ( fPlotSize == 0. ) fPlotSize = 0.001;
 
-  Double_t minX = fPlotCenterX-fPlotSize;  
-  Double_t maxX = fPlotCenterX+fPlotSize;  
-  Double_t minY = fPlotCenterY-fPlotSize;  
-  Double_t maxY = fPlotCenterY+fPlotSize;  
+  Double_t minX = fPlotCenterX-fPlotSize;
+  Double_t maxX = fPlotCenterX+fPlotSize;
+  Double_t minY = fPlotCenterY-fPlotSize;
+  Double_t maxY = fPlotCenterY+fPlotSize;
 
   fCanvas->Range(minX,minY,maxX,maxY);
   fCanvas->SetFillColor(0);
@@ -394,7 +394,7 @@ void MyMainFrame::DoDraw() {
   TEllipse* outerRim = new TEllipse(0.,0.,fStationsOuterRadius[fDrawStation],fStationsOuterRadius[fDrawStation]);
   outerRim->Draw();
 
-  
+
   if ( fSimRecoFilesRead ) {
     //    cout << "TRYING TO DRAW !!!" << endl;
     DrawHitErrors();
@@ -414,14 +414,14 @@ void MyMainFrame::DoDraw() {
   TLatex* ts = new TLatex(.2*minX+.8*maxX,.1*minY+.9*maxY,Form("%.2f cm",10**(sizeScale-2)));     ts->SetTextSize(0.03);    ts->Draw();
   scale->SetLineWidth(2);
   scale->Draw();
-  
+
   //  TLatex* tc = new TLatex(.2*minX+.8*maxX,.15*minY+.85*maxY,Form("%d channels",nofStrips));     tc->SetTextSize(0.03);    tc->Draw();
 
   fCanvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
   		   "MyMainFrame", this,"DoInfoStatusBar(Int_t,Int_t,Int_t,TObject*)");
   fCanvas->cd();
   fCanvas->Update();
-  
+
   //  cout << " DoDraw() END --> time = " << fTimer.RealTime() << endl;
 }
 //-----------------------------------------------------------------------------
@@ -434,13 +434,13 @@ void MyMainFrame::DrawPoints() {
 
   PndGemMCPoint* pointToDraw;
   for ( Int_t ipoint = 0 ; ipoint < fNofGemPoints ; ipoint++ ) {
-    markerColor = 1; 
+    markerColor = 1;
 
     pointToDraw = (PndGemMCPoint*)fGemPointArray->At(ipoint);
 
     //return stationNr*256+sensorNr*16+segmentNr;
 
-    //  TString stationIdentifier = pointToDraw->GetDetName();    
+    //  TString stationIdentifier = pointToDraw->GetDetName();
     Int_t stationNr = pointToDraw->GetSensorId();
     Int_t segmentNr = stationNr%16;
     Int_t sensorNr = (stationNr/16)%16;
@@ -455,10 +455,10 @@ void MyMainFrame::DrawPoints() {
 
     // if ( stationIdentifier.Contains("Gem1") ) markerColor = 3;
     // if ( stationIdentifier.Contains("Pad") ) markerColor = 2;
-    // if ( stationIdentifier.Contains("Gem6") ) markerColor = 4; 
+    // if ( stationIdentifier.Contains("Gem6") ) markerColor = 4;
     if ( sensorNr == 1 ) markerColor = 3;
    if ( sensorNr == 2 ) markerColor = 4;
-    
+
     pointCenter->SetMarkerColor(markerColor);
     pointCenter->Draw();
 
@@ -555,10 +555,10 @@ void MyMainFrame::DrawDigis() {
       //      cout << "to draw radial strip" << endl;
       Double_t deltaTheta = TMath::DegToRad()*digiSensor->GetStripAngle(digiSide);
       Double_t innerPStripPitch = digiSensor->GetPitch(digiSide);
-    
+
       //      Double_t innerCirc = digiSensor->GetInnerRadius()*2.*TMath::Pi();
       Int_t nofStrips = (digiSide?digiSensor->GetNChannelsBack():digiSensor->GetNChannelsFront());
-    
+
       //      if (  digiSensor->GetStripAngle(digiSide) == 0. )     cout << "channel number = " << channelNumber << endl;
       Double_t radialStripSpan = TMath::ATan(digiSensor->GetPitch(digiSide)/digiSensor->GetInnerRadius());
 
@@ -570,7 +570,7 @@ void MyMainFrame::DrawDigis() {
       //      Double_t radialStripSpan = 2.*TMath::Pi()/((Double_t)(nofStrips));
       Double_t cosRSS = TMath::Cos(radialStripSpan);
       Double_t sinRSS = TMath::Sin(radialStripSpan);
-      
+
       Double_t xBot = 0;
       Double_t xTop = TMath::Sin(deltaTheta)*digiSensor->GetOuterRadius();
       Double_t yBot = digiSensor->GetInnerRadius();
@@ -590,7 +590,7 @@ void MyMainFrame::DrawDigis() {
       ypstr[3] =-xpstr[0]*sinRSS+ypstr[0]*cosRSS;
       xpstr[4] = xpstr[0];
       ypstr[4] = ypstr[0];
-      
+
       Int_t colorCode = 4;
       if ( digiSensor->GetStripAngle(digiSide) > 0. ) {
 	colorCode = 1;
@@ -606,9 +606,9 @@ void MyMainFrame::DrawDigis() {
       strip->SetLineColor(colorCode);
       strip->SetFillColor(colorCode);
       strip->Draw("");
-      
+
     }
-    //    cout << "done" << endl;    
+    //    cout << "done" << endl;
   }
 }
 //-----------------------------------------------------------------------------
@@ -622,7 +622,7 @@ void MyMainFrame::DrawHits() {
 
   PndGemHit* hitToDraw;
   for ( Int_t ihit = 0 ; ihit < fNofGemHits ; ihit++ ) {
-    markerColor = 1; 
+    markerColor = 1;
     markerStyle = 29;
     markerSize = 3.;
     if ( fPlotSize > 1.1 ) markerSize = 1.5;
@@ -662,7 +662,7 @@ void MyMainFrame::DrawHitErrors() {
 
   PndGemHit* hitToDraw;
   for ( Int_t ihit = 0 ; ihit < fNofGemHits ; ihit++ ) {
-    markerColor = 11; 
+    markerColor = 11;
 
     hitToDraw = (PndGemHit*)fGemHitArray->At(ihit);
 
@@ -691,7 +691,7 @@ void MyMainFrame::DrawHitErrors() {
     xErr[4] = xErr[0];                                yErr[4] = yErr[0];
 
     TPolyLine* errorBox = new TPolyLine(5,xErr,yErr);
-    if ( hitToDraw->GetRefIndex() > 0 ) 
+    if ( hitToDraw->GetRefIndex() > 0 )
       errorBox->SetUniqueID(hitToDraw->GetRefIndex());
     else
       errorBox->SetUniqueID(666666);
@@ -743,9 +743,9 @@ void MyMainFrame::ReadPoint() {
   PndGemMCPoint* fGemPoint = (PndGemMCPoint*)fGemPointArray->At(iPoint);
 
   fPlotSize    = 0.5;
-  fPlotCenterX = fGemPoint->GetX();  
-  fPlotCenterY = fGemPoint->GetY();  
-  fPlotCenterZ = fGemPoint->GetZ();  
+  fPlotCenterX = fGemPoint->GetX();
+  fPlotCenterY = fGemPoint->GetY();
+  fPlotCenterZ = fGemPoint->GetZ();
 
   TString stationIdentifier = fGemPoint->GetDetName();
   stationIdentifier.Remove(stationIdentifier.Last('/'),stationIdentifier.Length());
@@ -755,16 +755,16 @@ void MyMainFrame::ReadPoint() {
 
   fDrawStation = stationIdentifier.Atoi()-1;
 
-  /*  cout << "POINT #" << iPoint << " at (" 
-       << fPlotCenterX << "," 
-       << fPlotCenterY << "," 
-       << fPlotCenterZ << ") in \"" 
+  /*  cout << "POINT #" << iPoint << " at ("
+       << fPlotCenterX << ","
+       << fPlotCenterY << ","
+       << fPlotCenterZ << ") in \""
        << fGemPoint->GetDetName() << "\" -> " << stationIdentifier.Data() << endl;
   */
 
   ChangePlotParams();
 
-  DoDraw();  
+  DoDraw();
 
   TString tempString = Form("%d",iPoint+1);
   fPointToDrawEntry->SetText(tempString.Data());
@@ -775,13 +775,13 @@ void MyMainFrame::ReadPoint() {
 //-----------------------------------------------------------------------------
 void MyMainFrame::ReadEvent() {
   if ( !fSimRecoFilesRead ) {
-    fSimFile = TFile::Open(Form("%s.root",fBaseString.Data()));   
+    fSimFile = TFile::Open(Form("%s.root",fBaseString.Data()));
 
-    if ( !fSimFile ) 
+    if ( !fSimFile )
       return;
 
     cout << "simulation file \"" << fSimFile->GetName() << "\" loaded" << endl;
-    fSimTree       = (TTree*) fSimFile->Get("cbmsim");
+    fSimTree       = (TTree*) fSimFile->Get("pndsim");
 
     fGemPointArray = new TClonesArray("PndGemMCPoint");
     fSimTree->SetBranchAddress("GEMPoint",&fGemPointArray) ;
@@ -792,16 +792,16 @@ void MyMainFrame::ReadEvent() {
     fDigiFile = TFile::Open(Form("%s_digi.root",fBaseString.Data()));
     fHitsFile = TFile::Open(Form("%s_hits.root",fBaseString.Data()));
 
-    if ( !fDigiFile || !fHitsFile ) 
+    if ( !fDigiFile || !fHitsFile )
       return;
 
     cout << "digi file \"" << fDigiFile->GetName() << "\" loaded" << endl;
-    fDigiTree       = (TTree*) fDigiFile->Get("cbmsim");
+    fDigiTree       = (TTree*) fDigiFile->Get("pndsim");
     fGemDigiArray  = new TClonesArray("PndGemDigi");
     fDigiTree->SetBranchAddress("GEMDigi",&fGemDigiArray) ;
 
     cout << "hits file \"" << fHitsFile->GetName() << "\" loaded" << endl;
-    fHitsTree       = (TTree*) fHitsFile->Get("cbmsim");
+    fHitsTree       = (TTree*) fHitsFile->Get("pndsim");
     fGemHitArray   = new TClonesArray("PndGemHit");
     fHitsTree->SetBranchAddress("GEMHit",&fGemHitArray) ;
 
@@ -823,12 +823,12 @@ void MyMainFrame::ReadEvent() {
   PndGemHit* hitToDraw;
   for ( Int_t ihit = 0 ; ihit < fNofGemHits ; ihit++ ) {
     hitToDraw = (PndGemHit*)fGemHitArray->At(ihit);
-    if ( hitToDraw->GetRefIndex() == -1 ) 
+    if ( hitToDraw->GetRefIndex() == -1 )
       falseHits ++;
 //       cout << "GOT FALSE HIT" << endl;
   }
 
-  cout << " --> Event #" << iEvent << ": " 
+  cout << " --> Event #" << iEvent << ": "
        << fNofGemPoints << " points, "
        << fNofMCTracks << " MCtracks, "
        << fNofGemHits << " hits, "
@@ -852,7 +852,7 @@ void MyMainFrame::ReadParameters() {
   geoFileName.ReplaceAll("$VMCWORKDIR",dir.Data());
 
   ifstream fin(geoFileName.Data());
-  
+
   string dummyText;         //dummy text
 
   if(!fin) { cout << "sorry, no file \"" << geoFileName.Data() << "\"" << endl; return; }
@@ -874,7 +874,7 @@ void MyMainFrame::ReadParameters() {
     getline(fin,dummyText);
     if ( dummyText.find("TrackFinder") != -1 ) break;
     //     cout << "reading " << dummyText << endl;
-    dummyText.replace(0,dummyText.find_first_not_of(' '),"");   
+    dummyText.replace(0,dummyText.find_first_not_of(' '),"");
     // cout << "now it is " << dummyText << endl;
     while ( dummyText.find(',') != -1 ) {
       parameters[nofParameters++] = atof(dummyText.c_str());
@@ -882,7 +882,7 @@ void MyMainFrame::ReadParameters() {
       dummyText.replace(0,dummyText.find(',')+1,"");
       // cout << " and it is " << dummyText << endl;
     }
-    if ( atof(dummyText.c_str()) != 0. )     
+    if ( atof(dummyText.c_str()) != 0. )
       parameters[nofParameters++] = atof(dummyText.c_str());
     // cout << " --> " << nofParameters << " parameters" << endl;
   }
@@ -906,7 +906,7 @@ void MyMainFrame::ReadParameters() {
   while ( arrayIndex < nofParameters ) {
     stationNr   = (Int_t)parameters[arrayIndex+0];
     stationName = Form("Gem_Station_%d",stationNr);
-    
+
     station = new PndGemStation(stationName.Data(), stationNr, parameters[arrayIndex+1], TMath::Pi()*parameters[arrayIndex+2]/180. );
     realStation = new PndGemStation(stationName.Data(), stationNr, parameters[arrayIndex+1], TMath::Pi()*parameters[arrayIndex+2]/180. );
 
@@ -916,28 +916,28 @@ void MyMainFrame::ReadParameters() {
     fRealStations->Add(realStation);
 
     arrayIndex += 4;
-    
+
     nofSensors = (Int_t)parameters[arrayIndex-1];
-    
+
     for ( Int_t isec = 0 ; isec < nofSensors ; isec++ ) {
       if ( isec == 0 ) {
-	fStationsInnerRadius[stationNr-1] = parameters[arrayIndex+ 6]; 
+	fStationsInnerRadius[stationNr-1] = parameters[arrayIndex+ 6];
 	fStationsOuterRadius[stationNr-1] = parameters[arrayIndex+ 7];
       }
 
       sensorNr   = (Int_t)parameters[arrayIndex+0];
       sensorName = Form("Gem_Disk%d_Gem%s_Sensor_kapton",stationNr,(sensorNr==1?"1":"6"));
-      
+
       realSensor = new PndGemSensor(sensorName.Data(), stationNr, sensorNr, (Int_t)parameters[arrayIndex+1],
 				    parameters[arrayIndex+ 2], parameters[arrayIndex+ 3], parameters[arrayIndex+ 4],
 				    -TMath::Pi()*parameters[arrayIndex+ 5]/180.,
-				    parameters[arrayIndex+ 6], parameters[arrayIndex+ 7], 
+				    parameters[arrayIndex+ 6], parameters[arrayIndex+ 7],
 				    parameters[arrayIndex+ 8],
-				    parameters[arrayIndex+ 9], parameters[arrayIndex+10], 
+				    parameters[arrayIndex+ 9], parameters[arrayIndex+10],
 				    parameters[arrayIndex+11], parameters[arrayIndex+12]);
-      
+
       for ( Int_t itemp = 0 ; itemp < 2 ; itemp++ ) {
-	if ( TMath::Abs(parameters[arrayIndex+ 9+itemp]) <  1. || 
+	if ( TMath::Abs(parameters[arrayIndex+ 9+itemp]) <  1. ||
 	     TMath::Abs(parameters[arrayIndex+ 9+itemp]) > 89. )
 	  continue;
 
@@ -950,21 +950,21 @@ void MyMainFrame::ReadParameters() {
 
 	if ( parameters[arrayIndex+ 9+itemp] > 0. ) parameters[arrayIndex+ 9+itemp] =  b;
 	if ( parameters[arrayIndex+ 9+itemp] < 0. ) parameters[arrayIndex+ 9+itemp] = -b;
-	
+
 	cout << "angle = " << parameters[arrayIndex+ 9+itemp] << endl;
       }
 
       sensor = new PndGemSensor(sensorName.Data(), stationNr, sensorNr, (Int_t)parameters[arrayIndex+1],
 				parameters[arrayIndex+ 2], parameters[arrayIndex+ 3], parameters[arrayIndex+ 4],
 				-TMath::Pi()*parameters[arrayIndex+ 5]/180.,
-				parameters[arrayIndex+ 6], parameters[arrayIndex+ 7], 
+				parameters[arrayIndex+ 6], parameters[arrayIndex+ 7],
 				parameters[arrayIndex+ 8],
-				parameters[arrayIndex+ 9], parameters[arrayIndex+10], 
+				parameters[arrayIndex+ 9], parameters[arrayIndex+10],
 				parameters[arrayIndex+11], parameters[arrayIndex+12]);
-      
+
       station->AddSensor(sensor);
       realStation->AddSensor(realSensor);
-      
+
       arrayIndex+=13;
     }
   }
@@ -1051,7 +1051,7 @@ void MyMainFrame::DoInfoStatusBar(Int_t event, Int_t x, Int_t y,
       }
     }
   }
-  
+
 }
 //-----------------------------------------------------------------------------
 

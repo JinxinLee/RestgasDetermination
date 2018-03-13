@@ -10,8 +10,8 @@
 int QA_histos() {
   TStopwatch fTimer;
   TFile fileqa("data/recoqa.root");
-  TTree *cbmsim = (TTree*) fileqa.Get("cbmsim");
-  cbmsim->AddFriend("cbmsim", "data/sim.root");
+  TTree *simtree = (TTree*) fileqa.Get("pndsim");
+  simtree->AddFriend("pndsim", "data/sim.root");
 
   TCut cut = "";
 
@@ -32,14 +32,14 @@ int QA_histos() {
   TH1F *eff_mvdstr = new TH1F("eff_mvdstr", "MVD strip efficiency", 100, effmin, effmax);
   TH1F *eff_stt = new TH1F("eff_stt", "STT efficiency", 100, effmin, effmax);
   TH1F *eff_gem = new TH1F("eff_gem", "GEM efficiency", 100, effmin, effmax);
-  
-  cbmsim->Draw("RecoTrackInfo.GetMvdPixelEfficiency() >> eff_mvdpix", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetMvdStripEfficiency() >> eff_mvdstr", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetSttEfficiency() >> eff_stt", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetGemEfficiency() >> eff_gem", cut, "goff");
+
+  simtree->Draw("RecoTrackInfo.GetMvdPixelEfficiency() >> eff_mvdpix", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetMvdStripEfficiency() >> eff_mvdstr", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetSttEfficiency() >> eff_stt", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetGemEfficiency() >> eff_gem", cut, "goff");
 
   TH1F *eff_glo = new TH1F("eff_glo", "global efficiency", 100, effmin, effmax);
-  cbmsim->Draw("RecoTrackInfo.GetEfficiency() >> eff_glo", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetEfficiency() >> eff_glo", cut, "goff");
 
   /**
      7 histos: Global Purity (#true hits/#hits), for all the primary tracks, for all the detectors:
@@ -57,26 +57,26 @@ int QA_histos() {
   TH1F *pur_mvdstr = new TH1F("pur_mvdstr", "MVD strip purity", 100, purmin, purmax);
   TH1F *pur_stt = new TH1F("pur_stt", "STT purity", 100, purmin, purmax);
   TH1F *pur_gem = new TH1F("pur_gem", "GEM purity", 100, purmin, purmax);
-  
-  cbmsim->Draw("RecoTrackInfo.GetMvdPixelPurity() >> pur_mvdpix", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetMvdStripPurity() >> pur_mvdstr", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetSttPurity() >> pur_stt", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetGemPurity() >> pur_gem", cut, "goff");
 
- 
+  simtree->Draw("RecoTrackInfo.GetMvdPixelPurity() >> pur_mvdpix", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetMvdStripPurity() >> pur_mvdstr", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetSttPurity() >> pur_stt", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetGemPurity() >> pur_gem", cut, "goff");
+
+
   TH1F *pur_glo = new TH1F("pur_glo", "global purity", 100, purmin, purmax);
-  cbmsim->Draw("RecoTrackInfo.GetPurity() >> pur_glo", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetPurity() >> pur_glo", cut, "goff");
 
   /**
-     2 histos: 
-     Number of reco tracks correlated to MC track, for primaries (>1 -> clones) 
+     2 histos:
+     Number of reco tracks correlated to MC track, for primaries (>1 -> clones)
      Number of MC tracks correlated to reco tracks for primaries (>1 -> broken tracks
   **/
   TH1F *hnofrecotracks = new TH1F("hnofrecotracks", "# of reco tracks associated to the same MC track", 20, 0, 20);
-  cbmsim->Draw("MCTrackInfo.GetNofRecoTracks() >> hnofrecotracks", cut, "goff");
+  simtree->Draw("MCTrackInfo.GetNofRecoTracks() >> hnofrecotracks", cut, "goff");
 
   TH1F *hnofMCtracks = new TH1F("hnofMCtracks", "# of MC tracks associated to the same reco track", 20, 0, 20);
-  cbmsim->Draw("RecoTrackInfo.GetNofMCTracks() >> hnofMCtracks", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetNofMCTracks() >> hnofMCtracks", cut, "goff");
 
   /**
      7 histos: Resolution at the first point:
@@ -93,39 +93,39 @@ int QA_histos() {
   TH1F *hdelta_pz_first = new TH1F("hdelta_pz_first", "#Delta pz @ first hit", 100, pmin, pmax);
   TH1F *hdelta_pt_first = new TH1F("hdelta_pt_first", "#Delta pt @ first hit", 100, pmin, pmax);
 
-  cbmsim->Draw("RecoTrackInfo.GetMomentumFirst().Mag() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Mag() >> hdelta_p_first", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetMomentumFirst().Perp() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Perp() >> hdelta_pt_first", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetMomentumFirst().Z() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Z() >> hdelta_pz_first", cut, "goff");
-  
+  simtree->Draw("RecoTrackInfo.GetMomentumFirst().Mag() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Mag() >> hdelta_p_first", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetMomentumFirst().Perp() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Perp() >> hdelta_pt_first", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetMomentumFirst().Z() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Z() >> hdelta_pz_first", cut, "goff");
+
   double thetamin = -5;
   double thetamax = 5;
   int ntheta = (thetamax - thetamin)*10;
   TH1F *hdelta_theta_first = new TH1F("hdelta_theta_first", "#Delta #theta @ first hit", ntheta, thetamin, thetamax);
-  cbmsim->Draw("(RecoTrackInfo.GetMomentumFirst().Theta() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Theta()) * TMath::RadToDeg() >> hdelta_theta_first", cut, "goff");
-  
+  simtree->Draw("(RecoTrackInfo.GetMomentumFirst().Theta() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Theta()) * TMath::RadToDeg() >> hdelta_theta_first", cut, "goff");
+
   double phimin = -5;
   double phimax = 5;
   int nphi = (phimax - phimin)*10;
   TH1F *hdelta_phi_first = new TH1F("hdelta_phi_first", "#Delta #phi @ first hit", nphi, phimin, phimax);
-  cbmsim->Draw("(RecoTrackInfo.GetMomentumFirst().Phi() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Phi()) * TMath::RadToDeg() >> hdelta_phi_first", cut, "goff");
+  simtree->Draw("(RecoTrackInfo.GetMomentumFirst().Phi() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Phi()) * TMath::RadToDeg() >> hdelta_phi_first", cut, "goff");
 
 
   double xmin = -0.2;
   double xmax = 0.2;
   TH1F *hdelta_x_first = new TH1F("hdelta_x_first", "#Delta x @ first hit", 100, xmin, xmax);
   TH1F *hdelta_y_first = new TH1F("hdelta_y_first", "#Delta y @ first hit", 100, xmin, xmax);
-  cbmsim->Draw("RecoTrackInfo.GetPositionFirst().X() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().X() >> hdelta_x_first", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetPositionFirst().Y() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().Y() >> hdelta_y_first", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetPositionFirst().X() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().X() >> hdelta_x_first", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetPositionFirst().Y() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().Y() >> hdelta_y_first", cut, "goff");
 
   double zmin = -0.2;
   double zmax = 0.2;
   TH1F *hdelta_z_first = new TH1F("hdelta_z_first", "#Delta z @ first hit", 100, zmin, zmax);
-  cbmsim->Draw("RecoTrackInfo.GetPositionFirst().Z() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().Z() >> hdelta_z_first", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetPositionFirst().Z() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().Z() >> hdelta_z_first", cut, "goff");
 
   double rmax = xmax;
   TH1F *hdelta_r_first = new TH1F("hdelta_r_first", "#Delta r @ first hit", 100, -rmax, rmax);
-  cbmsim->Draw("RecoTrackInfo.GetPositionFirst().Perp() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().Perp() >> hdelta_r_first", cut, "goff");
-  
+  simtree->Draw("RecoTrackInfo.GetPositionFirst().Perp() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().Perp() >> hdelta_r_first", cut, "goff");
+
   /**
      7 histos: Resolution at the last point:
      delta_p
@@ -139,29 +139,29 @@ int QA_histos() {
   TH1F *hdelta_pz_last = new TH1F("hdelta_pz_last", "#Delta pz @ last hit", 100, pmin, pmax);
   TH1F *hdelta_pt_last = new TH1F("hdelta_pt_last", "#Delta pt @ last hit", 100, pmin, pmax);
 
-  cbmsim->Draw("RecoTrackInfo.GetMomentumLast().Mag() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Mag() >> hdelta_p_last", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetMomentumLast().Perp() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Perp() >> hdelta_pt_last", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetMomentumLast().Z() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Z() >> hdelta_pz_last", cut, "goff");
-  
+  simtree->Draw("RecoTrackInfo.GetMomentumLast().Mag() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Mag() >> hdelta_p_last", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetMomentumLast().Perp() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Perp() >> hdelta_pt_last", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetMomentumLast().Z() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Z() >> hdelta_pz_last", cut, "goff");
+
   TH1F *hdelta_theta_last = new TH1F("hdelta_theta_last", "#Delta #theta @ last hit", ntheta, thetamin, thetamax);
-  cbmsim->Draw("(RecoTrackInfo.GetMomentumLast().Theta() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Theta()) * TMath::RadToDeg() >> hdelta_theta_last", cut, "goff");
-  
+  simtree->Draw("(RecoTrackInfo.GetMomentumLast().Theta() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Theta()) * TMath::RadToDeg() >> hdelta_theta_last", cut, "goff");
+
   TH1F *hdelta_phi_last = new TH1F("hdelta_phi_last", "#Delta #phi @ last hit", nphi, phimin, phimax);
-  cbmsim->Draw("(RecoTrackInfo.GetMomentumLast().Phi() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Phi()) * TMath::RadToDeg() >> hdelta_phi_last", cut, "goff");
+  simtree->Draw("(RecoTrackInfo.GetMomentumLast().Phi() - RecoTrackInfo.GetMCTrackInfo().GetMomentumLast().Phi()) * TMath::RadToDeg() >> hdelta_phi_last", cut, "goff");
 
   TH1F *hdelta_x_last = new TH1F("hdelta_x_last", "#Delta x @ last hit", 100, xmin, xmax);
   TH1F *hdelta_y_last = new TH1F("hdelta_y_last", "#Delta y @ last hit", 100, xmin, xmax);
-  cbmsim->Draw("RecoTrackInfo.GetPositionLast().X() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().X() >> hdelta_x_last", cut, "goff");
-  cbmsim->Draw("RecoTrackInfo.GetPositionLast().Y() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().Y() >> hdelta_y_last", cut, "goff");
-  
+  simtree->Draw("RecoTrackInfo.GetPositionLast().X() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().X() >> hdelta_x_last", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetPositionLast().Y() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().Y() >> hdelta_y_last", cut, "goff");
+
   double zminlast = -0.6;
   double zmaxlast = 0.6;
   TH1F *hdelta_z_last = new TH1F("hdelta_z_last", "#Delta z @ last hit", 100, zminlast, zmaxlast);
-  cbmsim->Draw("RecoTrackInfo.GetPositionLast().Z() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().Z() >> hdelta_z_last", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetPositionLast().Z() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().Z() >> hdelta_z_last", cut, "goff");
 
   TH1F *hdelta_r_last = new TH1F("hdelta_r_last", "#Delta r @ last hit", 100, -rmax, rmax);
-  cbmsim->Draw("RecoTrackInfo.GetPositionLast().Perp() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().Perp() >> hdelta_r_last", cut, "goff");
-  
+  simtree->Draw("RecoTrackInfo.GetPositionLast().Perp() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().Perp() >> hdelta_r_last", cut, "goff");
+
   /**
      delta_charge
   **/
@@ -169,9 +169,9 @@ int QA_histos() {
   double chargemax = 3;
   int ncharge = chargemax - chargemin;
   TH1F *hdelta_charge = new TH1F("hdelta_charge", "#Delta #charge", ncharge, chargemin, chargemax);
-  cbmsim->Draw("RecoTrackInfo.GetCharge() - RecoTrackInfo.GetMCTrackInfo().GetCharge() >> hdelta_charge", cut, "goff");
+  simtree->Draw("RecoTrackInfo.GetCharge() - RecoTrackInfo.GetMCTrackInfo().GetCharge() >> hdelta_charge", cut, "goff");
 
-  /** 
+  /**
       efficiency vs theta
   **/
   TH1F *hthetagen = new TH1F("hthetagen", "mc theta dist", 180, 0, 180);
@@ -182,58 +182,58 @@ int QA_histos() {
   cut_rec = cut_rec && "RecoTrackInfo[MCTrackInfo.GetRecoTrackID()].GetEfficiency() > 0.8";
   cut_rec = cut_rec && "RecoTrackInfo[MCTrackInfo.GetRecoTrackID()].IsClone() == 0";
 
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Theta() * TMath::RadToDeg() >> hthetagen", cut_mc, "goff");
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Theta() * TMath::RadToDeg() >> heffintheta", cut_rec, "goff");
-  
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Theta() * TMath::RadToDeg() >> hthetagen", cut_mc, "goff");
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Theta() * TMath::RadToDeg() >> heffintheta", cut_rec, "goff");
+
   hthetagen->Sumw2();
   heffintheta->Sumw2();
   heffintheta->Divide(hthetagen);
 
 
-  /** 
+  /**
       efficiency vs phi
   **/
   TH1F *hphigen = new TH1F("hphigen", "mc phi dist", 180, -180, 180);
   TH1F *heffinphi = new TH1F("heffinphi", "efficiency vs #phi", 180, -180, 180);
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Phi() * TMath::RadToDeg() >> hphigen", cut_mc, "goff");
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Phi() * TMath::RadToDeg() >> heffinphi", cut_rec, "goff");
-  
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Phi() * TMath::RadToDeg() >> hphigen", cut_mc, "goff");
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Phi() * TMath::RadToDeg() >> heffinphi", cut_rec, "goff");
+
   hphigen->Sumw2();
   heffinphi->Sumw2();
   heffinphi->Divide(hphigen);
 
-  /** 
+  /**
       efficiency vs mom
   **/
   TH1F *hmomgen = new TH1F("hmomgen", "mc mom dist", 100, 0, 3);
   TH1F *heffinmom = new TH1F("heffinmom", "efficiency vs mom", 100, 0, 3);
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Mag() >> hmomgen", cut_mc, "goff");
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Mag() >> heffinmom", cut_rec, "goff");
-  
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Mag() >> hmomgen", cut_mc, "goff");
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Mag() >> heffinmom", cut_rec, "goff");
+
   hmomgen->Sumw2();
   heffinmom->Sumw2();
   heffinmom->Divide(hmomgen);
 
-  /** 
+  /**
       efficiency vs pt
   **/
   TH1F *hptgen = new TH1F("hptgen", "mc pt dist", 100, 0, 3);
   TH1F *heffinpt = new TH1F("heffinpt", "efficiency vs pt", 100, 0, 3);
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> hptgen", cut_mc, "goff");
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> heffinpt", cut_rec, "goff");
-  
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> hptgen", cut_mc, "goff");
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> heffinpt", cut_rec, "goff");
+
   hptgen->Sumw2();
   heffinpt->Sumw2();
   heffinpt->Divide(hptgen);
 
-  /** 
+  /**
       efficiency vs pl
   **/
   TH1F *hplgen = new TH1F("hplgen", "mc pl dist", 100, 0, 3);
   TH1F *heffinpl = new TH1F("heffinpl", "efficiency vs pl", 100, 0, 3);
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Z() >> hplgen", cut_mc, "goff");
-  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Z() >> heffinpl", cut_rec, "goff");
-  
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Z() >> hplgen", cut_mc, "goff");
+  simtree->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Z() >> heffinpl", cut_rec, "goff");
+
   hplgen->Sumw2();
   heffinpl->Sumw2();
   heffinpl->Divide(hplgen);
@@ -296,22 +296,22 @@ int QA_histos() {
   cout << "<DartMeasurement name=\"MaxMemory\" type=\"numeric/double\">";
   cout << maxMemory;
   cout << "</DartMeasurement>" << endl;
-  
+
   fTimer.Stop();
   Double_t rtime = fTimer.RealTime();
   Double_t ctime = fTimer.CpuTime();
-  
+
   Float_t cpuUsage=ctime/rtime;
   cout << "<DartMeasurement name=\"CpuLoad\" type=\"numeric/double\">";
   cout << cpuUsage;
   cout << "</DartMeasurement>" << endl;
-  
+
   cout << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime
        << "s" << endl;
   cout << "CPU usage " << cpuUsage*100. << "%" << endl;
   cout << "Max Memory " << maxMemory << " MB" << endl;
-   
+
   cout << "Macro finished successfully." << endl;
 
   return 0;

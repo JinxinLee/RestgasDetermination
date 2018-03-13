@@ -1,11 +1,11 @@
 bool checkfile(TString fn)
 {
 	bool fileok=true;
-	TFile fff(fn); 
+	TFile fff(fn);
 	if (fff.IsZombie()) fileok=false;
-	TTree *t=(TTree*)fff.Get("cbmsim");
+	TTree *t=(TTree*)fff.Get("pndsim");
 	if (t==0x0) fileok=false;
-	
+
 	if (!fileok) cout <<"Skipping broken file '"<<fn<<"'"<<endl;
 	return fileok;
 }
@@ -13,14 +13,14 @@ bool checkfile(TString fn)
 int ana_task_mult(TString outpre="test", int from=1, int to=1, double pbarmom = 6.232069, int nevts=0)
 {
  	// *** set this to your output path
-	TString OutPath  = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/scrut/data";	
+	TString OutPath  = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/scrut/data";
 	TString Filename = OutPath + "/" + outpre(outpre.Last('/')+1,outpre.Length()); // cut away input path
-	
-	TString OutFile  = TString::Format("%s_fana_%d_%d.root",  Filename.Data(), from, to); 
- 	TString OutDummy = TString::Format("%s_dummy_%d_%d.root", Filename.Data(), from, to); 
-	
+
+	TString OutFile  = TString::Format("%s_fana_%d_%d.root",  Filename.Data(), from, to);
+ 	TString OutDummy = TString::Format("%s_dummy_%d_%d.root", Filename.Data(), from, to);
+
   	FairRunAna *fRun= new FairRunAna();
-  
+
    	bool firstfile=true;
 
   	// *** Add input files
@@ -30,15 +30,15 @@ int ana_task_mult(TString outpre="test", int from=1, int to=1, double pbarmom = 
 
 		if ( checkfile(fname) )
 		{
-			if (firstfile) 
+			if (firstfile)
 				fRun->SetInputFile(fname);
-			else 
+			else
 				fRun->AddFile(fname);
-			
+
 			firstfile=false;
 		}
   	}
-						
+
 	// *** initialization
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
@@ -53,7 +53,7 @@ int ana_task_mult(TString outpre="test", int from=1, int to=1, double pbarmom = 
 	fRun->AddTask(scrutTask);
 
 	// *** and run analysis
-	fRun->Init(); 
-	fRun->Run(0,nevts);	
+	fRun->Init();
+	fRun->Run(0,nevts);
   return 0;
 }

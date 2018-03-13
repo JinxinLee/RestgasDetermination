@@ -48,7 +48,7 @@ const Double_t
 
 
 // -----   Default constructor   -------------------------------------------
-PndMixBackgroundEvents::PndMixBackgroundEvents() : FairTask("Mixing bkgrnd hits to Stt-Mvd") { 
+PndMixBackgroundEvents::PndMixBackgroundEvents() : FairTask("Mixing bkgrnd hits to Stt-Mvd") {
   fInteractionRate = 20.;
   fPersistence = kTRUE;
   fVerbose = 0;
@@ -60,7 +60,7 @@ PndMixBackgroundEvents::PndMixBackgroundEvents() : FairTask("Mixing bkgrnd hits 
 }
 // -------------------------------------------------------------------------
 
-PndMixBackgroundEvents::PndMixBackgroundEvents(Int_t verbose) : FairTask("STT Stt-Mvd Tracking") { 
+PndMixBackgroundEvents::PndMixBackgroundEvents(Int_t verbose) : FairTask("STT Stt-Mvd Tracking") {
   fInteractionRate = 20.;
   fPersistence = kTRUE;
   fVerbose = verbose;
@@ -74,7 +74,7 @@ PndMixBackgroundEvents::PndMixBackgroundEvents(Int_t verbose) : FairTask("STT St
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMixBackgroundEvents::~PndMixBackgroundEvents() { 
+PndMixBackgroundEvents::~PndMixBackgroundEvents() {
 	delete filedigirun;
 	delete filerecorun;
 }
@@ -136,7 +136,7 @@ InitStatus PndMixBackgroundEvents::Init() {
     return kFATAL;
   }
 //  -----   maps of STT tubes
-  // CHECK added 
+  // CHECK added
   PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
   fSttTubeArray = mapper->FillTubeArray();
  //----------------------------------------------------  end map
@@ -175,7 +175,7 @@ InitStatus PndMixBackgroundEvents::Init() {
 
   //   opend background digi file for Stt background hits.
   filedigirun = new TFile(fSttBkgFilename);
-  treedigibkg = (TTree*) filedigirun->Get("cbmsim");
+  treedigibkg = (TTree*) filedigirun->Get("pndsim");
   nTotalBkgEvents = (Int_t) treedigibkg->GetEntriesFast();
 
   // Background STT hits   -----
@@ -233,7 +233,7 @@ InitStatus PndMixBackgroundEvents::Init() {
 
 // ---------------  end of      InitStatus PndMixBackgroundEvents::Init  --------------------
 
-// CHECK added 
+// CHECK added
 void PndMixBackgroundEvents::SetParContainers() {
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");

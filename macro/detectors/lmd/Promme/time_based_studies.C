@@ -43,7 +43,7 @@ int time_based_studies(){
 	canvas->Divide(2,2);
 
 	// load the MC File
-	TChain tMC("cbmsim");
+	TChain tMC("pndsim");
 	tMC.Add("./Lumi_MC_0.root");
 
 	//--- assign MC info -----------------------------------------------------

@@ -97,13 +97,13 @@ void scattered_particles() {
 	TString simMC = storePath + "/Lumi_MC";
 	simMC += startEvent;
 	simMC += ".root";
-	TChain tMC("cbmsim");
+	TChain tMC("pndsim");
 	tMC.Add(simMC);
 
 	TString DigiFile = storePath + "/Lumi_digi";
 	DigiFile += startEvent;
 	DigiFile += ".root";
-	TChain tdigiHits("cbmsim");
+	TChain tdigiHits("pndsim");
 	tdigiHits.Add(DigiFile);
 
 	// ---- Output file ----------------------------------------------------------------

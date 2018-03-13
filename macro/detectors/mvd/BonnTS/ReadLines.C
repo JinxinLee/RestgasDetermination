@@ -29,11 +29,11 @@ int ReadLines(){
 
 
 	// Loading the geometry and defining the geo handler
-	
+
 	TFile *f = new TFile(LinFile);
 
-	TTree *t=(TTree *) f->Get("cbmsim") ;
-	
+	TTree *t=(TTree *) f->Get("pndsim") ;
+
 	TClonesArray* tr_array=new TClonesArray("PndLinTrack");
 	t->SetBranchAddress("MVDTrack",&tr_array);//Branch names
 
@@ -49,21 +49,21 @@ int ReadLines(){
 
 	    for (Int_t y = 0 ; y < tr_array->GetEntries() ; y++) // loop on hits
 	      {
-			
+
 		PndLinTrack* line = (PndLinTrack*)tr_array->At(y);
-		
+
 		std::vector<TString> names = line->GetSens();
-		
+
 		Int_t siz = names.size();
 
 		cout << " Hit " << y << " size " << siz << endl;
-		
+
 		for (Int_t p = 0 ; p < siz ; p++)
 		  {
 		    cout << "Det: " << fGeoH->GetPath(names[p]) << endl;
 		  }
 	      }
-	    
+
 	  } // end loop on events
 
   return 0;

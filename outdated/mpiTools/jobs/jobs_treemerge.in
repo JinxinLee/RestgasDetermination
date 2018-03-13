@@ -1,7 +1,7 @@
 #
-# Example job description file with BARRIER. First, the workers produce 
+# Example job description file with BARRIER. First, the workers produce
 # a root tree using an EMC simulation. After a BARRIER, one of
-# workers merges the cbmsim trees using the mergetrees.sh script.
+# workers merges the pndsim trees using the mergetrees.sh script.
 #
 # JOB Multiplicity ScriptToRun Input Output Number_of_pars par1 par2 par3	...
 #
@@ -13,4 +13,4 @@ JOB 5 $HOME/scripts/runemc.sh NULL $HOME/output/simemc/ 9 10 gamma 0.0 2.0 0. 18
 #
 BARRIER
 RUNID 1000
-JOB 1 $HOME/scripts/mergetrees.sh $HOME/output/simemc/ $HOME/output/simemc/ 3 cbmsim sim_emc.root sim_emc_merge.root
+JOB 1 $HOME/scripts/mergetrees.sh $HOME/output/simemc/ $HOME/output/simemc/ 3 pndsim sim_emc.root sim_emc_merge.root

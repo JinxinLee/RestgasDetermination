@@ -1,11 +1,11 @@
 int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
 
   TFile* simFile = TFile::Open("Gem_MvdStt_3Stations_DPM_n10000.root");
-  TTree* simTree = (TTree*)simFile->Get("cbmsim");
+  TTree* simTree = (TTree*)simFile->Get("pndsim");
   TFile* digFile = TFile::Open("Gem_MvdStt_3Stations_DPM_n10000_digiSorted_a10000_c1000x10.root");
-  TTree* digTree = (TTree*)digFile->Get("cbmsim");
+  TTree* digTree = (TTree*)digFile->Get("pndsim");
   TFile* cluFile = TFile::Open("Gem_MvdStt_3Stations_DPM_n10000_CluHi_a10000_c1000x10.root");
-  TTree* cluTree = (TTree*)cluFile->Get("cbmsim");
+  TTree* cluTree = (TTree*)cluFile->Get("pndsim");
 
   cout << "FILES FETCHED" << endl;
 
@@ -13,7 +13,7 @@ int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
   TClonesArray* mcTrackArray  = new TClonesArray("PndMCTrack");
   TClonesArray* gemPointArray = new TClonesArray("PndGemMCPoint");
   TClonesArray* gemHitArray   = new TClonesArray("PndGemHit");
-  
+
   simTree->SetBranchAddress("MCTrack",&mcTrackArray);
   simTree->SetBranchAddress("GEMPoint",&gemPointArray);
   digTree->SetBranchAddress("EventHeader.",&evHeader);
@@ -115,7 +115,7 @@ int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
     //  for ( Int_t imev = 0 ; imev < 100 ; imev++ ) {
     simTree->GetEntry(imev);
     digTree->GetEntry(imev);
-       cout << "\r MC EVENT " << imev << flush;    
+       cout << "\r MC EVENT " << imev << flush;
 
     for ( Int_t ipoint = 0 ; ipoint < gemPointArray->GetEntries() ; ipoint++ ) {
       tempPoint = (PndGemMCPoint*)gemPointArray->At(ipoint);
@@ -135,26 +135,26 @@ int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
       Double_t pntRad  = TMath::Sqrt(pntX*pntX+pntY*pntY);
 
       Int_t irev = 0;
-      
+
       //	cout << "\r Event " << imev << " check from " << startRev << flush;
-      Int_t nofMatchedHits = 0;	
+      Int_t nofMatchedHits = 0;
 
       for ( irev = startRev ; irev < cluTree->GetEntries() ; irev++ ) {
-	//	if ( verbose ) 
+	//	if ( verbose )
 	// if ( ipoint == 0 )
 	//   cout << "   EVENT " << irev << endl;
 
 	Int_t nofUsableHits = 0;
 
 	cluTree->GetEntry(irev);
-	
+
 	if ( gemHitArray->GetEntries() > 0 ) { // check if first hit has time much bigger than point time
 	  tempHit = (PndGemHit*)gemHitArray->At(0);
-	  if ( tempHit->GetTimeStamp() > evHeader->GetEventTime()+tempPoint->GetTime() + 200. ) 
+	  if ( tempHit->GetTimeStamp() > evHeader->GetEventTime()+tempPoint->GetTime() + 200. )
 	    break;
 	}
 
-	if ( gemHitArray->GetEntries() > kMaxNofHits ) 
+	if ( gemHitArray->GetEntries() > kMaxNofHits )
 	  cout << "THERE ARE MORE HITS THAN EXPECTED, " << gemHitArray->GetEntries() << " IN EVENT " << irev << "." << endl;
 
 	for ( Int_t ihit = 0 ; ihit < gemHitArray->GetEntries() ; ihit++ ) {
@@ -164,7 +164,7 @@ int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
 	    if ( tempHit->GetTimeStamp() > evHeader->GetEventTime() )
 	      nofUsableHits ++;
 	  }
-	  
+
 	  // cout << "HIT @ ( " << tempHit->GetX() << " , " << tempHit->GetY() << " , " << tempHit->GetZ() << " )"
 	  //      << " at time " << tempHit->GetTimeStamp() << endl;
 
@@ -185,19 +185,19 @@ int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
 			  tempHit->GetTimeStamp()-(evHeader->GetEventTime()+tempPoint->GetTime()));
 	    if ( goodY ) {
 	      hist_T->Fill(tempHit->GetTimeStamp()-(evHeader->GetEventTime()+tempPoint->GetTime()));
-	      if ( goodT ) { 
+	      if ( goodT ) {
 		//		((PndGemHit*)gemHitArray->At(ihit))->SetCharge(-100);
 		hitAssignedToPoint[irev][ihit] = kTRUE;
 		nofMatchedHits++;
 	      }
 	    }
-	    if ( goodT ) 
+	    if ( goodT )
 	      hist_Y->Fill(tempHit->GetY()-pntY);//tempPoint->GetY());
 	  }
 	  if ( goodY ) {
 	    hist_XT->Fill(tempHit->GetX()-pntX,//tempPoint->GetX(),
 			  tempHit->GetTimeStamp()-(evHeader->GetEventTime()+tempPoint->GetTime()));
-	    if ( goodT ) 
+	    if ( goodT )
 	      hist_X->Fill(tempHit->GetX()-pntX);//tempPoint->GetX());
 	  }
 	  if ( goodT ) {
@@ -206,7 +206,7 @@ int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
 	  }
 
 	}
-	if ( ipoint == 0 && nofUsableHits == 0 && gemHitArray->GetEntries() > 0 ) 
+	if ( ipoint == 0 && nofUsableHits == 0 && gemHitArray->GetEntries() > 0 )
 	  startRev++;
       }
       hist_N->Fill(nofMatchedHits);
@@ -232,7 +232,7 @@ int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
       if ( !hitAssignedToPoint[irev][ihit] ) {
 	fhHitRadFake     [tempHit->GetStationNr()-1][tempHit->GetSensorNr()-1]->Fill(TMath::Sqrt(tempHit->GetX()*tempHit->GetX()+tempHit->GetY()*tempHit->GetY()));
 	fhHitFake        [tempHit->GetStationNr()-1][tempHit->GetSensorNr()-1]->Fill(tempHit->GetX(),tempHit->GetY());
-      }						 
+      }
     }
   }
 
@@ -302,7 +302,7 @@ int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
   }
 
   TFile* outFile = new TFile(Form("hit_reco_%.1f.root",pntHitDist),"RECREATE");
- 
+
   hist_YT->Write();
   hist_XT->Write();
   hist_XY->Write();

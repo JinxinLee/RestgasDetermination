@@ -35,18 +35,18 @@ int runTripletAna() {
 	TFile filereco(recoFileName.Data());
 	TFile filerecopixel(recoFileName.Data());
 
-	TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
+	TTree *treedigi = (TTree*) filedigi.Get("pndsim");
 	TClonesArray *sttsortedhits = new TClonesArray("PndSttHit");
 	treedigi->SetBranchAddress("STTSortedHits",&sttsortedhits);
 
-	TTree *mvdstriprecotree = (TTree*) filereco.Get("cbmsim");
+	TTree *mvdstriprecotree = (TTree*) filereco.Get("pndsim");
 	TClonesArray *mvdstripreco = new TClonesArray("PndSdsHit");
 	mvdstriprecotree->SetBranchAddress("MVDHitsStrip",&mvdstripreco);
 
-	TTree *mvdpixelrecotree = (TTree*) filerecopixel.Get("cbmsim");
+	TTree *mvdpixelrecotree = (TTree*) filerecopixel.Get("pndsim");
 	TClonesArray *mvdpixelreco = new TClonesArray("PndSdsHit");
 	mvdpixelrecotree->SetBranchAddress("MVDHitsPixel",&mvdpixelreco);
-  
+
 	FairRunAna *fRun= new FairRunAna();
 	fRun->SetInputFile(simFileName.Data());
 	//fRun->AddFriend(recoFile.Data());
@@ -81,10 +81,10 @@ int runTripletAna() {
 	//setting the single straw tube simulation constants
 	// 3 options currently available:
 	// TConst(tube radius (cm), gas pressure (bar), Ar%, CO2%)
-	// stt.TConst(0.4, 1, 0.9, 0.1); 
+	// stt.TConst(0.4, 1, 0.9, 0.1);
 	// stt.TConst(0.5, 1, 0.9, 0.1);
 	//stt.TConst(0.5, 2, 0.8, 0.2);
-	// wire positioning   
+	// wire positioning
 	//stt.PutWireXYZ(0.,  0., -75., 0., 0., 75.);
 
 	Int_t timelimit = 2200;
@@ -169,7 +169,7 @@ int runTripletAna() {
 		GetHitsInTime(currenttime, timewindow, drawstackhits, nexttime, evpos, clonespos, treedigi, sttsortedhits);
 		GetHitsInTime(currenttime, mvdtimewindow, drawstackstriphits, stripnexttime, stripevpos, stripclonespos, mvdstriprecotree, mvdstripreco);
 		GetHitsInTime(currenttime, mvdtimewindow, drawstackpixelhits, pixelnexttime, pixelevpos, pixelclonespos, mvdpixelrecotree, mvdpixelreco);
-		
+
 
 		cout << drawstackhits->GetEntriesFast() << endl;
 		if ((drawstackhits->IsEmpty()) && (drawstackstriphits->IsEmpty()) && (drawstackpixelhits->IsEmpty())) continue;
@@ -276,7 +276,7 @@ TEllipse DrawOriginTrackLipse(Double_t x1, Double_t y1, Double_t x2, Double_t y2
 		mylipse.SetPhimin(0);
 		mylipse.SetPhimax(180);
 	}
-	
+
 	mylipse.SetTheta(TMath::RadToDeg()*zeroangle);
 	return mylipse;
 }

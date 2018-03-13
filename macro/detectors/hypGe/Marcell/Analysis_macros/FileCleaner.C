@@ -15,7 +15,7 @@ int FileCleaner(TString InputFile = "/data/work/kpha1/steinen/Gamma/Ana/Combined
 	}
 
 	gDirectory->Delete("BranchList;1");
-	gDirectory->Delete("cbmsim;1");
+	gDirectory->Delete("pndsim;1");
 	File->Close();
   return 0;
 }

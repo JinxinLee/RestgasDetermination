@@ -340,7 +340,7 @@ void trafo_matrix_test(const double *xx, string filename){
 
 void load_vectors(string filename, bool invert){
 	PndLmdDim& lmddim = PndLmdDim::Get_instance();
-	TChain tMC("cbmsim");
+	TChain tMC("pndsim");
 	tMC.Add(filename.c_str());
 
 	//--- assign MC info -----------------------------------------------------

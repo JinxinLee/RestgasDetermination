@@ -36,18 +36,18 @@ int runStreamDisplay() {
 	TFile filereco(recoFileName.Data());
 	TFile filerecopixel(recoFileName.Data());
 
-	TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
+	TTree *treedigi = (TTree*) filedigi.Get("pndsim");
 	TClonesArray *sttsortedhits = new TClonesArray("PndSttHit");
 	treedigi->SetBranchAddress("STTSortedHits",&sttsortedhits);
 
-	TTree *mvdstriprecotree = (TTree*) filereco.Get("cbmsim");
+	TTree *mvdstriprecotree = (TTree*) filereco.Get("pndsim");
 	TClonesArray *mvdstripreco = new TClonesArray("PndSdsHit");
 	mvdstriprecotree->SetBranchAddress("MVDHitsStrip",&mvdstripreco);
 
-	TTree *mvdpixelrecotree = (TTree*) filereco.Get("cbmsim");
+	TTree *mvdpixelrecotree = (TTree*) filereco.Get("pndsim");
 	TClonesArray *mvdpixelreco = new TClonesArray("PndSdsHit");
 	mvdpixelrecotree->SetBranchAddress("MVDHitsPixel",&mvdpixelreco);
-  
+
 	FairRunAna *fRun= new FairRunAna();
 	fRun->SetInputFile(simFileName.Data());
 	//fRun->AddFriend(recoFile.Data());
@@ -189,7 +189,7 @@ int runStreamDisplay() {
 		DrawVector3(innerskewlets);
 
 		mytext->DrawText(-42, -42, TString::Format("%d ns",currenttime));
-		
+
  		c1->Update();
  		c1->Print("hitstream.gif+15");
 		c2->Update();

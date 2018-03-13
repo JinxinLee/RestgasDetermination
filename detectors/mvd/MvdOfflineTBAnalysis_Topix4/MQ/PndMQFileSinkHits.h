@@ -1,8 +1,8 @@
 /********************************************************************************
  *    Copyright (C) 2014 GSI Helmholtzzentrum fuer Schwerionenforschung GmbH    *
  *                                                                              *
- *              This software is distributed under the terms of the             * 
- *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 /**
@@ -105,7 +105,7 @@ class PndMQFileSinkHits : public FairMQDevice
 
 
         fOutFile = new TFile(ss.str().c_str(), "recreate");
-        fTree = new TTree("cbmsim", "Test output");
+        fTree = new TTree("pndsim", "Test output");
         fTree->Branch("Output", "TClonesArray", &fOutput, 64000, 99);
         fBranchNameList = new TList();
         fBranchNameList->AddLast(new TObjString("Output"));

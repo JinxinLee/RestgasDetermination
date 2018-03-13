@@ -23,8 +23,8 @@
   picture.ReplaceAll(".root",".ps");
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
-  t->AddFriend("cbmsim",digiFile.c_str()); // the digi file
+  TTree *t=(TTree *) f->Get("pndsim") ;
+  t->AddFriend("pndsim",digiFile.c_str()); // the digi file
 
   TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
@@ -93,7 +93,7 @@
   int col, row, fe;
   double x,y;
 
-  TFile* parDB = new TFile(parfile.c_str()); 
+  TFile* parDB = new TFile(parfile.c_str());
   PndMvdStripDigiPar* par = (PndMvdStripDigiPar*)gROOT->FindObject("MVDStripDigiParRect");
   PndMvdCalcFePixel pixelcalc(100, 100, 10);
 

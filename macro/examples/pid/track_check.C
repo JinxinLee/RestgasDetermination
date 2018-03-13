@@ -2,18 +2,18 @@ int track_check(Int_t nEntries = 0)
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  TString inDigiFile  = "digi_sttcombi.root"; 
-  TString inPidFile  = "pid_sttcombi.root"; 
+  TString inDigiFile  = "digi_sttcombi.root";
+  TString inPidFile  = "pid_sttcombi.root";
   TString inRecoFile  = "reco_sttcombi.root";
   TString inAlgoFile = "algo_sttcombi.root";
   TString inSimFile = "points_sttcombi.root";
-  
+
   TFile *inFile = TFile::Open(inPidFile,"READ");
-  
-  TTree *tree=(TTree *) inFile->Get("cbmsim") ;
-  tree->AddFriend("cbmsim",inSimFile);
-  tree->AddFriend("cbmsim",inDigiFile);
-    
+
+  TTree *tree=(TTree *) inFile->Get("pndsim") ;
+  tree->AddFriend("pndsim",inSimFile);
+  tree->AddFriend("pndsim",inDigiFile);
+
   TClonesArray* cand_array=new TClonesArray("PndPidCandidate");
   tree->SetBranchAddress("PidChargedCand", &cand_array);
 
@@ -25,7 +25,7 @@ int track_check(Int_t nEntries = 0)
   tree->SetBranchAddress("MdtHit", &mdth_array);
   TClonesArray* mdtt_array=new TClonesArray("PndMdtTrk");
   tree->SetBranchAddress("MdtTrk", &mdtt_array);
-  
+
   TFile *out = TFile::Open("out_test.root","RECREATE");
   TNtuple *nt = new TNtuple("nt","nt","evt:mc_p:mc_theta:mc_phi:mc_pid:p:theta:phi:mult");
 
@@ -34,7 +34,7 @@ int track_check(Int_t nEntries = 0)
     tree->GetEntry(j);
     //if (cand_array->GetEntriesFast()==0) continue;
     cout << "processing event " << j << "\n";
-    
+
     Float_t mc_mom = 0, mc_theta = 0, mc_phi = 0;
     Float_t rec_mom = 0, rec_theta = 0, rec_phi = 0;
     for (Int_t mc = 0; mc < mc_array->GetEntriesFast(); mc++)
@@ -57,22 +57,22 @@ int track_check(Int_t nEntries = 0)
 		rec_phi = pidCand->GetMomentum().Phi();
 	      }
 	    cand_mult++;
-	    
+
 	  } // end of candidate loop
 
 	Float_t ntuple[] = {j,mc_mom,mc_theta,mc_phi, mc_pid,
 			    rec_mom, rec_theta*TMath::RadToDeg(), rec_phi*TMath::RadToDeg(), cand_mult};
 	nt->Fill(ntuple);
-			   
+
       } // end of MC loop
-    
+
   } // end of event loop
-  
-  
+
+
   out->cd();
-  
+
   nt->Write();
   out->Save();
-  
+
   return 0;
-}	
+}

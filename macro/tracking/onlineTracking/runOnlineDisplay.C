@@ -27,11 +27,11 @@ int runOnlineDisplay()  {
     TFile filereco(recoFileName.Data());
     TFile filerecopixel(recoFileName.Data());
 
-    TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
+    TTree *treedigi = (TTree*) filedigi.Get("pndsim");
     //TClonesArray *sttsortedhits = new TClonesArray("PndSttHit");
     //treedigi->SetBranchAddress("STTSortedHits",&sttsortedhits);
-    
-    TTree *recotree = (TTree*) filereco.Get("cbmsim");
+
+    TTree *recotree = (TTree*) filereco.Get("pndsim");
     //TClonesArray *mvdstripreco = new TClonesArray("PndSdsHit");
     //recotree->SetBranchAddress("MVDHitsStrip",&mvdstripreco);
     //TClonesArray *mvdpixelreco = new TClonesArray("PndSdsHit");
@@ -58,13 +58,13 @@ int runOnlineDisplay()  {
     /**
     ///// works around the "geometry not supported by map" error
     ///// HACK
-   
+
     PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
     PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
     sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
     sttFindTracks->SetPersistence(kFALSE);
     fRun->AddTask(sttFindTracks);
-    
+
     fRun->Init();
     ///////////////////////////////////////////////////////////
     **/
@@ -78,8 +78,8 @@ int runOnlineDisplay()  {
     PndOnlineManager *online = new PndOnlineManager();
     online->AddHitProducer(online_hit_producer);
     online->AddGeometryManager(online_geometry);
-    online->SetActiveDetector(kSTT,stthitlifetime);   
-    online->SetActiveDetector(kMVD,stthitlifetime);   
+    online->SetActiveDetector(kSTT,stthitlifetime);
+    online->SetActiveDetector(kMVD,stthitlifetime);
 
     TClonesArray* tubearray = online_geometry->GetDetectorGeometry(kSTT);
 
@@ -97,7 +97,7 @@ int runOnlineDisplay()  {
     c1->Range(-42,-42,42,42);
     c1->SetCanvasSize(1200, 1200);
     TText* mytext = new TText();
-	
+
 
     // event loop!
     int current_time = 0;
@@ -109,7 +109,7 @@ int runOnlineDisplay()  {
 	TObjArray* online_fairhits_stt = 0;
 	TObjArray* online_tracks = 0;
 	TObjArray* online_fairhits_mvd = 0;
-    
+
     while( current_time < final_time ) {
 	//online->LoadHits( PndOnlineManager::kHESRRevolution );
 	online->ClearTracks();
@@ -118,8 +118,8 @@ int runOnlineDisplay()  {
 	online->Process();
 	//online->Clear();
 	current_time += delta_t;
-	
-    
+
+
 	//Draw the results
 	c1->Clear();
 	c1->cd();
@@ -168,7 +168,7 @@ int runOnlineDisplay()  {
 	// now print out the triplets
 	//online->PrintTracks();
 	//TObjArray *tracks = online->GetTrackObjectList();
-	//for(int i=0; i<tracks->GetEntriesFast(); ++i) {		       
+	//for(int i=0; i<tracks->GetEntriesFast(); ++i) {
 	    //PndOnlineTrack *trk_ptr = (PndOnlineTrack *)(tracks->At(i));
 	    //cout << " triplet cms;  ";  trk_ptr->Vertex().Print();
 	//}
@@ -180,7 +180,7 @@ int runOnlineDisplay()  {
 
 c1->Print("hitdisplay.gif++");
 rzcanvas->Print("hitdisplayrz.gif++");
-    
+
     // -----   Finish   -------------------------------------------------------
     timer.Stop();
     Double_t rtime = timer.RealTime();

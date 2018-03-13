@@ -34,7 +34,7 @@ int printsttcoords() {
 	TFile filedigi(digiFileName.Data());
 	//TFile filereco(recoFileName.Data());
 
-	TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
+	TTree *treedigi = (TTree*) filedigi.Get("pndsim");
 	TClonesArray *sttsortedhits = new TClonesArray("PndSttHit");
 	treedigi->SetBranchAddress("STTSortedHits",&sttsortedhits);
 

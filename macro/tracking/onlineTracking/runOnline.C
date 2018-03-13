@@ -24,11 +24,11 @@ int runOnline()  {
     TFile filereco(recoFileName.Data());
     TFile filerecopixel(recoFileName.Data());
 
-    TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
+    TTree *treedigi = (TTree*) filedigi.Get("pndsim");
     //TClonesArray *sttsortedhits = new TClonesArray("PndSttHit");
     //treedigi->SetBranchAddress("STTSortedHits",&sttsortedhits);
-    
-    TTree *recotree = (TTree*) filereco.Get("cbmsim");
+
+    TTree *recotree = (TTree*) filereco.Get("pndsim");
     //TClonesArray *mvdstripreco = new TClonesArray("PndSdsHit");
     //recotree->SetBranchAddress("MVDHitsStrip",&mvdstripreco);
     //TClonesArray *mvdpixelreco = new TClonesArray("PndSdsHit");
@@ -40,13 +40,13 @@ int runOnline()  {
     //fRun->AddFriend(recoFile.Data());
     fRun->AddFriend(digiFileName.Data());
     fRun->SetOutputFile(outFileName.Data());
-    
+
     //FairRuntimeDb *rtdb = LoadRuntimeDB(parFileName, fRun);
     FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
     FairParRootFileIo* parInput1 = new FairParRootFileIo();
     parInput1->open(parFileName.Data());
     rtdb->setFirstInput(parInput1);
-    
+
 
     // load geometry parameters
     //PndGeoSttPar* fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
@@ -97,7 +97,7 @@ int runOnline()  {
     // now print out the triplets
     //online->PrintTracks();
     TObjArray *tracks = online->GetTrackObjectList();
-    for(int i=0; i<tracks->GetEntriesFast(); ++i) {		       
+    for(int i=0; i<tracks->GetEntriesFast(); ++i) {
 	PndOnlineTrack *trk_ptr = (PndOnlineTrack *)(tracks->At(i));
 	cout << " triplet cms;  ";  trk_ptr->Vertex().Print();
     }

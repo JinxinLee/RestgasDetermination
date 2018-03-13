@@ -30,12 +30,12 @@
 
 
   TFile* f = new TFile("../data/testMCCluster.root"); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
   TClonesArray* hit_array=new TClonesArray("MvdCluster");
   t->SetBranchAddress("MVDCluster",&hit_array);//Branch names
 
   TFile* F = new TFile("testMC.root"); // the sim file you want to analyse
-  TTree *T=(TTree *) F->Get("cbmsim") ;
+  TTree *T=(TTree *) F->Get("pndsim") ;
   TClonesArray* mc_array=new TClonesArray("MvdMCPoint");
   T->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
@@ -154,7 +154,7 @@
 
       tmpx = vnorm.Dot(plU);tmpy = vnorm.Dot(plV);tmpz = vnorm.Dot(vnorm);
       hisPLUV->Fill(tmpx);hisPLUV->Fill(tmpy);hisPLUV->Fill(tmpz);
-     
+
       hisDiffLocalX->Fill(vecdiff.X());
       hisDiffLocalY->Fill(vecdiff.Y());
       hisDiffLocalZ->Fill(vecdiff.Z());

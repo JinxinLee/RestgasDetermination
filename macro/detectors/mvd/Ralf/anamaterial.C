@@ -13,7 +13,7 @@
   std::string inFile = namecreator.GetSimFileName(false);
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
 
 //   TClonesArray* point_array=new TClonesArray("PndSdsMCPoint");
 //   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
@@ -23,7 +23,7 @@
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
 
-  
+
   for(Int_t event=0;event<nEvents && event<mc_array.GetEntriesFast();event++)
   {
 

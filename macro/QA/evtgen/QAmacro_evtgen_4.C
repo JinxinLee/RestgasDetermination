@@ -125,7 +125,7 @@ int QAmacro_evtgen_4()
 
     PndMCTrack *mo;
   {
-	  TChain *abc=new TChain("cbmsim");
+	  TChain *abc=new TChain("pndsim");
 	  abc->Add("qa_evtgen2.root");
 
     TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");

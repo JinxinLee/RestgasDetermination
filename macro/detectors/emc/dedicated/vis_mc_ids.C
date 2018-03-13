@@ -8,9 +8,9 @@ vis_mc_ids()
 
 //  TTree *sim1, *sim2;
 //  TFile *_file0 = TFile::Open("full_emc_test_gamma.root");
-//  sim1=cbmsim;
+//  sim1=pndsim;
 //  sim1->SetName("sim1");
-  TChain *abc=new TChain("cbmsim");
+  TChain *abc=new TChain("pndsim");
   abc->Add("emc_complete.root");
 //  abc->Add("sim_emc_test_gamma.root");
 //  abc->AddFriend("sim1");
@@ -18,13 +18,13 @@ vis_mc_ids()
     TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
   abc->SetBranchAddress("MCTrack",&mctrack_array);
 
-  TClonesArray* hit_array=new TClonesArray("PndEmcHit");		
+  TClonesArray* hit_array=new TClonesArray("PndEmcHit");
   abc->SetBranchAddress("EmcHit",&hit_array);
 
-//   TClonesArray* digi_array=new TClonesArray("PndEmcDigi");		
+//   TClonesArray* digi_array=new TClonesArray("PndEmcDigi");
 //   abc->SetBranchAddress("EmcDigi",&digi_array);
 
-  TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");		
+  TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
   abc->SetBranchAddress("EmcCluster",&cluster_array);
 
   TCanvas* c1 = new TCanvas("c1", "c1", 100, 100, 800, 800);

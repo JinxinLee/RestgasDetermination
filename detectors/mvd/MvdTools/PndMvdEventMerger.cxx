@@ -12,7 +12,7 @@ using std::endl;
 PndMvdEventMerger::PndMvdEventMerger()
 {
 	//fBuffer     = 0;
-	//fBuffer = new TObjArray();	
+	//fBuffer = new TObjArray();
 }
 PndMvdEventMerger::PndMvdEventMerger(TString fileName, TString branchName, Int_t nEvents, Int_t nMerged)
 {
@@ -75,11 +75,11 @@ Int_t PndMvdEventMerger::FillBuffer(TString fileName, TString branchName, Int_t 
 	cout << "-I- CbmMvdPileupManager::FillBuffer: Opening file " << endl;
 	cout << fileName << endl;
 
-	TTree* bgtree = (TTree*) bgfile->Get("cbmsim");
+	TTree* bgtree = (TTree*) bgfile->Get("pndsim");
 	if ( !bgtree)
 	{
 		cout << "-W- CbmMvdPileupManager::FillBuffer:  "
-				<< "Could not find cbmsim tree in background file " << endl;
+				<< "Could not find pndsim tree in background file " << endl;
 		return 0;
 	}
 
@@ -89,9 +89,9 @@ Int_t PndMvdEventMerger::FillBuffer(TString fileName, TString branchName, Int_t 
 	Int_t nBuffer = TMath::Min(nEvents, nEventsInFile);
 	cout << "-I- CbmMvdPileupManager::FillBuffer: Buffering " << nBuffer
 			<< " events" << endl;
-	
+
 	Int_t nMergedBuffer = TMath::Min(nMerged, nEventsInFile);
-	
+
 
 	bgtree->SetBranchAddress(branchName, &pointArray);
 
@@ -104,7 +104,7 @@ Int_t PndMvdEventMerger::FillBuffer(TString fileName, TString branchName, Int_t 
 			std::cout << "New size of mergedPointsArray: " << AddTClonesArray(mergedPointsArray, pointArray) << std::endl;
 		}
 	}
-	
+
 
 	//fBuffer = new TObjArray(nBuffer,0);
 	for (Int_t iEvent=0; iEvent<nBuffer; iEvent++)
@@ -140,7 +140,7 @@ Int_t PndMvdEventMerger::AddTClonesArray(TClonesArray* target, TClonesArray* sou
 //		else if (myClassName.Contains("PndTpcCluster"))
 //			new ((*target)[origSize + i])PndTpcCluster(*(PndTpcCluster*)(source->At(i)));
 		else std::cout << "The Class: " << myClassName << " is unknown!" << std::endl;
-				
+
 	}
 	return target->GetEntriesFast();
 }

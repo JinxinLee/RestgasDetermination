@@ -29,7 +29,7 @@
   //Creating canvas and diagramms
   TCanvas* can1 = new TCanvas("test","Energy in MVD",200,200,1100,800);
   TCanvas* can2 = new TCanvas("test2","Energy in MVD",200,200,1100,800);
-  
+
   //TCanvas* can2 = new TCanvas("test1","Energy in MVD",200,200,1000,1000);
 
 	TH2D * hist4 = new TH2D("EnergyLossVsP","dE(p) gemittelt  ueber alle Hits pro Track",200,0.02,3,200,0,0.0005);
@@ -65,15 +65,15 @@
   TF1 *bpi = new TF1("bpil","((x)*1000)/(sqrt(sq(139.57)+(sq((x)*1000))))",0,1);
 	TF1 *dEBBpil = new TF1("dEBBpil","-.0005+((2.5*sq(14)*1.5)/(sq(bpil)*0.313*10000000))*(log((2*1000000*0.511*sq(bpil))/(13.5*14))-log(1-sq(bpil))-sq(bpil))",0,1);
 
-	//Bethe Bloch fuer Protonen	
+	//Bethe Bloch fuer Protonen
 	TF1 *bp = new TF1("bp","((x-0.05)*1000)/(sqrt(sq(938.26)+(sq(0.05*1000))))",0,1);
 	TF1 *dEBBp = new TF1("dEBBp","((23*sq(14)*1.5)/(sq(bp)*2.133*10000000))*(log((2*1000000*0.511*sq(bp))/(13.5*14))-log(1-sq(bp))-sq(bp))",0,1);
   TF1 *bp = new TF1("bpu","((x-0.1)*1000)/(sqrt(sq(938.26)+(sq((x-0.1)*1000))))",0,1);
 	TF1 *dEBBpu = new TF1("dEBBpu",".0005+((23*sq(14)*1.5)/(sq(bpu)*2.133*10000000))*(log((2*1000000*0.511*sq(bpu))/(13.5*14))-log(1-sq(bpu))-sq(bpu))",0.014,1);
   TF1 *bp = new TF1("bpl","((x+0.0)*1000)/(sqrt(sq(938.26)+(sq((x+0.0)*1000))))",0,1);
 	TF1 *dEBBpl = new TF1("dEBBpl","-.0010+((22*sq(14)*1.5)/(sq(bpl)*2.133*10000000))*(log((2*1000000*0.511*sq(bpl))/(13.5*14))-log(1-sq(bpl))-sq(bpl))",0,3);
-	
-	
+
+
 	// Trick, um Maxima besser zu sehen: bei Null Impuls abschneiden
 	//  TH2D * hist18 = new TH2D("specEnergyLoss","dE/dx(p)",200,0.05,3,200,0,0.01);
 
@@ -88,18 +88,18 @@
 	//TF1 *fa = new TF1("v","0.76706[0]*x*sin([1]*x)",-3,3);
 	//TF1 *fa = new TF1("fa","0.76706[0]*x*sin([1]*x)",-3,3);
 
- 
+
   	//opening tree
 //    TFile* inFile = new TFile("../data/testMC.root","READ");
   TFile* inFile = new TFile("/data_hilbert/PandaData/tbaldauf/MvdMC_PiKP2_50k.root","READ");
-  TTree* tree = (TTree *)inFile->Get("cbmsim");
+  TTree* tree = (TTree *)inFile->Get("pndsim");
   TClonesArray* pointlist=new TClonesArray("PndSdsMCPoint");
   tree->SetBranchAddress("MVDPoint",&pointlist);
   TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   tree->SetBranchAddress("MCTrack",&mc_array);
-  
-  
-  	//variable 
+
+
+  	//variable
   TVector3 vecFront,vecBack,vecPFront,vecPBack;
   Int_t nEvents = 10000; //1000;
   Int_t sEcur =0;
@@ -111,7 +111,7 @@
  	Double_t pkt[2];
  	TString ltext="";
 	Double_t pos,abst;
-  
+
 	//preparing canvas
   TPad *p1=new TPad("1","1",0,0,0.7,1);
 	TPad *p2=new TPad("2","2",0.7,0,1,1);
@@ -126,12 +126,12 @@
   hist7->SetXTitle("p/(GeV/c)");
 	hist10->SetYTitle("(dE/dx)/(GeV/cm)");
   hist10->SetXTitle("p/(GeV/c)");
-    	
+
   for(int w=0;w<25;w++)
   {
     a[w]=0;
   }
-  
+
   for(int j=0;j<nEvents && j<tree->GetEntriesFast();j++)
 	{
 		t0=0;t1=0;t2=0;dE0=0;dE1=0;dE2=0;dEX0=0;dEX1=0;dEX2=0;pF0=0;pF1=0;pF2=0;
@@ -149,7 +149,7 @@
    	dx=(vecBack-vecFront).Mag();
 		cout<<"dx=  "<<dx<<endl;
 		cout<<"P=  "<<vecPBack.Mag()<<endl;
-		if(point->GetTrackID()==0)		
+		if(point->GetTrackID()==0)
 		{
 			cout<<pdcid<<endl;
 			t0++;
@@ -162,7 +162,7 @@
 			  hist7->Fill(vecPBack.Mag(),point->GetEnergyLoss()/dx);
 			  dEX0=dEX0+((point->GetEnergyLoss())/dx);
 			}
-	
+
    	}
    		if(point->GetTrackID()==1)
   		{
@@ -203,13 +203,13 @@
 				if((pF3>0.11)&&((dEX3)<(dEBBku->Eval(pF3,0,0)))&&((dEX3)>(dEBBkl->Eval(pF3,0,0)))) //K Schlauch
 				{
 					a[18]++;
-					
+
 				}
 				if((pF3>0.2)&&((dEX3)<(dEBBpu->Eval(pF3,0,0)))&&((dEX3>(dEBBpl->Eval(pF3,0,0))))) //P Schlauch
 				{
 					a[19]++;
 					hist10->Fill(pF3,dEX3);
-					
+
 				}
 				if((pF3>0.03)&&((dEX3)<(dEBBpiu->Eval(pF3,0,0)))&&((dEX3)>(dEBBpil->Eval(pF3,0,0)))) //PI Schlauch
 				{
@@ -219,7 +219,7 @@
 			}
 		}
 		}
-	
+
 
 
 
@@ -247,7 +247,7 @@
 // 		}
 // 		if((pF0>0.03)&&((dEX0/t0)<(dEBBpiu->Eval(pF0/t0,0,0)))&&((dEX0/t0)>(dEBBpil->Eval(pF0/t0,0,0)))) //PI Schlauch
 // 		{
-// 			
+//
 // 			if(((dEX0/t0)>(dEBBkl->Eval(pF0/t0,0,0))))	//im Mischbereich
 // 			{
 // 			a[1]++;
@@ -284,7 +284,7 @@
 // 		}
 // 		if((pF1>0.03)&&((dEX1/t1)<(dEBBpiu->Eval(pF1/t1,0,0)))&&((dEX1/t1)>(dEBBpil->Eval(pF1/t1,0,0)))) //PI Schlauch
 // 		{
-// 			
+//
 // 			if(((dEX1/t1)>(dEBBkl->Eval(pF1/t1,0,0))))
 // 			{
 // 			//a[1]++;
@@ -324,7 +324,7 @@
 // 	}
 // 	if(t3!=0)
 // 	{
-// 		
+//
 // 	}
 // }
 

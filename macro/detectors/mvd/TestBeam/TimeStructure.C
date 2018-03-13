@@ -26,10 +26,10 @@ std::vector<Double_t> dataInStreamUnsorted;
 void Init()
 {
 	TFile* f = new TFile("2014-10-27-00-06-02_50_MHz.root", "READ");
-	t = (TTree*)f->Get("cbmsim");
-//	t->AddFriend("cbmsim", "2014-10-27-00-06-02_50_MHz_Filtered_PosCorrected_Residuals.root");
-//	t->AddFriend("cbmsim", "2014-10-27-00-06-02_50_MHz_Filtered_PosCorrected_Track.root");
-//	t->AddFriend("cbmsim", "2014-10-27-00-06-02_50_MHz_Filtered_TimeCorrectedSorted_Event.root");
+	t = (TTree*)f->Get("pndsim");
+//	t->AddFriend("pndsim", "2014-10-27-00-06-02_50_MHz_Filtered_PosCorrected_Residuals.root");
+//	t->AddFriend("pndsim", "2014-10-27-00-06-02_50_MHz_Filtered_PosCorrected_Track.root");
+//	t->AddFriend("pndsim", "2014-10-27-00-06-02_50_MHz_Filtered_TimeCorrectedSorted_Event.root");
 //	t->StartViewer();
 	t->SetBranchAddress("ToPix4Hits", &mvdUnsorted);
 	t->SetBranchAddress("ToPix4HitsSorted", &mvdSorted);

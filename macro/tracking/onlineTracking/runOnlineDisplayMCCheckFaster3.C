@@ -38,11 +38,11 @@ int runOnlineDisplayMCCheckFaster3(Int_t maximumTime = 2050)  {
 	TFile filereco(recoFileName.Data());
 	TFile filerecopixel(recoFileName.Data());
 
-	TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
-	TTree *recotree = (TTree*) filereco.Get("cbmsim");
+	TTree *treedigi = (TTree*) filedigi.Get("pndsim");
+	TTree *recotree = (TTree*) filereco.Get("pndsim");
 
 	TFile simfile(simFileName.Data());
-	TTree* mctree = (TTree*) simfile.Get("cbmsim");
+	TTree* mctree = (TTree*) simfile.Get("pndsim");
 	TClonesArray* mcarray = new TClonesArray("PndMCTrack");
 	mctree->SetBranchAddress("MCTrack", &mcarray);
 
@@ -183,7 +183,7 @@ int runOnlineDisplayMCCheckFaster3(Int_t maximumTime = 2050)  {
 	TH2D* hphithetaresmcbad = new TH2D("hphithetaresmcbad", "hphithetaresmcbad", 700, -3.5, 3.5, 700, -3.5, 3.5);
 
 	//TH2D* htzeroana = new TH2D("htzeroana", "htzeroana", 20050, 0, 200500, 20050, 0, 200500);
-    
+
 	for (current_time = 0; current_time < final_time; current_time += delta_t) {
 		online->Clear();
 		//online->LoadHits( PndOnlineManager::kHESRRevolution );
@@ -192,7 +192,7 @@ int runOnlineDisplayMCCheckFaster3(Int_t maximumTime = 2050)  {
 		//online->LoadHits( current_time );
 		online->Process();
 		//online->Clear();
-	
+
 		online_tracks = online->GetTrackObjectList();
 		int maxmcid = 0;
 		int minmcid = 0;
@@ -347,7 +347,7 @@ int runOnlineDisplayMCCheckFaster3(Int_t maximumTime = 2050)  {
 			if ( (mctrack->GetMomentum().Pt() < 0.052) && (mctrack->GetNPoints(kSTT) > 2) ) {
 				cout << "Low pt hit" << endl;
 			}
-			
+
 			int mcentrynumber = myTrack->MCEntryNumber();
 			if (mcentrynumber > maxmcid) {
 				maxmcid = mcentrynumber;
@@ -365,8 +365,8 @@ int runOnlineDisplayMCCheckFaster3(Int_t maximumTime = 2050)  {
 			recotrackphi.push_back(trackphi);
 			recotrackstatus.push_back(0);
 			recotrackmcid.push_back(mcentrynumber);
-			
-			
+
+
 		}
 		if (maxmcid > globalmaxmcid) {
 			globalmaxmcid = maxmcid;
@@ -540,24 +540,24 @@ int runOnlineDisplayMCCheckFaster3(Int_t maximumTime = 2050)  {
 // 									deltaphi = 2*TMath::Pi() - deltaphi;
 // 								}
 // 								Double_t deltapt = recotrackpt.at(r) - mcpt;
-// 
+//
 // 								Int_t chargesign = 1;
 // 								if (pdg->GetParticle(mctrack->GetPdgCode())->Charge() < 0) {
 // 									chargesign = -1;
 // 								}
-// 									
+//
 // 								hphires->Fill(deltaphi*chargesign);
 // 								hptres->Fill(mcpt, deltapt/mcpt);
-// 
+//
 // 								if ( (deltapt/mcpt < -0.75) && (deltapt/mcpt > -0.8) && (mcpt > 300) && (mcpt < 650) ) {
 // 									cout << "Funny resolution at Event: " << j << " Track " << k << " Particle: " << mctrack->GetPdgCode() << " Charge: " << pdg->GetParticle(mctrack->GetPdgCode())->Charge() << endl;
 // 									mctrack->GetMomentum().Print();
 // 									cout << "MC pt: " << mcpt << endl;
 // 									cout << "Re pt: " << recotrackpt.at(r) << endl;
 // 								}
-// 
+//
 // 								bool phiok = (deltaphi < 0.1);
-// 
+//
 // 								if (deltapt < 0) {
 // 									deltapt *= -1;
 // 								}
@@ -681,7 +681,7 @@ int runOnlineDisplayMCCheckFaster3(Int_t maximumTime = 2050)  {
 	SaveAndUpdateHisto(hphithetaresmcbad, outputstorage);
 
 	//SaveAndUpdateHisto(htzeroana, outputstorage);
-   
+
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();
 	Double_t rtime = timer.RealTime();

@@ -1,11 +1,11 @@
-{ TChain *mychain = new TChain("cbmsim");
- 
- 
+{ TChain *mychain = new TChain("pndsim");
+
+
   mychain->Add("run.root");
   mychain->Add("run_1.root");
   mychain->Add("run_2.root");
- 
- 
+
+
   gStyle->SetPalette(1);
 
 
@@ -23,7 +23,7 @@ TCut Secstop = "HypSecTarPoint.fPLout==0.";
 
 
 Double_t mom = "TMath::Sqrt(HypPoint.fPLout*HypPoint.fPLout)";
-Double_t energy = "TMath::Sqrt(mom*mom + HypPoint.fmass*HypPoint.fmass)"; 
+Double_t energy = "TMath::Sqrt(mom*mom + HypPoint.fmass*HypPoint.fmass)";
 
  //mychain->Draw("HypSegTarPoint.fdist:HypSegTarPoint.fZin>>histo(00,-77,-72,200,0.5,5)");
 c1 = new TCanvas("stopping xi- rate momentum distribution");
@@ -35,7 +35,7 @@ c1 = new TCanvas("stopping xi- rate momentum distribution");
  mychain->Draw("TMath::Sqrt(HypSecTarPoint.fPxin*HypSecTarPoint.fPxin+HypSecTarPoint.fPyin*HypSecTarPoint.fPyin+HypSecTarPoint.fPzin*HypSecTarPoint.fPzin)>>hist(200,-0.4,1.4)","","same" );
  cout<<"integral of Xi- stopped"<< hist->Integral()<<endl;
  //hist->Scale(10);
- 
+
 
 
 }

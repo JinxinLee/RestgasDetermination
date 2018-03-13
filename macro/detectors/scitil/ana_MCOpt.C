@@ -5,7 +5,7 @@ int ana_MCOpt()
   // -----  Load libraries   ------------------------------------------------
 //``gSystem->Load("fstream.h");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  
+
   gSystem->Load("libSciT");
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -13,9 +13,9 @@ int ana_MCOpt()
   // ------------------------------------------------------------------------
 
   gStyle->SetPalette(1);
-  
+
   TFile* f = new TFile("test.root"); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
+  TTree *t=(TTree *) f->Get("pndsim") ;
   TClonesArray* hit_array=new TClonesArray("PndSciTPoint");
   t->SetBranchAddress("SciTPoint",&hit_array);//Branch names
 
@@ -37,9 +37,9 @@ int ana_MCOpt()
 
 
 
-  
+
    TH1D* hismom = new TH1D("hisximom"," MC Points, momentum",100,0.,1.5);
- 
+
 
   int  nEvents = 100;
   bool verbose = false;
@@ -47,20 +47,20 @@ int ana_MCOpt()
   TVector3 vecs,veco;
   TVector3 vecFront,vecS,vecP;
   Double_t dx,dE,p,dEdX,pxi;
-  
+
   TString detname;
 
   for (Int_t j=0; j<t->GetEntriesFast(); j++)
   {
     t->GetEntry(j);
-    
+
     for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
     {
       if(verbose) cout<<"Point No "<<i<<endl;
       PndSciTPoint *hit=(PndSciTPoint*)hit_array->At(i);
       //int mcpdg = -1;
 
-     
+
 
       vecs.SetXYZ(hit->GetX(), hit->GetY(), hit->GetZ());
       veco.SetXYZ(hit->GetXout(),hit->GetYout(),hit->GetZout());
@@ -69,7 +69,7 @@ int ana_MCOpt()
       dx=(veco-vecs).Mag();
       dE=hit->GetEnergyLoss();
       pxi=vecP.Mag();
-      
+
 
       hisxy->Fill(vecs.x(),vecs.y());
       hisrz->Fill(vecs.z(),vecs.Perp());
@@ -80,9 +80,9 @@ int ana_MCOpt()
       {
         dEdX=(dE/dx);
         hisdedx->Fill(p,dEdX);
-        hisde->Fill(dEdX);	
+        hisde->Fill(dEdX);
       }
-     
+
 
     }//end for i (points in event)
   }// end for j (events)

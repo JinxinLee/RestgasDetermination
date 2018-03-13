@@ -1,10 +1,10 @@
 int testFile (TString nome, TString type){
 
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  
+
   PndFileNameCreator namecreator(nome.Data());
-  
+
   if (type = "sim")
     {
       TString nome_test = namecreator.GetSimFileName();
@@ -20,18 +20,18 @@ int testFile (TString nome, TString type){
 	  {
 	    TString nome_test = namecreator.GetCustomFileName("pidtracks");
 	  }
-	else 
+	else
 	  {
 	    cout << "-------------------------" << endl;
 	    cout << "WRONG TYPE SELECTION!!!!!" << endl;
 	    cout << "-------------------------" << endl;
 	  }
-      
+
     }
 
   TFile *f = new TFile(nome_test.Data(),"READ");
 
-  TTree *t = (TTree*) f->Get("cbmsim");
+  TTree *t = (TTree*) f->Get("pndsim");
 
   t->Dump();
 

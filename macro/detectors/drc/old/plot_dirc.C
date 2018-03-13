@@ -9,10 +9,10 @@ f.cd();
 
 
 
-TTree* tree = (TTree*)gDirectory->Get("cbmsim");
+TTree* tree = (TTree*)gDirectory->Get("pndsim");
 
 Double_t mom = "TMath::Sqrt(fPx_out*fPx_out+ fPy_out*fPy_out+ fPz_out*fPz_out)";
-Double_t energy = "TMath::Sqrt(mom*mom + fmass*fmass)"; 
+Double_t energy = "TMath::Sqrt(mom*mom + fmass*fmass)";
 Double_t thetaC = "TMath::ACos(1/(1.47*(mom/energy)))";
 
 TCut pions     = "fPdgCode==-211 || fPdgCode == 211";
@@ -69,7 +69,7 @@ tree->Draw("TMath::Sqrt(fPx_out*fPx_out+ fPy_out*fPy_out+ fPz_out*fPz_out)", pro
 
 
 c4 = new TCanvas("Eloss - Drc barrel");
-tree->Draw("fELoss", ppos && pinf && "fELoss < 0.04" && "fELoss > 0.005" ); 
+tree->Draw("fELoss", ppos && pinf && "fELoss < 0.04" && "fELoss > 0.005" );
 
 
 c5 = new TCanvas("ThetaC vs momentum - Drc barrel");

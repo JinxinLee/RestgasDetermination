@@ -26,27 +26,27 @@
 #endif
 using namespace std;
 
-void plot_radmap(Long64_t nevreq=1000, 
-                 TString inputfile = "RadMap_Out_Sim.root", 
+void plot_radmap(Long64_t nevreq=1000,
+                 TString inputfile = "RadMap_Out_Sim.root",
                  TString outputfile="RadMap_Out.root");
 int main(){
   plot_radmap();
 }
 // macro reads from the RadMap Branch
 // and fills histograms
-void plot_radmap(Long64_t nevreq, 
-                 TString inputfile, 
+void plot_radmap(Long64_t nevreq,
+                 TString inputfile,
                  TString outputfile)
 {
   // open an output file
   TFile *fout = new TFile(outputfile,"RECREATE");
 
-  // chain for the cbmsim tree in the simulation files
-  TChain mych("cbmsim");
+  // chain for the pndsim tree in the simulation files
+  TChain mych("pndsim");
 
   // ifstream ifile("filecollectionn.dat");
   // string line;
-  
+
   // mych.Add("blablabla2.root");
   mych.Add(inputfile.Data());
 
@@ -63,7 +63,7 @@ void plot_radmap(Long64_t nevreq,
                                     1, -40, 110));
   BM.at(BM.size()-1)->SetQuantity(Edep);
   BM.at(BM.size()-1)->SetOrientation(XY);
-  
+
   BM.push_back(new PndRadMapBoxMesh("EmcAllFluenceZX",
                                     1, 50, 50,
                                     250,0.,250.,
@@ -146,35 +146,35 @@ void plot_radmap(Long64_t nevreq,
 
 
  ///////////////////////////////////////////////////////
-  
+
   // BM.push_back(new PndRadMapBoxMesh("EmcEdepXY",
   //                          210, -105.  , 105.,
   //                          210, -105.  , 105,
   //                          1  , 207., 223.));
   // BM.at(BM.size()-1)->SetQuantity(Edep);
   // BM.at(BM.size()-1)->SetOrientation(XY);
-  
+
   // BM.push_back(new PndRadMapBoxMesh("EmcTwosXY",
   //                          210, -105.  , 105.,
   //                          210, -105.  , 105,
   //                          1  , 222., 223.));
   // BM.at(BM.size()-1)->SetQuantity(Twos);
   // BM.at(BM.size()-1)->SetOrientation(XY);
-  
+
   // BM.push_back(new PndRadMapBoxMesh("EmcDoseXY",
   //                          210, -105.  , 105.,
   //                          210, -105.  , 105,
   //                          1  , 222., 223.));
   // BM.at(BM.size()-1)->SetQuantity(Dose);
   // BM.at(BM.size()-1)->SetOrientation(XY);
-  
+
   // BM.push_back(new PndRadMapBoxMesh("EmcTwoXY",
   //                          1000,   2  ,  3,
   //                          1000,  23.5, 24.5,
   //                          1   , 222. , 223.));
   // BM.at(BM.size()-1)->SetQuantity(Twos);
   // BM.at(BM.size()-1)->SetOrientation(XY);
-  
+
   // BM.push_back(new PndRadMapBoxMesh("EmcTwoXZ",
   //                          210, -105.  , 105.,
   //                          210, -105.  , 105,
@@ -194,7 +194,7 @@ void plot_radmap(Long64_t nevreq,
   //                          1  , 222., 223.));
   // BM.at(BM.size()-1)->SetQuantity(Twos);
   // BM.at(BM.size()-1)->SetOrientation(XY);
-  
+
   // BM.push_back(new PndRadMapBoxMesh("EmcMassXY",
   //                          210, -105.  , 105.,
   //                          210, -105.  , 105,
@@ -231,7 +231,7 @@ void plot_radmap(Long64_t nevreq,
   //       			    1200,-200,1000));
   // BM.at(BM.size()-1)->SetQuantity(Dose);
   // BM.at(BM.size()-1)->SetOrientation(ZX);
- 
+
   // BM.push_back(new PndRadMapBoxMesh("EdepZY_1",
   //       			    1,-0.5,0.5,
   //       			    250,0,250,
@@ -245,7 +245,7 @@ void plot_radmap(Long64_t nevreq,
   //       			    1200,-200,1000));
   // BM.at(BM.size()-1)->SetQuantity(Dose);
   // BM.at(BM.size()-1)->SetOrientation(ZY);
-  
+
   // BM.push_back(new PndRadMapBoxMesh("MassZY_1",
   //       			    1,-0.5,0.5,
   //       			    250,0,250,
@@ -258,7 +258,7 @@ void plot_radmap(Long64_t nevreq,
 
 
   for (Long64_t i=0; i<nentries; i++) {
-    cout << "event " << i << endl;        
+    cout << "event " << i << endl;
     mych.GetEntry(i);
     Int_t npoints = fRadMapPoint->GetEntries();
 
@@ -267,14 +267,14 @@ void plot_radmap(Long64_t nevreq,
     for (Int_t ii=0; ii < npoints; ii++) {
 
       //if (i==99)cout<<ii<<" "<<npoints<<endl;
-      
+
       FairRadMapPoint *p= (FairRadMapPoint *) fRadMapPoint->At(ii);
       for(unsigned int iii = 0; iii < BM.size(); iii++){
         BM.at(iii)->Fill(p);
       }
     }
   }
-  cout << "Save " << BM.size() << endl;        
+  cout << "Save " << BM.size() << endl;
   for(unsigned int i = 0; i < BM.size(); i++){
     BM.at(i)->Scale(1./nentries);//normalizing it to 1 event!
     BM.at(i)->Save(fout);

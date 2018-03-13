@@ -1,30 +1,30 @@
 {
   // Macro tests gamma energy correction
-	
+
         gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
         gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
         rootlogon();
         basiclibs();
 
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
-	TTree *t=(TTree *) f->Get("cbmsim") ;
+	TTree *t=(TTree *) f->Get("pndsim") ;
 	TClonesArray* bump_array=new TClonesArray("PndEmcBump");
 	t->SetBranchAddress("EmcBump",&bump_array);
 
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
-	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
+	TTree *tsim=(TTree *) fsim->Get("pndsim") ;
 	PndEmcMapper::Init(6);
 
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
-	
+
 	double bump_energy;
 	double bump_energy_corrected;
-	
+
 	TH1F *h1= new TH1F("h1","Cluster energy",100,0.0,1.10);
 	TH1F *h2= new TH1F("h2","Cluster energy corrected",100,0.0,1.10);
-	
-		
+
+
 	// Cluster energy
 	for (Int_t j=0; j< t->GetEntriesFast(); j++)
 	{
@@ -41,8 +41,8 @@
 			}
 		}
 	}
-	
-	TCanvas* c1 = new TCanvas("c1", "Cluster Energy", 100, 100, 800, 800); 	
+
+	TCanvas* c1 = new TCanvas("c1", "Cluster Energy", 100, 100, 800, 800);
 	c1->Divide(1,2);
 	c1->cd(1);
 	h1->SetTitle("Cluster energy of 1 GeV photon");

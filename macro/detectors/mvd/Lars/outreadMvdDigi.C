@@ -22,8 +22,8 @@
   picture.ReplaceAll(".root",".ps");
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
-  TTree *t=(TTree *) f->Get("cbmsim") ;
-  t->AddFriend("cbmsim",digiFile.c_str()); // the digi file
+  TTree *t=(TTree *) f->Get("pndsim") ;
+  t->AddFriend("pndsim",digiFile.c_str()); // the digi file
 
   TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
@@ -32,7 +32,7 @@
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
-  
+
   std::ofstream Outfile("../data/Lars/0999_1001_85.hit",ios_base::app);
   std::ofstream Outrealfile("../data/Lars/0999_1001_85.real",ios_base::app);
 
@@ -72,7 +72,7 @@
   int col, row, fe;
   double x,y;
 
-  TFile* parDB = new TFile(parfile.c_str()); 
+  TFile* parDB = new TFile(parfile.c_str());
   PndMvdStripDigiPar* par = (PndMvdStripDigiPar*)gROOT->FindObject("MVDStripDigiParRect");
 
   int nrFeChannels=par->GetNrFECh();
@@ -84,7 +84,7 @@
     evID++;
     t->GetEntry(j);
     if(verbose) cout<<"Event No "<<j<<endl;
-    
+
     double x,y,z,Eloss;
 
     // ----- MC Points -----

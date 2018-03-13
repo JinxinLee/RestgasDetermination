@@ -31,7 +31,7 @@ int QAmacro_emc_3()
 	/////////////////////////////////////////////////////////////////////////////////
 
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
-	TTree *t=(TTree *) f->Get("cbmsim") ;
+	TTree *t=(TTree *) f->Get("pndsim") ;
 
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
 	t->SetBranchAddress("EmcCluster",&cluster_array);
@@ -39,7 +39,7 @@ int QAmacro_emc_3()
 	t->SetBranchAddress("EmcDigi",&digi_array);
 
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
-	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
+	TTree *tsim=(TTree *) fsim->Get("pndsim") ;
 
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);

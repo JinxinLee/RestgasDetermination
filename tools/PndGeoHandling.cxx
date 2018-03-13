@@ -53,7 +53,7 @@ PndGeoHandling::PndGeoHandling():fGeoMan(0),fSensorNamePar(0),fRtdb(0),fLevelNam
     this->SetTitle("FairTask");
     run->AddTask((FairTask*)this);
     fRtdb = run->GetRuntimeDb();
-     
+
   }
   else {
     std::cout << "PndGeoHandling. No FairRun object found. If used in a macro take another constructor." << std::endl;
@@ -101,8 +101,8 @@ PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fGeoMan(),fSenso
 		GetGeoManager();
 		fGeoMan = gGeoManager;
 	}
-  
-  
+
+
 	GetSensorNamePar();
 }
 
@@ -128,7 +128,7 @@ PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fGeoMan(),fSensorNa
 Int_t PndGeoHandling::GetRunId(TString mcFile)
 {
 	TFile f(mcFile.Data());
-	TTree* t = (TTree*)f.Get("cbmsim");
+	TTree* t = (TTree*)f.Get("pndsim");
 	FairMCEventHeader* header= new FairMCEventHeader();
 	t->SetBranchStatus("MCEventHeader.",1);
 	t->SetBranchAddress("MCEventHeader.", &header);
@@ -142,9 +142,9 @@ Int_t PndGeoHandling::GetRunId(TString mcFile)
 void PndGeoHandling::GetSensorNamePar()
 {
 	fSensorNamePar = (PndSensorNamePar*) (fRtdb->getContainer("PndSensorNamePar"));
-  
+
 	fRtdb->initContainers(fRunId);
-  
+
 	if (fVerbose > 1){
 		std::cout << "PndGeoHandling::GetSensorNamePar()" << std::endl;
 		fRtdb->Print();
@@ -177,10 +177,10 @@ void PndGeoHandling::GetGeoManager()
  Int_t copyNr[100];
  Int_t volNr[100];
  TString result;
- 
+
  level = fGeoMan->GetLevel();
  level++;
- 
+
  fGeoMan->GetBranchNumbers(copyNr, volNr);
  for (int i=0; i<level; i++){
  result += volNr[i];
@@ -237,7 +237,7 @@ TString PndGeoHandling::GetPath(Int_t shortID)
  std::vector<std::string> idVector;
  PndStringSeparator pathAna(id.Data(), "/_");
  idVector = pathAna.GetStringVector();
- 
+
  for(UInt_t i = 0; i < idVector.size(); i+=2){
  result += "/";
  Int_t VolId = atoi(idVector[i].c_str());
@@ -280,7 +280,7 @@ std::vector<TString> PndGeoHandling::GetNamesLevel(Int_t level, TString startPat
 {
 	TString actPath = fGeoMan->GetPath();
 	fLevelNames.clear();
-  
+
 	if (startPath == ""){
 		fGeoMan->CdTop();
 		fLevel = level;
@@ -321,23 +321,23 @@ void PndGeoHandling::GetOUVPath(TString path, TVector3& o, TVector3& u, TVector3
 	Double_t* temp;
 	TString actPath = fGeoMan->GetPath();
 	fGeoMan->cd(path);
-  
+
 	TGeoHMatrix* currMatrix = fGeoMan->GetCurrentMatrix();
 	temp = currMatrix->GetTranslation();
 	o.SetXYZ(temp[0], temp[1], temp[2]);
-  
+
 	temp[0] = 1;
 	temp[1] = 0;
 	temp[2] = 0;
 	fGeoMan->LocalToMasterVect(temp, result);
 	u.SetXYZ(result[0], result[1], result[2]);
-  
+
 	temp[0] = 0;
 	temp[1] = 1;
 	temp[2] = 0;
 	fGeoMan->LocalToMasterVect(temp, result);
 	v.SetXYZ(result[0], result[1], result[2]);
-  
+
   if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
 }
 
@@ -353,13 +353,13 @@ TVector3 PndGeoHandling::GetSensorDimensionsPath(TString path)
   TVector3 dim;
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-  
+
   TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
   TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
   dim.SetX(actBox->GetDX());
   dim.SetY(actBox->GetDY());
   dim.SetZ(actBox->GetDZ());
-  
+
   if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
   return dim;
 }
@@ -375,12 +375,12 @@ TGeoHMatrix* PndGeoHandling::GetMatrixPath(TString path)
 {
 	TString actPath = fGeoMan->GetPath();
 	fGeoMan->cd(path);
-  
+
 	TGeoHMatrix* currMatrix = fGeoMan->GetCurrentMatrix();
 	if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
-  
+
 	return currMatrix;
-  
+
 }
 
 /*
@@ -401,11 +401,11 @@ TVector3 PndGeoHandling::MasterToLocalPath(const TVector3& master, const TString
   //   if(fVerbose>1) std::cout<<" -I- PndGeoHandling::MasterToLocalPath"<<std::endl;
   Double_t result[3];
   Double_t temp[3];
-  
+
   temp[0] = master.X();
   temp[1] = master.Y();
   temp[2] = master.Z();
-  
+
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
   fGeoMan->MasterToLocal(temp, result);
@@ -423,11 +423,11 @@ TVector3 PndGeoHandling::LocalToMasterPath(const TVector3& local, const TString&
 {
   Double_t result[3];
   Double_t temp[3];
-  
+
   temp[0] = local.X();
   temp[1] = local.Y();
   temp[2] = local.Z();
-  
+
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
   fGeoMan->LocalToMaster(temp, result);
@@ -552,7 +552,7 @@ void PndGeoHandling::DiveDownToFillSensNamePar(std::vector<std::string> listOfSe
 		TGeoNode *currentNode = fGeoMan->GetCurrentNode();
 		TString nodeName(currentNode->GetName());
 		//std::cout << nodeName.Data() << std::endl;
-    
+
 		if (VolumeIsSensitive(nodeName, listOfSensitives)){
 			PndStringSeparator sep(nodeName.Data(), "/");
 			std::vector<std::string> sepString = sep.GetStringVector();

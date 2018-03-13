@@ -136,7 +136,7 @@ void PndLmdPixelClusterTask::SetBranchNames() {
     fInBranchName = "LMDPixelDigis";
   fOutBranchName = "LMDHitsPixel";
   fClustBranchName = "LMDPixelClusterCand";
-  fFolderName = "cbmsim";
+  fFolderName = "pndsim";
 }
 
 // -----   Public method Exec   --------------------------------------------

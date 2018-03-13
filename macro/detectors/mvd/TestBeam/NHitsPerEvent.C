@@ -20,10 +20,10 @@ TH1I* h1 = new TH1I("h1", "Hits per Event", 101, -0.5, 100.5);
 void Init()
 {
 	TFile* f = new TFile("2014-10-27-00-06-02_50_MHz_Filtered_PosCorrected_Event.root", "READ");
-	t = (TTree*)f->Get("cbmsim");
-//	t->AddFriend("cbmsim", "2014-10-27-00-06-02_50_MHz_Filtered_PosCorrected_Residuals.root");
-//	t->AddFriend("cbmsim", "2014-10-27-00-06-02_50_MHz_Filtered_PosCorrected_Track.root");
-//	t->AddFriend("cbmsim", "2014-10-27-00-06-02_50_MHz_Filtered_TimeCorrectedSorted_Event.root");
+	t = (TTree*)f->Get("pndsim");
+//	t->AddFriend("pndsim", "2014-10-27-00-06-02_50_MHz_Filtered_PosCorrected_Residuals.root");
+//	t->AddFriend("pndsim", "2014-10-27-00-06-02_50_MHz_Filtered_PosCorrected_Track.root");
+//	t->AddFriend("pndsim", "2014-10-27-00-06-02_50_MHz_Filtered_TimeCorrectedSorted_Event.root");
 	t->StartViewer();
 
 	t->SetBranchAddress("MVDHitsPixelPosCorrected", &mvdHitArray);

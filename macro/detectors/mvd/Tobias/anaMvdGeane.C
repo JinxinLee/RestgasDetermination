@@ -2,7 +2,7 @@
 gROOT->LoadMacro("Tools.C");
 LoadPandaStyle();
 TFile f("./data/Mvd_FlatG4Special_0G5_70k_Geane.root");
-TTree* t = (TTree*)f->Get("cbmsim");
+TTree* t = (TTree*)f->Get("pndsim");
 //gStyle->SetPalette(1);
 TProfile2D pSdk1("pSdk1","MS on Sdk1", 100, -15,15, 100, -15,15);
 TProfile2D pSdk2("pSdk2","MS on Sdk2", 100, -15,15, 100, -15,15);

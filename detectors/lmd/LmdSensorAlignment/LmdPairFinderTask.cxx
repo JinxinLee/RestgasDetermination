@@ -76,7 +76,7 @@ InitStatus LmdPairFinderTask::Init() {
 	fOutBranchName = "LMDPixelPairs";
 	fInClusterCandidates = "LMDPixelClusterCand";
 
-	fFolderName = "cbmsim";
+	fFolderName = "pndsim";
 
 	SetBranchNames();
 

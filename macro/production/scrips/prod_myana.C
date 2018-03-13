@@ -1,18 +1,18 @@
 bool checkfile(TString fn)
 {
 	bool fileok=true;
-	TFile fff(fn); 
+	TFile fff(fn);
 	if (fff.IsZombie()) fileok=false;
-	TTree *t=(TTree*)fff.Get("cbmsim");
+	TTree *t=(TTree*)fff.Get("pndsim");
 	if (t==0x0) fileok=false;
-	
+
 	if (!fileok) cout <<"Skipping broken file '"<<fn<<"'"<<endl;
 	return fileok;
 }
 
 int prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 {
- 	if (prefix=="") 
+ 	if (prefix=="")
 	{
 		cout << "Example analysis macro using PndSimpleCombiner(Task). !! MODIFY for your purpose !!\n\n";
 		cout << "USAGE:\n";
@@ -24,11 +24,11 @@ int prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 		cout << "   [nevt]     : number of events; default: 0 = all\n\n";
 		return 0;
 	}
-	
-	bool fastsim = true;	
+
+	bool fastsim = true;
 
 	// --------------------------------
-	// Set Pid Algos for full or fast sim	
+	// Set Pid Algos for full or fast sim
 	// --------------------------------
 	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoRich;PidAlgoSciT";
 	if (fastsim) pidalgo = "PidChargedProbability";
@@ -37,14 +37,14 @@ int prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	// Prepare input file naming
 	// --------------------------------
 	TString suffix = fastsim ? "fsim" : "pid";
-	
+
 	TString outFile    = TString::Format("%s_ana_%d_%d.root",prefix.Data(), from, to);
 	TString firstFile  = TString::Format("%s_%d_%s.root",prefix.Data(),from,suffix.Data());
 
 	// if prefix is a full file name, we skip the run number in the name
 	if (prefix.EndsWith(".root"))
 	{
-		firstFile = prefix; 
+		firstFile = prefix;
 	        outFile   = prefix; outFile.ReplaceAll(".root","_ana.root");
 		//inParFile = prefix; inParFile.ReplaceAll("_pid.root","_par.root");
 		to = from;
@@ -52,7 +52,7 @@ int prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	// if only one file, we name outfile to 'prefix_<run>_ana.root'
 	else if (from==to)  outFile = TString::Format("%s_%d_ana.root", prefix.Data(), from);
 
-	
+
 	// --------------------------------
 	// Start a stop watch
 	// --------------------------------
@@ -64,31 +64,31 @@ int prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	// --------------------------------
 	FairRunAna     *fRun = new FairRunAna();
 	FairFileSource *fSrc = new FairFileSource(firstFile);
-		
+
   	// Add pid files
   	for (int i=from+1;i<=to;++i)
   	{
 	  TString fname = TString::Format("%s_%d_%s.root",prefix.Data(),i,suffix.Data());
 		if ( checkfile(fname) ) fSrc->AddFile(fname);
   	}
-	
+
 	fRun->SetSource(fSrc);
-  	
+
 	// *** PID table with selection thresholds; can be modified by the user
-	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
-	
+	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";
+
 	// *** initialization
-	FairLogger::GetLogger()->SetLogToFile(kFALSE);	
+	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	fRun->SetOutputFile(outFile);
-	
-	//---------------------Create and Set the Field(s)---------- 
-	
+
+	//---------------------Create and Set the Field(s)----------
+
 	RhoCalculationTools::ForceConstantBz(20.0);
 
 	// ***
 	// *** HERE YOUR TASK/CODE CODE GOES!
 	// ***
-	
+
 	PndProdAnaTask *prodTask = new PndProdAnaTask(mode, pidalgo);
 	fRun->AddTask(prodTask);
 
@@ -96,18 +96,18 @@ int prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	// --------------------------------
 	// ... and run analysis
 	// --------------------------------
-	fRun->Init(); 
-	fRun->Run(0,nevts);	
-	
+	fRun->Init();
+	fRun->Run(0,nevts);
+
 	//------------------------Print some info and exit----------------
 	fTimer.Stop();
 	FairSystemInfo sysInfo;
 	Float_t maxMemory=sysInfo.GetMaxMemory();
 	Double_t rtime = fTimer.RealTime();
 	Double_t ctime = fTimer.CpuTime();
-	
+
 	Float_t cpuUsage=ctime/rtime;
-	
+
 	cout << endl;
 	cout << "[INFO   ] Macro call       : prod_fsim.C(\""<<prefix<<"\", "<<from<<", "<<to<<", "<<mode<<", "<<nevts<<")" <<endl;
 	cout << "[INFO   ] Output file      : " << outFile << endl;
@@ -115,6 +115,6 @@ int prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	cout << "[INFO   ] CPU usage        : " << cpuUsage*100. << "%" << endl;
 	cout << "[INFO   ] Max Memory       : " << maxMemory << " MB" << endl;
 	cout << "[INFO   ] Macro finished successfully." << endl<<endl;
-    
+
 	return 0;
 }
