@@ -33,7 +33,7 @@ int recoideal_complete(Int_t nEvents = 0)
   trackStt->SetVertexSmearing(0.05, 0.05, 0.05);
   trackStt->SetTrackingEfficiency(1.);
   trackStt->SetOutputBranchName("SttMvdGemIdealTrack");
-  trackStt->SetPersistence(kFALSE);
+  trackStt->PndPersistencyTask(kFALSE);
   fRun->AddTask(trackStt);
    
 //  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
@@ -62,7 +62,7 @@ int recoideal_complete(Int_t nEvents = 0)
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetOutputBranchName("FtsIdealTrack");
-  trackFts->SetPersistence(kFALSE);
+  trackFts->PndPersistencyTask(kFALSE);
   fRun->AddTask(trackFts);
 
 //  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();

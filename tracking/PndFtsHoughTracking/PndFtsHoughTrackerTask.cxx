@@ -38,7 +38,7 @@
 #include "FairRunAna.h"
 #include "FairRootManager.h"
 #include "FairRuntimeDb.h"
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 
 
 
@@ -76,9 +76,8 @@ using std::endl;
 
 // ---- Default constructor -------------------------------------------
 PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence)
-: FairTask("PndFtsHoughTrackerTask", verbose),
+: PndPersistencyTask("PndFtsHoughTrackerTask", verbose),
   fLogger(FairLogger::GetLogger()),
-  fPersistence(persistence),
   fFtsBranchId(0),
   fFtsHitArray(0),
   fFtsMcPoints(0),
@@ -94,6 +93,7 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
   //  fHoughTrackCands(0),
 {
 	if(3<fVerbose) std::cout << "PndFtsHoughTrackerTask is the tracker ptr " << this << '\n';
+	SetPersistency(persistence);
 }
 
 // ---- Destructor ----------------------------------------------------
@@ -199,8 +199,8 @@ InitStatus PndFtsHoughTrackerTask::Init()
 	// Output
 	fTrackCands = new TClonesArray("PndTrackCand");
 	fTracks = new TClonesArray("PndTrack");
-	ioman->Register(fTracksArrayName,"FTSTrk", fTracks, fPersistence); // for PndTrack
-	ioman->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, fPersistence); // for PndTrackCand // TODO Is that correct, should it not be FTSTrkCand or something?
+	ioman->Register(fTracksArrayName,"FTSTrk", fTracks, GetPersistency()); // for PndTrack
+	ioman->Register(fTracksArrayName+"Cand","FTSTrk", fTrackCands, GetPersistency()); // for PndTrackCand // TODO Is that correct, should it not be FTSTrkCand or something?
 
 	if(3<fVerbose) Info("Register","Done.");
 

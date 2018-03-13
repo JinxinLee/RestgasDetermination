@@ -48,14 +48,15 @@ int recoideal_complete()
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
 
-  // ------------------------------------------------------------------------
-  PndSttMvdGemTrackingIdeal* trackStt = new PndSttMvdGemTrackingIdeal();
-  trackStt->SetRelativeMomentumSmearing(0.05);
-  trackStt->SetVertexSmearing(0.05, 0.05, 0.05);
-  trackStt->SetTrackingEfficiency(1.);
-  trackStt->SetTrackOutput("SttMvdGemIdealTrack");
-  trackStt->SetPersistence(kFALSE);
-  fRun->AddTask(trackStt);
+
+  PndIdealTrackFinder* trackFts = new PndIdealTrackFinder();
+  trackFts->SetTrackSelector("NoFtsTrackFunctor");
+  trackFts->SetRelativeMomentumSmearing(0.05);
+  trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
+  trackFts->SetTrackingEfficiency(1.);
+  trackFts->SetOutputBranchName("SttMvdGemIdealTrack");
+  trackFts->SetPersistency(kFALSE);
+  fRun->AddTask(trackFts);
 
   /*
   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
@@ -84,7 +85,7 @@ int recoideal_complete()
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetOutputBranchName("FtsIdealTrack");
-  trackFts->SetPersistence(kFALSE);
+  trackFts->SetPersistency(kFALSE);
   fRun->AddTask(trackFts);
 
 //  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();

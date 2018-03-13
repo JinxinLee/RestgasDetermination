@@ -24,7 +24,7 @@
 #ifndef PndFtsHoughTrackerTask_H
 #define PndFtsHoughTrackerTask_H
 
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 #include <cmath>
 #include <vector>
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
@@ -46,7 +46,7 @@ class FairField;
 // for debugging
 #include "FairMCPoint.h"
 
-class PndFtsHoughTrackerTask : public FairTask
+class PndFtsHoughTrackerTask : public PndPersistencyTask
 {
 public:
 	enum DebugLevelMultiplicators { kHoughSpaces=2, kAllFoundPeaksTogether=3, kEachFoundPeakSeparately=5, kMcTruthPeaksExclusively=7, kMcTruthPeaksProjected=11, kHitCurvesExclusively=13, kHitCurvesProjected=17 };
@@ -83,7 +83,7 @@ public:
 	// SETTERS
 	//----------
 	void SetVerbose(Int_t verbose){ fVerbose = verbose;};
-	void SetPersistence(Bool_t val){ fPersistence = val;};
+	void SetPersistence(Bool_t val){ SetPersistency(val);};
 	void SetSaveDebugInfo(Int_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
 	//	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
@@ -178,7 +178,6 @@ protected:
 	//--------
 	// General
 	//--------
-	Bool_t fPersistence;
 
 	//--------
 	// Input

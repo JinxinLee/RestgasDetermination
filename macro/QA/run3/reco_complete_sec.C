@@ -36,12 +36,12 @@ int reco_complete_sec(Int_t nEvents = 0)
   tracking->NoMvdAloneTracking();
   // do Cleanup only when there is Mixing;
   // tracking->Cleanup();
-  tracking->SetPersistence(kFALSE);
+  tracking->SetPersistency(kFALSE);
   fRun->AddTask(tracking);
   
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
   //SttMvdGemTracking->SetPdgFromMC();
-  SttMvdGemTracking->SetPersistence(kFALSE);
+  SttMvdGemTracking->SetPersistency(kFALSE);
   fRun->AddTask(SttMvdGemTracking);
   
   // ------------------------------------------------------------------------
@@ -79,7 +79,7 @@ int reco_complete_sec(Int_t nEvents = 0)
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetOutputBranchName("FtsIdealTrack");
-  trackFts->SetPersistence(kFALSE);
+  trackFts->SetPersistency(kFALSE);
   fRun->AddTask(trackFts);
 
 //  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();

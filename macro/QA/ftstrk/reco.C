@@ -51,7 +51,7 @@ int reco(Int_t nEvents = 5)
 
   PndFtsHoughTrackerTask* trackFts = new PndFtsHoughTrackerTask();
   trackFts->SetTrackOutput("FtsHoughTrack");
-  trackFts->SetPersistence(kTRUE);
+  trackFts->SetPersistency(kTRUE);
   Int_t debugLevel = 1;
 
   debugLevel *= PndFtsHoughTrackerTask::kHoughSpaces; // sed -i 's/PndFtsHoughSpace/TH2S/g' *histo*.rtg
