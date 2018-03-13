@@ -53,7 +53,7 @@ PndMasterLocalRecoTask::PndMasterLocalRecoTask(TString options) :
   fBranchTasks.push_back(new PndEmcMakeCluster());
   fBranchTasks.push_back(new PndEmcMakeBump());
 
-  fBranchTasks.push_back(new PndMdtTrkProducer);
+  fBranchTasks.push_back(new PndMdtTrkProducer());
 
   // -----   GEM hit producers   ---------------------------------
   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
