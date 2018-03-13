@@ -75,10 +75,16 @@ class PndMasterTask : public PndBlackBoxTask
      */   
     FairTask* GetTask(Int_t nTask);
     
+ protected:
+
+    std::vector<PndPersistencyTask*> fBranchTasks;
+    std::vector<FairTask*> fStandardTasks;
+    std::map<PndPersistencyTask*, bool> fFixedPersistency;
+
  private:
 
     /** @cond CLASSIMP */
-    ClassDef(PndMasterTask,1);  ///< 1st Implementation -> 1
+    ClassDef(PndMasterTask,2);  ///< 1st Implementation -> 1
     /** @endcond */
 
 };

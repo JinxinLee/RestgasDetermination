@@ -24,36 +24,32 @@
 PndMasterRecoTask::PndMasterRecoTask(TString options) :
   PndMasterTask("Master Reconstruction Task"), fOptions(options)
 {
-	reco = {-1, -1, -1, -1, -1, -1};
- 
+
   // -----  MVD + STT Pattern Recognition -----------------------------------
   //  use the constructor with input :
   //      printout flag (int) , plotting flag (bool), MC comparison flag (bool), SciTil.
   PndTrkTracking2* tracking = NULL;
-  this->Add(tracking = new PndTrkTracking2(0,false,false,true)); // 1
-  reco.kPndTrkTracking2 = GetListOfTasks()->GetSize()-1;
+  fBranchTasks.push_back(tracking = new PndTrkTracking2(0,false,false,true));
   tracking->SetInputBranchName("STTHit","MVDHitsPixel","MVDHitsStrip");
   // tracking->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
   //  don't do the Pattern Recognition second part, starting from the Mvd;
   tracking->NoMvdAloneTracking();
   // do Cleanup only when there is Mixing;
   // tracking->Cleanup();
-  tracking->SetPersistency(kFALSE);
+  fFixedPersistency[tracking]=kFALSE;
 
   // ----- MVD + STT + GEM Pattern Recognition --------------
   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
     {
       PndSttMvdGemTracking *SttMvdGemTracking = NULL;
-      this->Add(SttMvdGemTracking = new PndSttMvdGemTracking(0)); // 2
-      reco.kPndSttMvdGemTracking = GetListOfTasks()->GetSize()-1;
-      SttMvdGemTracking->SetPersistency(kFALSE);
+      fBranchTasks.push_back(SttMvdGemTracking = new PndSttMvdGemTracking(0));
+      fFixedPersistency[SttMvdGemTracking]=kFALSE;
     }
   
   
   // ----- Barrel Kalman Task     ----------------------------
   PndRecoKalmanTask* recoKalman = NULL;
-  this->Add(recoKalman = new PndRecoKalmanTask()); // 3
-  reco.kPndRecoKalmanTask1 = GetListOfTasks()->GetSize()-1;
+  fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask());
   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
     {
       recoKalman->SetTrackInBranchName("SttMvdGemTrack");
@@ -74,8 +70,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   
   if (fOptions.Contains("filtered")){
 	  PndMissingPzCleanerTask* cleaner = NULL;
-	  this->Add(cleaner = new PndMissingPzCleanerTask()); //4
-	  reco.kPndTrackCleaner = GetListOfTasks()->GetSize()-1;
+	  fBranchTasks.push_back(cleaner = new PndMissingPzCleanerTask());
 	  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
 	  {
 		  cleaner->SetInputTrackBranch("SttMvdGemGenTrack");
@@ -89,8 +84,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 
   // -----  FTS Ideal Tracking    ----------------------------
   PndIdealTrackFinder* trackFts = NULL;
-  this->Add(trackFts = new PndIdealTrackFinder()); // 5
-  reco.kPndFtsTrackerIdeal = GetListOfTasks()->GetSize()-1;
+  fBranchTasks.push_back(trackFts = new PndIdealTrackFinder());
   trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->AddBranchName("FTSHit");
   trackFts->AddBranchName("MVDHitsPixel");
@@ -99,13 +93,13 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetOutputBranchName("FtsIdealTrack");
-  trackFts->SetPersistence(kFALSE);
+  fFixedPersistency[trackFts]=kFALSE;
+
 
 
   // ----- Forward Kalman Task     ---------------------------
   PndRecoKalmanTask* recoKalmanFwd = NULL;
-  this->Add(recoKalmanFwd = new PndRecoKalmanTask()); // 6
-  reco.kPndRecoKalmanTask2 = GetListOfTasks()->GetSize()-1;
+  fBranchTasks.push_back(recoKalmanFwd = new PndRecoKalmanTask());
   recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
   //recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
   recoKalmanFwd->SetTrackOutBranchName("FtsIdealGenTrack");
@@ -115,41 +109,12 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   recoKalmanFwd->SetTrackRep(0); // 0 Geane (default), 1 RK
   //recoKalmanFwd->SetPropagateToIP(kFALSE);
 
+  std::for_each(fBranchTasks.begin(), fBranchTasks.end(), [this](const FairTask* task){ Add((TTask*)task); } );
+
 
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------
-
-/** Set the Persistency of all the tasks in the same way **/
-void PndMasterRecoTask::SetPersistency(Bool_t pers)
-{
-    // -----  MVD + STT Pattern Recognition -----------------------------------
-  ((PndTrkTracking2*)GetListOfTasks()->At(reco.kPndTrkTracking2))->SetPersistence(pers);
-
-  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
-    {
-      // ----- MVD + STT + GEM Pattern Recognition --------------
-      ((PndSttMvdGemTracking*)GetListOfTasks()->At(reco.kPndSttMvdGemTracking))->SetPersistency(pers);
-    }
-  
-  
-  // ----- Barrel Kalman Task     ----------------------------
-  ((PndRecoKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask1))->SetPersistence(pers);
-
-  ((PndMissingPzCleanerTask*)GetListOfTasks()->At(reco.kPndTrackCleaner))->SetPersistence(pers);
-
-
-  
-  // -----  FTS Ideal Tracking    ----------------------------
-  ((PndIdealTrackFinder*)GetListOfTasks()->At(reco.kPndFtsTrackerIdeal))->SetPersistence(pers);
-
-
-  // ----- Forward Kalman Task     ---------------------------
-  ((PndRecoKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask2))->SetPersistence(pers);
-
-
-  return;
-}
 
 
 // -----   Destructor   ----------------------------------------------------

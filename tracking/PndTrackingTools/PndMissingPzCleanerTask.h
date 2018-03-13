@@ -16,19 +16,19 @@
 #ifndef PndMissingPzCleanerTask_H_
 #define PndMissingPzCleanerTask_H_
 
-#include "FairTask.h"
+#include "PndPersistencyTask.h"
 #include "TString.h"
 
 class TClonesArray;
 
-class PndMissingPzCleanerTask: public FairTask {
+class PndMissingPzCleanerTask: public PndPersistencyTask {
 public:
 	PndMissingPzCleanerTask()
-		: FairTask("Missing Pz Track Cleaner Task"), fInputTrackBranch(""), fOutputTrackBranch(""),
-		  fTracks(0), fFilteredTracks(0), fRemoveTrack(kFALSE), fPersistence(kTRUE){ };
+		: PndPersistencyTask("Missing Pz Track Cleaner Task"), fInputTrackBranch(""), fOutputTrackBranch(""),
+		  fTracks(0), fFilteredTracks(0), fRemoveTrack(kFALSE){SetPersistency(kTRUE); };
 	PndMissingPzCleanerTask(const TString& branchName)
-		: FairTask("Missing Pz Track Cleaner Task"), fInputTrackBranch(branchName), fOutputTrackBranch(""),
-		  fTracks(0), fFilteredTracks(0), fRemoveTrack(kFALSE), fPersistence(kTRUE){ };
+		: PndPersistencyTask("Missing Pz Track Cleaner Task"), fInputTrackBranch(branchName), fOutputTrackBranch(""),
+		  fTracks(0), fFilteredTracks(0), fRemoveTrack(kFALSE){SetPersistency(kTRUE); };
 	virtual ~PndMissingPzCleanerTask(){};
 
 	/** Virtual method Init **/
@@ -43,7 +43,7 @@ public:
     void SetInputTrackBranch(const TString& name) { fInputTrackBranch = name; }
     void SetOutputTrackBranch(const TString& name) { fOutputTrackBranch = name; }
     void SetRemoveTrack(const Bool_t& remove) { fRemoveTrack = remove; }
-    void SetPersistence(const Bool_t& val) { fPersistence = val; }
+    void SetPersistence(const Bool_t& val) { SetPersistency(val); }
 
 private:
     TString fInputTrackBranch;
@@ -53,7 +53,6 @@ private:
     TClonesArray* fFilteredTracks;
 
     Bool_t fRemoveTrack; ///< if this flag is set than the track will not be written to the output branch. Otherwise the flag -30 will be set.
-    Bool_t fPersistence; ///< sets if the track is stored in the output root tree or not.
 
 	ClassDef(PndMissingPzCleanerTask,1);
 

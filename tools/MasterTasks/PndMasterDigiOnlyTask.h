@@ -40,17 +40,8 @@ class PndMasterDigiOnlyTask : public PndMasterTask
    */
   virtual ~PndMasterDigiOnlyTask();
 
-  /**
-   * @brief Set the persistency of all the tasks
-   * @param pers Persistency level: 0 no TCA, 1 all TCA
-   */
-  virtual void SetPersistency(Bool_t pers = kTRUE);
-
  private:
 
-  std::vector<PndPersistencyTask*> fBranchTasks;
-  std::vector<FairTask*> fStandardTasks;
-  std::map<PndPersistencyTask*, bool> fFixedPersistency;
 
   TString fOptions;          ///< Options parsed to the digitization
 

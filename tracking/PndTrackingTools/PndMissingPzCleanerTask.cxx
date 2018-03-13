@@ -40,7 +40,7 @@ InitStatus PndMissingPzCleanerTask::Init() {
 		fOutputTrackBranch.Append("_filtered");
 	}
 
-	fFilteredTracks = ioman->Register(fOutputTrackBranch, "PndTrack", "Tracks", fPersistence);
+	fFilteredTracks = ioman->Register(fOutputTrackBranch, "PndTrack", "Tracks", GetPersistency());
 
 	return kSUCCESS;
 
