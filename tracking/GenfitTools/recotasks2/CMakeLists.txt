@@ -48,7 +48,7 @@ set(SRCS
 PndRecoKalmanFit2.cxx
 PndRecoDafFit2.cxx
 PndRecoKalmanTask2.cxx
-#PndRecoMultiKalmanTask2.cxx
+PndRecoMultiKalmanTask2.cxx
 )
 
 set(LINKDEF  RecoTasksLinkDef.h)

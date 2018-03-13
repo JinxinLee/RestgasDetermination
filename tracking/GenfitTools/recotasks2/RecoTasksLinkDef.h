@@ -8,5 +8,5 @@
 #pragma link C++ class PndRecoKalmanFit2+;
 #pragma link C++ class PndRecoDafFit2+;
 #pragma link C++ class PndRecoKalmanTask2+;
-//#pragma link C++ class PndRecoMultiKalmanTask2+;
+#pragma link C++ class PndRecoMultiKalmanTask2+;
 #endif

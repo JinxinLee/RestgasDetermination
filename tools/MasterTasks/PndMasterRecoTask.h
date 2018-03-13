@@ -28,6 +28,7 @@ class PndMasterRecoTask : public PndMasterTask
    * "day1"                      -> Setup for day1 experiment: no GEM, FTS1234, NO DISC, NO RICH
    * "gem" (added to "day1")     -> Setup for day1 experiment with 3 GEM planes
    * "fts1256" (added to "day1") -> Setup for day1 experiment with FTS1256 insted of FTS1234
+   * "mulitkalman"				-> Run kalman tasks with all 5 hypothesis for a TrackCand
    * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256 
    */
   PndMasterRecoTask(TString fOptions="");

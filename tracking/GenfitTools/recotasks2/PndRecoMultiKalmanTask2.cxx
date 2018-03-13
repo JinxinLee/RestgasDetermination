@@ -3,8 +3,8 @@
 // $Id$
 //
 // Description:
-//      Implementation of class PndRecoMultiKalmanTask
-//      see PndRecoMultiKalmanTask.h for details
+//      Implementation of class PndRecoMultiKalmanTask2
+//      see PndRecoMultiKalmanTask2.h for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
@@ -18,9 +18,7 @@
 // Panda Headers ----------------------
 
 // This Class' Header ------------------
-#include "PndRecoMultiKalmanTask.h"
-
-// C/C++ Headers ----------------------
+#include <PndRecoMultiKalmanTask2.h>
 #include <iostream>
 #include <cmath>
 
@@ -32,10 +30,10 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 
-PndRecoMultiKalmanTask::PndRecoMultiKalmanTask(const char* name, Int_t iVerbose)
+PndRecoMultiKalmanTask2::PndRecoMultiKalmanTask2(const char* name, Int_t iVerbose)
   : PndPersistencyTask(name, iVerbose)
 {
-  fTrackInBranchName  = "LheTrack"; 
+  fTrackInBranchName  = "LheTrack";
   fTrackOutBranchName = "LheGenTrack";
   fMvdBranchName = "";
   fCentralTrackerBranchName = "";
@@ -46,79 +44,78 @@ PndRecoMultiKalmanTask::PndRecoMultiKalmanTask(const char* name, Int_t iVerbose)
   fFitTrackArrayProton   = new TClonesArray("PndTrack");
   fUseGeane = kTRUE;
   fNumIt = 1;
-  fFitter = new PndRecoKalmanFit();
+  fFitter = new PndRecoKalmanFit2();
   SetPersistency(kTRUE);
 }
 
 
-PndRecoMultiKalmanTask::~PndRecoMultiKalmanTask()
+PndRecoMultiKalmanTask2::~PndRecoMultiKalmanTask2()
 {
 }
 
 InitStatus
-PndRecoMultiKalmanTask::Init()
+PndRecoMultiKalmanTask2::Init()
 {
- 
-  fFitter->SetGeane(fUseGeane);
+
   fFitter->SetNumIterations(fNumIt);
   fFitter->SetMvdBranchName(fMvdBranchName);
   fFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
   if (!fFitter->Init()) return kFATAL;
-  
+
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
-  
+
   if(ioman==0)
     {
-      Error("PndRecoMultiKalmanTask::Init","RootManager not instantiated!");
+      Error("PndRecoMultiKalmanTask2::Init","RootManager not instantiated!");
       return kERROR;
     }
-  
+
   // Get input collection
   fTrackArray=(TClonesArray*) ioman->GetObject(fTrackInBranchName);
   if(fTrackArray==0)
     {
-      Error("PndRecoMultiKalmanTask::Init","track-array not found!");
+      Error("PndRecoMultiKalmanTask2::Init","track-array not found!");
       return kERROR;
     }
-  
+
   ioman->Register(fTrackOutBranchName+"Electron","Gen", fFitTrackArrayElectron, GetPersistency());
   ioman->Register(fTrackOutBranchName+"Muon",    "Gen", fFitTrackArrayMuon,     GetPersistency());
   ioman->Register(fTrackOutBranchName+"Pion",    "Gen", fFitTrackArrayPion,     GetPersistency());
   ioman->Register(fTrackOutBranchName+"Kaon",    "Gen", fFitTrackArrayKaon,     GetPersistency());
   ioman->Register(fTrackOutBranchName+"Proton",  "Gen", fFitTrackArrayProton,   GetPersistency());
- 	return kSUCCESS;
+	return kSUCCESS;
 }
 
-void PndRecoMultiKalmanTask::SetParContainers() 
+void PndRecoMultiKalmanTask2::SetParContainers()
 {
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 
-void PndRecoMultiKalmanTask::Exec(Option_t*)
+void PndRecoMultiKalmanTask2::Exec(Option_t*)
 {
-  if (fVerbose>0) std::cout<<"PndRecoMultiKalmanTask::Exec"<<std::endl;
-  
+  if (fVerbose>0) std::cout<<"PndRecoMultiKalmanTask2::Exec"<<std::endl;
+
   fFitTrackArrayElectron->Clear();
   fFitTrackArrayMuon->Clear();
   fFitTrackArrayPion->Clear();
   fFitTrackArrayKaon->Clear();
   fFitTrackArrayProton->Clear();
-  
+
   Int_t ntracks=fTrackArray->GetEntriesFast();
 
   // Detailed output
-  if (fVerbose>1) std::cout << " -I- PndRecoMultiKalmanTask: contains " << ntracks << " Tracks."<< std::endl;
-  
+  if (fVerbose>1) std::cout << " -I- PndRecoMultiKalmanTask2: contains " << ntracks << " Tracks."<< std::endl;
+
   // Cut too busy events TODO
   if(ntracks>20)
     {
-      std::cout<<" -I- PndRecoMultiKalmanTask::Exec: ntracks=" << ntracks << " Evil Event! skipping" << std::endl;
+      std::cout<<" -I- PndRecoMultiKalmanTask2::Exec: ntracks=" << ntracks << " Evil Event! skipping" << std::endl;
       return;
     }
-  
-  
+
+
   for (Int_t itr = 0; itr < ntracks; ++itr) {
 		if (fVerbose > 1)
 			std::cout << "starting track" << itr << std::endl;
@@ -203,4 +200,4 @@ void PndRecoMultiKalmanTask::Exec(Option_t*)
 	return;
 }
 
-ClassImp(PndRecoMultiKalmanTask);
+ClassImp(PndRecoMultiKalmanTask2);
