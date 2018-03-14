@@ -100,6 +100,6 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root",
       cout << " Not Ok " << endl;
     }
 
-  CloseGeoManager();
+//  CloseGeoManager();
   return fTest;
 }

@@ -114,9 +114,9 @@ void PndMasterDigiTask::SetPersistency(Bool_t pers)
   
   // -----   EMC hit producers   ---------------------------------
   ((PndEmcHitsToWaveform*)GetListOfTasks()->At(digi.kPndEmcHitsToWaveform))->SetStorageOfData(kFALSE);
-  ((PndEmcWaveformToDigi*)GetListOfTasks()->At(digi.kPndEmcWaveformToDigi))->SetStorageOfData(kFALSE);
-  ((PndEmcMakeCluster*)GetListOfTasks()->At(digi.kPndEmcMakeCluster))->SetStorageOfData(kFALSE);
-  ((PndEmcMakeBump*)GetListOfTasks()->At(digi.kPndEmcMakeBump))->SetStorageOfData(kFALSE);
+  ((PndEmcWaveformToDigi*)GetListOfTasks()->At(digi.kPndEmcWaveformToDigi))->SetStorageOfData(kTRUE);
+  ((PndEmcMakeCluster*)GetListOfTasks()->At(digi.kPndEmcMakeCluster))->SetStorageOfData(kTRUE);
+  ((PndEmcMakeBump*)GetListOfTasks()->At(digi.kPndEmcMakeBump))->SetStorageOfData(kTRUE);
   
   // -----   SciT hit producers   -------------------------------
   //((PndSciTHitProducerIdeal*)GetListOfTasks()->At(digi.kPndSciTHitProducerIdeal))->SetPersistence(pers);

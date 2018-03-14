@@ -66,11 +66,11 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   pid.kPndPidBremCorrector = GetListOfTasks()->GetSize()-1;
   
   // -----   MC Cloner   ------------------------------------
-//  PndMcCloner *clone = NULL;
-//  this->Add(clone = new PndMcCloner()); // 3
-//  pid.kPndMcCloner = GetListOfTasks()->GetSize()-1;
+  PndMcCloner *clone = NULL;
+  this->Add(clone = new PndMcCloner()); // 3
+  pid.kPndMcCloner = GetListOfTasks()->GetSize()-1;
   // Option to clean the MCTrack TClonesArray from particles which were not interacting with sensitive detectors
-  //clone->SetCleanMc();
+  clone->SetCleanMc();
   
   // -----   Classifiers   ----------------------------------
   this->Add(new PndPidIdealAssociatorTask()); // 4
