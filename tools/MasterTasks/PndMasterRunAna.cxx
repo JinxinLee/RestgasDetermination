@@ -176,6 +176,11 @@ void PndMasterRunAna::AddPidTasks(Bool_t pers)
 void PndMasterRunAna::Finish()
 {
   cout << endl;
+  if (gROOT->GetVersionInt() >= 60602) {
+    gGeoManager->GetListOfVolumes()->Delete();
+    gGeoManager->GetListOfShapes()->Delete();
+    delete gGeoManager;
+  }
 
   // Extract the maximal used memory an add is as Dart measurement
   // This line is filtered by CTest and the value send to CDash
@@ -209,6 +214,7 @@ void PndMasterRunAna::Finish()
   cout << "Max Memory " << maxMemory << " MB" << endl;
 
   cout << "Macro finished successfully." << endl;
+
 
 }
 
