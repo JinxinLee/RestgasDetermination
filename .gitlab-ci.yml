@@ -19,10 +19,10 @@ configure:future:
   stage: configure
   script: source generateDartConfig.sh
   variables:
-    FAIRSOFT_VERSION: oct17
+    FAIRSOFT_VERSION: dev
     FAIRROOT_VERSION: dev
   tags:
-   - oct17
+   - FairSoft_dev
    - FairRoot_dev
 
 cdash:current:full:
@@ -45,7 +45,7 @@ cdash:future:full:
   dependencies:
     - configure:future
   tags:
-    - oct17
+    - FairSoft_dev
     - FairRoot_dev
 
 cdash:current:continuous:
@@ -68,5 +68,5 @@ cdash:future:continuous:
   dependencies:
     - configure:future
   tags:
-    - oct17
+    - FairSoft_dev
     - FairRoot_dev
