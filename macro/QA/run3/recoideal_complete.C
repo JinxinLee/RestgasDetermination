@@ -5,7 +5,7 @@ int recoideal_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  output         = "recoideal";
   TString  friend1        = "digi";
   TString  friend2        = "";
@@ -22,11 +22,11 @@ int recoideal_complete(Int_t nEvents = 0)
   fRun->SetFriend4(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup();
-  
+
   // -----   Add tasks   ----------------------------------------------------
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
-  
+
   PndIdealTrackFinder* trackStt = new PndIdealTrackFinder();
   trackStt->SetTrackSelector("NoFtsTrackFunctor");
   trackStt->SetRelativeMomentumSmearing(0.05);
@@ -35,7 +35,7 @@ int recoideal_complete(Int_t nEvents = 0)
   trackStt->SetOutputBranchName("SttMvdGemIdealTrack");
   trackStt->SetPersistency(kFALSE);
   fRun->AddTask(trackStt);
-   
+
 //  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
 //  trackMC->SetTrackInBranchName("SttMvdGemIdealTrack");
 //  trackMC->SetTrackOutBranchName("SttMvdGemIdealTrackID");
@@ -55,7 +55,7 @@ int recoideal_complete(Int_t nEvents = 0)
 //  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
 //  fRun->AddTask(trackMC2);
 
- 
+
   PndIdealTrackFinder* trackFts = new PndIdealTrackFinder();
   trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->SetRelativeMomentumSmearing(0.05);
@@ -83,7 +83,7 @@ int recoideal_complete(Int_t nEvents = 0)
 //  trackMC3->SetTrackInBranchName("FtsIdealGenTrack");
 //  trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
 //  fRun->AddTask(trackMC3);
-  
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();
