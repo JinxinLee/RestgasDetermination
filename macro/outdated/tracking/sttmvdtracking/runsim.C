@@ -89,10 +89,10 @@
   // 1- Reading the new field map in the old format
 
 	fRun->SetBeamMom(15);
-  //---------------------Create and Set the Field(s)---------- 
+  //---------------------Create and Set the Field(s)----------
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
-  
+
   fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
   fRun->SetRadLenRegister(kFALSE); // toggle for material budget study
 
@@ -122,4 +122,3 @@
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 }
-

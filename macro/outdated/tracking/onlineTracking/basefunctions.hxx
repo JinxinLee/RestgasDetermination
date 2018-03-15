@@ -290,10 +290,10 @@ void DrawIsochrones(Int_t currenttime, TObjArray* stthits, TObjArray* stttubes) 
 	//setting the single straw tube simulation constants
 	// 3 options currently available:
 	// TConst(tube radius (cm), gas pressure (bar), Ar%, CO2%)
-	// stt.TConst(0.4, 1, 0.9, 0.1); 
+	// stt.TConst(0.4, 1, 0.9, 0.1);
 	// stt.TConst(0.5, 1, 0.9, 0.1);
 	stt.TConst(0.5, 2, 0.8, 0.2);
-	// wire positioning   
+	// wire positioning
 	stt.PutWireXYZ(0.,  0., -75., 0., 0., 75.);
 
 
@@ -331,7 +331,7 @@ void DrawIsochrones(Int_t currenttime, TObjArray* stthits, TObjArray* stttubes) 
 		//std::cout << currenttime << " " << drawhit->GetTubeID() << " " << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() << " " << tube->GetWireDirection().X() << " " << tube->GetWireDirection().Y() << " " << tube->GetWireDirection().Z() << " " << timestamp << " " << isochrone << " " << recoisochrone << std::endl;
 		mylipse.SetX1(tube->GetPosition().X());
 		mylipse.SetY1(tube->GetPosition().Y());
-		
+
 		//conformal transformation
 		//Double_t r2 = tube->GetPosition().X() * tube->GetPosition().X() + tube->GetPosition().Y() * tube->GetPosition().Y();
 		//Double_t u = tube->GetPosition().X() / r2;
@@ -761,7 +761,7 @@ TEllipse DrawOriginTrackLipse(Double_t x1, Double_t y1, Double_t x2, Double_t y2
 		mylipse.SetPhimin(0);
 		mylipse.SetPhimax(180);
 	}
-	
+
 	mylipse.SetTheta(TMath::RadToDeg()*zeroangle);
 	return mylipse;
 }

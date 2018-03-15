@@ -189,9 +189,7 @@ int runStreamDisplay() {
 		DrawVector3(innerskewlets);
 
 		mytext->DrawText(-42, -42, TString::Format("%d ns",currenttime));
-
- 		c1->Update();
- 		c1->Print("hitstream.gif+15");
+C
 		c2->Update();
 		c2->Print("hitstreamyz.gif+15");
 		rzcanvas->Update();

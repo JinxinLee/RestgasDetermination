@@ -143,10 +143,10 @@ runSim(Int_t nEvents=500)
 
 
 	fRun->SetBeamMom(15);
-  //---------------------Create and Set the Field(s)---------- 
+  //---------------------Create and Set the Field(s)----------
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
-  
+
   fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
   fRun->SetRadLenRegister(kFALSE); // toggle for material budget study
 
@@ -177,4 +177,3 @@ runSim(Int_t nEvents=500)
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 }
-

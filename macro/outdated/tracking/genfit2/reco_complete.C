@@ -5,23 +5,23 @@ int reco_complete()
 
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
-  
+
 	// Number of events to process
   Int_t nEvents = 0;  // if 0 all the vents will be processed
-  
+
   // Parameter file
   TString parFile = "simparams.root"; // at the moment you do not need it
-  
+
   // Digitisation file (ascii)
   TString digiFile = "all.par";
-  
+
   // Output file
   TString outFile = "reco_complete.root";
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
     // ------------------------------------------------------------------------
-  
+
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile("sim_complete.root");
@@ -35,14 +35,14 @@ int reco_complete()
   TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
   emcDigiFile += "/macro/params/";
   emcDigiFile += digiFile;
-  
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
-  
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(emcDigiFile.Data(),"in");
-        
+
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
 
@@ -58,12 +58,12 @@ int reco_complete()
   // tracking->Cleanup();
   tracking->SetPersistence(kFALSE);
   fRun->AddTask(tracking);
-  
+
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
   //SttMvdGemTracking->SetPdgFromMC();
   SttMvdGemTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdGemTracking);
-  
+
   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
   trackMC->SetTrackInBranchName("SttMvdGemTrack");
   trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
@@ -92,10 +92,10 @@ int reco_complete()
   fRun->AddTask(recoKalman2);
 
   PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
-  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack"); 
+  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack");
   trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
   fRun->AddTask(trackMC2);
- 
+
   PndFtsTrackerIdeal* trackFts = new PndFtsTrackerIdeal();
   trackFts->SetRelativeMomentumSmearing(0.05);
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);

@@ -3,7 +3,7 @@
 eventDisplay()
 {
     //-----User Settings:-----------------------------------------------
-  TString  SimEngine      ="TGeant3"; 
+  TString  SimEngine      ="TGeant3";
   TString  InputFile     ="Sim_Dpm_500.root";
   TString  ParFile       ="Sim_Dpm_500_params.root";
   //------------------------------------------------------------------
@@ -15,7 +15,7 @@ eventDisplay()
   gSystem->Load("libEve");
   gSystem->Load("libEventDisplay");
 
-                                     
+
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(InputFile.Data());
@@ -26,8 +26,8 @@ eventDisplay()
   parInput1->open(ParFile.Data());
   rtdb->setFirstInput(parInput1);
   FairEventManager *fMan= new FairEventManager();
- 
- 
+
+
  //----------------------Traks and points -------------------------------------
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
 //  FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("MVDPoint",kBlue,  kFullSquare);
@@ -41,11 +41,11 @@ eventDisplay()
   FairMCPointDraw *PndSTTPoint = new FairMCPointDraw ("STTPoint",kMagenta, kFullSquare);
   FairMCPointDraw *PndGEMPoint = new FairMCPointDraw ("GEMPoint",kRed, kFullSquare);
   FairMCPointDraw *PndDskPoint = new FairMCPointDraw ("DskCerenkov",kGreen, kFullSquare);
-                                                            
+
   fMan->AddTask(Track);
  // fMan->AddTask(MvdPoints);
-  fMan->AddTask(EMCPoints);   
-  fMan->AddTask(TofPoint);   
+  fMan->AddTask(EMCPoints);
+  fMan->AddTask(TofPoint);
   fMan->AddTask( TofSciFPoint);
   fMan->AddTask( MdtPoint);
   fMan->AddTask( PndDrcPoint);
@@ -54,7 +54,7 @@ eventDisplay()
   fMan->AddTask( PndSTTPoint);
   fMan->AddTask( PndGEMPoint);
   fMan->AddTask( PndDskPoint);
-  
-  fMan->Init();                     
+
+  fMan->Init();
 
 }

@@ -13,17 +13,17 @@ runReco(Int_t nEvents=500)
   TString MCFile = "Sim_Dpm_500.root";
   TString parFile = "Sim_Dpm_500_params.root";
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   // ------------------------------------------------------------------------
   // Output file
   PndFileNameCreator creator(MCFile.Data());
   TString DigiFile = creator.GetDigiFileName().c_str();
   TString outFile = creator.GetRecoFileName().c_str();
-  
+
   std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
   std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
   std::cout << "RecoFile: " << outFile.Data()<< std::endl;
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -50,7 +50,7 @@ runReco(Int_t nEvents=500)
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
-  
+
 
   PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
@@ -75,8 +75,8 @@ runReco(Int_t nEvents=500)
 
   // =====                 End of HitProducers                           =====
   // =========================================================================
-//   PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
-  
+//   PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 

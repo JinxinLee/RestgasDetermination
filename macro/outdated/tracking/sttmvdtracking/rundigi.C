@@ -16,7 +16,7 @@
 
   // Output file
   PndFileNameCreator creator(inFile.Data());
-  TString outFile = creator.GetDigiFileName().c_str(); 
+  TString outFile = creator.GetDigiFileName().c_str();
   std::cout << "DigiFileName: " << outFile.Data() << std::endl;
 
   // -----   Reconstruction run   -------------------------------------------
@@ -32,17 +32,17 @@
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(digiparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
-  
+
   // ======================================================================
   //    1) Default Task
   //    2) Separate pixels/strips/noise
-  //    Set parameters in pandroot/macro/params/mvd.digi.par  
+  //    Set parameters in pandroot/macro/params/mvd.digi.par
 
   // -----   Default Digitization   ---------------------------------------
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);
-  
+
 
 
 
@@ -60,7 +60,7 @@
 
   rtdb->setOutput(parInput1);
   rtdb->print();
-  
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 
