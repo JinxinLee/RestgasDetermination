@@ -7,8 +7,8 @@ int digiOnly_complete(Int_t nEvents = 0)
   TString  parAsciiFile   = "all.par";
   TString  prefix         = "evtcomplete_1G5";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  TString  output         = "digi";
-  TString  friend1        = "digionly";
+  TString  output         = "digionly";
+  TString  friend1        = "";
   TString  friend2        = "";
   TString  friend3        = "";
   TString  friend4        = "";
@@ -41,6 +41,7 @@ int digiOnly_complete(Int_t nEvents = 0)
   fRun->AddTask(task);
 
   task = new PndEmcWaveformToDigi();
+  task->SetPersistency(kTRUE);
   task->SetVerbose(0);
   fRun->AddTask(task);
 

@@ -1,13 +1,13 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
 // root  digi_complete.C  or in root session root>.x  digi_complete.C
-int barrelTrackFinder(Int_t nEvents = 0)
+int idealbarreltracking(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
   TString  prefix         = "evtcomplete_1G5";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  TString  output         = "barreltracking";
+  TString  output         = "idealbarreltracking";
   TString  friend1        = "digi";
   TString  friend2        = "digionly";
   TString  friend3        = "";
@@ -25,10 +25,18 @@ int barrelTrackFinder(Int_t nEvents = 0)
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
 
-  PndBarrelTrackFinder *tracking = new PndBarrelTrackFinder();
-  tracking->UseMvdSttGem(kTRUE, kTRUE, kTRUE);
-  tracking->SetPersistency(kTRUE);
+  PndIdealTrackFinder *tracking = new PndIdealTrackFinder();
   fRun->AddTask(tracking);
+  tracking->SetTrackSelector("NoFtsTrackFunctor");
+  tracking->AddBranchName("STTHit");
+  tracking->AddBranchName("MVDHitsPixel");
+  tracking->AddBranchName("MVDHitsStrip");
+  tracking->AddBranchName("GEMHit");
+//  tracking->SetRelativeMomentumSmearing(0.05);
+//  tracking->SetVertexSmearing(0.05, 0.05, 0.05);
+  tracking->SetTrackingEfficiency(1.);
+  tracking->SetOutputBranchName("BarrelIdealTrack");
+  tracking->SetPersistence(kTRUE);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
