@@ -5,28 +5,31 @@
  *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
-#include "PndLmdAlignManager.h"
+//#include "PndLmdAlignManager.h"
 #include "LmdPairFinderTask.h"
-#include <FairRun.h>
 
-#include <FairRootManager.h>
-#include <TClonesArray.h>
-#include <PndSdsDigiPixel.h>
+#include <PndGeoHandling.h>
+#include <PndLmdContFact.h>
 #include <PndLmdHitPair.h>
 #include <PndLmdGeometryHelper.h>
-#include <PndGeoHandling.h>
 #include <PndSdsClusterPixel.h>
+#include <PndSdsDigiPixel.h>
 
-#include <vector>
+#include <FairRootManager.h>
+#include <FairRun.h>
+#include <FairRuntimeDb.h>
+#include <TClonesArray.h>
+
+#include <TCanvas.h>
+#include <TH1D.h>
+
 #include <algorithm>
 #include <sstream>
-
-#include <FairRuntimeDb.h>
-#include <PndLmdContFact.h>
+#include <vector>
 
 using std::cout;
 using std::cerr;
-using swap;
+using std::swap;
 
 ClassImp(LmdPairFinderTask);
 
@@ -124,11 +127,13 @@ InitStatus LmdPairFinderTask::Init() {
 		const std::vector<int> &overlapIDs = helper->getAvailableOverlapIDs();
 
 		cout << "PndLmdSensorAligner: reading dynamic cut Parameters from file... ";
-		if (!PndLmdAlignManager::exists(_cutParameterFile)) {
+		//FIXME : reinstate this!
+		//if (!PndLmdAlignManager::exists(_cutParameterFile)) {
+		if (false) {
 			cout << "cut parameter file does not exist! using static cut instead.\n";
 			_useDynamicCut = false;
 		} else {
-			config = PndLmdAlignManager::readConfigFile(_cutParameterFile);
+			//config = PndLmdAlignManager::readConfigFile(_cutParameterFile);
 
 			for (auto i = 0; i < overlapIDs.size(); i++) {
 				int overlapID = overlapIDs[i];
@@ -272,7 +277,7 @@ void LmdPairFinderTask::Exec(Option_t*) {
 			pairCanditate.calculateDistance();
 			pairCanditate.check();
 
-			if (pairCanditate.getDistance() <= 0.025) {
+			if (pairCanditate.getDistance() <= 0.025 && false) {
 
 				cout << std::setprecision(12);
 
@@ -293,15 +298,107 @@ void LmdPairFinderTask::Exec(Option_t*) {
 				auto hitOneInSensorOne = helper->transformPndGlobalToSensor(vecOneGlobal, id1);
 				auto hitTwoInSensorTwo = helper->transformPndGlobalToSensor(vecTwoGlobal, id2);
 
-				cout << "Suspect Pair:\nGloabal:\n";
-				candGlobal.PrintPair();
-				cout << "Hit1 in Sensor1:\n";
+				cout << "local point 1:\n";
 				hitOneInSensorOne.Print();
-				cout << "Hit2 in Sensor2:\n";
+				cout << "global position:\n";
+				vecOneGlobal.Print();
+				cout << "hit back in sensor:\n";
+				hitOneInSensorOne.Print();
+				cout << "local point 2:\n";
 				hitTwoInSensorTwo.Print();
-				cout << "\bLocal:\n";
-				candlocal.PrintPair();
-				cout << "-=-=-=-=-=-=-=-=-=-= End of Suspect pair. =-=-=-=-=-=-=-=-=-=-\n";
+				cout << "global position:\n";
+				vecTwoGlobal.Print();
+				cout << "hit back in sensor:\n";
+				hitTwoInSensorTwo.Print();
+			}
+
+			//calculate z position in sensor frame
+			if (true) {
+				PndLmdHitPair candGlobal = PndLmdHitPair(vecOneGlobal, vecTwoGlobal, id1, id2);
+				PndLmdHitPair candlocal = PndLmdHitPair(vecOneLocal, vecTwoLocal, id1, id2);
+
+				candGlobal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
+				candlocal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
+
+				candGlobal.setOverlapId(overlapId);
+				candlocal.setOverlapId(overlapId);
+
+				candGlobal.check();
+				candGlobal.calculateDistance();
+				candlocal.check();
+				candlocal.calculateDistance();
+
+				auto hitOneInSensorOne = helper->transformPndGlobalToSensor(vecOneGlobal, id1);
+				auto hitTwoInSensorTwo = helper->transformPndGlobalToSensor(vecTwoGlobal, id2);
+
+				//convert to micron
+				double zFront = hitOneInSensorOne.z() * 1e4;
+				double zBack = hitTwoInSensorTwo.z() * 1e4;
+
+				// distAll gets all
+				distanceVAll.push_back(zFront);
+				distanceVAll.push_back(zBack);
+
+				//sort by front and back
+				distancesVFront.push_back(zFront);
+				distancesVBack.push_back(zBack);
+
+				double distAbs = candGlobal.getDistance() * 1e4;
+
+				if (distAbs < 270) {
+					distancesAbsolute.push_back(distAbs);
+				}
+
+				if (distAbs < 250) {
+					distanceVSm250.push_back(zFront);
+					distanceVSm250.push_back(zBack);
+				} else {
+					distanceVBi250.push_back(zFront);
+					distanceVBi250.push_back(zBack);
+				}
+
+				switch (overlapId) {
+				case 0:
+					distanceVArea0.push_back(zFront);
+					distanceVArea0.push_back(zBack);
+					break;
+				case 1:
+					distanceVArea1.push_back(zFront);
+					distanceVArea1.push_back(zBack);
+					break;
+				case 2:
+					distanceVArea2.push_back(zFront);
+					distanceVArea2.push_back(zBack);
+					break;
+				case 3:
+					distanceVArea3.push_back(zFront);
+					distanceVArea3.push_back(zBack);
+					break;
+				case 4:
+					distanceVArea4.push_back(zFront);
+					distanceVArea4.push_back(zBack);
+					break;
+				case 5:
+					distanceVArea5.push_back(zFront);
+					distanceVArea5.push_back(zBack);
+					break;
+				case 6:
+					distanceVArea6.push_back(zFront);
+					distanceVArea6.push_back(zBack);
+					break;
+				case 7:
+					distanceVArea7.push_back(zFront);
+					distanceVArea7.push_back(zBack);
+					break;
+				case 8:
+					distanceVArea8.push_back(zFront);
+					distanceVArea8.push_back(zBack);
+					break;
+				case 9:
+					distanceVArea9.push_back(zFront);
+					distanceVArea9.push_back(zBack);
+					break;
+				}
 
 			}
 
@@ -396,10 +493,12 @@ void LmdPairFinderTask::FinishTask() {
 
 		}
 
-		if (PndLmdAlignManager::writeConfigFile(config, _cutParameterFile, true)) {
-			cout << "PndLmdSensorAligner: Successfully written cutParameters to " << _cutParameterFile << "\n";
+		//if (PndLmdAlignManager::writeConfigFile(config, _cutParameterFile, true)) {
+		//	cout << "PndLmdSensorAligner: Successfully written cutParameters to " << _cutParameterFile << "\n";
+		//}
+		else {
+			cout << "PndLmdSensorAligner: could not write cut parameters to disk!\n";
 		}
-		cout << "PndLmdSensorAligner: could not write cut parameters to disk!\n";
 	}
 
 	//also, write statistics
@@ -438,9 +537,120 @@ void LmdPairFinderTask::FinishTask() {
 	printf("hits on plane 1: %.2f %%\n", plane1Percent);
 	printf("hits on plane 2: %.2f %%\n", plane2Percent);
 	printf("hits on plane 3: %.2f %%\n", plane3Percent);
-	printf("hits on all planes: %.2f %% (should be 100%!) \n", allPlanesPercent);
+	printf("hits on all planes: %.2f %% (should be 100%\!) \n", allPlanesPercent);
 	cout << "\n";
 	cout << "*************************************************************" << "\n";
+
+	if (true) {
+		cout << "Writing histograms.\n";
+
+		int nBins = 50;
+
+		TH1D distancesAbsoluteH("distances front to back", "distances front to back", 100, -1, -1);
+		TH1D distancesAll("all", "all", nBins, -1, -1);
+		TH1D distancesSmallerThan250("smaller than 250", "smaller than 250", nBins, -1, -1);
+		TH1D distancesBiggerThan250("bigger than 250", "bigger than 250", nBins, -1, -1);
+		TH1D distancesFront("front", "front", nBins, -1, -1);
+		TH1D distancesBack("back", "back", nBins, -1, -1);
+		TH1D distancesArea0("area0", "area0", nBins, -1, -1);
+		TH1D distancesArea1("area1", "area1", nBins, -1, -1);
+		TH1D distancesArea2("area2", "area2", nBins, -1, -1);
+		TH1D distancesArea3("area3", "area3", nBins, -1, -1);
+		TH1D distancesArea4("area4", "area4", nBins, -1, -1);
+		TH1D distancesArea5("area5", "area5", nBins, -1, -1);
+		TH1D distancesArea6("area6", "area6", nBins, -1, -1);
+		TH1D distancesArea7("area7", "area7", nBins, -1, -1);
+		TH1D distancesArea8("area8", "area8", nBins, -1, -1);
+		TH1D distancesArea9("area9", "area9", nBins, -1, -1);
+
+		for (auto &value : distancesAbsolute) {
+			distancesAbsoluteH.Fill(value);
+		}
+		for (auto &value : distanceVAll) {
+			distancesAll.Fill(value);
+		}
+		for (auto &value : distanceVSm250) {
+			distancesSmallerThan250.Fill(value);
+		}
+		for (auto &value : distanceVBi250) {
+			distancesBiggerThan250.Fill(value);
+		}
+		for (auto &value : distancesVFront) {
+			distancesFront.Fill(value);
+		}
+		for (auto &value : distancesVBack) {
+			distancesBack.Fill(value);
+		}
+		for (auto &value : distanceVArea0) {
+			distancesArea0.Fill(value);
+		}
+		for (auto &value : distanceVArea1) {
+			distancesArea1.Fill(value);
+		}
+		for (auto &value : distanceVArea2) {
+			distancesArea2.Fill(value);
+		}
+		for (auto &value : distanceVArea3) {
+			distancesArea3.Fill(value);
+		}
+		for (auto &value : distanceVArea4) {
+			distancesArea4.Fill(value);
+		}
+		for (auto &value : distanceVArea5) {
+			distancesArea5.Fill(value);
+		}
+		for (auto &value : distanceVArea6) {
+			distancesArea6.Fill(value);
+		}
+		for (auto &value : distanceVArea7) {
+			distancesArea7.Fill(value);
+		}
+		for (auto &value : distanceVArea8) {
+			distancesArea8.Fill(value);
+		}
+		for (auto &value : distanceVArea9) {
+			distancesArea9.Fill(value);
+		}
+
+		TCanvas canvas("name", "name", 800, 600);
+		canvas.cd();
+
+		distancesAbsoluteH.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distFrontToBack.pdf");
+		distancesAll.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distAll.pdf");
+		distancesSmallerThan250.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distSmallerThan250.pdf");
+		distancesBiggerThan250.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distBiggerThan250.pdf");
+		distancesFront.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distancesFront.pdf");
+		distancesBack.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distancesBack.pdf");
+		distancesArea0.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea0.pdf");
+		distancesArea0.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea0.pdf");
+		distancesArea1.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea1.pdf");
+		distancesArea2.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea2.pdf");
+		distancesArea3.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea3.pdf");
+		distancesArea4.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea4.pdf");
+		distancesArea5.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea5.pdf");
+		distancesArea6.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea6.pdf");
+		distancesArea7.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea7.pdf");
+		distancesArea8.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea8.pdf");
+		distancesArea9.Draw();
+		canvas.Print("/home/arbeit/RedPro3TB/simulationData/newGeometry/distArea9.pdf");
+	}
+
 	return;
 }
 
