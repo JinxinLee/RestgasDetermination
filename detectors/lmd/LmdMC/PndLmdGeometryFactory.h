@@ -33,6 +33,10 @@ class PndLmdGeometryFactory {
   TGeoVolume* generateDetectorHalf(bool is_bottom_half) const;
   TGeoVolume* generateDetectorHalfPlane(bool is_bottom_half) const;
   TGeoVolume* generateAluminumCoolingStructure() const;
+  TGeoVolume* generatePCB() const;
+  TGeoVolume* generatePCBMountScrew() const;
+  TGeoVolume* generatePCBCopperPlug() const;
+  TGeoVolume* generatePCBBacksideElectronics() const;
   TGeoVolume* generateSensorModule() const;
   TGeoVolume* generateCVDCoolingDisc() const;
   TGeoVolume* generateSensor() const;

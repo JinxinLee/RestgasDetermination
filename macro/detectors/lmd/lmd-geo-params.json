@@ -119,5 +119,36 @@
     "comment": "the cables are assumed on top of the area of the sensors",
 	"kapton_part_thickness": 0.003,
 	"aluminum_part_thickness": 0.0014
+  },
+  
+  "electronics": {
+  	"distance_between_pcb_and_cooling_support": 1.0,
+  	"pcb_board": {
+  		"thickness_copper": 0.03,
+  		"thickness_glasfiber": 0.17,
+  		"inner_radius": 10.6,
+		"outer_radius":	16.0,
+		"bottom_cutoff": 0.5
+  	},
+  	"steel_mount_screws": {
+  		"number_of_screws": 4,
+  		"angle_between_screws": 36,
+  		"angle_first_screw": 36,
+  		"diameter": 0.9,
+  		"distance_to_outer_support_edge": 0.95
+  	},
+  	"copper_plugs": {
+  		"thickness": 0.03,
+  		"dimension_x": 2.0,
+  		"dimension_y": 1.0
+  	},
+  	"backside_electronics": {
+  		"volume_name": "electronic_chip",
+  		"thickness": 0.03,
+  		"dimension_x": 0.5,
+  		"dimension_y": 0.5,
+  		"number_of_segments": 3,
+  		"number_of_sensors_per_segment": 3
+  	}
   }
 }
