@@ -28,6 +28,11 @@ struct PndLmdHitLocationInfo {
 
 		return stream;
 	}
+
+	bool operator <(const PndLmdHitLocationInfo &o){
+		return std::tie(detector_half, plane, module, module_side, module_sensor_id) <
+				std::tie(o.detector_half, o.plane, o.module, o.module_side, o.module_sensor_id);
+	}
 };
 
 class PndLmdGeometryHelper {
@@ -91,6 +96,8 @@ public:
 	TVector3 transformPndGlobalToSensor(const TVector3 &vec, int sensorId);
 
 	bool isOverlappingArea(const int id1, const int id2);
+
+	const std::string getPath(unsigned char ...);
 
 	const TGeoHMatrix getMatrixPndGlobalToSensor(const int sensorId);
 	const TGeoHMatrix getMatrixSensorToPndGlobal(const int sensorId);

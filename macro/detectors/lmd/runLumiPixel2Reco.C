@@ -16,8 +16,8 @@ int runLumiPixel2Reco(const int nEvents = 10, const int startEvent = 0,
 	outFile += ".root";
 
 	//std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
-	std::cout << "DigiFile: " << DigiFile.Data() << std::endl;
-	std::cout << "RecoFile: " << outFile.Data() << std::endl;
+	//std::cout << "DigiFile: " << DigiFile.Data() << std::endl;
+	//std::cout << "RecoFile: " << outFile.Data() << std::endl;
 
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
