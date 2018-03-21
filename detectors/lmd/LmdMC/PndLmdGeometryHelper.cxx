@@ -185,8 +185,6 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 	fhalf = infoOne.detector_half;
 	bhalf = infoTwo.detector_half;
 
-	// the necessities for overlapping, must be on same half, plane, module and
-	// other side
 	if (bhalf != fhalf) {
 		return -1;
 	}
@@ -267,4 +265,82 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToLmdLocal() {
 
 const TGeoHMatrix PndLmdGeometryHelper::getMatrixLmdLocalToPndGlobal() {
 	return getMatrixPndGlobalToLmdLocal().Inverse();
+}
+
+bool PndLmdGeometryHelper::isOverlappingArea(const int id1, const int id2) {
+
+	int fhalf, fplane, fmodule, fside, fsensor;
+	int bhalf, bplane, bmodule, bside, bsensor;
+
+	auto &infoOne = getHitLocationInfo(id1);
+	auto &infoTwo = getHitLocationInfo(id2);
+
+	fhalf = infoOne.detector_half;
+	bhalf = infoTwo.detector_half;
+
+	//the necessities for overlapping, must be on same half, plane, module and other side
+	if (bhalf != fhalf) {
+		return false;
+	}
+
+	fside = infoOne.module_side;
+	bside = infoTwo.module_side;
+
+	fplane = infoOne.plane;
+	bplane = infoTwo.plane;
+
+	fmodule = infoOne.module;
+	bmodule = infoTwo.module;
+
+	fsensor = infoOne.module_sensor_id;
+	bsensor = infoTwo.module_sensor_id;
+
+	if (bplane != fplane) {
+		return false;
+	}
+	if (bmodule != fmodule) {
+		return false;
+	}
+	if (bside == fside) {
+		return false;
+	}
+
+	//0to5
+	if (fsensor == 0 && bsensor == 5) {
+		return true;
+	}
+	//3to8
+	if (fsensor == 3 && bsensor == 8) {
+		return true;
+	}
+	//4to9
+	if (fsensor == 4 && bsensor == 9) {
+		return true;
+	}
+	//3to6
+	if (fsensor == 3 && bsensor == 6) {
+		return true;
+	}
+	//1to8
+	if (fsensor == 1 && bsensor == 8) {
+		return true;
+	}
+	//2to8
+	if (fsensor == 2 && bsensor == 8) {
+		return true;
+	}
+	//2to9
+	if (fsensor == 2 && bsensor == 9) {
+		return true;
+	}
+	//3to7
+	if (fsensor == 3 && bsensor == 7) {
+		return true;
+	}
+	//4to7
+	if (fsensor == 4 && bsensor == 7) {
+		return true;
+	}
+	//all other checks are negative? then the sensors don't overlap!
+	return false;
 }

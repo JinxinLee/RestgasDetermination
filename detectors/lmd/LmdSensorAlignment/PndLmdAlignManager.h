@@ -130,7 +130,8 @@ public:
 	void setMaxPairs(int maxPairs);
 
 	//considers inactive area, guard rings, pixel size etc
-	static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
+	//TODO: remove, deprecate
+	//static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
 
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);
 
