@@ -86,7 +86,7 @@ private:
 	static std::string makeBinaryPairFileName(int overlapId = 0, bool incentimeters = true);
 	static std::string makeMatrixFileName(int overlapId = 0, bool incentimeters = true);
 
-	void verbosePrint(std::string input, int level=3);
+	void verbosePrint(std::string input, int level = 3);
 
 public:
 
@@ -207,9 +207,9 @@ public:
 		startAlignerWhenFull = value;
 	}
 
-	void verboseLevel(int verbose){
+	void verboseLevel(int verbose) {
 		_verboseLevel = verbose;
-		for(auto &a:aligners){
+		for (auto &a : aligners) {
 			a.second.verboseLevel(_verboseLevel);
 		}
 	}

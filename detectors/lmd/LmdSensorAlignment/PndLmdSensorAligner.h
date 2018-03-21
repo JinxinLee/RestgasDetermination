@@ -115,7 +115,7 @@ public:
 		_zIsTimestamp = value;
 	}
 
-	void verboseLevel(int level){
+	void verboseLevel(int level) {
 		verbose = level;
 	}
 };

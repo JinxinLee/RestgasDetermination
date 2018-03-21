@@ -36,7 +36,7 @@ ClassImp(PndLmdPairFinderTask);
 /*
  * actually I don't need empty constructors, but fkn root crashes if no empty constructor is present
  */
-PndLmdPairFinderTask::PndLmdPairFinderTask() : // @suppress("Class members should be properly initialized")
+PndLmdPairFinderTask::PndLmdPairFinderTask() :  // @suppress("Class members should be properly initialized")
 		PndSdsTask("pairfinder") {
 	digiArray = NULL;
 	recoArray = NULL;
@@ -50,14 +50,13 @@ PndLmdPairFinderTask::PndLmdPairFinderTask() : // @suppress("Class members shoul
 
 }
 
-PndLmdPairFinderTask::PndLmdPairFinderTask(const char* name) : // @suppress("Class members should be properly initialized")
+PndLmdPairFinderTask::PndLmdPairFinderTask(const char* name) :  // @suppress("Class members should be properly initialized")
 		PndSdsTask("pairfinder with name") {
 	digiArray = NULL;
 	recoArray = NULL;
 	clusterCandidateArray = NULL;
 
-	if (!strcmp(name, ""))
-		SetName(name);
+	if (!strcmp(name, "")) SetName(name);
 	_useDynamicCut = false;
 	_findDynamicCutParameters = false;
 	_cutParameterFile = "";
@@ -103,19 +102,19 @@ InitStatus PndLmdPairFinderTask::Init() {
 
 	if (!digiArray) {
 		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInBranchName
-		        << " could not found!" << "\n";
+		    << " could not found!" << "\n";
 		return kERROR;
 	}
 
 	if (!recoArray) {
 		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInRecoBranchName
-		        << " not found!" << "\n";
+		    << " not found!" << "\n";
 		return kERROR;
 	}
 
 	if (!clusterCandidateArray) {
 		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInClusterCandidates
-		        << " not found!" << "\n";
+		    << " not found!" << "\n";
 		return kERROR;
 	}
 
@@ -127,7 +126,8 @@ InitStatus PndLmdPairFinderTask::Init() {
 		if (!PndLmdAlignManager::exists(_cutParameterFile)) {
 			cout << "cut parameter file does not exist! using static cut instead.\n";
 			_useDynamicCut = false;
-		} else {
+		}
+		else {
 			config = PndLmdAlignManager::readConfigFile(_cutParameterFile);
 
 			for (unsigned int i = 0; i < overlapIDs.size(); i++) {
@@ -141,7 +141,8 @@ InitStatus PndLmdPairFinderTask::Init() {
 				try {
 					handler._minDist = config.get<double>(configput.str() + "minDist");
 					handler._maxDist = config.get<double>(configput.str() + "maxDist");
-				} catch (std::exception &e) {
+				}
+				catch (std::exception &e) {
 					cerr << "PndLmdSensorAligner: ERROR! Parameter not found in config file!\n";
 				}
 				handler._ready = true;
@@ -185,7 +186,7 @@ void PndLmdPairFinderTask::SetParContainers() {
 	//read params for lumi alignment
 	TList* theAlignLMDContNames = themvdcontfact->GetAlignParNames();
 	Info("SetParContainers()", "AlignLMD The container names list contains %i entries",
-	        theAlignLMDContNames->GetEntries());
+	    theAlignLMDContNames->GetEntries());
 	TIter cfAlIter(theAlignLMDContNames);
 	while (TObjString* contname = (TObjString*) cfAlIter()) {
 		TString parsetname = contname->String();
@@ -256,15 +257,13 @@ void PndLmdPairFinderTask::Exec(Option_t*) {
 				continue;
 			}
 
-			int overlapId = helper->getOverlapIdFromSensorIDs(pairCanditate.getId1(),
-			        pairCanditate.getId2());
+			int overlapId = helper->getOverlapIdFromSensorIDs(pairCanditate.getId1(), pairCanditate.getId2());
 			pairCanditate.setOverlapId(overlapId);
 
 			pixelHit pixelHitOne = getPixelHitFromSdsHit(hitOne);
 			pixelHit pixelHitTwo = getPixelHitFromSdsHit(hitTwo);
 
-			pairCanditate.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
-			        pixelHitTwo._row);
+			pairCanditate.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
 
 			pairCanditate.calculateDistance();
 			pairCanditate.check();
@@ -337,8 +336,8 @@ void PndLmdPairFinderTask::FinishTask() {
 			dynamicCutHandler &handler = handlerIt.second;
 			if (!handler._ready) {
 				notReady++;
-				cout << "Warning! handler " << handler._overlapID << " only has  "
-				        << handler.samples.size() << " pairs!\n";
+				cout << "Warning! handler " << handler._overlapID << " only has  " << handler.samples.size()
+				    << " pairs!\n";
 				continue;
 			}
 			handler.calcMinAndMax();
@@ -352,8 +351,7 @@ void PndLmdPairFinderTask::FinishTask() {
 
 		}
 		if (notReady > 0) {
-			cout << "PndLmdSensorAligner: Attention! " << notReady
-			        << " handlers don't have enough pairs.\n";
+			cout << "PndLmdSensorAligner: Attention! " << notReady << " handlers don't have enough pairs.\n";
 		}
 
 		if (PndLmdAlignManager::writeConfigFile(config, _cutParameterFile, true)) {
@@ -479,7 +477,7 @@ pixelHit PndLmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 	for (int iCluster = 0; iCluster < noOfClusters; iCluster++) {
 
 		PndSdsDigiPixel* mcPixel = (PndSdsDigiPixel*) digiArray->At(
-		        clusterPixelCand->GetDigiIndex(iCluster));
+		    clusterPixelCand->GetDigiIndex(iCluster));
 
 		if (!mcPixel) {
 			exit(1);
@@ -493,7 +491,8 @@ pixelHit PndLmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 		//skip decoding errors
 		if (col < 0 || row < 0) {
 			continue;
-		} else {
+		}
+		else {
 			clusters.push_back(pixelCluster(pixelHit(hitSensorId, col, row)));
 		}
 	}
@@ -550,7 +549,8 @@ pixelHit PndLmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 				 */
 				i--;
 			}
-		} else {
+		}
+		else {
 			hitsSinglePixel++;
 		}
 	}

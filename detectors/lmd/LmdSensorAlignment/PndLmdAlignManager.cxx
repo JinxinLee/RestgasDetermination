@@ -108,7 +108,7 @@ void PndLmdAlignManager::init() {
 	_enableHelperMatrix = false;
 	_multithreaded = true;
 
-	_verboseLevel=0;
+	_verboseLevel = 0;
 
 	//int overlapId=-1;
 	fileNames.clear();
@@ -310,9 +310,9 @@ void PndLmdAlignManager::readFilesAndAlign() {
 	}
 
 	TChain* chainPairs = new TChain("pndsim");
-	for(size_t i=0; i<fileNames.size(); i++){
+	for (size_t i = 0; i < fileNames.size(); i++) {
 		//cout << files[i] << endl;
-		if( fileNames[i].find("Lumi_Pairs") != std::string::npos ){
+		if (fileNames[i].find("Lumi_Pairs") != std::string::npos) {
 			chainPairs->Add(fileNames[i].c_str());
 		}
 	}
@@ -424,12 +424,12 @@ void PndLmdAlignManager::alignMT() {
 	}
 
 	//create worker threads
-	if(_verboseLevel >= 3) cout << "creating threads... ";
+	if (_verboseLevel >= 3) cout << "creating threads... ";
 	for (int i = 0; i < nThreads; i++) {
 		worker_threads.create_thread(boost::bind(&WorkerThread, io_service));
-		if(_verboseLevel >= 3) cout << "[" << i << "] ";
+		if (_verboseLevel >= 3) cout << "[" << i << "] ";
 	}
-	if(_verboseLevel >= 3) cout << "done.\nposting work...\n";
+	if (_verboseLevel >= 3) cout << "done.\nposting work...\n";
 
 	resetMTLB(aligners.size(), aligners.size(), 60);
 
@@ -440,20 +440,20 @@ void PndLmdAlignManager::alignMT() {
 		 * when binding member classes, boost::bind needs the namespace AND the pointer to an object
 		 * of that class (here: this-pointer). Also, when using references, use boost::ref()
 		 */
-		if(_verboseLevel >= 3) cout << "posting work for aligner " << it->second.getOverlapId() << "... ";
+		if (_verboseLevel >= 3) cout << "posting work for aligner " << it->second.getOverlapId() << "... ";
 		io_service->post(boost::bind(&PndLmdAlignManager::alignOne, this, boost::ref(it->second)));
-		if(_verboseLevel >= 3) cout << "done.\n";
+		if (_verboseLevel >= 3) cout << "done.\n";
 
 	}
 
 	//wait for all threads to complete, then and only then write matrices to disk
-	if(_verboseLevel >= 3) cout << "waiting for all threads to complete.\n";
+	if (_verboseLevel >= 3) cout << "waiting for all threads to complete.\n";
 	work.reset();
 	worker_threads.join_all();
-	if(_verboseLevel >= 3) cout << "all threads done. getting info.\n";
+	if (_verboseLevel >= 3) cout << "all threads done. getting info.\n";
 	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
 		if (it->second.successful()) {
-			if(_verboseLevel >= 3) cout << "gtting matrix from " << it->second.getOverlapId() << "\n";
+			if (_verboseLevel >= 3) cout << "gtting matrix from " << it->second.getOverlapId() << "\n";
 			Matrix result = it->second.getResultMatrix();
 			string matrixFilename = _matrixOutDir
 			    + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
@@ -466,7 +466,7 @@ void PndLmdAlignManager::alignMT() {
 			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
 			_info << "\n";
 
-			if(_verboseLevel >= 3) cout << _info.str() << "\n";
+			if (_verboseLevel >= 3) cout << _info.str() << "\n";
 		}
 		else {
 			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
@@ -1532,7 +1532,7 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 }
 
 void PndLmdAlignManager::verbosePrint(std::string input, int level) {
-	if(_verboseLevel >= level){
+	if (_verboseLevel >= level) {
 		cout << input;
 	}
 }

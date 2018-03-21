@@ -37,7 +37,7 @@ struct dynamicCutHandler {
 	dynamicCutHandler() {
 		_overlapID = 0;
 		_minDist = _maxDist = 0.0;
-		_hardMax = 32 * 80e-4; //sensors should not be farther than 32 pixels, 2,5mm!
+		_hardMax = 32 * 80e-4;  //sensors should not be farther than 32 pixels, 2,5mm!
 		_ready = false;
 		_mean = 0;
 		_RMS = 0;
@@ -49,10 +49,10 @@ struct dynamicCutHandler {
 		if (samples.size() == 0) {
 			_overlapID = pair.getOverlapId();
 			_minDist = pair.getDistance();
-		} else {
+		}
+		else {
 			if (_overlapID != pair.getOverlapId()) {
-				cout
-						<< "something is wrong! stored OverlapID does not match added ID!\n";
+				cout << "something is wrong! stored OverlapID does not match added ID!\n";
 				return;
 			}
 		}
@@ -65,7 +65,7 @@ struct dynamicCutHandler {
 		double thisDistance = pair.getDistance();
 
 		_minDist = std::min(_minDist, thisDistance);
-		_maxDist = std::max(_maxDist, std::min(thisDistance, _hardMax)); //never choose maximum higher than hardMax
+		_maxDist = std::max(_maxDist, std::min(thisDistance, _hardMax));  //never choose maximum higher than hardMax
 
 		// store distance only if in valid range, some distances are too large
 		if (thisDistance >= _minDist && thisDistance <= _maxDist) {
@@ -79,7 +79,7 @@ struct dynamicCutHandler {
 
 		// choose 80 percent confidence interval:
 		std::sort(samples.begin(), samples.end());
-		int quantileMargin = samples.size() / 10;// shave 10% from front and back
+		int quantileMargin = samples.size() / 10;  // shave 10% from front and back
 
 		vector<double>::const_iterator first = samples.begin() + quantileMargin;
 		vector<double>::const_iterator last = samples.end() - quantileMargin;
@@ -90,9 +90,8 @@ struct dynamicCutHandler {
 
 		// leave a little safety margin:
 		double spread = _maxDist - _minDist;
-		_minDist = std::max(0.0, confidenceInterval[0] - spread);//should not underflow 0
-		_maxDist = std::min(_hardMax,
-				confidenceInterval[confidenceInterval.size() - 1] + spread);//should not overflow _hardMax
+		_minDist = std::max(0.0, confidenceInterval[0] - spread);  //should not underflow 0
+		_maxDist = std::min(_hardMax, confidenceInterval[confidenceInterval.size() - 1] + spread);  //should not overflow _hardMax
 
 		return;
 
@@ -139,7 +138,7 @@ struct pixelHit {
  */
 struct pixelCluster {
 	int _sensorId;
-	double centerCol, centerRow; //,centerZ;
+	double centerCol, centerRow;  //,centerZ;
 	double clusterSize;
 	vector<pixelHit> pixelHits;
 	bool clusterReady;
@@ -147,7 +146,7 @@ struct pixelCluster {
 	pixelCluster() {
 		_sensorId = -1;
 		centerCol = -1;
-		centerRow = -1; //centerZ=-1;
+		centerRow = -1;  //centerZ=-1;
 		clusterSize = -1;
 		clusterReady = false;
 	}
@@ -157,7 +156,7 @@ struct pixelCluster {
 		pixelHits.push_back(hit);
 
 		centerCol = -1;
-		centerRow = -1; //centerZ=-1;
+		centerRow = -1;  //centerZ=-1;
 		clusterSize = -1;
 		clusterReady = false;
 	}
@@ -169,7 +168,7 @@ struct pixelCluster {
 		}
 
 		centerCol = -1;
-		centerRow = -1; //centerZ=-1;
+		centerRow = -1;  //centerZ=-1;
 		clusterSize = -1;
 		clusterReady = false;
 	}
@@ -190,8 +189,7 @@ struct pixelCluster {
 				_col2 = other.pixelHits[j]._col;
 				_row2 = other.pixelHits[j]._row;
 				//check if neighboring, that means distance of pixels is smaller than 1.5 pixels
-				if ((_col2 - _col1) * (_col2 - _col1)
-						+ (_row2 - _row1) * (_row2 - _row1) < 2.25) {
+				if ((_col2 - _col1) * (_col2 - _col1) + (_row2 - _row1) * (_row2 - _row1) < 2.25) {
 					return true;
 				}
 			}
@@ -219,7 +217,8 @@ struct pixelCluster {
 		//calculate size, go from corner to corner for clusters larger than 2 pixels
 		if (pixelHits.size() == 1) {
 			clusterSize = 1;
-		} else {
+		}
+		else {
 			for (size_t i = 0; i < pixelHits.size(); i++) {
 				for (size_t j = i + 1; j < pixelHits.size(); j++) {
 					double deltax = (pixelHits[i]._col - pixelHits[j]._col);
@@ -246,16 +245,14 @@ struct pixelCluster {
 
 	void printPixels() {
 		for (size_t i = 0; i < pixelHits.size(); i++) {
-			cout << "pixelHit x:" << pixelHits[i]._col << ", y:"
-					<< pixelHits[i]._row << " on sensor "
-					<< pixelHits[i]._sensorId << "\n";
+			cout << "pixelHit x:" << pixelHits[i]._col << ", y:" << pixelHits[i]._row << " on sensor "
+			    << pixelHits[i]._sensorId << "\n";
 		}
 	}
 	void printCenter() {
-		cout << "clusterCenter x:" << centerCol << ", y:" << centerRow
-				<< " on sensor " << _sensorId << ", contains "
-				<< pixelHits.size() << " pixels and is " << clusterSize
-				<< " pixels in diameter." << "\n";
+		cout << "clusterCenter x:" << centerCol << ", y:" << centerRow << " on sensor " << _sensorId
+		    << ", contains " << pixelHits.size() << " pixels and is " << clusterSize
+		    << " pixels in diameter." << "\n";
 	}
 };
 
