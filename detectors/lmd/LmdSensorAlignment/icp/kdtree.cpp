@@ -118,12 +118,12 @@ void KDTree::build_tree() {
 
 KDTreeNode* KDTree::build_tree_for_range(int l, int u, KDTreeNode* parent) {
 
-	// recursive function to build
-	KDTreeNode* node = new KDTreeNode(dim);
 	// the newly created node.
 	if (u<l) {
 		return(NULL); // no data in this node.
 	}
+	// recursive function to build
+	KDTreeNode* node = new KDTreeNode(dim);
 	if ((u-l) <= bucketsize) {
 		// create a terminal node.
 

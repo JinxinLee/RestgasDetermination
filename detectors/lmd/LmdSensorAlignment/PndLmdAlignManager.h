@@ -44,6 +44,8 @@ private:
 	//loadBarMultiThreaded
 	int _i, _r, _w, _n;
 
+	int _verboseLevel;
+
 	std::stringstream _info;
 
 	std::map<int, PndLmdSensorAligner> aligners;
@@ -75,14 +77,16 @@ private:
 	    std::map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager);
 
 	//produces matrices 0 -> 1,2,3,4,5,6,7,8,9
-	Matrix combineMatrix(int id1, int id2);
+	//Matrix combineMatrix(int id1, int id2);
 
 	//produces matrices i -> ... -> i (should be almost identity matrix)
-	Matrix combineCyclicMatrix(int id);
+	//Matrix combineCyclicMatrix(int id);
 
 	//generate the file name of a matrix or pair file, so changes must only be made once
 	static std::string makeBinaryPairFileName(int overlapId = 0, bool incentimeters = true);
 	static std::string makeMatrixFileName(int overlapId = 0, bool incentimeters = true);
+
+	void verbosePrint(std::string input, int level=3);
 
 public:
 
@@ -203,6 +207,12 @@ public:
 		startAlignerWhenFull = value;
 	}
 
+	void verboseLevel(int verbose){
+		_verboseLevel = verbose;
+		for(auto &a:aligners){
+			a.second.verboseLevel(_verboseLevel);
+		}
+	}
 };
 
 #endif /* LMD_LMDSENSORALIGNMENT_PNDLMDALIGNMANAGER_H_ */

@@ -114,6 +114,10 @@ public:
 	void setZasTimetamp(bool value) {
 		_zIsTimestamp = value;
 	}
+
+	void verboseLevel(int level){
+		verbose = level;
+	}
 };
 
 #endif /* LMD_LMDSENSORALIGNMENT_PNDLMDSENSORALIGNER_H_ */

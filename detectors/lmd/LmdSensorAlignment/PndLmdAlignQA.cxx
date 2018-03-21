@@ -227,11 +227,11 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters) {
 
 			Matrix matrixDif;
 			if (inCentimeters) {
-				Matrix mCombined = manager.combineMatrix(id1, id2);
+				//Matrix mCombined = manager.combineMatrix(id1, id2);
 				//Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2);
 				//matrixDif = mCombined - senToSenOneStep;
 			} else {
-				Matrix mCombined = manager.combineMatrix(id1, id2);
+				//Matrix mCombined = manager.combineMatrix(id1, id2);
 				//manager.transformFromSensorToLmdLocal(mCombined, id1);
 				//Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2);
 				//matrixDif = mCombined - senToSenOneStep;
@@ -319,7 +319,7 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters) {
 	for (int i = 0; i < 400; i++) {
 
 		// does not matter if in LMC local or sensor local, should always be identity matrix!
-		cycle = manager.combineCyclicMatrix(i);
+		//cycle = manager.combineCyclicMatrix(i);
 
 		//store this residual tuple to data
 		std::vector<double> result;

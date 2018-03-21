@@ -109,7 +109,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	}
 
 	//check if maxPairs > 0
-	if (nPairs < 5) {
+	if (nPairs < 500) {
 		cerr
 		    << "PndLmdSensrAligner::Error: Trying to use less than 5 pairs! (And that's not going to work.) Aborting.\n";
 		_success = false;
@@ -122,7 +122,12 @@ void PndLmdSensorAligner::calculateMatrix() {
 	double* Model = new double[dim * nPairs];
 	double* Template = new double[dim * nPairs];
 
-	if (verbose == 3) cout << "arranging pairs...\n";
+	if (verbose == 3) {
+		cout << "arranging pairs...\n";
+		cout << "num pairs from bin: " << numberOfPairs << "\n";
+		cout << "num pairs from vec: " << simpleSensorOneX.size() << "\n";
+		cout << "num pairs from dec: " << nPairs << "\n";
+	}
 
 	if (dim == 2) {
 		for (int ipair = 0; ipair < nPairs; ipair++) {
@@ -236,6 +241,19 @@ void PndLmdSensorAligner::calculateMatrix() {
 		}
 	}
 
+//	if (verbose >= 2) {
+//		if (overlapID == 0) {
+//			cout << std::setprecision(16);
+//			cout << "grep::pairs::begin\n";
+//			for (int i = 0; i < nPairs * dim; i++) {
+//				cout << "model " << i << ": " << Model[i] << "\n";
+//				cout << "templ " << i << ": " << Template[i] << "\n";
+//				cout << "-------------\n";
+//			}
+//			cout << "grep::pairs::end\n";
+//		}
+//	}
+
 	if (verbose == 3) {
 		cout << "creating ICP...\n";
 	}
@@ -347,7 +365,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	std::stringstream alignlog;
 
 	if (icp.hasConverged()) {
-
+		if (verbose == 3) cout << "ICP convergence ok.\n";
 		_success = true;
 
 		//and say a few words for the log
@@ -384,7 +402,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		else {
 			alignlog << "off\n";
 		}
-		if (verbose == 3) cout << "ICP convergence ok.\n";
+		alignlog << "====================================================\n";
 	}
 	else {
 		alignlog << "\n";
@@ -405,7 +423,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 	// we must save the pairs before that!
 	// this shit just cost me three hours of my life!
 	// clearPairs();
-
 	return;
 }
 

@@ -6,12 +6,33 @@
  *
  */
 
+//#include <string>
+//#include <PndLmdAlignManager.h>
+//
+//int main() {
+//
+//	std::string pairFilePath = "/home/arbeit/RedPro3TB/simulationData/newGeometry";
+//	std::string binaryPairFilePath = pairFilePath + "/binaryPairs/";
+//	std::string LMDmatrixDir = pairFilePath + "/LMDmatrices/";
+//
+//	PndLmdAlignManager manager;
+//	manager.setInCentimeters(true);
+//	manager.setBinaryPairFileDirectory(binaryPairFilePath);
+//	manager.setMaxPairs(300e3);
+//	manager.verboseLevel(3);
+//
+//	cout << "reading binary pair files.\n";
+//	manager.setMatrixOutDir(LMDmatrixDir);
+//	manager.readPairsFromBinaryFiles();
+//	manager.alignAllSensors();
+//
+//	return 0;
+//}
+
 int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/",
     TString binaryPairFilePath = "", TString LMDmatrixDir = "", bool incentimeters = true,
-    const int verboseLevel = 0) {
+    const int verboseLevel = 2) {
 	// -----   Timer   --------------------------------------------------------
-	TStopwatch timer;
-	timer.Start();
 
 	//do we really need those?
 	gSystem->Load("libLmd");
@@ -39,6 +60,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/
 	manager.setInCentimeters(incentimeters);
 	manager.setBinaryPairFileDirectory(binaryPairFilePath.Data());
 	manager.setMaxPairs(300e3);
+	manager.verboseLevel(verboseLevel);
 
 	// ---------------------- check for binary files and sort/write, if necessary
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
@@ -77,12 +99,6 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "test/boxtest-aligned-1.5/
 	 */
 
 	// -----   Finish   -------------------------------------------------------
-	timer.Stop();
-	Double_t rtime = timer.RealTime();
-	Double_t ctime = timer.CpuTime();
-	cout << endl << endl;
-	cout << "Macro finished successfully." << endl;
-	cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
-	cout << endl;
 	return 0;
 }
+

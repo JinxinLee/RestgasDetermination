@@ -32,19 +32,17 @@ Icp::Icp (double *M,const int32_t M_num,const int32_t dimension) :
 	// check for correct dimensionality
 	if (dimension!=2 && dimension!=3) {
 		cout << "ERROR: LIBICP works only for data of dimensionality 2 or 3" << endl;
-		M_tree = 0;
+		M_tree = NULL;
 		return;
 	}
 
 	// check for minimum number of points
-	if (M_num<5) {
-		cout << "ERROR: LIBICP works only with at least 5 model points" << endl;
-		M_tree = 0;
+	if (M_num<50) {
+		cout << "ERROR: LIBICP works only with at least 50 model points" << endl;
+		M_tree = NULL;
 		return;
 	}
 
-	// excldue kdTree generation as long as we are fitting non-iteratively
-	/*
 	// copy model points to M_data
 	M_data.resize(boost::extents[M_num][dimension]);
 	for (int32_t m=0; m<M_num; m++)
@@ -52,7 +50,7 @@ Icp::Icp (double *M,const int32_t M_num,const int32_t dimension) :
 			M_data[m][n] = (double)M[m*dimension+n];
 	// build a kd tree from the model point cloud
 	M_tree = new kdtree::KDTree(M_data);
-	 */
+
 	M_ = M;
 
 }
