@@ -123,9 +123,9 @@ void PndLmdAlignQA::plotCMvsPXmatrices() {
 		if (false) { //transform both to lmd local and compare there
 			//transform matrixPX to lmd local
 			//manager.transformFromSensorToLmdLocal(matrixPX, id1);
-			Matrix senToSen = manager.getMatrixSensorToSensor(id1, id2);
-			Matrix senToSenWithCorr = matrixCM * senToSen; //this is now the total matrix from sen1 to sen2
-			matrixDif = senToSenWithCorr - matrixPX;
+//			Matrix senToSen = manager.getMatrixSensorToSensor(id1, id2);
+//			Matrix senToSenWithCorr = matrixCM * senToSen; //this is now the total matrix from sen1 to sen2
+//			matrixDif = senToSenWithCorr - matrixPX;
 		} else { //transform noth to sensor and compare there
 		         //transform matrixPX to lmd local
 		         //manager.transformFromSensorToLmdLocal(matrixPX, id1);
@@ -381,9 +381,9 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters) {
 void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 
 	int sensorID1 = sensor1, sensorID2 = sensor2;
-
-	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
-	Matrix CMtoPX = Matrix::inv(PXtoCM);
+//
+//	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
+//	Matrix CMtoPX = Matrix::inv(PXtoCM);
 	//Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, aligned);
 	//manager.transformFromLmdLocalToSensor(sen1ToSen2, sensorID1, aligned);
 	//Matrix matSensorOneToSensorTwo = CMtoPX * sen1ToSen2 * PXtoCM;
@@ -480,8 +480,8 @@ double PndLmdAlignQA::calculateOverlappingArea(int sensor1, int sensor2, bool al
 
 	int sensorID1 = sensor1, sensorID2 = sensor2;
 
-	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
-	Matrix CMtoPX = Matrix::inv(PXtoCM);
+//	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
+//	Matrix CMtoPX = Matrix::inv(PXtoCM);
 	//Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, aligned);
 	//manager.transformFromLmdLocalToSensor(sen1ToSen2, sensorID1, aligned);
 	//Matrix matSensorOneToSensorTwo = CMtoPX * sen1ToSen2 * PXtoCM;
@@ -863,7 +863,7 @@ void PndLmdAlignQA::plotMatrixresiduals(bool inCentimeters) {
 			Matrix matrixCM = manager.readMatrix(matrixNameCM);
 
 			//transform both correction matrices to full sensor to sensor matrices
-			Matrix senToSenIdeal = manager.getMatrixSensorToSensor(id1, id2);
+			//Matrix senToSenIdeal = manager.getMatrixSensorToSensor(id1, id2);
 
 			if (false) {	//this one uses get Correction Matrix, tested and works
 
@@ -873,20 +873,20 @@ void PndLmdAlignQA::plotMatrixresiduals(bool inCentimeters) {
 				} else {
 					//senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
 				}
-				matrixDif = (matrixCM * senToSenIdeal) - (senToSenCorrTarget * senToSenIdeal);
+				//matrixDif = (matrixCM * senToSenIdeal) - (senToSenCorrTarget * senToSenIdeal);
 			}
 
 			else {		//this one uses the complete matrix and works as well
 
-				Matrix senToSen = manager.getMatrixSensorToSensor(id1, id2);
+				//Matrix senToSen = manager.getMatrixSensorToSensor(id1, id2);
 
 				//next try, I think I'm onto it...
 				//manager.transformFromLmdLocalToSensor(senToSenIdeal, id1, true);// THIS IS THE MAGIC BEAN
 				//manager.transformFromSensorToLmdLocal(senToSenIdeal, id1, alignOptionBool);
 
-				Matrix ICPcomplete = matrixCM * senToSenIdeal;
+				//Matrix ICPcomplete = matrixCM * senToSenIdeal;
 
-				matrixDif = ICPcomplete - senToSen;
+				//matrixDif = ICPcomplete - senToSen;
 			}
 		}
 		// in PX

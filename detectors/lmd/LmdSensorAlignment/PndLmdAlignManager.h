@@ -51,8 +51,7 @@ private:
 
 	bool _allFilesAdded, allAlignersDone;
 	std::vector<std::string> fileNames;
-	bool useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp,
-	        startAlignerWhenFull;
+	bool _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp, startAlignerWhenFull;
 	std::string outFilename, _matrixOutDir, _binaryPairFileDirectory;
 	bool _firstInitDone;
 	bool _multithreaded;
@@ -73,7 +72,7 @@ private:
 
 	//don't use, doesn't work with root like that
 	static void readPairsFromChainMT(std::vector<std::string> files,
-	        std::map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager);
+	    std::map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager);
 
 	//produces matrices 0 -> 1,2,3,4,5,6,7,8,9
 	Matrix combineMatrix(int id1, int id2);
@@ -95,14 +94,14 @@ public:
 	void init();
 
 	// returns true if successful or false if aligner has enough pairs
-	bool addPair(PndLmdHitPair &pair);
+	//bool addPair(PndLmdHitPair &pair);
 
 	//adds pairs just like the other function but starts an aligner if it is full
 	bool addPairAndStartAligner(PndLmdHitPair &pair);
 
 	//add filename, so the aligner adds the pairs itself
 	bool addFile(std::string filename);
-	void readFiles();
+	//void readFiles();		// deprecated
 	void readFilesAndAlign();
 	void waitForCompletion();
 
@@ -127,9 +126,6 @@ public:
 
 	static void loadBar(int current, int total, int resolution, int width, std::string message = "");
 
-	void setSimpleStorage(bool val) {
-		useSimpleStorage = val;
-	}
 	void setMaxPairs(int maxPairs);
 
 	//considers inactive area, guard rings, pixel size etc
@@ -138,9 +134,8 @@ public:
 
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);
 
-	static Matrix getPixelToCentimeterTransformation();
-
-	Matrix getMatrixSensorToSensor(int fromSensor, int toSensor);
+	//static Matrix getPixelToCentimeterTransformation();
+	//Matrix getMatrixSensorToSensor(int fromSensor, int toSensor);
 
 	// read and write matrix files to and from disk
 	static Matrix readMatrix(std::string filename);
@@ -164,14 +159,14 @@ public:
 	 * (or part of filename) you want
 	 */
 	static int searchFiles(std::string curr_directory, std::vector<std::string> &list,
-	        std::string extension = "", bool includeSubDirs = true);
+	    std::string extension = "", bool includeSubDirs = true);
 
 	//clear console
 	static void clearScreen();
 
 	//searches directories in curr_directory, adds to list
 	static int searchDirectories(std::string curr_directory, std::vector<std::string> &list,
-	        bool includeSubDirs = true);
+	    bool includeSubDirs = true);
 	static bool mkdir(std::string path);
 	static bool exists(std::string file);
 	static std::vector<std::string> findRegex(std::string source, std::string regex);
@@ -195,7 +190,7 @@ public:
 
 	//write config file
 	static bool writeConfigFile(boost::property_tree::ptree configTree, std::string filename,
-	        bool replaceExisting = true);
+	    bool replaceExisting = true);
 
 	//read json config file
 	static boost::property_tree::ptree readConfigFile(std::string filename);
@@ -207,6 +202,7 @@ public:
 	void setStartAlignerWhenFull(bool value) {
 		startAlignerWhenFull = value;
 	}
+
 };
 
 #endif /* LMD_LMDSENSORALIGNMENT_PNDLMDALIGNMANAGER_H_ */
