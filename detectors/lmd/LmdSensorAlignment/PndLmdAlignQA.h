@@ -49,7 +49,7 @@ private:
 
 	int noOfPairs(int id1, int id2);
 
-	PndLmdDim *dimension;
+	//PndLmdDim *dimension;
 
 public:
 

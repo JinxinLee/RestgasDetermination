@@ -137,7 +137,7 @@ protected:
 	//means two clusters can reasonably belong to a single track
 	bool candDistanceIsGood(PndLmdHitPair &candidate);
 
-	ClassDef(LmdPairFinderTask,15);
+	ClassDef(LmdPairFinderTask,17);
 };
 
 #endif /* PAIRFINDERTASK_H_ */

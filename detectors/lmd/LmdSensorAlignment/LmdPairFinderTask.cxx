@@ -24,6 +24,10 @@
 #include <FairRuntimeDb.h>
 #include <PndLmdContFact.h>
 
+using std::cout;
+using std::cerr;
+using swap;
+
 ClassImp(LmdPairFinderTask);
 
 /*
@@ -57,7 +61,7 @@ LmdPairFinderTask::LmdPairFinderTask(const char* name) :
 }
 
 LmdPairFinderTask::~LmdPairFinderTask() {
-	std::cout << "PairFinderTask destructor called." << std::endl;
+	std::cout << "PairFinderTask destructor called." << "\n";
 }
 
 InitStatus LmdPairFinderTask::Init() {
@@ -85,7 +89,7 @@ InitStatus LmdPairFinderTask::Init() {
 	FairRootManager* ioman = FairRootManager::Instance();
 
 	if (!ioman) {
-		std::cout << "-E- LmdPairFinder::Init: " << "RootManager not instantiated!" << std::endl;
+		std::cout << "-E- LmdPairFinder::Init: " << "RootManager not instantiated!" << "\n";
 		return kFATAL;
 	}
 
@@ -94,17 +98,17 @@ InitStatus LmdPairFinderTask::Init() {
 	clusterCandidateArray = (TClonesArray*) ioman->GetObject(fInClusterCandidates);
 
 	if (!digiArray) {
-		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInBranchName << " could not found!" << std::endl;
+		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInBranchName << " could not found!" << "\n";
 		return kERROR;
 	}
 
 	if (!recoArray) {
-		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInRecoBranchName << " not found!" << std::endl;
+		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInRecoBranchName << " not found!" << "\n";
 		return kERROR;
 	}
 
 	if (!clusterCandidateArray) {
-		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInClusterCandidates << " not found!" << std::endl;
+		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInClusterCandidates << " not found!" << "\n";
 		return kERROR;
 	}
 
@@ -136,7 +140,7 @@ InitStatus LmdPairFinderTask::Init() {
 				try {
 					handler._minDist = config.get<double>(configput.str() + "minDist");
 					handler._maxDist = config.get<double>(configput.str() + "maxDist");
-				} catch (exception &e) {
+				} catch (std::exception &e) {
 					cerr << "PndLmdSensorAligner: ERROR! Parameter not found in config file!\n";
 				}
 				handler._ready = true;
@@ -154,12 +158,12 @@ InitStatus LmdPairFinderTask::Init() {
 	hitPairArray = new TClonesArray("PndLmdHitPair");
 	ioman->Register("PndLmdHitPair", "PndLmd", hitPairArray, kTRUE);
 
-	std::cout << "LmdPairFinder::Init(): Initialization successful." << std::endl;
+	std::cout << "LmdPairFinder::Init(): Initialization successful." << "\n";
 	return kSUCCESS;
 }
 
 void LmdPairFinderTask::SetBranchNames() {
-	std::cout << "branch names set to " << fInBranchName << std::endl;
+	std::cout << "branch names set to " << fInBranchName << "\n";
 }
 
 InitStatus LmdPairFinderTask::ReInit() {
@@ -171,7 +175,7 @@ void LmdPairFinderTask::SetParContainers() {
 	FairRun* ana;
 	FairRuntimeDb* rtdb;
 
-	std::cout << "PndLmdPixelClusterTask::SetParContainers() " << std::endl;
+	std::cout << "PndLmdPixelClusterTask::SetParContainers() " << "\n";
 	// Get Base Container
 	ana = FairRun::Instance();
 	rtdb = ana->GetRuntimeDb();
@@ -234,7 +238,7 @@ void LmdPairFinderTask::Exec(Option_t*) {
 			auto &infoTwo = helper->getHitLocationInfo(id2);
 
 			if (infoOne.module_side > infoTwo.module_side) {
-				swap(hitOne, hitTwo);
+				std::swap(hitOne, hitTwo);
 				id1 = hitOne->GetSensorID();
 				id2 = hitTwo->GetSensorID();
 			}
@@ -302,9 +306,9 @@ void LmdPairFinderTask::Exec(Option_t*) {
 
 			if (!pairCanditate.isSane()) {
 				pairCanditate.PrintPair();
-				cerr << "====              WARNING:                 ====" << endl;
-				cerr << "pair seems valid but did not pass sanity check!" << endl;
-				cerr << "===============================================" << endl;
+				cerr << "====              WARNING:                 ====" << "\n";
+				cerr << "pair seems valid but did not pass sanity check!" << "\n";
+				cerr << "===============================================" << "\n";
 				continue;
 			}
 
@@ -416,13 +420,13 @@ void LmdPairFinderTask::FinishTask() {
 	double pixelsPerEvent = (double) sumOfPixelHits / (double) noOfEvents;
 	double goodPairsPerEvent = (double) noOfGoodPairs / (double) noOfEvents;
 
-	cout << endl;
-	cout << "*************************************************************" << endl;
-	cout << "                      pair finder done                       " << endl;
-	cout << "*************************************************************" << endl;
-	cout << endl;
-	cout << "                     counting statistics:" << endl;
-	cout << endl;
+	cout << "\n";
+	cout << "*************************************************************" << "\n";
+	cout << "                      pair finder done                       " << "\n";
+	cout << "*************************************************************" << "\n";
+	cout << "\n";
+	cout << "                     counting statistics:" << "\n";
+	cout << "\n";
 	printf("total events: %d \n", noOfEvents);
 	printf("events that missed all sensors: %d \n", eventMissedAllPlanes);
 	printf("total pixel hits: %d \n", sumOfPixelHits);
@@ -442,8 +446,8 @@ void LmdPairFinderTask::FinishTask() {
 	printf("hits on plane 2: %.2f %%\n", plane2Percent);
 	printf("hits on plane 3: %.2f %%\n", plane3Percent);
 	printf("hits on all planes: %.2f %% (should be 100%!) \n", allPlanesPercent);
-	cout << endl;
-	cout << "*************************************************************" << endl;
+	cout << "\n";
+	cout << "*************************************************************" << "\n";
 	return;
 }
 
@@ -500,8 +504,8 @@ void LmdPairFinderTask::getStatistics(PndLmdHitPair &candidate) {
 		break;
 	default:
 		//should never happen, can only indicate decoding error
-		cerr << "WARNING: hit was deemed suitable but plane number is " << fplane << endl;
-		cerr << "This should not happen!" << endl;
+		cerr << "WARNING: hit was deemed suitable but plane number is " << fplane << "\n";
+		cerr << "This should not happen!" << "\n";
 	}
 	noOfGoodPairs++;
 }

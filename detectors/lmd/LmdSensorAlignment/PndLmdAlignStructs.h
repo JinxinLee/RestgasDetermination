@@ -244,7 +244,7 @@ struct pixelCluster {
 		centerCol /= pixelHits.size();
 		centerRow /= pixelHits.size();
 		double tempDistance;
-		//calaculate size, go from corner to corner for clusters larger than 2 pixels
+		//calculate size, go from corner to corner for clusters larger than 2 pixels
 		if (pixelHits.size() == 1) {
 			clusterSize = 1;
 		} else {
