@@ -19,6 +19,7 @@
 #include "PndHelixPropagator.h"
 #include <string>
 #include <sstream>
+#include <FairField.h>
 using std::cout;
 using std::endl;
 
@@ -228,7 +229,15 @@ void PndTrackDraw::PropagateTrackHelix(FairTrackParP& trackPar, Int_t pidHypo, I
 	TVector3 momTrack = trackPar.GetMomentum();
 	Double_t charge = trackPar.GetQ();
 
-	PndHelixPropagator prop(2.0, posTrack, momTrack, charge);
+	FairField* Field = FairRunAna::Instance()->GetField();
+	Double_t po[3], BB[3];
+	po[0]=0.;
+	po[1]=0.;
+	po[2]=0.;
+	Field->GetFieldValue(po,BB);
+	cout<<"Field Strength: "<<BB[2]/10.<<endl;
+
+	PndHelixPropagator prop(BB[2]/10., posTrack, momTrack, charge); //Field is given in Gauss from GetField()
 	prop.PropagateToXYPos(TVector2(0,0));
 
 	if (pidHypo == 0){
