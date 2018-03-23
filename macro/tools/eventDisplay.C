@@ -1,4 +1,4 @@
-int eventDisplay(TString prefix="evtcomplete")
+int eventDisplay()
 {
     //-----User Settings:-----------------------------------------------
 
@@ -7,45 +7,29 @@ int eventDisplay(TString prefix="evtcomplete")
   Bool_t enableHitDraw = kTRUE;
   Bool_t enableTrackDraw = kTRUE;
 
-  PndFileNameCreator nameCreator(prefix.Data());
-  TString InputFile = nameCreator.GetSimFileName().c_str();
-  TString DigiFile  = nameCreator.GetDigiFileName().c_str();
-  TString RecoFile  = nameCreator.GetRecoFileName().c_str();
-  TString ParFile   = nameCreator.GetParFileName().c_str();
-  //------------------------------------------------------------------
+  TString  parAsciiFile   = "all.par";
+	  TString  prefix         = "./data/evtcomplete_15G";
+	  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
+	  TString  output         = "digionly";
+	  TString  friend1        = "digi";
+	  TString  friend2        = "reco";
+	  TString  friend3        = "";
+	  TString  friend4        = "";
 
-  // -----   Reconstruction run   -------------------------------------------
-  FairRunAna *fRun= new FairRunAna();
-  FairFileSource *fileSource = new FairFileSource(InputFile);
-  fRun->SetSource(fileSource);
-  fRun->SetOutputFile("unusedOutput.root");
+	  // -----   Initial Settings   --------------------------------------------
+	  PndMasterRunAna *fRun= new PndMasterRunAna();
+	  fRun->SetInput(input);
+	  fRun->SetOutput(output);
+	  fRun->SetFriend1(friend1);
+	  fRun->SetFriend2(friend2);
+	  fRun->SetFriend3(friend3);
+	  fRun->SetFriend4(friend4);
+	  fRun->SetParamAsciiFile(parAsciiFile);
+	  fRun->Setup(prefix);
 
-  TFile* testFile;
-  testFile = new TFile(DigiFile.Data());
-  if (!testFile->IsZombie()){
-	  fileSource->AddFriend(DigiFile.Data());
-  }
-  else {
-	  enableHitDraw = kFALSE;
-  }
-  testFile->Close();
+	  fRun->UseFairLinks(kTRUE);
 
-  testFile = new TFile(RecoFile.Data());
-  if (!testFile->IsZombie()){
-	  fileSource->AddFriend(RecoFile.Data());
-	  FairGeane *Geane = new FairGeane();
-	  fRun->AddTask(Geane);
-  }
-  else {
-	  enableTrackDraw = kFALSE;
-  }
-  testFile->Close();
-
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(ParFile.Data());
-  rtdb->setFirstInput(parInput1);
-  FairEventManager *fMan= new FairEventManager();
+	  FairEventManager *fMan= new FairEventManager();
  
  
  //----------------------Traks and points -------------------------------------
