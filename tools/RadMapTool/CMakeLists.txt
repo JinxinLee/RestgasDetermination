@@ -7,7 +7,7 @@
 #  cmake_policy(SET CMP0003 OLD)
 #endif(COMMAND cmake_policy)
 
-Set(SYSTEM_INCLUDE_DIRECTORIES 
+Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES}
   ${CLHEP_INCLUDE_DIR}
   #${GEANT4_INCLUDE_DIR}
@@ -40,6 +40,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/ftof
   ${CMAKE_SOURCE_DIR}/detectors/rich
   ${CMAKE_SOURCE_DIR}/pgenerators
+  ${CMAKE_SOURCE_DIR}/pgenerators/Direct
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00/
   ${CMAKE_SOURCE_DIR}/field
@@ -96,8 +97,8 @@ set(MYPNDLIBS FtfEvtGen DpmEvtGen RadMapTool Base ParBase  Field  Emc Stt Mdt Ge
 add_executable(RadMapToolSim_exe sim_radmap.C)
 add_executable(RadMapToolPlot_exe plot_radmap.C)
 
-target_link_libraries(RadMapToolSim_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect DecayTreeFitter)
-target_link_libraries(RadMapToolPlot_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect DecayTreeFitter)
+target_link_libraries(RadMapToolSim_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect FtfGenDirect DecayTreeFitter)
+target_link_libraries(RadMapToolPlot_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect FtfGenDirect DecayTreeFitter)
 
 set_target_properties(RadMapToolSim_exe PROPERTIES OUTPUT_NAME sim_radmap)
 set_target_properties(RadMapToolPlot_exe PROPERTIES OUTPUT_NAME plot_radmap)

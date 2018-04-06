@@ -49,10 +49,10 @@
 
 #endif
 
-#include <sys/types.h> 
-#include <sys/stat.h> 
-#include <fcntl.h> 
-#include <unistd.h> 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 
 #define DEVURANDOM "/dev/urandom"
@@ -73,11 +73,11 @@ const char * help_str(){
     ;
 }
 
-//void sim(TString output="/tmp/test.root", 
-void sim(TString output, 
-         // TString input, 
-         Int_t nEvents,  
-         const char* TransportModel, 
+//void sim(TString output="/tmp/test.root",
+void sim(TString output,
+         // TString input,
+         Int_t nEvents,
+         const char* TransportModel,
          std::vector<std::string> geometryfiles,
          UInt_t seed);
 
@@ -102,35 +102,35 @@ int main(int argc, char ** argv){
   std::vector<std::string> geometryfiles;
   while ((c = getopt(argc, argv, "n:o:t:g:h")) != -1)
     switch (c) {
-    case 'n': 
+    case 'n':
       nevt = atoi(optarg);
       break;
 
-    case 'o': 
+    case 'o':
       out = optarg;
       break;
-    
-    case 't': 
+
+    case 't':
       tra = optarg;
       break;
-    
-    case 'g': 
+
+    case 'g':
       geofile = optarg;
       break;
-    
-    case 'h': 
-      printf("%s\n", help_str()); 
+
+    case 'h':
+      printf("%s\n", help_str());
       break;
 
-    default: 
-      printf("%s\n", help_str()); 
+    default:
+      printf("%s\n", help_str());
       abort ();
     }
 
   std::cout<<" using detectors from "<<geofile.c_str()<<std::endl;
-  
+
   ReadFiles(geofile, geometryfiles);
-  
+
   int RandN = GetRandomSeed();
   std::cout << "***************************\n";
   std::cout << "sim: " << RandN << std::endl;
@@ -139,14 +139,14 @@ int main(int argc, char ** argv){
   sim(TString(out.c_str()), nevt, tra.c_str(), geometryfiles, RandN);
 }
 
-void sim(TString output, 
-         Int_t nEvents,  
-         const char* TransportModel, 
+void sim(TString output,
+         Int_t nEvents,
+         const char* TransportModel,
          std::vector<std::string> geometryfiles,
          UInt_t seed){
   //   activate TMemStat info file (ROOT >=5.28)
   //   TMemStat mm("gnubuiltin");
-  
+
   gRandom->SetSeed(seed);
   TStopwatch timer;
   timer.Start();
@@ -154,20 +154,20 @@ void sim(TString output,
 
   unsigned int RandN = 0;
 
-  
+
   FairRunSim *fRun = new FairRunSim();
-  
-  fRun->SetName(TransportModel);  
+
+  fRun->SetName(TransportModel);
   fRun->SetOutputFile(output);
 
   fRun->SetMaterials(geometryfiles.at(0).c_str());
-  
+
 
   // Create and add detectors
   //-------------------------
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName(geometryfiles.at(1).c_str());
-  fRun->AddModule(Cave); 
+  fRun->AddModule(Cave);
 
   FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName(geometryfiles.at(2).c_str());
@@ -200,7 +200,7 @@ void sim(TString output,
   fRun->AddModule(Emc);
 
   PndDrc *Drc = new PndDrc("DIRC", kFALSE);
-  Drc->SetGeometryFileName(geometryfiles.at(9).c_str()); 
+  Drc->SetGeometryFileName(geometryfiles.at(9).c_str());
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
 
@@ -235,10 +235,10 @@ void sim(TString output,
   fRun->AddModule(Rich);
   // Create and Set Event Generator
   //-------------------------------
-  
+
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-  
+
   Double_t P = 15.0;
   RandN = GetRandomSeed();
   std::cout << "***************************\n";
@@ -247,16 +247,16 @@ void sim(TString output,
   PndDpmDirect* dpmGen = new PndDpmDirect(P, 1, GetRandomSeed());
   primGen->AddGenerator(dpmGen);
 
- 
+
   fRun->GetListOfModules()->Print();
-  fRun->SetStoreTraj(kFALSE); // to store particle trajectories 
+  fRun->SetStoreTraj(kFALSE); // to store particle trajectories
   fRun->SetRadMapRegister(kTRUE); // radiation map manager
   fRun->SetBeamMom(P);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
 
   timer.Stop();
-  
+
   Double_t preinitrtime = timer.RealTime();
 
   timer.Continue();
@@ -264,21 +264,21 @@ void sim(TString output,
   fRun->Init();
 
   timer.Stop();
-  
+
   Double_t postinitrtime = timer.RealTime();
 
   timer.Continue();
 
   printf("************* Running %i events ******************\n", nEvents);
   fRun->Run(nEvents);
-   
+
   timer.Stop();
-  
+
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("Preinit: %f seconds, Postinit: %f seconds; RealTime=%f seconds, CpuTime=%f seconds\n", preinitrtime, postinitrtime, rtime, ctime);
-}  
- 
+}
+
 void ReadFiles(string geomfile,
                std::vector<std::string>& geometryfiles){
   //  enum _files {MEDIA   ,
@@ -288,11 +288,11 @@ void ReadFiles(string geomfile,
   //               FTOF    , RICH};
 
   for(int i = 0; i < 18; i++) geometryfiles.push_back(std::string(""));
-  
+
   TObjArray *tokens;
   std::ifstream ifile(geomfile.c_str());
 
-  
+
   if(ifile.is_open()){
     TString Line, help0, help1;
     std::string line;
@@ -303,8 +303,10 @@ void ReadFiles(string geomfile,
       if(Line[0] != '#'){
         tokens = Line.Tokenize(":");
         if(tokens->GetEntries() == 2){
-          help0 = ((TObjString*)(tokens->At(0)))->GetString().Remove(TString::kBoth, ' ');
-          help1 = ((TObjString*)(tokens->At(1)))->GetString().Remove(TString::kBoth, ' ');
+          help0 = ((TObjString*)(tokens->At(0)))->GetString();
+          help0.Remove(TString::kBoth, ' ');
+          help1 = ((TObjString*)(tokens->At(1)))->GetString();
+          help1.Remove(TString::kBoth, ' ');
           cout << "\"" << ((TObjString*)(tokens->At(1)))->GetString() << "\" -> \"" << help1 << "\"" << endl;
           help0.ToUpper();
           if(help0.Contains("MEDIA")){
@@ -370,4 +372,4 @@ void ReadFiles(string geomfile,
     }
   }
 }
-        
+
