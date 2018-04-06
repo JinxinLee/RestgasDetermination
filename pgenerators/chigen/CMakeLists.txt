@@ -2,9 +2,9 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 OLD)
-endif(COMMAND cmake_policy)
+#if(COMMAND cmake_policy)
+  #cmake_policy(SET CMP0003 OLD)
+#endif(COMMAND cmake_policy)
 
 #Set(SYSTEM_INCLUDE_DIRECTORIES
 #  ${SYSTEM_INCLUDE_DIRECTORIES}

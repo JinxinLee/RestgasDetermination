@@ -2,12 +2,12 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 OLD)
-endif(COMMAND cmake_policy)
+#if(COMMAND cmake_policy)
+  #cmake_policy(SET CMP0003 OLD)
+#endif(COMMAND cmake_policy)
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
-  ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${SYSTEM_INCLUDE_DIRECTORIES}
 )
 
 Set(INCLUDE_DIRECTORIES
@@ -21,7 +21,7 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${CMAKE_CURRENT_BINARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
 set(DPMEVTGEN_SRCS
