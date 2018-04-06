@@ -1,5 +1,5 @@
 #ifndef __PNDRADMAPBOXMESH_HH__
-#define __PNDRADMAPBOXMESH_HH__ 
+#define __PNDRADMAPBOXMESH_HH__
 #include <TH2D.h>
 #include <TROOT.h>
 #include <TFormula.h>
@@ -11,9 +11,9 @@
 
 enum quantity{Edep=1   , Dose=2,
               Fluence=3, SimpleFluence=9, // -> 1/m^2
-              Flux=5   , Kerma=6  , EnergyFluence=4, // not mplemented  
+              Flux=5   , Kerma=6  , EnergyFluence=4, // not mplemented
               Density=7, Mass=8, Twos=10}; ///debug
-//                                
+//
 
 struct Corner{
   TVector3 corner1;
@@ -66,7 +66,7 @@ class PndRadMapBoxMesh{
 
   void SetFilter(const char* filter);
   void SetQuantity(quantity Quantity=Edep);
-  void SetOrientation(orientation plane, 
+  void SetOrientation(orientation plane,
                       Double_t rotate = 99999,
                       axis Ax = Xx);
   void SetOrientation(Double_t rotate = 99999,
@@ -95,7 +95,7 @@ class PndRadMapBoxMesh{
   void makeHisto(const char* Orient, Double_t rotate,
                  int Hbins, Double_t Hlow, Double_t Hhigh,
                  int Vbins, Double_t Vlow, Double_t Vhigh,
-                 Double_t dlow, Double_t dhigh);
+                 Double_t dlow/*, Double_t dhigh --unused parameter */);
 
   TH2D*    _MeshHisto;
   TH2I*    _StatHisto;

@@ -51,7 +51,7 @@ void plot_radmap(Long64_t nevreq,
   mych.Add(inputfile.Data());
 
   Long64_t nentries = (Long64_t)mych.GetEntries();
-  cout << "we have " << nentries << " events" << endl;
+  cout << "we have " << nentries << " events and will process "<< ((nevreq > nentries) ? nentries : nevreq) <<" of them." << endl;
   TClonesArray *fRadMapPoint = new TClonesArray("FairRadMapPoint");
   mych.SetBranchAddress("RadMap", &fRadMapPoint);
 
@@ -257,7 +257,7 @@ void plot_radmap(Long64_t nevreq,
 
 
 
-  for (Long64_t i=0; i<nentries; i++) {
+  for (Long64_t i=0; i<nentries && i<nevreq; i++) {
     cout << "event " << i << endl;
     mych.GetEntry(i);
     Int_t npoints = fRadMapPoint->GetEntries();
@@ -282,8 +282,9 @@ void plot_radmap(Long64_t nevreq,
 }
 
 
-void Fill(TH2D& h2, Double_t d, Double_t alpha){
-}
+// unused function
+//void Fill(TH2D& h2, Double_t d, Double_t alpha){
+//}
 
 #ifdef __CINT__
 void plot(TH2D* h2, double scale, double rmin, double rmax){

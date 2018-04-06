@@ -104,9 +104,9 @@ PndRadMapBoxMesh::PndRadMapBoxMesh(const char* name,
                                    int Zbins, Double_t Zlow, Double_t Zhigh){//in cm!!!!
   _verbose = 0;
   _Name = TString(name);
-  _Xbins = Xbins; _Xlow = Xlow; _Xhigh = Xhigh;  
-  _Ybins = Ybins; _Ylow = Ylow; _Yhigh = Yhigh;  
-  _Zbins = Zbins; _Zlow = Zlow; _Zhigh = Zhigh;  
+  _Xbins = Xbins; _Xlow = Xlow; _Xhigh = Xhigh;
+  _Ybins = Ybins; _Ylow = Ylow; _Yhigh = Yhigh;
+  _Zbins = Zbins; _Zlow = Zlow; _Zhigh = Zhigh;
   _filter = TFormula("formula", "1");
 
   if((_Xlow == _Xhigh) ||
@@ -233,7 +233,7 @@ PndRadMapBoxMesh::~PndRadMapBoxMesh(){
 }
 
 void PndRadMapBoxMesh::SetFilter(const char* filter){
-  //Pid=x, Ch=y, Mom=z, 
+  //Pid=x, Ch=y, Mom=z,
   if(_verbose)
     std::cout << "PndRadMapBoxMesh::SetFilter(" << filter << ")\n";
   TString temps(filter);
@@ -250,7 +250,7 @@ void PndRadMapBoxMesh::SetQuantity(quantity Quantity){
   _quantity = Quantity;
 }
 
-void PndRadMapBoxMesh::SetOrientation(orientation plane, 
+void PndRadMapBoxMesh::SetOrientation(orientation plane,
                                       Double_t rotate,
                                       axis Ax){
   if(_verbose)
@@ -279,39 +279,39 @@ void PndRadMapBoxMesh::SetOrientation(Double_t rotate,
     makeHisto("XY", _rotate,
               _Xbins, _Xlow, _Xhigh,
               _Ybins, _Ylow, _Yhigh,
-              _Zlow, _Zhigh);
+              _Zlow/*, _Zhigh --unused parameter*/);
     break;
   case YX:
     makeHisto("YX", _rotate,
               _Ybins, _Ylow, _Yhigh,
               _Xbins, _Xlow, _Xhigh,
-              _Zlow, _Zhigh);
+              _Zlow/*, _Zhigh --unused parameter*/);
     break;
 
   case XZ:
     makeHisto("XZ", _rotate,
               _Xbins, _Xlow, _Xhigh,
               _Zbins, _Zlow, _Zhigh,
-              _Ylow, _Yhigh);
+              _Ylow/*, _Yhigh --unused parameter*/);
     break;
   case ZX:
     makeHisto("ZX", _rotate,
               _Zbins, _Zlow, _Zhigh,
               _Xbins, _Xlow, _Xhigh,
-              _Ylow, _Yhigh);
+              _Ylow/*, _Yhigh --unused parameter*/);
     break;
 
   case YZ:
     makeHisto("YZ", _rotate,
               _Ybins, _Ylow, _Yhigh,
               _Zbins, _Zlow, _Zhigh,
-              _Xlow, _Xhigh);
+              _Xlow/*, _Xhigh --unused parameter*/);
     break;
   case ZY:
     makeHisto("ZY", _rotate,
               _Zbins, _Zlow, _Zhigh,
               _Ybins, _Ylow, _Yhigh,
-              _Xlow, _Xhigh);
+              _Xlow/*, _Xhigh --unused parameter*/);
     break;
   };
 
@@ -354,7 +354,7 @@ void PndRadMapBoxMesh::Transform(Double_t  X,  Double_t  Y,  Double_t  Z,
   }
   if(_rotate == 99999) _rotate = 0;
   if((_rotate == 0)){
-    X0 = X; Y0 = Y; Z0 = Z; 
+    X0 = X; Y0 = Y; Z0 = Z;
   }else{
 
     Double_t V1 = 0;
@@ -380,7 +380,7 @@ void PndRadMapBoxMesh::Transform(Double_t  X,  Double_t  Y,  Double_t  Z,
       Z0 = Z;
       break;
     };
-    
+
     Double_t _Vh, _Vv;
     if(_rotate != 0){
       Double_t R = TMath::Sqrt(V1*V1 + V2*V2);
@@ -459,7 +459,7 @@ void PndRadMapBoxMesh::Transform(Double_t  X,  Double_t  Y,  Double_t  Z,
 void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
   if(_verbose)
     std::cout << "void PndRadMapBoxMesh::Fill(FairRadMapPoint *p)\n";
-  
+
   Int_t pid = p->GetPdg();
   Double_t mom = TMath::Sqrt((p->GetPx()*p->GetPx()) +
                              (p->GetPy()*p->GetPy()) +
@@ -479,7 +479,7 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
     pdgmass = pdgpart->Mass();
     cha = pdgpart->Charge();
   }
-  
+
   if(_filter.Eval(pid, cha, mom)){
 
     val = 0;
@@ -501,7 +501,7 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
                 << ", " << _volume << ") "
                 << dens*mass << ' '
                 << "charge: " << cha << "\n";
-    
+
     lX = p->GetXOut();
     lY = p->GetYOut();
     lZ = p->GetZOut();
@@ -512,19 +512,19 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
     case Edep:
       val = edep;
       if(!isnan(val) && val !=0)
-        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
-        Fill(lX, lY, lZ, val);  
+        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
+        Fill(lX, lY, lZ, val);
       break;
 
-    case Dose:      
+    case Dose:
       val = edep/(dens*_volume);//mass=density*vol,dens[kg/cm^3],vol[cm^3]!
       if(!isnan(val) && val !=0){
-        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
-        Fill(lX, lY, lZ, val);  
+        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
+        Fill(lX, lY, lZ, val);
       }
       break;
 
-    case Fluence:    
+    case Fluence:
       InterSection = _plane->LineIntersection(poststepv, prestepv);
       switch (_orientation){
       case XY: case YX:
@@ -532,7 +532,7 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
            ((poststepv.Z() <= InterSection.Z()) && (InterSection.Z() <= prestepv.Z())))
           OK = true;
         break;
-          
+
       case XZ: case ZX:
         if(((prestepv.Y()  <= InterSection.Y()) && (InterSection.Y() <= poststepv.Y())) ||
            ((poststepv.Y() <= InterSection.Y()) && (InterSection.Y() <= prestepv.Y())))
@@ -576,23 +576,23 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
         _EnergyHisto->Fill(theta, K);		//uncommented by MP, Sep 8
         // val = CalcFluence(p);
         // if(!isnan(val) && val !=0){
-        //   Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
+        //   Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
       }
       break;
 
     case Density:
       val = dens;
       if(!isnan(val) && val !=0){
-        Fill(lX, lY, lZ, val);  
-        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
+        Fill(lX, lY, lZ, val);
+        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
       }
       break;
 
     case Mass:
       val = (dens*_volume);
       if(!isnan(val) && val !=0){
-        Fill(lX, lY, lZ, val);  
-        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
+        Fill(lX, lY, lZ, val);
+        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
       }
       break;
 
@@ -608,16 +608,16 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
           std::cout << "diff: " << (poststepv-prestepv).Mag() << "; val: " << val << std::endl;
           std::cout << "volume: " << _volume << "\n\n";
         }
-        Fill(lX, lY, lZ, val);  
-        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
+        Fill(lX, lY, lZ, val);
+        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
       }
     }break;
-      
+
     case Twos:
       val = 2;
       if(!isnan(val) && val !=0){
-        Fill(lX, lY, lZ, val);  
-        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
+        Fill(lX, lY, lZ, val);
+        // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
       }
       break;
     case EnergyFluence:
@@ -652,9 +652,9 @@ void PndRadMapBoxMesh::Fill(Double_t X, Double_t Y, Double_t Z, Double_t we){
   // if(IsInside(_X, _Y, _Z)){
   if(IsInside()){
     // std::cout << "2 - PndRadMapBoxMesh::Fill(" << _X << ", " << _Y << ", " << _Z << ", " << we << ")\n";
-  
+
     switch (_orientation){
-      
+
     case XY:
       _MeshHisto->Fill(_X, _Y, we);
       _StatHisto->Fill(_X, _Y);
@@ -805,7 +805,7 @@ bool PndRadMapBoxMesh::IsInside(FairRadMapPoint *p){
 void PndRadMapBoxMesh::makeHisto(const char* Orient, Double_t rotate,
                                  int Hbins, Double_t Hlow, Double_t Hhigh,
                                  int Vbins, Double_t Vlow, Double_t Vhigh,
-                                 Double_t dlow, Double_t dhigh){
+                                 Double_t dlow/*, Double_t dhigh --unused parameter */){
   if(_verbose){
     std::cout << "PndRadMapBoxMesh::makeHisto(" << Orient << ", " << rotate << ",\n";
     std::cout << "                   " << Hbins << ", " << Hlow << ", " << Hhigh << ",\n";
@@ -826,7 +826,7 @@ void PndRadMapBoxMesh::makeHisto(const char* Orient, Double_t rotate,
     _EnergyHisto = new TH2D(C, C,
                             180,  0, 180,
                             10000, 0, 10);
-    _plane = new PndRadMapPlane(dlow, _rotate, _orientation, _axis);  
+    _plane = new PndRadMapPlane(dlow, _rotate, _orientation, _axis);
 
   }
 }
@@ -844,10 +844,9 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
   Transform(p->GetXOut(), p->GetYOut(), p->GetZOut(),
             xx, yy, zz);
   std::pair<int, double> minp;
-  bool OK, OK2;
+  bool OK= false, OK2= false;
 
   if(IsInside(p)){
-    OK = false;
     if(IsInside(xx, yy, zz)) OK = true;
     switch (_orientation){
     case XY: case YX:
@@ -860,7 +859,7 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
       dx = _Xlow;
       break;
     }
-    
+
     TVector3 poststepv   = TVector3(p->GetXOut(), p->GetYOut(), p->GetZOut());
     TVector3 prestepv    = TVector3(p->GetX(), p->GetY(), p->GetZ());
     unsigned int prebin  = _MeshHisto->FindBin(prestepv.X(),
@@ -893,7 +892,7 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
       min_x = _Xlow;
       min_y = _Ylow;
       min_z = _Zlow;
-    
+
       max_x = _Xhigh;
       max_y = _Yhigh;
       max_z = _Zhigh;
@@ -951,13 +950,13 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
         PV.clear();
 
         //       max
-        //  /---/      y|    
+        //  /---/      y|
         // /---/|       |   /z
         // ||  ||       |  /
         // |/--|/       | /
         // -----        |/
         // min          +----------
-        //                        x     
+        //                        x
 
 
         // .              corner1          corner2          corner3
@@ -969,21 +968,21 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
         //plane5   [(min, min, max), (max, min, max), (min, max, max)] XY
         //plane6   [(max, min, min), (max, min, max), (max, max, min)] ZY
 
-        
+
         // //plane4   [(max, max, max), (max, max, min), (min, max, max)] XZ
-        // //plane5   [(max, max, max), (min, max, max), (max, min, max)] 
+        // //plane5   [(max, max, max), (min, max, max), (max, min, max)]
         // //plane6   [(max, max, max), (max, max, min), (max, min, max)]
-        
+
 
         min_x = (_MeshHisto->GetXaxis()->GetBinLowEdge(prebinX) < 0) ? 0 : _MeshHisto->GetXaxis()->GetBinLowEdge(prebinX);
         min_y = (_MeshHisto->GetYaxis()->GetBinLowEdge(prebinY) < 0) ? 0 : _MeshHisto->GetYaxis()->GetBinLowEdge(prebinY);
         min_z = (_MeshHisto->GetZaxis()->GetBinLowEdge(prebinZ) < 0) ? 0 : _MeshHisto->GetZaxis()->GetBinLowEdge(prebinZ);
-        
+
         max_x = (_MeshHisto->GetXaxis()->GetBinUpEdge(prebinX) < 0) ? 0 : _MeshHisto->GetXaxis()->GetBinUpEdge(prebinX);
         max_y = (_MeshHisto->GetYaxis()->GetBinUpEdge(prebinY) < 0) ? 0 : _MeshHisto->GetYaxis()->GetBinUpEdge(prebinY);
         max_z = (_MeshHisto->GetZaxis()->GetBinUpEdge(prebinZ) < 0) ? 0 : _MeshHisto->GetZaxis()->GetBinUpEdge(prebinZ);
         max_z += _MeshHisto->GetZaxis()->GetBinWidth(1);
-        
+
         if(verbose){
           std::cout << counter << " - Corners [[" << min_x << ", " << min_y << ", " << min_z << "] - ";
           std::cout <<                        "[" << max_x << ", " << max_y << ", " << max_z << "]]\n";
@@ -1024,7 +1023,7 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
           std::cout << "Start\n["
                     << prebin << " {" << prestepv.X() << ' ' << prestepv.Y() << ' ' << prestepv.Z() << "}("
                     << prebinX << ' ' << prebinY << ' ' << prebinZ << ")\n"
-                    << ' ' << postbin << " {" << poststepv.X() << ' ' << poststepv.Y() << ' ' << poststepv.Z() << "}(" 
+                    << ' ' << postbin << " {" << poststepv.X() << ' ' << poststepv.Y() << ' ' << poststepv.Z() << "}("
                     << postbinX << ' ' << postbinY << ' ' << postbinZ << ")]\n\n";
 
         minp = std::make_pair(-1, 111111);//(which plane, what is the disrance)
@@ -1043,7 +1042,7 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
                     << (minp.second > (isl-prestepv).Mag()) << ' '
                     << "[" << minp.first << ", " << minp.second << std::endl;
 
-        if(!OK2){
+        if(!OK2){ //FIXME: OK2 was not set before!
 
           isl = PV.at(1).LineIntersection(prestepv, poststepv);
           if(momentumfilter(TVector3(p->GetPx(), p->GetPy(), p->GetPz()), (isl-prestepv)))
@@ -1058,7 +1057,7 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
                       << (minp.second > (isl-prestepv).Mag()) << ' '
                       << "[" << minp.first << ", " << minp.second << "]" << std::endl;
         }
-        
+
         isl = PV.at(2).LineIntersection(prestepv, poststepv);
         if(momentumfilter(TVector3(p->GetPx(), p->GetPy(), p->GetPz()), (isl-prestepv)))
           if(minp.second > (isl-prestepv).Mag())
@@ -1085,7 +1084,7 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
                     << (minp.second > (isl-prestepv).Mag()) << ' '
                     << "[" << minp.first << ", " << minp.second  << "]" << std::endl;
 
-        if(!OK2){
+        if(!OK2){ //FIXME: OK2 was not set before!
           isl = PV.at(4).LineIntersection(prestepv, poststepv);
           if(momentumfilter(TVector3(p->GetPx(), p->GetPy(), p->GetPz()), (isl-prestepv)))
             if(minp.second > (isl-prestepv).Mag())
@@ -1099,7 +1098,7 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
                       << (minp.second > (isl-prestepv).Mag()) << ' '
                       << "[" << minp.first << ", " << minp.second  << "]" << std::endl;
         }
-        
+
         isl = PV.at(5).LineIntersection(prestepv, poststepv);
         if(momentumfilter(TVector3(p->GetPx(), p->GetPy(), p->GetPz()), (isl-prestepv)))
           if(minp.second > (isl-prestepv).Mag())
@@ -1136,7 +1135,7 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
           isl = PV.at(minp.first).LineIntersection(prestepv, poststepv);
           Double_t step = (isl-prestepv).Mag();
           prestepv = isl;
-          
+
           _MeshHisto->Fill(prestepv.X(), prestepv.Y(), step);
           _StatHisto->Fill(prestepv.X(), prestepv.Y());
 
@@ -1154,7 +1153,7 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
                                            isl.Y());
               if(verbose) std::cout << "(" << isl.X() << " ---> " << isl.X() - ds << ' '  << p->GetPx() << " ) ";
             }
-            if(verbose) std::cout << prebin << std::endl;        
+            if(verbose) std::cout << prebin << std::endl;
           }
           if(tn.Y()){
             ds = _MeshHisto->GetYaxis()->GetBinWidth(1)/10.;
@@ -1168,16 +1167,16 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
                                            isl.Y()-ds);
               if(verbose) std::cout << "1(" << isl.Y() << " ---> " << isl.Y() - ds << " ) ";
             }
-            if(verbose) std::cout << prebin << std::endl;        
+            if(verbose) std::cout << prebin << std::endl;
           }
 
           _MeshHisto->GetBinXYZ(prebin, prebinX, prebinY, prebinZ);
           if(verbose) std::cout << "Stop\n["
                                 << prebin << " {" << prestepv.X() << ' ' << prestepv.Y() << ' ' << prestepv.Z() << "}("
                                 << prebinX << ' ' << prebinY << ' ' << prebinZ << ")\n"
-                                << ' ' << postbin << " {" << poststepv.X() << ' ' << poststepv.Y() << ' ' << poststepv.Z() << "}(" 
+                                << ' ' << postbin << " {" << poststepv.X() << ' ' << poststepv.Y() << ' ' << poststepv.Z() << "}("
                                 << postbinX << ' ' << postbinY << ' ' << postbinZ << ")]\n\n";
-          
+
           if(IsInside(p->GetX(), p->GetY(), p->GetZ())){
             if(verbose) std::cout << " Bingo\n";
           }
