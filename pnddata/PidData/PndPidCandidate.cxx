@@ -74,6 +74,7 @@ PndPidCandidate::PndPidCandidate(): PndRecoCandidate(),
   fEmcE1 (0.),
   fEmcE9 (0.),
   fEmcE25(0.),
+  fEmcTimeStamp(0.),
   fMuoNumberOfLayers(0),
   fMuoProbability(0.),
   fMuoQuality(-1.), 
@@ -146,6 +147,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fEmcE1 (0.),
   fEmcE9 (0.),
   fEmcE25(0.),
+  fEmcTimeStamp(0.),
   fMuoNumberOfLayers(0),
   fMuoProbability(0.),
   fMuoQuality(-1.), 
@@ -222,6 +224,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   fEmcE1 (0.),
   fEmcE9 (0.),
   fEmcE25(0.),
+  fEmcTimeStamp(0.),
   fMuoNumberOfLayers(0),
   fMuoProbability(0.),
   fMuoQuality(-1.), 
@@ -398,6 +401,7 @@ void PndPidCandidate::SetDefault()
   fEmcE1  = 0.;
   fEmcE9  = 0.;
   fEmcE25 = 0.;
+  fEmcTimeStamp = -1.;
   fMuoNumberOfLayers = 0;
   fMuoProbability = 0.;
   fMuoQuality = -1.; 

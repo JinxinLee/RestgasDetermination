@@ -232,6 +232,8 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   void  SetEmcClusterE9(Double_t val)     { fEmcE9 = val;  }
   void  SetEmcClusterE25(Double_t val)    { fEmcE25 = val; }
 
+  void SetEmcTimeStamp(Double_t val)      { fEmcTimeStamp = val; }
+
   // MUO
   void	SetMuoNumberOfLayers(Int_t val) { fMuoNumberOfLayers= val;}
   void	SetMuoProbability(Double_t val) { fMuoProbability=(Float_t) val;}
@@ -324,6 +326,7 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   Float_t 	fEmcRawEnergy;
   Float_t 	fEmcCalEnergy;
   Float_t       fEmcQuality;
+  Float_t   fEmcTimeStamp;			///< TimeStamp at the cluster or bump position no track length correction done at this stage
   Int_t		fEmcNumberOfCrystals;
   Int_t		fEmcNumberOfBumps;
   Int_t         fEmcModule;
@@ -352,7 +355,7 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   Float_t 	fChiSquared;
   
 
-  ClassDef(PndPidCandidate,4) // Abstract base class for MicroDST candidates
+  ClassDef(PndPidCandidate,5) // Abstract base class for MicroDST candidates
     };
 
 //std::ostream&  operator << (std::ostream& o, const VAbsMicroCandidate&);

@@ -206,7 +206,7 @@ void PndEmcWaveformToCalibratedDigi::Exec(Option_t*)
 		for(Int_t i = 0; i< nHits; i++){
 			psaAlgorithm_proto192->GetHit(i,energy,peakPosition);
 			energy/=fWfNormalisation_proto192;
-			digi_time = peakPosition/fSampleRate;
+			digi_time = peakPosition/fSampleRate * 1E9;	//units for timestamp are ns
 			std::map<Int_t,Double_t>::iterator it;
 			it = fCalibrationMap.find(detId);
 			if(it!=fCalibrationMap.end()){

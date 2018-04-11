@@ -48,11 +48,11 @@ class PndEmcHit : public FairHit
   
   /** Modifiers **/
   virtual void SetEnergy(Double32_t energy) { fEnergy     = energy ;};
-  virtual void SetTime(Double32_t time)     { fTime       = time   ; fTimeStamp = time * 1E9;};
+  virtual void SetTime(Double32_t time)     { fTimeStamp = time * 1E9;};
    
   /** Accessors **/
   virtual Double_t GetEnergy()  const { return fEnergy     ;};
-  virtual Double_t GetTime()    const { return fTime       ;};
+  virtual Double_t GetTime()    const { return fTimeStamp / 1E9;};
   Float_t GetTheta()            const { return fX == 0.0 && fY == 0.0 && fZ == 0.0 ? 0.0 : TMath::ATan2(sqrt(fX*fX+fY*fY),fZ)*TMath::RadToDeg() ;};
   Float_t GetPhi()              const { return fX == 0.0 && fY == 0.0 ? 0.0 : TMath::ATan2(fY,fX)*TMath::RadToDeg()  ;};
   Short_t GetModule()           const { return (fDetectorID/100000000)    ;};
@@ -69,7 +69,6 @@ class PndEmcHit : public FairHit
   const std::vector<Int_t> &GetMcList() {return fMcList;}
 
  protected:
-  Double32_t fTime;      // time
   Double32_t fEnergy;    // hit amplitude
  
 
@@ -78,7 +77,7 @@ class PndEmcHit : public FairHit
   FairMultiLinkedData fTrackEntering; // Links to tracks entering the crystal
   FairMultiLinkedData fTrackExiting;  // Links to tracks exiting the crystal
 
-  ClassDef(PndEmcHit,2)
+  ClassDef(PndEmcHit,3)
 };
 
 #endif //PNDEMCHIT_H

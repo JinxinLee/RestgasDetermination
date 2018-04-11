@@ -264,6 +264,8 @@ void PndEmcPhiBumpSplitter::Exec(Option_t*)
       theNewPhiBump->MadeFrom(iCluster);
       theNewPhiBump->SetLink(FairLink("EmcCluster", iCluster));
       theNewPhiBump->SetEnergy(enePhiBump.at(i_phibump));
+      theNewPhiBump->SetTimeStamp(theCluster->GetTimeStamp());
+      theNewPhiBump->SetTimeStampError(theCluster->GetTimeStampError());
       TVector3 posPhiBump;
       posPhiBump.SetMagThetaPhi(posClust.Mag(),posClust.Theta(),phiPhiBump.at(i_phibump)*TMath::DegToRad());
       theNewPhiBump->SetPosition(posPhiBump);

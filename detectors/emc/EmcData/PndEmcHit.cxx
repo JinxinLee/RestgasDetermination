@@ -16,7 +16,7 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndEmcHit::PndEmcHit()
-  :FairHit(), fTime(0), fEnergy(0), fMcList(0),  fPointList(0), fTrackEntering(), fTrackExiting()
+  :FairHit(), fEnergy(0), fMcList(0),  fPointList(0), fTrackEntering(), fTrackExiting()
 {
   fMcList.clear();
   fPointList.clear();
@@ -25,8 +25,9 @@ PndEmcHit::PndEmcHit()
 
 // -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z)
-  :FairHit(), fTime(time), fEnergy(energy), fMcList(0),  fPointList(0), fTrackEntering(), fTrackExiting()
+  :FairHit(), fEnergy(energy), fMcList(0),  fPointList(0), fTrackEntering(), fTrackExiting()
 {
+  SetTime(time);
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
@@ -36,8 +37,9 @@ PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Floa
 }
 // -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<Int_t> McList, FairMultiLinkedData enteringTracks, FairMultiLinkedData exitingTracks)
-  :FairHit(), fTime(time), fEnergy(energy), fMcList(McList),  fPointList(0), fTrackEntering(enteringTracks), fTrackExiting(exitingTracks)
+  :FairHit(), fEnergy(energy), fMcList(McList),  fPointList(0), fTrackEntering(enteringTracks), fTrackExiting(exitingTracks)
 {
+  SetTime(time);
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
@@ -47,8 +49,9 @@ PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Floa
 }
 // -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcPoint*> PointList)
-  :FairHit(), fTime(time), fEnergy(energy), fMcList(0),  fPointList(PointList), fTrackEntering(), fTrackExiting()
+  :FairHit(), fEnergy(energy), fMcList(0),  fPointList(PointList), fTrackEntering(), fTrackExiting()
 {
+  SetTime(time);
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
@@ -57,7 +60,7 @@ PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Floa
 
 //Copy
 PndEmcHit::PndEmcHit(const PndEmcHit &copy):
-  FairHit(copy), fTime(copy.fTime),fEnergy(copy.fEnergy), fMcList(0),  fPointList(0), fTrackEntering(copy.fTrackEntering), fTrackExiting(copy.fTrackExiting)
+  FairHit(copy),fEnergy(copy.fEnergy), fMcList(0),  fPointList(0), fTrackEntering(copy.fTrackEntering), fTrackExiting(copy.fTrackExiting)
 {
   fRefIndex=copy.fRefIndex;
   fDetectorID=copy.fDetectorID;

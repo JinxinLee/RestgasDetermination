@@ -27,6 +27,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix,
 	//Float_t chi2 = 0; //[R.K. 01/2017] unused variable
 	TVector3 vertex(0., 0., 0.);
 	TVector3 emcPos(0., 0., 0.); // TVector3 momentum(0., 0., 0.);
+	Double_t emcTimeStamp(-1.);
 
 	// Cluster zenike moments
 	Double_t Z20 = 0.0, Z53 = 0.0, secLatM = 0.00, E1 = 0., E9 = 0., E25 = 0.;
@@ -54,6 +55,8 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix,
 			continue; // consider tracks only from last gem plane for FWD
 		if ((emcModule == 4) && (helix->GetZ() > -30.))
 			continue; // consider tracks only ending at the back of STT for BKW
+
+		emcTimeStamp = emcHit->GetTimeStamp(); //Do we need to correct the time stamp measured by the emc by the flight path?
 
 		emcPos = emcHit->where();
 		if (fGeanePro) { // Overwrites vertex if Geane is used
@@ -115,7 +118,9 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix,
 					static_cast<Float_t>(emcPos.Phi()), dist,
 					static_cast<Float_t>(vertex.DeltaPhi(emcPos)),
 					static_cast<Float_t>(emcHit->energy()), emcGLength,
-					static_cast<Float_t>(emcModule) };
+					static_cast<Float_t>(emcModule),
+					static_cast<Float_t>(emcTimeStamp)
+			};
 			// Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
 			// 		    helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
 			// 		    emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
@@ -133,6 +138,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix,
 		pidCand->SetEmcModule(emcModuleCorr);
 		pidCand->SetEmcNumberOfCrystals(emcNCrystals);
 		pidCand->SetEmcNumberOfBumps(emcNBumps);
+		pidCand->SetEmcTimeStamp(emcTimeStamp);
 		//=======
 		pidCand->SetEmcClusterZ20(Z20);
 		pidCand->SetEmcClusterZ53(Z53);

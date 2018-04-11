@@ -59,9 +59,7 @@ public:
 protected:
   // Data members
   Int_t  fClusterIndex; // Index of cluster the bump is made in TClonesArray
-	Int_t  fEvtNo;//event number of seed digi
-
-	Double_t fTimeStamp;//three different weighted time
+  Int_t  fEvtNo;//event number of seed digi
 
 	ClassDef(PndEmcBump,2)
 private:

@@ -994,7 +994,8 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 
           pidCand->SetEmcClusterZ20(bump->Z20());
           pidCand->SetEmcClusterZ53(bump->Z53());
-          pidCand->SetEmcClusterLat(bump->LatMom()); 
+          pidCand->SetEmcClusterLat(bump->LatMom());
+          pidCand->SetEmcTimeStamp(bump->GetTimeStamp());
           if (fEmcDigi)
 	    {
 	      PndEmcClusterEnergySums esum(*clu, fEmcDigi);
