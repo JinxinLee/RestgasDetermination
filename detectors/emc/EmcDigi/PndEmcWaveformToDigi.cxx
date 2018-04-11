@@ -422,12 +422,12 @@ void PndEmcWaveformToDigi::Exec(Option_t*)
 			if(fCalibrator->Calibrate(fdigiEnergy,detId)!=PndEmcAbsCrystalCalibrator::kCALOK){
 				continue;
 			}
-			fdigiTime = theWaveform->GetTimeStamp() + fTimeShift/theSampleRate*1.e9;//translate position to global time
+			fdigiTime = theWaveform->GetTimeStamp();// + fTimeShift/theSampleRate*1.e9;//translate position to global time //TS: I do not unerstand this line waveform time is in ns and the tof of the particle but TimeShift is divided by samplingtime??
 
 			if(fVerbose>1){
 				//if(fdigiTime-fevtTime>200. || fdigiTime - fevtTime < 0.)
 				{
-					cout<<"wave #"<<iWaveform<<", mod#"<<fMod<<", theSampleRate#"<<theSampleRate<<", shift#"<<fTimeShift<<endl;
+					cout<<"wave #"<<iWaveform<<", WaveformTime#" << theWaveform->GetTimeStamp() << ", mod#"<<fMod<<", theSampleRate#"<<theSampleRate<<", shift#"<<fTimeShift<<endl;
 					cout<<"fdigiEnergy#"<<fdigiEnergy<<", fdigiTime#"<<fdigiTime<<", evtTime#"<<fevtTime<<", diffT#"<<(fdigiTime-fevtTime)<<endl;
 				}
 			}
