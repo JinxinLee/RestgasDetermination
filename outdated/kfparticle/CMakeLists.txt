@@ -1,6 +1,12 @@
 # Create a library called "KF"
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
+include(ExternalProject)
+
+ExternalProject_Add(KFParticleBase
+    GIT_REPOSITORY https://cbmgsi.githost.io/m.zyzak/KFParticle.git
+    GIT_TAG "1.0"
+)
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES} 
@@ -15,9 +21,9 @@ ${CMAKE_SOURCE_DIR}/pnddata/
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
 ${CMAKE_SOURCE_DIR}/detectors/emc/
 ${CMAKE_SOURCE_DIR}/pnddata/EmcData/
-${CMAKE_SOURCE_DIR}/analysis/kfparticle/
-${CMAKE_SOURCE_DIR}/analysis/kfparticle/KFParticle/
-${CMAKE_SOURCE_DIR}/analysis/kfparticle/KFParticlePerformance/
+${CMAKE_SOURCE_DIR}/outdated/kfparticle/
+${CMAKE_SOURCE_DIR}/outdated/kfparticle/KFParticle/
+${CMAKE_SOURCE_DIR}/outdated/kfparticle/KFParticlePerformance/
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

@@ -411,7 +411,6 @@ add_subdirectory (tracking/HelixPropagator)
 
 add_subdirectory (analysis/rho)
 add_subdirectory (analysis/AnalysisTools)
-#add_subdirectory (analysis/kfparticle)
 
 add_subdirectory (timebased/Tools)
 add_subdirectory (timebased/Buffers)
