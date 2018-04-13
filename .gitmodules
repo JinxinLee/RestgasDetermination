@@ -2,3 +2,6 @@
 	path = external/vc
 	url = https://github.com/VcDevel/Vc.git
 	branch = 0.7.5
+[submodule "external/genfit2"]
+	path = external/genfit2
+	url = https://github.com/GenFit/GenFit.git
