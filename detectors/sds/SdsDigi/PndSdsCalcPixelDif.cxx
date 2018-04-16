@@ -1,7 +1,7 @@
 #include "PndSdsCalcPixelDif.h"
 #include <cmath>
 #include "TRandom.h"
-
+#include <map>
 
 PndSdsCalcPixelDif::PndSdsCalcPixelDif() :
     fPixels(),
@@ -29,14 +29,14 @@ PndSdsCalcPixelDif::PndSdsCalcPixelDif(Double_t lx, Double_t ly, Double_t qsprea
 
 Int_t PndSdsCalcPixelDif::GetPixelsAlternative(Double_t inx, Double_t iny,
                                                Double_t outx, Double_t outy,
-                                               Double_t energy, 
+                                               Double_t energy,
                                                std::vector<Int_t>& cols, std::vector<Int_t>& rows,
                                                std::vector<Double_t>& charges)
 {
   std::vector<PndSdsPixel> pixels = GetPixels(inx,iny,outx,outy,energy);
   Int_t npix=pixels.size();
   for(Int_t i=0;i<npix;i++)
-  { 
+  {
     if(fVerboseLevel>2) Info("PndSdsCalcPixelDif::GetPixelsAlternative()","pass this pixel: i=%i, c=%i, r=%i, q=%f",i,pixels[i].GetCol(),pixels[i].GetRow(),pixels[i].GetCharge());
     cols.push_back(pixels[i].GetCol());
     rows.push_back(pixels[i].GetRow());
@@ -55,65 +55,94 @@ std::vector<PndSdsPixel> PndSdsCalcPixelDif::GetPixels(Double_t inx, Double_t in
     Error("PndSdsCalcPixelDif::GetPixels()","Invalid Pixel sizes: fPixelSizeX=%g,fPixelSizeY=%g",fPixelSizeX,fPixelSizeY);
     return fPixels;
   }
-  // Do charge diffusion integrated analytically over a path length
-  // 0.5*(1+erf(x)) is the integral over a gauss from -inf to x
-  // factor 0.5 is applied last, the +1 terms cancel in the difference
-  // the 2 Dimensions are trated equally
-  
+
+  Double_t sigma_x=fQspread/fPixelSizeX;
+  Double_t sigma_y=fQspread/fPixelSizeY;
   inx/=fPixelSizeX;
   outx/=fPixelSizeX;
   iny/=fPixelSizeY;
   outy/=fPixelSizeY;
-  
-  Double_t Q = ChargeFromEloss(dE);
-  if(outx<inx){ // sort for direction
-    Double_t tmp=inx;
-    inx=outx;
-    outx=tmp;
-  }  
-  if(outy<iny){ // sort for direction
-    Double_t tmp=iny;
-    iny=outy;
-    outy=tmp;
-  }
-  
-	Double_t DQx = 0., DQy = 0.;
-  // transform sigma to col/row numbers
-  Double_t sigma_x=fQspread/fPixelSizeX;
-  Double_t sigma_y=fQspread/fPixelSizeY;
-  // 2sigma shall be collected in extra bins minimum 1 bin
-  Int_t xtrax = (Int_t)ceil(2.*sigma_x);
-  Int_t xtray = (Int_t)ceil(2.*sigma_y);
-  for(Int_t i=(Int_t)inx-xtrax;i<(Int_t)outx+1+xtrax;i++)
+
+
+  //FIXME: Use proper logic for steep slope!
+  if(outx==inx) return fPixels;
+
+  Double_t l=outx-inx;
+  Double_t k=outy-iny;
+  Double_t difx=0, dify=0;
+  Double_t Q = ChargeFromEloss(dE); // in electrons
+  Double_t X=0,Y=0,t=0;
+  std::map< int, std::map<int,int> >pixels;
+  for (int electron=0;electron<Q;electron++)
   {
-    DQx=0.;
-    if(outx-inx<1e-6){ // too small path, don't integrate over path
-      DQx+=TMath::Erf(i+1-0.5*(outx+inx))/(sqrt(2)*sigma_x);
-      DQx-=TMath::Erf(i-0.5*(outx+inx))/(sqrt(2)*sigma_x);
-    }else{      
-      DQx+=CalcFk(i,outx,sigma_x);
-      DQx-=CalcFk(i+1,outx,sigma_x);
-      DQx-=CalcFk(i,inx,sigma_x);
-      DQx+=CalcFk(i+1,inx,sigma_x);
-      DQx/=(outx-inx);
-    }
-    for(Int_t j=(Int_t)iny-xtray;j<(Int_t)outy+1+xtray;j++)
-    {
-      DQy=0.;
-      if(outy-iny<1e-6){ // too small path, don't integrate over path
-        DQy+=TMath::Erf(j+1-0.5*(outy+iny))/(sqrt(2)*sigma_y);
-        DQy-=TMath::Erf(j-0.5*(outy+iny))/(sqrt(2)*sigma_y);
-      }else{  
-        DQy+=CalcFk(j,outy,sigma_y);
-        DQy-=CalcFk(j,iny,sigma_y);
-        DQy-=CalcFk(j+1,outy,sigma_y);
-        DQy+=CalcFk(j+1,iny,sigma_y);
-        DQy/=(outy-iny);
-      }
-      InjectPixelCharge(i,j,0.25*Q*DQx*DQy);
-    }      
+    t=gRandom->Rndm();
+    difx=gRandom->Gaus(0,sigma_x);
+    dify=gRandom->Gaus(0,sigma_y);
+    X=inx+t*l+difx;
+    Y=iny+t*k+dify;
+    pixels[(int)X][(int)Y]++;
   }
-  return fPixels;  
+  for (auto const &row : pixels) {
+    for (auto const &col : row.second) {
+      InjectPixelCharge(row.first,col.first,col.second);
+    }
+  }
+
+
+  // Buggy logic!
+  // xxxxxxxxxxx
+  // Do charge diffusion integrated analytically over a path length
+  // 0.5*(1+erf(x)) is the integral over a gauss from -inf to x
+  // factor 0.5 is applied last, the +1 terms cancel in the difference
+  // the 2 Dimensions are trated equally
+  //if(outx<inx){ // sort for direction
+    //Double_t tmp=inx;
+    //inx=outx;
+    //outx=tmp;
+  //}
+  //if(outy<iny){ // sort for direction
+    //Double_t tmp=iny;
+    //iny=outy;
+    //outy=tmp;
+  //}
+
+	//Double_t DQx = 0., DQy = 0.;
+  //// transform sigma to col/row numbers
+  //Double_t sigma_x=fQspread/fPixelSizeX;
+  //Double_t sigma_y=fQspread/fPixelSizeY;
+  //// 2sigma shall be collected in extra bins minimum 1 bin
+  //Int_t xtrax = (Int_t)ceil(2.*sigma_x);
+  //Int_t xtray = (Int_t)ceil(2.*sigma_y);
+  //for(Int_t i=(Int_t)inx-xtrax;i<(Int_t)outx+1+xtrax;i++)
+  //{
+    //DQx=0.;
+    //if(outx-inx<1e-6){ // too small path, don't integrate over path
+      //DQx+=TMath::Erf(i+1-0.5*(outx+inx))/(sqrt(2)*sigma_x);
+      //DQx-=TMath::Erf(i-0.5*(outx+inx))/(sqrt(2)*sigma_x);
+    //}else{
+      //DQx+=CalcFk(i,outx,sigma_x);
+      //DQx-=CalcFk(i+1,outx,sigma_x);
+      //DQx-=CalcFk(i,inx,sigma_x);
+      //DQx+=CalcFk(i+1,inx,sigma_x);
+      //DQx/=(outx-inx);
+    //}
+    //for(Int_t j=(Int_t)iny-xtray;j<(Int_t)outy+1+xtray;j++)
+    //{
+      //DQy=0.;
+      //if(outy-iny<1e-6){ // too small path, don't integrate over path
+        //DQy+=TMath::Erf(j+1-0.5*(outy+iny))/(sqrt(2)*sigma_y);
+        //DQy-=TMath::Erf(j-0.5*(outy+iny))/(sqrt(2)*sigma_y);
+      //}else{
+        //DQy+=CalcFk(j,outy,sigma_y);
+        //DQy-=CalcFk(j,iny,sigma_y);
+        //DQy-=CalcFk(j+1,outy,sigma_y);
+        //DQy+=CalcFk(j+1,iny,sigma_y);
+        //DQy/=(outy-iny);
+      //}
+      //InjectPixelCharge(i,j,0.25*Q*DQx*DQy);
+    //}
+  //}
+  return fPixels;
 }
 
 //______________________________________________________________________________
@@ -152,7 +181,7 @@ std::ostream& PndSdsCalcPixelDif::operator<<(std::ostream& out)
 {
   out << "fPixelSizeX: " << fPixelSizeX << " fPixelSizeY: " <<
   fPixelSizeY << std::endl;
-  
+
   return out;
 }
 
