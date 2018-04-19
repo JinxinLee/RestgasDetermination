@@ -511,14 +511,14 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
 
     case Edep:
       val = edep;
-      if(!isnan(val) && val !=0)
+      if(!std::isnan(val) && val !=0)
         // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
         Fill(lX, lY, lZ, val);
       break;
 
     case Dose:
       val = edep/(dens*_volume);//mass=density*vol,dens[kg/cm^3],vol[cm^3]!
-      if(!isnan(val) && val !=0){
+      if(!std::isnan(val) && val !=0){
         // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
         Fill(lX, lY, lZ, val);
       }
@@ -582,7 +582,7 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
 
     case Density:
       val = dens;
-      if(!isnan(val) && val !=0){
+      if(!std::isnan(val) && val !=0){
         Fill(lX, lY, lZ, val);
         // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
       }
@@ -590,7 +590,7 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
 
     case Mass:
       val = (dens*_volume);
-      if(!isnan(val) && val !=0){
+      if(!std::isnan(val) && val !=0){
         Fill(lX, lY, lZ, val);
         // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
       }
@@ -601,7 +601,7 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
       prestepv    = TVector3(p->GetX(), p->GetY(), p->GetZ());
       val = (poststepv-prestepv).Mag()/1e2;// cm->m
       val /= (_volume/1e6);//cm^3->m^3 -> 1/m^2
-      if(!isnan(val) && val!=0){
+      if(!std::isnan(val) && val!=0){
         if(_verbose > 1){
           std::cout << "Pre: " << prestepv.X() << ", " << prestepv.Y() << ", " << prestepv.Z() << "\n";
           std::cout << "Pre: " << poststepv.X() << ", " << poststepv.Y() << ", " << poststepv.Z() << "\n";
@@ -615,7 +615,7 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
 
     case Twos:
       val = 2;
-      if(!isnan(val) && val !=0){
+      if(!std::isnan(val) && val !=0){
         Fill(lX, lY, lZ, val);
         // Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);
       }
