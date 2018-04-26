@@ -135,6 +135,7 @@
   		"angle_between_screws": 36,
   		"angle_first_screw": 36,
   		"diameter": 0.9,
+  		"screw_head_size": 0.3,
   		"distance_to_outer_support_edge": 0.95
   	},
   	"copper_plugs": {
@@ -147,8 +148,10 @@
   		"thickness": 0.03,
   		"dimension_x": 0.5,
   		"dimension_y": 0.5,
-  		"number_of_segments": 3,
-  		"number_of_sensors_per_segment": 3
+  		"angle_first_segment": 15.0,
+  		"angle_last_segment": 165.0,
+  		"segments": 3,
+  		"chips_per_segment": 3
   	}
   }
 }

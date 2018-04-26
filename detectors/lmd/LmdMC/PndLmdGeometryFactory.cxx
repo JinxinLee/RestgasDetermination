@@ -433,7 +433,11 @@ TGeoVolume* PndLmdGeometryFactory::generateDetectorHalfPlane(bool is_bottom_half
 	}
 	TGeoCombiTrans* trans_pcb_half_ring = new TGeoCombiTrans("trans_pcb_half_ring", 0.0, 0.0,
 	    -geometry_property_tree.get<double>("electronics.distance_between_pcb_and_cooling_support")
-	        - 0.5 * geometry_property_tree.get<double>("cooling_support.thickness"), rot_alu_ring);
+	        - 0.5
+	            * (geometry_property_tree.get<double>("cooling_support.thickness")
+	                + geometry_property_tree.get<double>("electronics.pcb_board.thickness_copper")
+	                + geometry_property_tree.get<double>("electronics.pcb_board.thickness_glasfiber")),
+	    rot_alu_ring);
 	TGeoCombiTrans* trans_pcb_half_ring_back = new TGeoCombiTrans("trans_pcb_half_ring", 0.0, 0.0,
 	    geometry_property_tree.get<double>("electronics.distance_between_pcb_and_cooling_support")
 	        + 0.5 * geometry_property_tree.get<double>("cooling_support.thickness"), rot_back_pcb);
@@ -503,6 +507,7 @@ TGeoVolume* PndLmdGeometryFactory::generateAluminumCoolingStructure() const {
 }
 
 TGeoVolume* PndLmdGeometryFactory::generatePCB() const {
+	TGeoVolumeAssembly* pcb_volume = new TGeoVolumeAssembly("pcb");
 	auto pt_electronics = geometry_property_tree.get_child("electronics");
 
 	double outer_radius(pt_electronics.get<double>("pcb_board.outer_radius"));
@@ -534,19 +539,46 @@ TGeoVolume* PndLmdGeometryFactory::generatePCB() const {
 	// 0.0001 make 1mu space between clash plane and alu support to avoid overlap
 	trans_pcb_tube_cut->RegisterYourself();
 
+	// volume to cut out the holes for the steel mounting screws
+	//new TGeoTube("pcb_steel_mount_screw_cutout", 0.0,
+	//    pt_electronics.get<double>("steel_mount_screws.diameter") / 2.0,
+	//    (pcb_glasfiber_thickness + pcb_copper_thickness) / 2.0);
+	TGeoVolume *steel_mount_screw = generatePCBMountScrew();
+
+	std::stringstream ss;
+	double start_angle(pt_electronics.get<double>("steel_mount_screws.angle_first_screw"));
+	double delta_angle(pt_electronics.get<double>("steel_mount_screws.angle_between_screws"));
+	double hole_position_radius(
+	    outer_radius - pt_electronics.get<double>("steel_mount_screws.distance_to_outer_support_edge"));
+	for (unsigned int i = 0; i < pt_electronics.get<double>("steel_mount_screws.number_of_screws"); ++i) {
+		std::string transname("screw_hole_trans_" + i);
+		double angle(start_angle + delta_angle * i);
+		TGeoTranslation* screw_hole_trans = new TGeoTranslation(transname.c_str(),
+		    hole_position_radius * std::cos(angle / 180 * TMath::Pi()),
+		    hole_position_radius * std::sin(angle / 180 * TMath::Pi()),
+		    -0.5
+		        * (pt_electronics.get<double>("distance_between_pcb_and_cooling_support")
+		            + pt_electronics.get<double>("steel_mount_screws.screw_head_size"))
+		        + pt_electronics.get<double>("distance_between_pcb_and_cooling_support"));
+		// subtract the mounting screw from the pcb board
+		screw_hole_trans->RegisterYourself();
+		ss << "-" << steel_mount_screw->GetShape()->GetName() << ":" << transname;
+		// add the mounting screw
+		pcb_volume->AddNode(steel_mount_screw, i, screw_hole_trans);
+	}
+
 	// construct the support from basic shape and it's cut outs
-	TGeoCompositeShape* pcb_shape = new TGeoCompositeShape("pcb_shape",
-	    "pcb_board_tube-pcb_full_cutoff:trans_pcb_tube_cut");
+	TGeoCompositeShape * pcb_shape = new TGeoCompositeShape("pcb_shape",
+	    (std::string("pcb_board_tube-pcb_full_cutoff:trans_pcb_tube_cut") + ss.str()).c_str());
 	// construct the support from basic shape and it's cut outs
 	TGeoCompositeShape* pcb_copper_shape = new TGeoCompositeShape("pcb_copper_shape",
-	    "pcb_copper_tube-pcb_full_cutoff:trans_pcb_tube_cut");
+	    (std::string("pcb_copper_tube-pcb_full_cutoff:trans_pcb_tube_cut") + ss.str()).c_str());
 
 	TGeoTranslation* trans_pcb_copper = new TGeoTranslation("trans_pcb_copper", 0.0, 0.0,
 	    -0.5 * (pcb_copper_thickness + pcb_glasfiber_thickness + 0.0001));
 	// make half mu space between to avoid overlap
 	trans_pcb_copper->RegisterYourself();
 
-	TGeoVolumeAssembly* pcb_volume = new TGeoVolumeAssembly("pcb");
 	TGeoVolume* pcb_glasfiber_volume = new TGeoVolume("vol_pcb_glassfiber", pcb_shape,
 	    gGeoMan->GetMedium("GlassFiber"));
 	pcb_glasfiber_volume->SetLineColor(30);
@@ -568,35 +600,82 @@ TGeoVolume* PndLmdGeometryFactory::generatePCB() const {
 		rot->RotateZ(angle);
 		TGeoCombiTrans *trafo = new TGeoCombiTrans(middle_radius * std::cos(angle / 180.0 * TMath::Pi()),
 		    middle_radius * std::sin(angle / 180.0 * TMath::Pi()),
-		    -0.5
-		        * (pcb_copper_thickness + pcb_glasfiber_thickness
-		            + pt_electronics.get<double>("copper_plugs.thickness") + 0.0001), rot);
+		    -pcb_copper_thickness
+		        - 0.5
+		            * (pcb_glasfiber_thickness + pt_electronics.get<double>("copper_plugs.thickness")
+		                + 0.0001), rot);
 
 		pcb_volume->AddNode(copper_plug, i, trafo);
+	}
+
+	// add electronic chips on back side
+	TGeoVolume* backside_electronic_chip = generatePCBBacksideElectronics();
+	unsigned int segments(pt_electronics.get<double>("backside_electronics.segments"));
+	unsigned int chips_per_segment(pt_electronics.get<double>("backside_electronics.chips_per_segment"));
+	double be_start_angle(pt_electronics.get<double>("backside_electronics.angle_first_segment"));
+	double ang_segment(
+	    (pt_electronics.get<double>("backside_electronics.angle_last_segment") - be_start_angle)
+	        / (segments-1));
+	for (unsigned int i = 0; i < segments; ++i) {
+		for (unsigned int j = 0; j < chips_per_segment; ++j) {
+			double angle(be_start_angle + i * ang_segment);
+			TGeoRotation *rot = new TGeoRotation();
+			rot->RotateZ(angle);
+			double radius_delta(
+			    (-0.5 * (chips_per_segment + 1) + j)
+			        * (pt_electronics.get<double>("backside_electronics.dimension_x") + 0.2));
+			TGeoCombiTrans *trafo = new TGeoCombiTrans(
+			    (middle_radius + radius_delta) * std::cos(angle / 180.0 * TMath::Pi()),
+			    (middle_radius + radius_delta) * std::sin(angle / 180.0 * TMath::Pi()),
+			    0.5
+			        * (pcb_glasfiber_thickness + pt_electronics.get<double>("backside_electronics.thickness")
+			            + 0.0001), rot);
+
+			pcb_volume->AddNode(backside_electronic_chip, i * chips_per_segment + j, trafo);
+		}
 	}
 
 	return pcb_volume;
 }
 
 TGeoVolume* PndLmdGeometryFactory::generatePCBMountScrew() const {
-
+	auto pt_mountscrews = geometry_property_tree.get_child("electronics.steel_mount_screws");
+	// volume to cut out the holes for the steel mounting screws
+	TGeoTube *steel_mount_screw = new TGeoTube("pcb_steel_mount_screw", 0.0,
+	    pt_mountscrews.get<double>("diameter") / 2.0,
+	    (geometry_property_tree.get<double>("electronics.distance_between_pcb_and_cooling_support")
+	        + pt_mountscrews.get<double>("screw_head_size")) / 2.0);
+	TGeoVolume* steel_mount_screw_volume = new TGeoVolume("vol_steel_mount_screw", steel_mount_screw,
+	    gGeoMan->GetMedium("steel"));
+	steel_mount_screw_volume->SetLineColor(11);
+	return steel_mount_screw_volume;
 }
 
 TGeoVolume* PndLmdGeometryFactory::generatePCBCopperPlug() const {
 	auto pt_copperplugs = geometry_property_tree.get_child("electronics.copper_plugs");
 
-	TGeoBBox *pcb_copper_plug = new TGeoBBox("pcb_full_cutoff",
+	TGeoBBox *pcb_copper_plug = new TGeoBBox("pcb_copper_plug",
 	    pt_copperplugs.get<double>("dimension_x") / 2.0, pt_copperplugs.get<double>("dimension_y") / 2.0,
 	    pt_copperplugs.get<double>("thickness") / 2.0);
 
 	TGeoVolume* pcb_copper_plug_volume = new TGeoVolume("vol_pcb_copper_plug", pcb_copper_plug,
 	    gGeoMan->GetMedium("copper"));
-	pcb_copper_plug_volume->SetLineColor(kOrange + 1);
+	pcb_copper_plug_volume->SetLineColor(kOrange + 2);
 	return pcb_copper_plug_volume;
 }
 
 TGeoVolume* PndLmdGeometryFactory::generatePCBBacksideElectronics() const {
+	auto pt_be = geometry_property_tree.get_child("electronics.backside_electronics");
 
+	TGeoBBox *pcb_backside_electronic = new TGeoBBox("pcb_backside_electronic",
+	    pt_be.get<double>("dimension_x") / 2.0, pt_be.get<double>("dimension_y") / 2.0,
+	    pt_be.get<double>("thickness") / 2.0);
+
+	TGeoVolume* pcb_backside_electronic_volume = new TGeoVolume(
+	    pt_be.get<std::string>("volume_name").c_str(), pcb_backside_electronic,
+	    gGeoMan->GetMedium("silicon"));
+	pcb_backside_electronic_volume->SetLineColor(kYellow);
+	return pcb_backside_electronic_volume;
 }
 
 TGeoVolume* PndLmdGeometryFactory::generateSensorModule() const {

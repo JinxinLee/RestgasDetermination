@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "lmd/LmdMC/PndLmdGeometryFactory.h"
+#include "detectors/lmd/LmdMC/PndLmdGeometryFactory.h"
 
 #include "FairGeoLoader.h"
 #include "FairGeoInterface.h"
