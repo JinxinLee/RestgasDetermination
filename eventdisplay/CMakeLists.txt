@@ -23,6 +23,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/drc
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdDigi
   ${CMAKE_SOURCE_DIR}/detectors/sds/SdsDigi
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsTools
   ${CMAKE_SOURCE_DIR}/detectors/stt
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcTools

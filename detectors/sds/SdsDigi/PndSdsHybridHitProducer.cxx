@@ -284,7 +284,7 @@ void PndSdsHybridHitProducer::Exec(Option_t*)
       std::vector<PndSdsPixel> myPixels;
       if(fqsigma>0){
         // Define sensor by pixelsizes threshold and noise from macro outside
-        PndSdsCalcPixelDif PixelCalc(flx, fly, fqsigma, fthreshold, fnoise);
+        PndSdsCalcPixelDif PixelCalc(*fDigiPar);
         // Calculate a cluster of Pixels fired (in sensor system)
         myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(),
                                         posOutL.getX(), posOutL.getY(), 
@@ -308,7 +308,7 @@ void PndSdsHybridHitProducer::Exec(Option_t*)
           if (fVerbose > 1) std::cout << myPixels[i] << std::endl;
         }
         // Calculate channel numbers
-        PndSdsCalcFePixel feCalc(fcols, frows, 10); //TODO: Why do we set 10 column Frontends per hand?
+        PndSdsCalcFePixel feCalc(*fDigiPar); //TODO: Why do we set 10 column Frontends per hand?
         myFePixels = feCalc.CalcFEHits(myPixels);
         if (fVerbose > 1){
           std::cout << "FePixels: " << myFePixels.size() << std::endl;

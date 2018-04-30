@@ -111,7 +111,7 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 		fRun->SetStoreTraj(kFALSE);
 
 	// misalign Geometery
-	bool misalignedGeometry = true;
+	bool misalignedGeometry = false;
 	if (misalignedGeometry) {
 
 		string misMatricesFilePath = "misalignMatrices-SensorsOnly.root";

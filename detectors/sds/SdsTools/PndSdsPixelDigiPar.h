@@ -38,6 +38,8 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     Double_t GetQCloudSigma()   const {return fCSigma;}
     Int_t GetFECols()           const {return fFeCols;}
     Int_t GetFERows()           const {return fFeRows;}
+    Int_t GetMaxFEperCol()      const {return fMaxFEperCol;}
+    Int_t GetMaxFEperRow()      const {return fMaxFEperRow;}
     Double_t GetClustRadius()   const {return fRadius;}
     Double_t GetFeBusClock()    const {return fFeBusClock;}
     Double_t GetTimeStep()		const {return (1./fFeBusClock * 1000.);} ///< Time step of one clock cycle in ns
@@ -52,6 +54,8 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     void SetQCloudSigma(Double_t x)   {fCSigma = x;}
     void SetFECols(Int_t x)           {fFeCols = x;}
     void SetFERows(Int_t x)           {fFeRows = x;}
+    void SetMaxFEperCol(Int_t x)      {fMaxFEperCol = x;}
+    void SetMaxFEperRow(Int_t x)      {fMaxFEperRow = x;}
     void SetClustRadius(Double_t x)   {fRadius=x;}
     void SetFeBusClock(Double_t x)      {fFeBusClock = x;}
     void SetChargeConvMethod(Int_t x) {fChargeConvMethod = x;}
@@ -63,6 +67,8 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     // Pixel Parameters
     Int_t fFeCols;            // Colums read per Frontend 
     Int_t fFeRows;            // Rows read per Frontend
+    Int_t fMaxFEperCol;       // maximum number of front-end chip per column on a sensor
+    Int_t fMaxFEperRow;       // maximum number of front-end chip per row on a sensor
     Double_t fDimX;           // Pixel cell size X
     Double_t fDimY;           // Pixel cell size Y
     Double_t fRadius;         // Clusterfinder search radius (channel numbers)
@@ -77,7 +83,7 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     //Text_t fFeName;           // Frontend name
     
     
-    ClassDef(PndSdsPixelDigiPar,4);
+    ClassDef(PndSdsPixelDigiPar,5);
   };
 
 #endif /*!PNDSDSSTRIPDIGIPAR_H*/

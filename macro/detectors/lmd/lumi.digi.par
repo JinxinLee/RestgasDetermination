@@ -142,6 +142,8 @@ noise:Double_t 100
 QCloudSigma:Double_t 0.0008
 FECols:Int_t 250
 FERows:Int_t 245
+MaxFEperCol:Int_t 1
+MaxFEperRow:Int_t 1
 ClustRad:Double_t 1.8
 chargeconv_method:Int_t 0
 fe_BusClock:Double_t 40

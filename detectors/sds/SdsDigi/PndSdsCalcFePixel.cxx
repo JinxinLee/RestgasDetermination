@@ -1,51 +1,45 @@
 #include "PndSdsCalcFePixel.h"
+#include "PndSdsPixelDigiPar.h"
 
-std::vector<PndSdsPixel> PndSdsCalcFePixel::CalcFEHits()
-{
-	Int_t col, row, fe, dummy;
-	for (UInt_t i = 0; i < fSensorHits.size(); i++){
-		col = fSensorHits[i].GetCol();
-		row = fSensorHits[i].GetRow();
-// 		std::cout << "col " << col << " row " << row << " ";
-		fe = col / fNcols;
-// 		std::cout << "fe " << fe << " ";
-		col -= fe * fNcols;
-		dummy = row / fNrows;
-// 		std::cout << "dummy " << dummy << " ";
-		fe += fMaxFEperCol * (dummy);
-		row -= dummy * fNrows;
-		PndSdsPixel myPixel(fSensorHits[i].GetSensorID(), fe, col, row,
-									  fSensorHits[i].GetCharge());
-		myPixel.SetAddNoise(fSensorHits[i].GetAddNoise());
-		fFeHits.push_back(myPixel);
-	}
-	return fFeHits;
+PndSdsCalcFePixel::PndSdsCalcFePixel() :
+		fNcols(1), fNrows(1), fMaxFEperCol(1), fMaxFEperRow(1) {
 }
 
-std::vector<PndSdsPixel> PndSdsCalcFePixel::CalcSensorHits(const std::vector<PndSdsPixel> FePixel)
-{
-	//Int_t col, row, dummy;
+PndSdsCalcFePixel::PndSdsCalcFePixel(const PndSdsPixelDigiPar& digi_par) :
+		fNcols(digi_par.GetFECols()), fNrows(digi_par.GetFERows()), fMaxFEperCol(digi_par.GetMaxFEperCol()), fMaxFEperRow(
+		    digi_par.GetMaxFEperRow()) {
+}
+
+PndSdsCalcFePixel::~PndSdsCalcFePixel() {
+}
+
+std::vector<PndSdsPixel> PndSdsCalcFePixel::CalcFEHits(const std::vector<PndSdsPixel>& sensor_hits) {
+	Int_t col, row, fe, fe_row, fe_col;
 	std::vector<PndSdsPixel> result;
-	for (UInt_t i = 0; i < FePixel.size(); i++){
-		result.push_back(CalcSensorHit(FePixel[i]));
+	for (auto const& sensor_hit : sensor_hits) {
+		col = sensor_hit.GetCol();
+		row = sensor_hit.GetRow();
+		fe_col = col / fNcols;
+		if (fMaxFEperCol > fe_col) {
+			col -= fe_col * fNcols;
+			fe = fe_col;
+		}
+		fe_row = row / fNrows;
+		if (fMaxFEperRow > fe_row) {
+			fe += fMaxFEperCol * (fe_row);
+			row -= fe_row * fNrows;
+		}
+		PndSdsPixel myPixel(sensor_hit.GetSensorID(), fe, col, row, sensor_hit.GetCharge());
+		myPixel.SetAddNoise(sensor_hit.GetAddNoise());
+		result.push_back(myPixel);
 	}
 	return result;
 }
 
-PndSdsPixel PndSdsCalcFePixel::CalcSensorHit(const PndSdsPixel FePixel) const
-{
-  Int_t col = FePixel.GetCol();
-  Int_t row = FePixel.GetRow();
-  CalcSensorColRow(col,row,FePixel.GetFE());
-  PndSdsPixel result(FePixel.GetSensorID(), -1, col, row, FePixel.GetCharge());
-  return result;
-}
-
-void PndSdsCalcFePixel::CalcSensorColRow(Int_t& col, Int_t& row, const Int_t fe) const
-{
-  Int_t dummy;
-  dummy = fe / fMaxFEperCol;
-  row = row + dummy * fNrows;
-  col = col + (fe - dummy * fMaxFEperCol)*fNcols;
-  return;
+void PndSdsCalcFePixel::CalcSensorColRow(Int_t& col, Int_t& row, const Int_t fe) const {
+	Int_t fe_row = fe / fMaxFEperCol;
+	Int_t fe_col = fe % fMaxFEperCol;
+	row = row + fe_row * fNrows;
+	col = col + fe_col * fNcols;
+	return;
 }

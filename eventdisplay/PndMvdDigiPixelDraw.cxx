@@ -8,6 +8,7 @@
 #include "PndMvdDigiPixelDraw.h"
 
 #include "PndSdsCalcFePixel.h"
+#include "PndSdsPixelDigiPar.h"
 #include "PndSdsHit.h"
 #include "PndSdsCluster.h"
 
@@ -43,7 +44,12 @@ InitStatus PndMvdDigiPixelDraw::Init()
 
 void PndMvdDigiPixelDraw::Exec(Option_t*)
 {
-	PndSdsCalcFePixel calc(104,104,10);
+	PndSdsPixelDigiPar digipar;
+	digipar.SetFECols(104);
+	digipar.SetFERows(104);
+	digipar.SetMaxFEperCol(10);
+	digipar.SetMaxFEperRow(10);
+	PndSdsCalcFePixel calc(digipar);
 	Int_t col, row, fe;
 	Reset();
 	if (fUseCluster == kTRUE){

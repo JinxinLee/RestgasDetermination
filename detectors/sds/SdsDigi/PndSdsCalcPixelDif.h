@@ -22,6 +22,8 @@
  * If a threshold value is given all pixels with energies below threshold are ignored
  */
 
+class PndSdsPixelDigiPar;
+
 class PndSdsCalcPixelDif
   {
   public:  
@@ -34,7 +36,7 @@ class PndSdsCalcPixelDif
     ///@param qspread charge cloud gaussian width
 	  ///@param threshold discriminator threshold of pixel [e]
 	  ///@param noise total noise of pixel [e]
-	  PndSdsCalcPixelDif(Double_t w, Double_t l, Double_t qspread = 0, Double_t threshold = 0, Double_t noise = 0);
+	  PndSdsCalcPixelDif(const PndSdsPixelDigiPar& digi_par);
     
 	  ///Main function to calculate the vector<PndSdsPixel> of fired pixel
 	  std::vector<PndSdsPixel> GetPixels (Double_t inx, Double_t iny,
@@ -50,16 +52,16 @@ class PndSdsCalcPixelDif
 	  std::ostream& operator<<(std::ostream& out);
     
   private:
-    Double_t CalcFk(Double_t k, Double_t x, Double_t sig);
     Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
-    void InjectPixelCharge(Int_t i, Int_t j, Double_t charge);
-    Double_t SmearCharge(Double_t charge);
+    void InjectPixelCharge(Int_t col, Int_t row, Double_t charge);
 
 		std::vector<PndSdsPixel> fPixels;
     PndSdsPixel fActivePixel;
     
 		Double_t fPixelSizeX;
 		Double_t fPixelSizeY;
+		Double_t fRows;
+		Double_t fCols;
 		Double_t fThreshold;
 		Double_t fNoise;
     Double_t fQspread;

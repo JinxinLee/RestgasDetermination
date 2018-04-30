@@ -5,6 +5,8 @@ PndSdsPixelDigiPar::PndSdsPixelDigiPar(const char* name, const char* title, cons
 : FairParGenericSet(name,title,context),
     fFeCols(0),
     fFeRows(0),
+    fMaxFEperCol(10), // default initialization is 10, which is needed by MVD
+    fMaxFEperRow(10),
     fDimX(0.),
     fDimY(0.),
     fRadius(0.),
@@ -29,6 +31,8 @@ void PndSdsPixelDigiPar::putParams(FairParamList* list)
   list->add("noise", fNoise);
   list->add("FECols", fFeCols);
   list->add("FERows", fFeRows);
+  list->add("MaxFEperCol", fMaxFEperCol);
+  list->add("MaxFEperRow", fMaxFEperRow);
   list->add("ClustRad",fRadius);
   list->add("QCloudSigma",fCSigma);
   list->add("fe_BusClock", fFeBusClock);
@@ -51,6 +55,9 @@ Bool_t PndSdsPixelDigiPar::getParams(FairParamList* list)
   if (!list->fill("noise",&fNoise)) return kFALSE;
   if (!list->fill("FECols",&fFeCols)) return kFALSE;
   if (!list->fill("FERows",&fFeRows)) return kFALSE;
+  // retrieving the max col/row FE numbers is optional
+  list->fill("MaxFEperCol",&fMaxFEperCol);
+  list->fill("MaxFEperRow",&fMaxFEperRow);
   if (!list->fill("ClustRad",&fRadius)) return kFALSE;
   if (!list->fill("QCloudSigma",&fCSigma)) return kFALSE;
   if (!list->fill("fe_BusClock",&fFeBusClock)) return kFALSE;
@@ -74,6 +81,8 @@ void PndSdsPixelDigiPar::Print(std::ostream& out) const
   out <<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
   out <<"   Columns on FE                = "<<fFeCols<<std::endl;
   out <<"   Rows on FE                   = "<<fFeRows<<std::endl;
+  out <<"   Max number of FE per col     = "<<fMaxFEperCol<<std::endl;
+  out <<"   Max number of FE per row     = "<<fMaxFEperRow<<std::endl;
   out <<"   Cluster search radius (channels) = "<<fRadius<<std::endl;
   out <<"   Charge cloud sigma (cm) = "<<fCSigma<<std::endl;
   out <<"   charge conv. (0:ideal, 1:TOT)    = "<<fChargeConvMethod<<std::endl;

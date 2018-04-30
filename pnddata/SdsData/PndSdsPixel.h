@@ -49,7 +49,7 @@ class PndSdsPixel
 		                          return fMCIndex[0]; 
 		                        return -2; 
 		                  }; 
-          Double_t GetAddNoise() {return fAddNoise;};
+          Double_t GetAddNoise() const {return fAddNoise;};
 			  
 		  void AddCharge(Double_t charge){fCharge+= charge;};
 		  void AddMCIndex(int i){fMCIndex.push_back(i);};
