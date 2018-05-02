@@ -17,6 +17,20 @@ PndSdsCalcPixelDif::PndSdsCalcPixelDif(const PndSdsPixelDigiPar& digi_par) :
 		    digi_par.GetNoise()), fQspread(digi_par.GetQCloudSigma()), fEnergy(0.), fVerboseLevel(0) {
 }
 
+PndSdsCalcPixelDif::PndSdsCalcPixelDif(Double_t lx, Double_t ly, Double_t qspread,Double_t threshold, Double_t noise, Double_t nrows, Double_t ncols) :
+    fPixels(),
+    fActivePixel(),
+		fPixelSizeX(lx),
+		fPixelSizeY(ly),
+    fRows(nrows),
+    fCols(ncols),
+		fThreshold(threshold),
+		fNoise(noise),
+    fQspread(qspread),
+		fEnergy(0.),
+    fVerboseLevel(0)
+{}
+
 Int_t PndSdsCalcPixelDif::GetPixelsAlternative(Double_t inx, Double_t iny, Double_t outx, Double_t outy,
     Double_t energy, std::vector<Int_t>& cols, std::vector<Int_t>& rows,
     std::vector<Double_t>& charges) {
@@ -43,7 +57,7 @@ std::vector<PndSdsPixel> PndSdsCalcPixelDif::GetPixels(Double_t inx, Double_t in
 	}
 
 	// determine box digis which can get charge
-	double max_charge_diffusion_distance(10.0 * fQspread);
+	double max_charge_diffusion_distance(3.0 * fQspread);
 	double min_x(inx);
 	double max_x(outx);
 	if (outx < inx) {

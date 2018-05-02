@@ -1,8 +1,8 @@
 /********************************************************************************
  *    Copyright (C) 2014 GSI Helmholtzzentrum fuer Schwerionenforschung GmbH    *
  *                                                                              *
- *              This software is distributed under the terms of the             * 
- *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 /*
@@ -16,7 +16,7 @@
 #define PndMapSorterTpl_H_
 
 
-//#include "Riosfwd.h"                    // for ostream
+//#include <iosfwd>                     // for ostream
 //#include "Rtypes.h"                     // for PndMapSorterTpl::Class, etc
 
 #include <iostream>                     // for operator<<, ostream, etc
