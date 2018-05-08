@@ -1,16 +1,19 @@
 /*
  * PndSttCellTrackFinderData.cpp
  *
+ *
  *  Created on: May 8, 2014
  *      Author: schumann
  */
 
+#include "PndSttCellTrackFinderTask.h" // J.R. 20/04-2018
 #include "PndSttCellTrackFinderData.h"
 #include "PndSttStrawMap.h"
 #include "PndSttGeometryMap.h"
 #include "PndSttTube.h"
 #include "PndSttHit.h"
 #include "PndSttSkewedHit.h"
+#include <cmath>
 #include <stdio.h>
 
 //macro for printing tubes + neighbors to a file called tubeNeighborings.txt
@@ -21,10 +24,12 @@ using namespace std;
 ClassImp(PndSttCellTrackFinderData);
 
 PndSttCellTrackFinderData::PndSttCellTrackFinderData(
-		TClonesArray* sttTubeArray):fAllowDoubleHits(kFALSE), fNumHits(0),fNumHitsWithoutDouble(0){
+		TClonesArray* sttTubeArray):fAllowDoubleHits(kFALSE),fNumHits(0),fNumHitsWithoutDouble(0){
 
 	// Generate information of Straw- and GeometryMap.
 	// It is always the same data for all events.
+
+	fClusterTime=5.0;
 
 	fStrawMap = new PndSttStrawMap(sttTubeArray);
 	fGeometryMap = new PndSttGeometryMap(sttTubeArray, 1);
@@ -127,7 +132,6 @@ void PndSttCellTrackFinderData::GenerateNeighborhoodData() {
 
 	for(size_t i=0; i<fHitsOrig.size(); ++i){
 		tubeId=((PndSttHit*) fHitsOrig[i])->GetTubeID();
-
 		if(sttHits.find(tubeId)==sttHits.end()){
 			sttHits.insert(tubeId);
 			hitsWithoutDouble.push_back(fHitsOrig[i]);
@@ -151,14 +155,20 @@ void PndSttCellTrackFinderData::GenerateNeighborhoodData() {
 	PndSttHit* sttHit;
 	for (size_t i = 0; i < fHits.size(); ++i) {
 		sttHit = (PndSttHit*) fHits[i];
+
 		fMapTubeIdToHit[sttHit->GetTubeID()] = i;
 	}
 
-	FindHitNeighbors();
+	if(!fRunTimeBased){
+		FindHitNeighborsEventBased();
+	}else{
+		FindHitNeighborsTimeBased();
+	}
+
 	SeparateNeighbors();
 }
 
-void PndSttCellTrackFinderData::FindHitNeighbors() {
+void PndSttCellTrackFinderData::FindHitNeighborsEventBased() { // if not def RunTimeBased
 
 	/* Approach: At first create a set of the tubeIDs of all hits.
 	 * Then get the neighbors of each hit/tube and store only those
@@ -217,6 +227,95 @@ void PndSttCellTrackFinderData::FindHitNeighbors() {
 				if (hitIds.find(neighbors[j]) != hitIds.end()
 						&& !fStrawMap->IsSkewedStraw(neighbors[j])) {
 					fHitNeighborsWithoutSkewed[tubeId].push_back(neighbors[j]);
+				}
+			}
+		}
+	}
+}
+
+void PndSttCellTrackFinderData::FindHitNeighborsTimeBased(){ // if def RunTimeBased
+
+	/* J.R. Adopted from PndSttCellTrackFinderData::FindHitNeighborsEventBased
+	 *  Added conditions to check timestamps and perform
+	 * time clustering. 28/03-2018*/
+
+	PndSttHit* sttHit;
+	int tubeId;
+	set<int> hitIds;
+
+	// Time difference chosen since drift time of electrons is 200 ns so signals in neighboring subes can have tis delay
+	double sttHitTimeStamp; // J.R. 28/03-2018 // Timestamp of stt hit for time clustering
+	double sttNeighborTimeStamp; // J.R. 28/03-2018 // Timestamp of neighbor for time clustering
+
+	//initialize set with straw-ids of hits
+	for (size_t i = 0; i < fHits.size(); ++i) {
+		sttHit = (PndSttHit*) fHits[i];
+
+		hitIds.insert(sttHit->GetTubeID());
+	}
+
+	//fill fHitNeighbors
+	for (size_t i = 0; i < fHits.size(); ++i) {
+
+		sttHit = (PndSttHit*) fHits[i];
+		tubeId = sttHit->GetTubeID();
+
+		//sttHitTimestamp=9999;
+		sttHitTimeStamp=sttHit->GetTimeStamp(); // JR 28/03-2018 // Timestamp for time clustering
+		sttNeighborTimeStamp=-9999; // JR 23/04-2018 // Timestamp for time clustering
+		//get neighbors
+		TArrayI neighbors = fGeometryMap->GetNeighboringsByMap(tubeId);
+
+		for (int j = 0; j < neighbors.GetSize(); ++j) {
+
+			//set contains neighbor?
+			if (hitIds.find(neighbors[j]) != hitIds.end()) {
+
+				sttHit = (PndSttHit*) fHits[fMapTubeIdToHit[neighbors.At(j)]]; // J.R. 28/03-2018 // Get neighboring STT hit
+				sttNeighborTimeStamp = sttHit->GetTimeStamp();
+
+				if(std::abs(sttHitTimeStamp - sttNeighborTimeStamp) < fClusterTime){ // J.R. 28/03-2018 // check difference in timestam [ns]
+
+					fHitNeighbors[tubeId].push_back(neighbors.At(j)); // J.R. 28/03-2018 // add neighbor separately to set, not entire set of neighbors as obtained by SttGeometryMap
+				} // J.R. Difference timestamp end
+
+				//actual tube and neighbor are not both on the edge of the stt?
+				if (!(fStrawMap->IsEdgeStraw(tubeId)
+						&& fStrawMap->IsEdgeStraw(neighbors[j]))) {
+					if(std::abs(sttHitTimeStamp - sttNeighborTimeStamp) < fClusterTime){ // J.R. 28/03-2018 // check difference in timestam [ns]
+						//add to the other map
+						fHitNeighborsWithoutEdges[tubeId].push_back(neighbors.At(j));
+					} // J.R. Difference timestamp end
+				}
+			}
+		}
+
+		if (fHitNeighbors.find(tubeId) == fHitNeighbors.end()) {
+			//no hitNeighbor was found
+			vector<int> tmp;
+			fHitNeighbors[tubeId] = tmp;
+		}
+
+		if (fHitNeighborsWithoutEdges.find(tubeId)
+				== fHitNeighborsWithoutEdges.end()) {
+			//no hitNeighbor was found
+			vector<int> tmp;
+			fHitNeighborsWithoutEdges[tubeId] = tmp;
+		}
+
+		if (!fStrawMap->IsSkewedStraw(tubeId)) {
+			for (int j = 0; j < neighbors.GetSize(); ++j) {
+				if (hitIds.find(neighbors[j]) != hitIds.end()
+						&& !fStrawMap->IsSkewedStraw(neighbors[j])) {
+					// J.R. get neighbors to check timestamps
+
+					sttHit = (PndSttHit*) fHits[fMapTubeIdToHit[neighbors.At(j)]]; // J.R. 28/03-2018 // Get neighboring STT hit
+					sttNeighborTimeStamp = sttHit->GetTimeStamp();
+
+					if(std::abs(sttHitTimeStamp - sttNeighborTimeStamp) < fClusterTime){ // J.R. 28/03-2018 // check difference in timestam [ns]
+
+						fHitNeighborsWithoutSkewed[tubeId].push_back(neighbors.At(j));
+					} // J.R. Difference timestamp end
 				}
 			}
 		}

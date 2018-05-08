@@ -35,6 +35,7 @@ public:
 
 	}
 // only support STTHits , uses brachNAme to distinguish between normal and skewed straws
+
 	void AddHits(TClonesArray* hits, TString branchName);
 
 	void GenerateNeighborhoodData();
@@ -122,6 +123,12 @@ public:
 	int GetNumHitsWithoutDouble() {
 		return fNumHitsWithoutDouble;
 	}
+	void SetRunTimeBased(Bool_t val){
+			fRunTimeBased = val;
+		}; // J.R. 26/04-2018
+	void SetClusterTime(double val){
+		fClusterTime = val;
+	}; // J.R. 20/04-2018
 
 private:
 
@@ -131,7 +138,9 @@ private:
 	std::vector<FairHit*> fHitsOrig;//vector with all originally hits of an event
 	std::multimap<int, PndSttSkewedHit*> fCombinedSkewedHits; //<(inner) Tube-ID of combined stt hits of skewed layers, corresponding hit>
 
+	double fClusterTime; // J.R. 17/04-2018
 	Bool_t fAllowDoubleHits;
+	Bool_t fRunTimeBased;
 	int fNumHits;
 	int fNumHitsWithoutDouble;
 
@@ -153,7 +162,10 @@ private:
 	void SeparateNeighbors();
 
 	/* Method searches for hit-neighbors of each cell.*/
-	void FindHitNeighbors();
+
+	void FindHitNeighborsEventBased();
+
+	void FindHitNeighborsTimeBased();
 
 ClassDef(PndSttCellTrackFinderData,1)
 	;

@@ -56,7 +56,12 @@ public:
 	void SetUseGPU(Bool_t val){
 		fUseGPU=val;
 	};
-
+	void SetRunTimeBased(Bool_t val){
+		fRunTimeBased=val;
+	};
+	void SetClusterTime(double val){
+		fClusterTime = val;
+	}; // J.R. 20/04-2018
 	void SetCalcWithCorrectedIsochrones(Bool_t val){
 		fCalcWithCorrectedIsochrones=val;
 	}
@@ -72,9 +77,12 @@ public:
 
 private:
 
+	double fClusterTime;
 	//for GPU computing
 	Bool_t fUseGPU;
 	int* fDev_tubeNeighborings;
+
+	Bool_t fRunTimeBased;
 
 	Bool_t fCalcWithCorrectedIsochrones;
 

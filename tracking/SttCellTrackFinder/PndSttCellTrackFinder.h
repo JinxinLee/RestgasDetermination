@@ -53,7 +53,12 @@ public:
 	void SetUseGPU(Bool_t val) {
 		fUseGPU = val;
 	}
-
+	void SetRunTimeBased(Bool_t val) {
+		fRunTimeBased = val;
+	}
+	void SetClusterTime(double val){
+		fClusterTime = val;
+	}; // J.R. 20/04-2018
 	void SetDevTubeNeighboringsPointer(int* dev_pointer) {
 		fDev_tubeNeighborings = dev_pointer;
 	}
@@ -199,7 +204,10 @@ private:
 	Int_t fVerbose;
 	Double_t fBz;
 
+	double fClusterTime;
+
 	Bool_t fUseGPU;
+	Bool_t fRunTimeBased;
 	int* fDev_tubeNeighborings;
 
 	Bool_t fCalcWithCorrectedIsochrones;
