@@ -422,6 +422,7 @@ add_subdirectory (tools)
 add_subdirectory (tools/MVA)
 add_subdirectory (tools/MasterTasks)
 add_subdirectory (tools/RadMapTool)
+add_subdirectory (tools/PndBurstBuilder)
 #add_subdirectory (tools/PndTrkMerge)
 
 add_subdirectory (pid)
