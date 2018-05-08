@@ -93,24 +93,31 @@ std::vector<PndSdsPixel> PndSdsCalcPixelDif::GetPixels(Double_t inx, Double_t in
 	std::vector<int> hitstorage(cols * rows, 0);
 	double Q = ChargeFromEloss(dE);  // in electrons
 	unsigned int samples(Q);  // sample amount (can be chosen independent of charge electrons Q)
-	// do hit&miss mc sampling
-	for (unsigned int i = 0; i < samples; ++i) {
-		t = gRandom->Rndm();
-		difx = gRandom->Gaus(0, fQspread);
-		dify = gRandom->Gaus(0, fQspread);
-		col = (inx + t * track_dx + difx) / fPixelSizeX;
-		row = (iny + t * track_dy + dify) / fPixelSizeY;
-		hitstorage[(row - start_row) * cols + (col - start_col)]++;
+	// do hit&miss mc sampling, if we have more than 1 possible cell
+	if (hitstorage.size() == 1) {
+		InjectPixelCharge(start_col, start_row, Q);
 	}
-	// distribute electrons based on the distribution from the hit&miss
-	for (unsigned int i = 0; i < hitstorage.size(); ++i) {
-		if (hitstorage[i] > 0) {
-			row = i / cols + start_row;
-			col = i % cols + start_col;
-			InjectPixelCharge(col, row, Q * hitstorage[i] / samples);
+	else {
+		for (unsigned int i = 0; i < samples; ++i) {
+			t = gRandom->Rndm();
+			difx = gRandom->Gaus(0, fQspread);
+			dify = gRandom->Gaus(0, fQspread);
+			// if the electron diffused outside of the boundary just ignore it
+			if (std::abs(difx) > max_charge_diffusion_distance
+			    || std::abs(dify) > max_charge_diffusion_distance) continue;
+			col = (inx + t * track_dx + difx) / fPixelSizeX;
+			row = (iny + t * track_dy + dify) / fPixelSizeY;
+			hitstorage[(row - start_row) * cols + (col - start_col)]++;
+		}
+		// distribute electrons based on the distribution from the hit&miss
+		for (unsigned int i = 0; i < hitstorage.size(); ++i) {
+			if (hitstorage[i] > 0) {
+				row = i / cols + start_row;
+				col = i % cols + start_col;
+				InjectPixelCharge(col, row, Q * hitstorage[i] / samples);
+			}
 		}
 	}
-
 	return fPixels;
 }
 
