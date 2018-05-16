@@ -110,7 +110,7 @@ InitStatus PndParticleQATask::Init()
 	  else
 	  {
 	    fPidArrayNames  = "PidAlgoIdealCharged : PidAlgoEmcBayes : PidAlgoDrc : PidAlgoDisc : PidAlgoMvd : PidAlgoMdtHardCuts : PidAlgoStt : PidAlgoRich : PidAlgoSciT : ";
-	    fPidArrayNames += "PidAlgoMdtPdf";
+	    //fPidArrayNames += "PidAlgoMdtPdf";
 	  }
 	}
 

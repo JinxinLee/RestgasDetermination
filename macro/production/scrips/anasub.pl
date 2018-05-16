@@ -33,8 +33,13 @@ if ($para=~s/^check_//) { $check = 1;}
 # set some defaults
 if (!defined($num))  {$num=50;}
 
+# if mode not yet defined, set to default
+if (!defined($mode)) {$mode=0;}
+
+
 my @prefs;
 my @commands;
+my %modenums;
 
 # we have a file containing a list of sbatch commands
 if ( $para =~ m/\.jobs$/ )
@@ -48,25 +53,37 @@ if ( $para =~ m/\.jobs$/ )
 
     foreach my $cmd (@commands)
     {
-	chomp $cmd;
-	if ( $cmd =~ m/^#/ || $cmd !~ /\S/ ) {next;}
-    
-	print "reading: ".$cmd."\n";
-	$cmd =~ m/(\d+)-(\d+)(.+)(job.*\.sh)\s+([\w,\/]+)\s+(.*)/;
-	push(@prefs, $5);
+		# remove LF/CR and whitespace at ends of string
+		chomp $cmd;
+		$cmd =~ s/^\s+|\s+$//g;
+		
+		# ignore commented lines
+		if ( $cmd =~ m/^#/ || $cmd !~ /\S/ ) {next;}
+
+		print "reading: ".$cmd."\n";
+		
+		# find the prefix
+		$cmd =~ m/(\d+)-(\d+)(.+)(job.*\.sh)\s+([\w,\/]+)\s+(.+)$/;
+		my $pref = $5;
+		push(@prefs, $pref);
+
+		# try to find a mode number
+		my $cmmode = $mode;
+		if ($6   =~ m/\s+([-]?\d+)$/) {$cmmode = $1;}
+		print "$pref :  $cmmode\n\n";
+		
+		# and fill in hash
+		$modenums{$pref} = $cmmode;
     }
 }
 # we only have one prefix directly given as parameter
 else
 {
     push(@prefs, $para);
+	$modenums{$para} = $mode;
 }
 
 print "\n";
-
-
-# if mode not yet defined, set to default
-if (!defined($mode)) {$mode=0;}
 
 my $cnt = 1;
 my $njobs = 0;
@@ -104,20 +121,15 @@ foreach my $pref (@prefs)
 
     # if mode=-1 is given, the mode number is increase for each line in the .jobs file
     my $curr = $min;
-    my $currmode = $mode;
-    if ($mode==-1)
-    {
-	$currmode = $cnt;
-    }
-
+   
     # submit a bunch of jobs necessary to cover all run numbers in chunks of $num inputs 
-    while ($curr<$max)
+    while ($curr<=$max)
     {
 	my $up = $curr+$num-1;
 	if ($up>$max) {$up=$max;}
 	
 	# the command line
-	my $cmd = "sbatch -pdebug -t20 jobana_kronos.sh $pref $curr $up $currmode";
+	my $cmd = "sbatch -pdebug -t20 jobana_kronos.sh $pref $curr $up ".$modenums{$pref};
 	
 	# the output file name
 	my $filename="$pref\_ana_$curr\_$up.root";
