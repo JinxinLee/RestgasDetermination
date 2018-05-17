@@ -11,7 +11,8 @@ Set(ROOT_HAS_VC ${ROOT_HAS_VC} PARENT_SCOPE)
 If(NOT ${ROOT_HAS_VC})
   Message(STATUS "Root does not support VC. Compile the internal version.")
 
-Execute_process(COMMAND git submodule init
+Execute_process(COMMAND mkdir -pv ${CMAKE_SOURCE_DIR}/external/vc
+                COMMAND git submodule init
                 COMMAND git submodule update
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
