@@ -163,6 +163,7 @@ DecayTreeFitter::Fitter::~Fitter()
   if(m_decaychain) delete m_decaychain ;
 //std::cout<<"Fitter::~Fitter() ("<<this<<") - fp  "<<m_fitparams<<std::endl;
   if(m_fitparams) delete m_fitparams ;
+  if(m_extrapolator) delete m_extrapolator;
 //std::cout<<"Fitter::~Fitter() ("<<this<<") - done"<<std::endl;
 }
 

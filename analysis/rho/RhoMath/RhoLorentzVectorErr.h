@@ -53,7 +53,7 @@ class RhoLorentzVectorErr : public TLorentzVector
 
     // destructor MAY be needed later
     virtual ~RhoLorentzVectorErr() {
-      delete fCovMatrix;
+      if(fCovMatrix)delete fCovMatrix;
     }
 
     // assignment operator:
@@ -104,6 +104,7 @@ class RhoLorentzVectorErr : public TLorentzVector
       return *fCovMatrix;
     }
     inline void SetCovMatrix ( const RhoError& v ) {
+      if(fCovMatrix)delete fCovMatrix;
       fCovMatrix = new RhoError ( v );
     }
 

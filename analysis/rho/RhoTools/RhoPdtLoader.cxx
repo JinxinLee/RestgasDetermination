@@ -112,7 +112,7 @@ TDatabasePDG* RhoPdtLoader::ReadPDGTable(const char *filename, bool force)
                 TParticlePDG *parent = pdgtable->GetParticle(ptype);
                 if (parent == 0) continue;
 
-                TList *kids = new TList();
+                TList kids;
 
                 int i;
                 for (i=0; i<nchild; i++ )
@@ -121,7 +121,7 @@ TDatabasePDG* RhoPdtLoader::ReadPDGTable(const char *filename, bool force)
                     linestr >> ctype;
                     TParticlePDG* secondary = pdgtable->GetParticle(ctype);
                     if ( secondary ==0 ) break;
-                    kids->Add(secondary);
+                    kids.Add(secondary);
                 }
 
                 //parent->AddDecay(bf, kids ); // Not yet implemented

@@ -41,8 +41,8 @@ RhoTuple::RhoTuple ( const char* name,const char* title ) :
 // Destructor:
 RhoTuple::~RhoTuple()
 {
-  delete fTree;
-  delete fMap;
+  if(fTree) delete fTree;
+  if(fMap) delete fMap;
 }
 
 // Column booking/filling. All these have the same name - Column(...)

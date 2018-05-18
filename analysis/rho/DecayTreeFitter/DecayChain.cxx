@@ -185,7 +185,9 @@ DecayTreeFitter::DecayChain::filter(FitParams* par, bool firstpass)
     }
   }
 
+
   if(vtxverbose>=3) {std::cout << "DecayChain::filter: status = "; status.Print(std::cout); std::cout<< std::endl ;}
+  if(reference) delete reference;
   return status ;
 }
 
