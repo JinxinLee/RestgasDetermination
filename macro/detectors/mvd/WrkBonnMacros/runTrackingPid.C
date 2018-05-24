@@ -68,7 +68,7 @@ int runTrackingPid(TString runfiles, Int_t nEvents = 0)
   
   PndPidCorrelator* corr = new PndPidCorrelator(); //Propagates by default to pca of (0,0,0)
   //corr->SetVerbose();
-  corr->SetInputBranch("SttMvdGenTrack");
+  corr->SetBarrelTrackBranch("SttMvdGenTrack");
   //corr->SetInputIDBranch("LheTrackID");
   corr->SetPidHyp(211);
   corr->SetDebugMode(kFALSE);

@@ -48,7 +48,7 @@
   
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  corr->SetInputBranch("PndTrackPostFitComplete");
+  corr->SetBarrelTrackBranch("PndTrackPostFitComplete");
   corr->SetInputIDBranch("TrackPostFitCompleteID");
   //corr->SetIdealHyp(kTRUE);
   //corr->SetMvdMode(0);

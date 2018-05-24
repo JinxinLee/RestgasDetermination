@@ -40,22 +40,22 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
     {
 	  if (fOptions.Contains("filtered")){
-		  corr->SetInputBranch("SttMvdGemGenTrack_filtered");
+		  corr->SetBarrelTrackBranch("SttMvdGemGenTrack_filtered");
 	  } else {
-		  corr->SetInputBranch("SttMvdGemGenTrack");
+		  corr->SetBarrelTrackBranch("SttMvdGemGenTrack");
 	  }
 //      corr->SetInputIDBranch("SttMvdGemGenTrackID");
     }
   else
     {
 	  if (fOptions.Contains("filtered")){
-		  corr->SetInputBranch("SttMvdGenTrack_filtered");
+		  corr->SetBarrelTrackBranch("SttMvdGenTrack_filtered");
 	  } else {
-		  corr->SetInputBranch("SttMvdGenTrack");
+		  corr->SetBarrelTrackBranch("SttMvdGenTrack");
 	  }
 //      corr->SetInputIDBranch("SttMvdGenTrackID");
     }
-  corr->SetInputBranch2("FtsIdealGenTrack");
+  corr->SetForwardTrackBranch("FtsIdealGenTrack");
 //  corr->SetInputIDBranch2("FtsIdealGenTrackID");
   corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);

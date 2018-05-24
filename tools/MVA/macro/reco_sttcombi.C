@@ -105,9 +105,9 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   // Correlator Task
   //PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  //corr->SetInputBranch("SttMvdGemGenTrack");
+  //corr->SetBarrelTrackBranch("SttMvdGemGenTrack");
   //corr->SetInputIDBranch("SttMvdGemGenTrackID");
-  //corr->SetInputBranch2("FTSTrkIdeal");
+  //corr->SetForwardTrackBranch("FTSTrkIdeal");
   //corr->SetInputIDBranch2("FTSTrkIdealID");
   //fRun->AddTask(corr);
 

@@ -48,11 +48,11 @@
   
   PndPidCorrelator* corr = new PndPidCorrelator();
   corr->SetVerbose(10);
-  corr->SetInputBranch("SttMvdGemGenTrack");
+  corr->SetBarrelTrackBranch("SttMvdGemGenTrack");
   corr->SetInputIDBranch("SttMvdGemGenTrackID");
-  //corr->SetInputBranch2("FTSTrkIdeal");
+  //corr->SetForwardTrackBranch("FTSTrkIdeal");
   //corr->SetInputIDBranch2("FTSTrkIdealID");
-  //corr->SetInputBranch("SttMvdGenTrack");
+  //corr->SetBarrelTrackBranch("SttMvdGenTrack");
   corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   fRun->AddTask(corr);

@@ -49,7 +49,7 @@
   
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  corr->SetInputBranch("SttMvdGemGenTrack");
+  corr->SetBarrelTrackBranch("SttMvdGemGenTrack");
   corr->SetInputIDBranch("SttMvdGemGenTrackID");
   //corr->SetDebugMode(kTRUE);
   corr->SetFast(kTRUE);

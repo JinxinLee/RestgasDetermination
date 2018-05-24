@@ -113,9 +113,9 @@ void pid_complete_runs(Int_t nRun = 0)
 
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  corr->SetInputBranch("SttMvdGemGenTrack");
+  corr->SetBarrelTrackBranch("SttMvdGemGenTrack");
   corr->SetInputIDBranch("SttMvdGemGenTrackID");
-  corr->SetInputBranch2("FtsIdealGenTrack");
+  corr->SetForwardTrackBranch("FtsIdealGenTrack");
   corr->SetInputIDBranch2("FtsIdealGenTrackID");
   //corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);

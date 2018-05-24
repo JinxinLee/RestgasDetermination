@@ -184,10 +184,8 @@ public:
   void SetDebugFilename(TString filename) { sFile = filename; };
   void SetMdtRefit(Bool_t mdt)            { fMdtRefit = mdt; };
   void SetMixMode(Bool_t mix)             { fMixMode = mix; };
-  void SetInputBranch(TString branch)     { fTrackBranch = branch; };
-  void SetInputBranch2(TString branch)    { fTrackBranch2 = branch; };
-//  void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };
-//  void SetInputIDBranch2(TString branch)  { fTrackIDBranch2 = branch; };
+  void SetBarrelTrackBranch(TString branch)     { fTrackBranch = branch; };
+  void SetForwardTrackBranch(TString branch)    { fTrackBranch2 = branch; };
   void SetOutputBranch(TString branch)    { fTrackOutBranch = branch; };
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };
   void SetIdeal(Bool_t id)                { fIdeal = id; }; 
