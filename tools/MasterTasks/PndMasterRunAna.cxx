@@ -27,7 +27,6 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
   FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(),
-  fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(),
   fOptions(), fEventCounterRate(100), fNoGeane(kTRUE), fTimer(),
   fGenerateRunInfo(kFALSE), fUseFairLinks(kTRUE)
 {
@@ -59,27 +58,22 @@ Bool_t PndMasterRunAna::Setup(TString outprefix)
   inputName.ReplaceAll(":","_");
 
   PndFileNameCreator creator(inputName.Data());
-  FairFileSource *fileSource = new FairFileSource(creator.GetSimFileName().data());
-  if (fFriendFile1!="")
-    {
-      fFriendFile1 = creator.GetCustomFileName(fFriendFile1.Data());
-      fileSource->AddFriend(fFriendFile1.Data());
-    }
-  if (fFriendFile2!="")
-    {
-      fFriendFile2 = creator.GetCustomFileName(fFriendFile2.Data());
-      fileSource->AddFriend(fFriendFile2.Data());
-    }
-  if (fFriendFile3!="")
-    {
-      fFriendFile3 = creator.GetCustomFileName(fFriendFile3.Data());
-      fileSource->AddFriend(fFriendFile3.Data());
-    }
-  if (fFriendFile4!="")
-    {
-      fFriendFile4 = creator.GetCustomFileName(fFriendFile4.Data());
-      fileSource->AddFriend(fFriendFile4.Data());
-    }
+
+  FairFileSource *fileSource;
+  if (fFriendFiles.size() == 0) {
+	  fileSource = new FairFileSource(creator.GetSimFileName().data());
+	  fFriendFiles.push_back(creator.GetSimFileName().data());
+  }
+  else {
+	  fileSource = new FairFileSource(creator.GetCustomFileName(fFriendFiles[0].Data()));
+	  fFriendFiles[0] = creator.GetCustomFileName(fFriendFiles[0].Data());
+  }
+
+  for (int files = 1; files < fFriendFiles.size(); files++) {
+	  fileSource->AddFriend(creator.GetCustomFileName(fFriendFiles[files].Data()));
+	  fFriendFiles[files] = creator.GetCustomFileName(fFriendFiles[files].Data());
+  }
+
   SetSource(fileSource);
 
   // This set the output file name
@@ -201,10 +195,10 @@ void PndMasterRunAna::Finish()
 
   cout << endl;
   cout << "Output file is\t\t"    << fOutFile << endl;
-  if (fFriendFile1!="") cout << "Friend file is\t\t"    << fFriendFile1 << endl;
-  if (fFriendFile2!="") cout << "Friend file is\t\t"    << fFriendFile2 << endl;
-  if (fFriendFile3!="") cout << "Friend file is\t\t"    << fFriendFile3 << endl;
-  if (fFriendFile4!="") cout << "Friend file is\t\t"    << fFriendFile4 << endl;
+  for (auto files : fFriendFiles){
+	  cout << "Friend file is\t\t" << files << endl;
+  }
+
 
   cout << "Parameter ROOT file is\t" << fParamRootFile << endl;
   cout << "Parameter ASCII file is\t" << fParamAsciiFile << endl;

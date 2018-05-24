@@ -7,8 +7,8 @@ int reco_complete(Int_t nEvents = 0)
   TString  parAsciiFile   = "all.par";
   TString  input          = "ftf";
   TString  output         = "reco";
-  TString  friend1        = "digi";
-  TString  friend2        = "";
+  TString  friend1        = "sim";
+  TString  friend2        = "digi";
   TString  friend3        = "";
   TString  friend4        = "";
 
@@ -16,10 +16,10 @@ int reco_complete(Int_t nEvents = 0)
   PndMasterRunAna *fRun= new PndMasterRunAna();
   fRun->SetInput(input);
   fRun->SetOutput(output);
-  fRun->SetFriend1(friend1);
-  fRun->SetFriend2(friend2);
-  fRun->SetFriend3(friend3);
-  fRun->SetFriend4(friend4);
+  fRun->AddFriend(friend1);
+  fRun->AddFriend(friend2);
+  fRun->AddFriend(friend3);
+  fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup();
   

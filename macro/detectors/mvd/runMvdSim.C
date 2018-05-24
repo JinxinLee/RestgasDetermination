@@ -1,7 +1,7 @@
 // Macro to simulate the MVD in pandaroot
 // Updated 30.11.2009
 // Ralf Kliemt
-runMvdSim(Int_t nEvents=10)
+int runMvdSim(Int_t nEvents=10)
 {
   TStopwatch timer;
   timer.Start();
@@ -159,5 +159,6 @@ runMvdSim(Int_t nEvents=10)
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

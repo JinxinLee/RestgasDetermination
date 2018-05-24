@@ -11,8 +11,8 @@ int prod_pid(TString prefix="")
   PndMasterRunAna *fRun= new PndMasterRunAna();
   fRun->SetInput("dummy");
   fRun->SetOutput(output);
-  fRun->SetFriend1(friend1);
-  fRun->SetFriend2(friend2);
+  fRun->AddFriend(friend1);
+  fRun->AddFriend(friend2);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
   if (opt!="") fRun->SetOptions(opt);

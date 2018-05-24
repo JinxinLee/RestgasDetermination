@@ -18,10 +18,10 @@ int ftscatracking(Int_t nEvents = 0)
   PndMasterRunAna *fRun= new PndMasterRunAna();
   fRun->SetInput(input);
   fRun->SetOutput(output);
-  fRun->SetFriend1(friend1);
-  fRun->SetFriend2(friend2);
-  fRun->SetFriend3(friend3);
-  fRun->SetFriend4(friend4);
+  fRun->AddFriend(friend1);
+  fRun->AddFriend(friend2);
+  fRun->AddFriend(friend3);
+  fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
 

@@ -1,7 +1,7 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
 // root  digi_complete.C  or in root session root>.x  digi_complete.C
-int digiOnly_complete(Int_t nEvents = 0)
+int digi_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -17,26 +17,83 @@ int digiOnly_complete(Int_t nEvents = 0)
   PndMasterRunAna *fRun= new PndMasterRunAna();
   fRun->SetInput(input);
   fRun->SetOutput(output);
-  fRun->SetFriend1(friend1);
-  fRun->SetFriend2(friend2);
-  fRun->SetFriend3(friend3);
-  fRun->SetFriend4(friend4);
+  fRun->AddFriend(friend1);
+  fRun->AddFriend(friend2);
+  fRun->AddFriend(friend3);
+  fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
 
-  // -----   Add tasks   ----------------------------------------------------
-  fRun->Add(new PndSttHitProducerRealFast());
+  PndPersistencyTask *task;
 
-  fRun->Add(new PndMvdDigiTask());
-  fRun->Add(new PndEmcHitsToWaveform());
-  fRun->Add(new PndEmcWaveformToDigi());
-  fRun->Add(new PndSciTDigiTask());
-  fRun->Add(new PndMdtHitProducerIdeal());
-  fRun->Add(new PndDrcHitProducerReal());
-  fRun->Add(new PndGemDigitize("GEM Digitizer", 0));
-  fRun->Add(new PndFtsHitProducerRealFast());
-  fRun->Add(new PndFtofHitProducerIdeal());
-  fRun->Add(new PndRichHitProducer());
+  // -----   Add tasks   ----------------------------------------------------
+
+  task = new PndMvdDigiTask();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndMvdClusterTask();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndSttHitProducerRealFast();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndGemDigitize("GEM Digitizer", 0);
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndGemFindHits("GEM Hit Finder", 0);
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndDrcHitProducerReal();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndSciTDigiTask();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndEmcHitsToWaveform();
+  task->SetPersistency(kFALSE);
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndEmcWaveformToDigi();
+  task->SetPersistency(kTRUE);
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndEmcMakeCluster();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndEmcMakeBump();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  PndMdtHitProducerIdeal* mdt = new PndMdtHitProducerIdeal();
+  mdt->SetPositionSmearing(.3);
+  mdt->SetVerbose(0);
+  fRun->AddTask(mdt);
+
+  task = new PndMdtTrkProducer();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndFtsHitProducerRealFast();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndFtofHitProducerIdeal();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndRichHitProducer();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

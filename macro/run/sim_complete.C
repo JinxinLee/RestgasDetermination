@@ -11,7 +11,7 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t Be
 //  gDebug=5;
   TString parAsciiFile   = "all.par";
 
-  TString prefix         = "evtcomplete_1G5";     // prefix string for output files
+  TString prefix         = "evtcomplete";     // prefix string for output files
 
   // TString inputGenerator =
   // EvtGen -> "xxxxxxxx.dec" (parses dec-file for initial particle) or "xxxxxxx.dec:initial_particle"

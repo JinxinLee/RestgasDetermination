@@ -5,11 +5,11 @@ int recoLocal_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "evtcomplete_1G5";
+  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  TString  output         = "digi";
-  TString  friend1        = "digionly";
-  TString  friend2        = "";
+  TString  output         = "sim";
+  TString  friend1        = "digi";
+  TString  friend2        = "digionly";
   TString  friend3        = "";
   TString  friend4        = "";
 
@@ -17,43 +17,16 @@ int recoLocal_complete(Int_t nEvents = 0)
   PndMasterRunAna *fRun= new PndMasterRunAna();
   fRun->SetInput(input);
   fRun->SetOutput(output);
-  fRun->SetFriend1(friend1);
-  fRun->SetFriend2(friend2);
-  fRun->SetFriend3(friend3);
-  fRun->SetFriend4(friend4);
+  fRun->AddFriend(friend1);
+  fRun->AddFriend(friend2);
+  fRun->AddFriend(friend3);
+  fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
 
   PndPersistencyTask *task;
 
   // -----   Add tasks   ----------------------------------------------------
-  task = new PndSttHitProducerRealFast();
-  task->SetVerbose(0);
-  fRun->AddTask(task);
-
-  task = new PndFtsHitProducerRealFast();
-  task->SetVerbose(0);
-  fRun->AddTask(task);
-
-  task = new PndSciTDigiTask();
-  task->SetVerbose(0);
-  fRun->AddTask(task);
-
-  task = new PndMdtHitProducerIdeal();
-  task->SetVerbose(0);
-  fRun->AddTask(task);
-
-  task = new PndDrcHitProducerReal();
-  task->SetVerbose(0);
-  fRun->AddTask(task);
-
-  task = new PndFtofHitProducerIdeal();
-  task->SetVerbose(0);
-  fRun->AddTask(task);
-
-  task = new PndRichHitProducer();
-  task->SetVerbose(0);
-  fRun->AddTask(task);
 
   task = new PndMvdClusterTask();
   task->SetVerbose(0);

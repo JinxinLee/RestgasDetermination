@@ -16,6 +16,7 @@
 #include "FairRunAna.h"
 
 #include "TStopwatch.h"
+#include <vector>
 
 class PndMasterRunAna : public FairRunAna
 {
@@ -117,24 +118,9 @@ class PndMasterRunAna : public FairRunAna
   void SetParamAsciiFile(TString par) { fParamAsciiFile = par;}
 
   /**
-   * @brief Setter of the first friend root file
+   * @brief Setter of friend root files
    */
-  void SetFriend1(TString par)        { fFriendFile1    = par;}
-
-  /**
-   * @brief Setter of the 2nd friend root file
-   */
-  void SetFriend2(TString par)        { fFriendFile2    = par;}
-
-  /**
-   * @brief Setter of the 3rd friend root file
-   */
-  void SetFriend3(TString par)        { fFriendFile3    = par;}
-
-  /**
-   * @brief Setter of the 4th friend root file
-   */
-  void SetFriend4(TString par)        { fFriendFile4    = par;}
+  void AddFriend(TString par)        { if (par != "") fFriendFiles.push_back(par);}
 
   /**
    * @brief Setter of the reconstruction options
@@ -160,10 +146,7 @@ class PndMasterRunAna : public FairRunAna
   TString fOutFile;          ///< Name of the output file
   TString fParamRootFile;    ///< Name of the parameter root file
   TString fParamAsciiFile;   ///< Name of the parameter ascii file
-  TString fFriendFile1;      ///< Name of the 1st friend root file
-  TString fFriendFile2;      ///< Name of the 2nd friend root file
-  TString fFriendFile3;      ///< Name of the 3rd friend root file
-  TString fFriendFile4;      ///< Name of the 4th friend root file
+  std::vector<TString> fFriendFiles;		 ///< Name of friend files
   TString fOptions;          ///< Options parsed to the reconstruction
 
   Int_t fEventCounterRate;   ///< After how many events the counter will print
