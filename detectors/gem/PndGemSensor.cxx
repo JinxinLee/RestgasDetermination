@@ -1160,26 +1160,26 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
     zCross = fPosition[2];
 
     if      ( iFStrip < nlStrips )
-      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
-    else if ( iFStrip < nlStrips+  nsStrips ) {
-      if ( bs <  fNChannelsBack/4 ) return -1;
-      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
-    }
-    else if ( iFStrip < nlStrips+2*nsStrips ) {
-      if ( bs >= fNChannelsBack/4 ) return -1;
-      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
-    }
-    else if ( iFStrip < nlStrips+3*nsStrips ) {
-      if ( bs <  fNChannelsBack/4 ) return -1;
-      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
-    }
-    else if ( iFStrip < nlStrips+4*nsStrips ) {
-      if ( bs >= fNChannelsBack/4 ) return -1;
-      xCross = -fOuterRadius+(Double_t(iFStrip-2*nsStrips)+0.5)*fPitch[0];
-    }
-    else
-      xCross = -fOuterRadius+(Double_t(iFStrip-2*nsStrips)+0.5)*fPitch[0];
-
+       xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
+     else if ( iFStrip < nlStrips+  nsStrips ) {
+       if ( bs <  fNChannelsBack/4 ) return -1;
+       xCross = (Double_t(iFStrip-nlStrips-1*nsStrips)+0.5)*fPitch[0];
+     }
+     else if ( iFStrip < nlStrips+2*nsStrips ) {
+       if ( bs >= fNChannelsBack/4 ) return -1;
+       xCross = (Double_t(iFStrip-nlStrips-2*nsStrips)+0.5)*fPitch[0];
+     }
+     else if ( iFStrip < nlStrips+3*nsStrips ) {
+       if ( bs <  fNChannelsBack/4 ) return -1;
+       xCross = (Double_t(iFStrip-nlStrips-2*nsStrips)+0.5)*fPitch[0];
+     }
+     else if ( iFStrip < nlStrips+4*nsStrips ) {
+       if ( bs >= fNChannelsBack/4 ) return -1;
+       xCross = (Double_t(iFStrip-nlStrips-3*nsStrips)+0.5)*fPitch[0];
+     }
+     else
+       xCross = (Double_t(iFStrip-nlStrips-3*nsStrips)+0.5)*fPitch[0];
+    
     if ( !Inside(xCross,yCross) ) return -1;
 
     /*
@@ -1266,28 +1266,29 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
     //Double_t x = -666.; //[R.K. 01/2017] unused variable?
     yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
     zCross = fPosition[2];
-
+    
     if      ( iFStrip < nlStrips )
-      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
+        xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
     else if ( iFStrip < nlStrips+  nsStrips ) {
-      if ( bs <  fNChannelsBack/4 ) return -1;
-      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
+        if ( bs <  fNChannelsBack/4 ) return -1;
+        xCross = (Double_t(iFStrip-nlStrips-1*nsStrips)+0.5)*fPitch[0];
     }
     else if ( iFStrip < nlStrips+2*nsStrips ) {
-      if ( bs >= fNChannelsBack/4 ) return -1;
-      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
+        if ( bs >= fNChannelsBack/4 ) return -1;
+        xCross = (Double_t(iFStrip-nlStrips-2*nsStrips)+0.5)*fPitch[0];
     }
     else if ( iFStrip < nlStrips+3*nsStrips ) {
-      if ( bs <  fNChannelsBack/4 ) return -1;
-      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
+        if ( bs <  fNChannelsBack/4 ) return -1;
+        xCross = (Double_t(iFStrip-nlStrips-2*nsStrips)+0.5)*fPitch[0];
     }
     else if ( iFStrip < nlStrips+4*nsStrips ) {
-      if ( bs >= fNChannelsBack/4 ) return -1;
-      xCross = -fOuterRadius+(Double_t(iFStrip-2*nsStrips)+0.5)*fPitch[0];
+        if ( bs >= fNChannelsBack/4 ) return -1;
+        xCross = (Double_t(iFStrip-nlStrips-3*nsStrips)+0.5)*fPitch[0];
     }
     else
-      xCross = -fOuterRadius+(Double_t(iFStrip-2*nsStrips)+0.5)*fPitch[0];
-
+        xCross = (Double_t(iFStrip-nlStrips-3*nsStrips)+0.5)*fPitch[0];
+    
+ 
     if ( !Inside(xCross,yCross) ) return -1;
 
     /*
