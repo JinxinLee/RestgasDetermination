@@ -237,8 +237,8 @@ Int_t create3StationsGem_v2_1()
   const Double_t SensLayerThick[NofSensLayers] =  {   0.85,
 						      0.85  };
   
-  const Double_t SensZPosition[NofSensLayers][NofDisks] = {   -0.69412,   -0.69412,   -0.69412,
-							       0.69520,    0.69520,    0.69520 }; 
+  const Double_t SensZPosition[NofSensLayers][NofDisks] = {   -0.69412,   -0.69412,   0.69520,      // ugly solution. Connected to LASTSTATIONROTATION
+                                                              0.69520,    0.69520,   -0.69412  };   // The last station is rotated 180, so have to replace front and back sensor
   
   const Double_t SensOuterRadius[NofSensLayers][NofDisks] = {   38.15,  49.15,  67.15,
 								38.15,  49.15,  67.15  };
@@ -632,12 +632,12 @@ Int_t create3StationsGem_v2_1()
     DiskTrans[istat] = new TGeoTranslation(0.,0.,DiskZPosition[istat]);
     cout << "station " << DiskVolInnerRadius[istat] << " " << DiskVolOuterRadius[istat] << " at " << DiskZPosition[istat] << endl;	        
     if(istat<2)
-    DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*dummyrot);
+        DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*dummyrot);
     else
-    {
-    DiskRotat[istat] = new TGeoRotation(Form("disk%drotat"), 0.0, 180.0, 0.0); //turned over the 3rd station because of the position of the electronic devices
-    DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*DiskRotat[istat]);
-    }
+        {
+            DiskRotat[istat] = new TGeoRotation(Form("disk%drotat"), 0.0, 180.0, 0.0); //turned over the 3rd station because of the position of the electronic devices
+            DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*DiskRotat[istat]); // !!! look for LASTSTATIONROTATION, had to switch front and back sensor !!!
+        }
     //DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*dummyrot);
     DiskCombi[istat]->SetName(Form("Gem_Disk%d_Volume",istat+1));
     DiskCombi[istat]->RegisterYourself();
@@ -897,7 +897,7 @@ Int_t create3StationsGem_v2_1()
 	      << setw(9) << SensLayerThick[slay] << ",  "
 	      << setw(9) << SensorStripAngle[sensorNumber][0] << ",  "
 	     //<< setw(9) << SensorStripAngle[sensorNumber][1] << ",  "
-	      << setw(9) << sMiddleROBarHfTh[istat] << ",  "
+	      << setw(9) << 2.*sMiddleROBarHfTh[istat] << ",  "
 	      << setw(9) << SensorStripPitch[sensorNumber][0] << ",  "
 	      << setw(9) << SensorStripPitch[sensorNumber][1] << ((istat==NofDisks-1 && sensorNumber==1)?"":", \\") 
 	      << endl;	 
