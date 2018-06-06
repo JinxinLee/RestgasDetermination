@@ -63,6 +63,20 @@ InitStatus PndTrackingQATask::Init() {
 	fIdealTrack = (TClonesArray*) ioman->GetObject(fIdealTrackBranchName);
 	fSttHitArray = (TClonesArray*) ioman->GetObject("STTHit");
 
+	if (fTrack == nullptr){
+		std::cout << "-E- PndTrackingQATask::Init " << "no track branch " << fTrackBranchName << std::endl;
+		return kFATAL;
+	}
+	if (fMCTrack == nullptr){
+		std::cout << "-E- PndTrackingQATask::Init " << "no MC track branch " << std::endl;
+		return kFATAL;
+	}
+
+	if (fIdealTrack == nullptr){
+		std::cout << "-E- PndTrackingQATask::Init " << "no ideal track branch " << fIdealTrackBranchName << std::endl;
+		return kFATAL;
+	}
+
 	// MC info for quality
 	fMCTrackInfo = new TClonesArray("PndTrackingQualityMCInfo");
 	ioman->Register(fMCInfoBranchName,  "QualityAssurance", fMCTrackInfo, kTRUE); // CHECK
@@ -99,9 +113,7 @@ InitStatus PndTrackingQATask::Init() {
 	fSttTubeArray = mapperStt->FillTubeArray();
 	// ----------------------------------------------------  end map
 
-	std::cout
-			<< "-I- PndTrackingQATask::Init: Initialization successfull"
-			<< std::endl;
+//	std::cout << "-I- PndTrackingQATask::Init: Initialization successfull" << std::endl;
 
 	return kSUCCESS;
 }
@@ -187,7 +199,8 @@ void PndTrackingQATask::Exec(Option_t*) {
   fMCTrackInfo->Delete();
   fRecoTrackInfo->Delete();
 
-	std::cout << "----- Event " << fEventNr << " ------" << std::endl;
+  if (fVerbose > 0)
+	  std::cout << "----- Event " << fEventNr << " ------" << std::endl;
 
 
 	PndTrackingQA qaAna(fTrackBranchName, fIdealTrackBranchName, fPossibleTrackFunctor, fPndTrackOrTrackCand);
@@ -202,8 +215,10 @@ void PndTrackingQATask::Exec(Option_t*) {
 	std::map<Int_t, TVector3> recoPMap = qaAna.GetP();
 //	std::map<Int_t, Double_t> recoPtMap = qaAna.GetPt();
 
+
 	FillQualyHisto(qualiMap, qaAna.GetNGhosts());
 	FillMCStatus(mcStatusMap);
+
 	FillEfficiencies(qaAna.GetEfficiencies());
 	MapToHist(qaAna.GetPResolution(), fPHisto);
 	MapToHist(qaAna.GetPResolutionRel(), fPRelHisto);
@@ -213,13 +228,20 @@ void PndTrackingQATask::Exec(Option_t*) {
 	MapToHist(qaAna.GetPlResolutionRel(), fPlRelHisto);
 
 	// fill MC Track Info ......................................
-	for (std::map<Int_t, Int_t>::iterator iter = qualiMap.begin(); iter != qualiMap.end(); iter++) {
+	for (std::map<Int_t, Int_t>::iterator iter = qualiMap.begin(); iter != qualiMap.end(); iter++)
+	{
 	  Int_t mcTrackId = iter->first;
+
 	  Int_t idealTrackId = qaAna.GetIdealTrackIdFromMCTrackId(mcTrackId);
+	  if (idealTrackId < 0){
+		  std::cout << "-W- PndTrackingQATask::Exec no idealTrack for mcTrack " << mcTrackId << std::endl;
+		  continue;
+	  }
 	  Int_t trackQuality = iter->second;
 			  
 	  PndTrack *idealtrack = (PndTrack*) fIdealTrack->At(idealTrackId);
 	  
+	  if (idealtrack == 0) continue;
 	  if (mcTrackId == -1){
 		  std::cout << "-W- PndTrackingQATask::Exec mcTrackId == -1" << std::endl;
 		  continue;
@@ -253,13 +275,17 @@ void PndTrackingQATask::Exec(Option_t*) {
 	for(int itrk = 0; itrk < fRecoTrackInfo->GetEntriesFast(); itrk++) {
 	  PndTrackingQualityRecoInfo *recoinfo = (PndTrackingQualityRecoInfo *) fRecoTrackInfo->At(itrk);
 	  Int_t idealTrackId = qaAna.GetIdealTrackIdFromRecoTrackId(recoinfo->GetRecoTrackID());
+
+	  if (idealTrackId < 0){
+		  std::cout << "-W- PndTrackingQATask::Exec no idealTrack for recoTrack " << itrk << std::endl;
+		  continue;
+	  }
+
 	  PndTrackingQualityMCInfo *mctrackinfo = (PndTrackingQualityMCInfo*) fMCTrackInfo->At(GetMCInfoIdFromIdealTrackId(idealTrackId));
 	  recoinfo->SetMCTrackInfo(mctrackinfo);
 	}
-
 	// associate reconstructed and mc tracks
 	AssociateRecoTracksToMCTracks();
-
 
 	// Save the Tree (/RhoTuple) for some possible additional analysis
 	for (std::map<Int_t, Int_t>::iterator iter = qualiMap.begin(); iter != qualiMap.end(); iter++) {
@@ -303,7 +329,7 @@ void PndTrackingQATask::Exec(Option_t*) {
 		fTuple->DumpData();
 	}
 
-//	if (fVerbose > 1)
+	if (fVerbose > 0)
 		qaAna.PrintTrackQualityMap();
 	fEventNr++;
 }

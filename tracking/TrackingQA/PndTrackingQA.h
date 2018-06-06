@@ -64,6 +64,28 @@ struct qualityNumbers {
 
 		kNotFound = 7,  // notFound: total number of not reco'd tracks
 		kFound = 8;  // found: total number of reco'd tracks; the sum of fullyFound, partiallyFound, spuriousFound
+
+	  static std::string QualityNumberToString(int qNumber)
+	  {
+		  if (qNumber == kPossiblePrim) 		return "PossiblePrimary";
+		  if (qNumber == kPossibleSec) 			return "PossibleSec";
+		  if (qNumber == kAtLeastThreeSec) 		return "AtLeastThreeSec";
+		  if (qNumber == kAtLeastThreePrim) 	return "AtLeastThreePrim";
+		  if (qNumber == kLessThanThreePrim) 	return "LessThanThreePrim";
+		  if (qNumber == kMcPossibleSec) 		return "McPossibleSec";
+		  if (qNumber == kMcAtLeastThreeSec) 	return "McAtLeastThreeSec";
+		  if (qNumber == kMcAtLeastThreePrim) 	return "McAtLeastThreePrim";
+		  if (qNumber == kMcLessThanThreePrim) 	return "McLessThanThreePrim";
+		  if (qNumber == kMcAllTracksWithHits) 	return "McAllTracksWithHits";
+		  if (qNumber == kMcAllTracks) 			return "McAllTracks";
+		  if (qNumber == kSpuriousFound) 		return "SpuriousFound";
+		  if (qNumber == kPartiallyFound) 		return "PartiallyFound";
+		  if (qNumber == kFullyFound) 			return "FullyFound";
+		  if (qNumber == kGhost) 				return "Ghost";
+		  if (qNumber == kNotFound) 			return "NotFound";
+		  if (qNumber == kFound) 				return "Found";
+		  return std::to_string(qNumber);
+	  };
 };
 
 class PndTrackingQA : public TObject
@@ -112,9 +134,13 @@ public:
 	void PrintTrackMCStatusMap();
 	void PrintTrackInfo(std::map<TString, FairMultiLinkedData> info);
 
-	Int_t GetIdealTrackIdFromMCTrackId(int mctrackid) { return fMCIdIdealTrackId[mctrackid]; }
+	Int_t GetIdealTrackIdFromMCTrackId(int mctrackid) {
+		if (fMCIdIdealTrackId.count(mctrackid) == 0) return -1;
+		return fMCIdIdealTrackId[mctrackid];
+	}
 	Int_t GetIdealTrackIdFromRecoTrackId(int trackid) { 
 	  int mctrackid = fTrackIdMCId[trackid];
+	  if (fMCIdIdealTrackId.count(mctrackid) == 0) return -1;
 	  return fMCIdIdealTrackId[mctrackid];
 	}
 	
@@ -130,7 +156,7 @@ private:
 	virtual Int_t AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo, Int_t trackId);
 	virtual void CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo);
 	FairMultiLinkedData GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand); ///< returns how often a MCTrack (marked by a FairLink) was seen by the hits of a PndTrackCand
-	std::map<TString, FairMultiLinkedData> AnalyseTrackCand(PndTrackCand* trackCand);
+	std::map<TString, FairMultiLinkedData> AnalyseTrackCand(PndTrackCand* trackCand);	///< returns a map<BranchName, MCTrackLinks> which returns the FairLinks to MCTracks grouped by hit branches and all
 
 //	virtual Bool_t IsCorrectGemHit(FairLink& gemLink);
 

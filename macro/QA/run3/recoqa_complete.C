@@ -12,9 +12,9 @@ int recoqa_complete(Int_t nEvents = 0)
   TString  parAsciiFile   = "all.par";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "recoqa";
-  TString  friend1        = "digi";
-  TString  friend2        = "reco";
-  TString  friend3        = "";
+  TString  friend1		  = "sim";
+  TString  friend2        = "digi";
+  TString  friend3        = "reco";
   TString  friend4        = "";
   
   // -----   Initial Settings   --------------------------------------------
