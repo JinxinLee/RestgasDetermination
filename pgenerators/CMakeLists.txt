@@ -8,7 +8,7 @@ add_subdirectory (Direct)
 add_subdirectory (EvtGen)
 add_subdirectory (chigen)
 #add_subdirectory (PndFlukaGen)
-#add_subdirectory (EMFFgenerators)
+add_subdirectory (EMFFgenerators)
 
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
