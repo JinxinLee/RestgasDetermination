@@ -97,7 +97,7 @@ PidClassifier/PndPidSttAssociatorTask.cxx
 PidClassifier/PndPidEmcBayesAssociatorTask.cxx
 PidClassifier/PndPidSciTAssociatorTask.cxx
 PidClassifier/PndPidFtofAssociatorTask.cxx
-
+PidClassifier/PndPidMlAssociatorTask.cxx
 ###### Parameters
 PidClassifier/PndPidMvdPar.cxx
 )
