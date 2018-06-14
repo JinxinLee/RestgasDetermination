@@ -122,6 +122,7 @@ PidClassifier/PndPidSttAssociatorTask.h
 PidClassifier/PndPidEmcBayesAssociatorTask.h
 PidClassifier/PndPidSciTAssociatorTask.h
 PidClassifier/PndPidFtofAssociatorTask.h
+PidClassifier/PndPidMlAssociatorTask.h
 
 ###### Parameters
 PidClassifier/PndPidMvdPar.h
