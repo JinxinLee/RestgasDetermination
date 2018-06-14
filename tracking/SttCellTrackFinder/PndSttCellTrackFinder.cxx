@@ -50,10 +50,10 @@ void PndSttCellTrackFinder::FindTracks() {
 		fTrackletGenerator->SetDevTubeNeighboringsPointer(
 				fDev_tubeNeighborings);
 	}
-	if(fRunTimeBased){
+
 	fTrackFinderData->SetRunTimeBased(fRunTimeBased);
-	}
 	fTrackFinderData->SetClusterTime(fClusterTime);
+
 
 	if (fCalcWithCorrectedIsochrones) {
 		fHitCorrector = new PndSttHitCorrector(fTrackFinderData);

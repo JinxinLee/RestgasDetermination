@@ -24,7 +24,7 @@ using namespace std;
 ClassImp(PndSttCellTrackFinderData);
 
 PndSttCellTrackFinderData::PndSttCellTrackFinderData(
-		TClonesArray* sttTubeArray):fAllowDoubleHits(kFALSE),fNumHits(0),fNumHitsWithoutDouble(0){
+		TClonesArray* sttTubeArray):fAllowDoubleHits(kFALSE),fNumHits(0),fNumHitsWithoutDouble(0),fRunTimeBased(kFALSE){
 
 	// Generate information of Straw- and GeometryMap.
 	// It is always the same data for all events.
@@ -159,9 +159,9 @@ void PndSttCellTrackFinderData::GenerateNeighborhoodData() {
 		fMapTubeIdToHit[sttHit->GetTubeID()] = i;
 	}
 
-	if(!fRunTimeBased){
+	if(fRunTimeBased == kFALSE) {
 		FindHitNeighborsEventBased();
-	}else{
+	} else {
 		FindHitNeighborsTimeBased();
 	}
 
