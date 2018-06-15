@@ -30,14 +30,21 @@ void PndSttCellTrackFinder::FindTracks() {
 	// init TrackFinderData
 	vector<Double_t> timesGenerateNeighorhoodData;
 
+	//if(fRunTimeBased){ // Bug?????????????? J.R. 01/06-2018
+	fTrackFinderData->SetRunTimeBased(fRunTimeBased);
+	//}
+	fTrackFinderData->SetClusterTime(fClusterTime);
 	//store timestamps for runtime analysis
+
 	timesGenerateNeighorhoodData.push_back(TTimeStamp());
 	fTrackFinderData->GenerateNeighborhoodData();
 	timesGenerateNeighorhoodData.push_back(TTimeStamp());
 
 	//fTrackFinderData->PrintInfo();
 
+
 	fTrackletGenerator = new PndSttCellTrackletGenerator(fTrackFinderData);
+
 	fTrackletGenerator->SetCalcFirstTrackletInf(fCalcFirstTrackletInf);
 	fTrackletGenerator->SetVerbose(fVerbose);
 	fTrackletGenerator->SetBz(fBz);
@@ -51,8 +58,11 @@ void PndSttCellTrackFinder::FindTracks() {
 				fDev_tubeNeighborings);
 	}
 
+<<<<<<< 82226777301340abf5fd1a4e576df86fbf7071bb
 	fTrackFinderData->SetRunTimeBased(fRunTimeBased);
 	fTrackFinderData->SetClusterTime(fClusterTime);
+=======
+>>>>>>> fixed bugs
 
 
 	if (fCalcWithCorrectedIsochrones) {

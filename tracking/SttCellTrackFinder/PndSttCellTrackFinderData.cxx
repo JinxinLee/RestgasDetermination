@@ -29,8 +29,6 @@ PndSttCellTrackFinderData::PndSttCellTrackFinderData(
 	// Generate information of Straw- and GeometryMap.
 	// It is always the same data for all events.
 
-	fClusterTime=5.0;
-
 	fStrawMap = new PndSttStrawMap(sttTubeArray);
 	fGeometryMap = new PndSttGeometryMap(sttTubeArray, 1);
 
@@ -159,11 +157,16 @@ void PndSttCellTrackFinderData::GenerateNeighborhoodData() {
 		fMapTubeIdToHit[sttHit->GetTubeID()] = i;
 	}
 
+<<<<<<< 82226777301340abf5fd1a4e576df86fbf7071bb
 	if(fRunTimeBased == kFALSE) {
 		FindHitNeighborsEventBased();
 	} else {
 		FindHitNeighborsTimeBased();
 	}
+=======
+	if(fRunTimeBased){FindHitNeighborsTimeBased();}
+	else{FindHitNeighborsEventBased();}
+>>>>>>> fixed bugs
 
 	SeparateNeighbors();
 }

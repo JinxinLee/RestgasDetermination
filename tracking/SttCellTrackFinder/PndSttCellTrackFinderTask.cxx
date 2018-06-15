@@ -86,10 +86,10 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 	fTubeArray = mapper->FillTubeArray();
 	fTrackFinder = new PndSttCellTrackFinder(fTubeArray);
 
-	fTrackFinder->SetCalcFirstTrackletInf(fAnalyseSteps);
-	fTrackFinder->SetUseGPU(fUseGPU);
 	fTrackFinder->SetRunTimeBased(fRunTimeBased);
 	fTrackFinder->SetClusterTime(fClusterTime);
+	fTrackFinder->SetCalcFirstTrackletInf(fAnalyseSteps);
+	fTrackFinder->SetUseGPU(fUseGPU);
 	fTrackFinder->SetVerbose(fVerbose);
 	fTrackFinder->SetBz(BB[2]/10.);
 	fTrackFinder->SetCalcWithCorrectedIsochrones(fCalcWithCorrectedIsochrones);
