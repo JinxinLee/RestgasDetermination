@@ -138,8 +138,6 @@ private:
 	std::vector<FairHit*> fHitsOrig;//vector with all originally hits of an event
 	std::multimap<int, PndSttSkewedHit*> fCombinedSkewedHits; //<(inner) Tube-ID of combined stt hits of skewed layers, corresponding hit>
 
-	double fSumEvtBasedTime; // J.R. 30/04-2018
-	double fSumTimeBasedTime; // J.R. 30/04-2018
 	double fClusterTime; // J.R. 17/04-2018
 	Bool_t fAllowDoubleHits;
 	int fNumHits;
