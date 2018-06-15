@@ -45,7 +45,7 @@ class PndPidMlAssociatorTask : public FairTask {
   virtual void SetParContainers();
   virtual void Finish();
 
-  ClassDef(PndPidMlAssociatorTask,0)   // PndPidMlTask
+  ClassDef(PndPidMlAssociatorTask,1)   // PndPidMlTask
   
     };
 
