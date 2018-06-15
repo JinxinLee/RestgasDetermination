@@ -58,12 +58,8 @@ void PndSttCellTrackFinder::FindTracks() {
 				fDev_tubeNeighborings);
 	}
 
-<<<<<<< 82226777301340abf5fd1a4e576df86fbf7071bb
-	fTrackFinderData->SetRunTimeBased(fRunTimeBased);
 	fTrackFinderData->SetClusterTime(fClusterTime);
-=======
->>>>>>> fixed bugs
-
+	fTrackFinderData->SetRunTimeBased(fRunTimeBased);
 
 	if (fCalcWithCorrectedIsochrones) {
 		fHitCorrector = new PndSttHitCorrector(fTrackFinderData);

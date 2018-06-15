@@ -157,16 +157,11 @@ void PndSttCellTrackFinderData::GenerateNeighborhoodData() {
 		fMapTubeIdToHit[sttHit->GetTubeID()] = i;
 	}
 
-<<<<<<< 82226777301340abf5fd1a4e576df86fbf7071bb
 	if(fRunTimeBased == kFALSE) {
 		FindHitNeighborsEventBased();
 	} else {
 		FindHitNeighborsTimeBased();
 	}
-=======
-	if(fRunTimeBased){FindHitNeighborsTimeBased();}
-	else{FindHitNeighborsEventBased();}
->>>>>>> fixed bugs
 
 	SeparateNeighbors();
 }
