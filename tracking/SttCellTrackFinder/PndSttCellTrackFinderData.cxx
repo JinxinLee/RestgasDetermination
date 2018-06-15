@@ -15,6 +15,7 @@
 #include "PndSttSkewedHit.h"
 #include <cmath>
 #include <stdio.h>
+#include <chrono>
 
 //macro for printing tubes + neighbors to a file called tubeNeighborings.txt
 //#define PRINT_STT_NEIGHBORS
@@ -171,6 +172,7 @@ void PndSttCellTrackFinderData::FindHitNeighborsEventBased() { // if not def Run
 	/* Approach: At first create a set of the tubeIDs of all hits.
 	 * Then get the neighbors of each hit/tube and store only those
 	 * that are included in the set.*/
+	auto start_event_based = chrono::system_clock::now();
 
 	PndSttHit* sttHit;
 	int tubeId;
@@ -229,6 +231,18 @@ void PndSttCellTrackFinderData::FindHitNeighborsEventBased() { // if not def Run
 			}
 		}
 	}
+
+	auto end_event_based = chrono::system_clock::now();
+
+	chrono::duration<double> elapsed_seconds_event_based = end_event_based-start_event_based;
+
+	cout << "Cluster time: " << fClusterTime << endl;
+
+	cout << "Event based time: " << elapsed_seconds_event_based.count() << endl;
+
+	fSumEvtBasedTime+=elapsed_seconds_event_based.count();
+
+	cout << "Event based time sum: " << fSumEvtBasedTime << endl;
 }
 
 void PndSttCellTrackFinderData::FindHitNeighborsTimeBased(){ // if def RunTimeBased
@@ -236,6 +250,7 @@ void PndSttCellTrackFinderData::FindHitNeighborsTimeBased(){ // if def RunTimeBa
 	/* J.R. Adopted from PndSttCellTrackFinderData::FindHitNeighborsEventBased
 	 *  Added conditions to check timestamps and perform
 	 * time clustering. 28/03-2018*/
+	auto start_time_based = chrono::system_clock::now();
 
 	PndSttHit* sttHit;
 	int tubeId;
@@ -318,6 +333,18 @@ void PndSttCellTrackFinderData::FindHitNeighborsTimeBased(){ // if def RunTimeBa
 			}
 		}
 	}
+
+	auto end_time_based = chrono::system_clock::now();
+
+	chrono::duration<double> elapsed_seconds_time_based = end_time_based-start_time_based;
+
+	cout << "Cluster time: " << fClusterTime << endl;
+
+	cout << "Time based time: " << elapsed_seconds_time_based.count() << endl;
+
+	fSumTimeBasedTime+=elapsed_seconds_time_based.count();
+
+	cout << "Time based time sum: " << fSumTimeBasedTime << endl;
 }
 
 void PndSttCellTrackFinderData::SeparateNeighbors() {

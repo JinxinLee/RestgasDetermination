@@ -142,9 +142,9 @@ private:
 	double fSumTimeBasedTime; // J.R. 30/04-2018
 	double fClusterTime; // J.R. 17/04-2018
 	Bool_t fAllowDoubleHits;
-	Bool_t fRunTimeBased;
 	int fNumHits;
 	int fNumHitsWithoutDouble;
+    Bool_t fRunTimeBased;
 
 	PndSttStrawMap* fStrawMap;	// for getting more information about the tubes
 	PndSttGeometryMap* fGeometryMap;// for initializing the neighbors of each tube

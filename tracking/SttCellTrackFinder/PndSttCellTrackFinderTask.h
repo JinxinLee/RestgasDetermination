@@ -16,8 +16,8 @@ class PndSttCellTrackFinderTask: public FairTask {
 public:
 
 	PndSttCellTrackFinderTask() :
-			FairTask("Stt Cell Track Finder"), fUseGPU(kFALSE), fDev_tubeNeighborings(0), fCalcWithCorrectedIsochrones(kFALSE), fClusterTime(250.0), fVerbose(0), fPersistence(kTRUE), fAnalyseSteps(
-					kFALSE), fRunTimeBased(kFALSE), fTrackFinder(0){
+			FairTask("Stt Cell Track Finder"), fClusterTime(250.0), fUseGPU(kFALSE), fDev_tubeNeighborings(0), fRunTimeBased(kFALSE), fCalcWithCorrectedIsochrones(kFALSE), fVerbose(0), fPersistence(kTRUE),
+			fAnalyseSteps(kFALSE),  fTrackFinder(0){
 		fOutBranchNamePrefix = "";
 		fInBranchNamePrefix = "";
 	}
