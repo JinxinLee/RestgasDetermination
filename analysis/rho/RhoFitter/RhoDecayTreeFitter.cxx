@@ -39,6 +39,6 @@ RhoDecayTreeFitter::RhoDecayTreeFitter ( RhoCandidate*   bc, const RhoLorentzVec
 /// destructor
 RhoDecayTreeFitter::~RhoDecayTreeFitter ()
 {
-  if(m_extrapolator) delete m_extrapolator;
+//  if(m_extrapolator) delete m_extrapolator;
 }
     
