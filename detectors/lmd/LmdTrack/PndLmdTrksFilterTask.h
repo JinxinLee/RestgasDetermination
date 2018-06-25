@@ -22,7 +22,6 @@
 // Collaborating Class Declarations --
 class TClonesArray;
 class TGeoManager;
-class PndLmdGeometryHelper;
 
 class PndLmdTrksFilterTask : public FairTask {
  public:
@@ -58,7 +57,6 @@ class PndLmdTrksFilterTask : public FairTask {
   TString fTrkName;
   TString fTrkOutName;
   int fEventNr;
-  PndLmdGeometryHelper& lmd_geo_helper;
   bool flSkipKinFilt;
   bool flBOXKinFilt;
   bool flXThKinFilt;

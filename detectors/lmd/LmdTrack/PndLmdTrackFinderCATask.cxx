@@ -23,8 +23,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndLmdTrackFinderCATask::PndLmdTrackFinderCATask()
-    : FairTask("LMD Track Finding Task (Cellular Automation)"),
-      lmd_geo_helper(PndLmdGeometryHelper::getInstance()) {
+    : FairTask("LMD Track Finding Task (Cellular Automation)") {
   missPlAlgo = false;
   flagTrkCandCuts = true;
   fHitBranchStrip = "LMDHitsStrip";
@@ -46,8 +45,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl,
                                                  TString hitBranch)
     : FairTask(
           "LMD Track Finding Task (Cellular Automation) with/without <<missing "
-          "planes>> algoritm"),
-      lmd_geo_helper(PndLmdGeometryHelper::getInstance()) {
+          "planes>> algoritm") {
   missPlAlgo = missPl;
   fHitBranchStrip = hitBranch;
 
@@ -144,13 +142,14 @@ bool PndLmdTrackFinderCATask::SortHitsByDetSimple2(
     std::vector<std::vector<Int_t> > &hitsd, Int_t nStripHits) {
   Int_t nPlanes = 0;
 
+  auto &lmd_helper(PndLmdGeometryHelper::getInstance());
   // sort in plane's
   for (Int_t iHit = 0; iHit < nStripHits; iHit++) {
     PndSdsHit *myHit = (PndSdsHit *)(fStripHitArray->At(iHit));
     Int_t sensid = myHit->GetSensorID();  // Sensors: 1..32
 
     const PndLmdHitLocationInfo &hit_info =
-        lmd_geo_helper.getHitLocationInfo(sensid);
+    		lmd_helper.getHitLocationInfo(sensid);
 
     int virtplane = hit_info.plane;  // merged hits
     if (nP > 4)

@@ -19,7 +19,6 @@
 #include <vector>
 
 class TClonesArray;
-class PndLmdGeometryHelper;
 
 class PndLmdTrackFinderTask : public FairTask {
  public:
@@ -55,8 +54,6 @@ class PndLmdTrackFinderTask : public FairTask {
   Double_t GetTrackCurvature(PndMCTrack *myTrack);
 
   TString fHitBranchStrip;
-
-  PndLmdGeometryHelper &lmd_geo_helper;
 
   /** Input array of PndSdsDigis **/
   TClonesArray *fStripHitArray;

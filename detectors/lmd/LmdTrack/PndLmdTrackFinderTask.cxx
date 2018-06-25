@@ -21,8 +21,7 @@
 PndLmdTrackFinderTask::PndLmdTrackFinderTask(Int_t inFinderMode,
                                              TString hitBranch, Int_t innSensPP)
     : FairTask("LMD Track Finding Task"),
-      nSensPP(innSensPP),
-      lmd_geo_helper(PndLmdGeometryHelper::getInstance()) {
+      nSensPP(innSensPP) {
   fFinderMode = inFinderMode;
   fHitBranchStrip = hitBranch;
   dXY = 0.01;
@@ -122,6 +121,7 @@ bool PndLmdTrackFinderTask::SortHitsByDet2(
 
     Int_t sensid = myHit->GetSensorID();
 
+    auto& lmd_geo_helper(PndLmdGeometryHelper::getInstance());
     auto const &hit_info = lmd_geo_helper.getHitLocationInfo(sensid);
     // hitsd.at(iplane).push_back(iHit);
     hitsd.at(hit_info.plane).push_back(make_pair(iHit, false));

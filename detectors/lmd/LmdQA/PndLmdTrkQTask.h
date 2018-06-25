@@ -27,7 +27,6 @@
 
 class TClonesArray;
 class PndSdsCluster;
-class PndLmdGeometryHelper;
 
 class PndLmdTrkQTask : public FairTask
 {
@@ -76,8 +75,6 @@ class PndLmdTrkQTask : public FairTask
   // Int_t fPDGid;
   // TVector3 vtx;
   bool fWriteAllMC;
-
-  PndLmdGeometryHelper &lmd_geo_helper;
 
   ClassDef(PndLmdTrkQTask,2);
 

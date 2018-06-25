@@ -46,8 +46,7 @@
 
 PndLmdTrkQTask::PndLmdTrkQTask(Double_t pBeam, TString geaneBranch,
 		TString trackBranch) :
-		FairTask("Track Quality Task for PANDA Lmd"), fEventNr(0), lmd_geo_helper(
-				PndLmdGeometryHelper::getInstance()) {
+		FairTask("Track Quality Task for PANDA Lmd"), fEventNr(0) {
 	fWriteAllMC = false;
 	fPbeam = pBeam;
 	fGeaneName = geaneBranch;
@@ -687,6 +686,7 @@ void PndLmdTrkQTask::Exec(Option_t*) {
 		PndSdsMergedHit* myHit = (PndSdsMergedHit*) (fRecHits->At(hitID));
 		int sensorID = myHit->GetSensorID();
 
+		auto& lmd_geo_helper(PndLmdGeometryHelper::getInstance());
 		auto const& digi_info(lmd_geo_helper.getHitLocationInfo(sensorID));
 		glModule = digi_info.module;
 		glHalf = digi_info.detector_half;

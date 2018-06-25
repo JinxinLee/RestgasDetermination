@@ -16,7 +16,6 @@
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
-#include "PndLmdGeometryHelper.h"
 #include "PndLmdTrksFilterTask.h"
 //#include "PndMCTrack.h"
 // #include "FairBaseParSet.h"
@@ -40,7 +39,6 @@
 PndLmdTrksFilterTask::PndLmdTrksFilterTask()
     : FairTask("Tracks filtering Task for PANDA Lmd"),
       fEventNr(0),
-      lmd_geo_helper(PndLmdGeometryHelper::getInstance()),
       fdX(0),
       fdY(0) {
   flSkipKinFilt = false;

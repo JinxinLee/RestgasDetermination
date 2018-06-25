@@ -20,7 +20,6 @@
 #include "TNtuple.h"
 
 class TClonesArray;
-class PndLmdGeometryHelper;
 
 class PndLmdTrackFinderCATask : public FairTask {
  public:
@@ -86,8 +85,6 @@ class PndLmdTrackFinderCATask : public FairTask {
   void Register();
   void Reset();
   void ProduceHits();
-
-  PndLmdGeometryHelper& lmd_geo_helper;
 
   ClassDef(PndLmdTrackFinderCATask, 4);
 };
