@@ -35,6 +35,8 @@ set(SRCS
 Rho4CFitter.cxx
 RhoKinVtxFitter.cxx
 RhoKinFitter.cxx
+RhoKinHyperonVtxFitter.cxx
+RhoKinHyperonFitter.cxx
 RhoVtxPoca.cxx
 RhoKalmanVtxFitter.cxx
 RhoDecayTreeFitter.cxx

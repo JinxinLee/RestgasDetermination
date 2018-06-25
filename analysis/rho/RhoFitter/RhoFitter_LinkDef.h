@@ -7,6 +7,8 @@
 
 #pragma link C++ class RhoKinVtxFitter;
 #pragma link C++ class RhoKinFitter;
+#pragma link C++ class RhoKinHyperonVtxFitter;
+#pragma link C++ class RhoKinHyperonFitter;
 #pragma link C++ class RhoDecayTreeFitter;
 #pragma link C++ class RhoVtxPoca;
 #pragma link C++ class RhoKalmanVtxFitter;
