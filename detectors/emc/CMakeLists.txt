@@ -151,6 +151,6 @@ EmcTimeBased/PndEmcAnalysis.cxx
 set(LINKDEF  EmcLinkDef.h)
 set(LIBRARY_NAME Emc)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData Passive)
+set(DEPENDENCIES Base GeoBase ParBase PndData Passive Geom)
 
 GENERATE_LIBRARY()
