@@ -15,6 +15,7 @@
 
 PndRhoTupleQA::PndRhoTupleQA(PndAnalysis *ana, double pbarmom)
 {
+  fDummyCand = new RhoCandidate(); 
   fAnalysis = ana;
   fVtxPoca = new RhoVtxPoca();
   double mp=0.938272;
@@ -25,6 +26,7 @@ PndRhoTupleQA::PndRhoTupleQA(PndAnalysis *ana, double pbarmom)
 PndRhoTupleQA::~PndRhoTupleQA()
 {
   delete fVtxPoca;
+  delete fDummyCand;
 }
 // -------------------------------------------------------------------------
 
@@ -1060,8 +1062,12 @@ void PndRhoTupleQA::qaMc(TString pre, RhoCandidate *c, RhoTuple *n, bool skip)
   if (c==0) return;
 
   RhoCandidate *mct=c->GetMcTruth();
+  
   if (mct){
 	  qaCand(pre+"mc",mct,n,skip);
+  }
+  else {
+      qaCand(pre+"mc", fDummyCand,n,skip);
   }
 }
 
