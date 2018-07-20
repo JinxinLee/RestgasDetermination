@@ -119,6 +119,14 @@ InitStatus PndTrackingQATask::Init() {
 }
 
 void PndTrackingQATask::InitializeHistograms() {
+	fIdealTracksPerEvent = new TH1I("fIdealTracksPerEvent", "Ideal Tracks per Event", 1000, -0.5,999.5);
+	fIdealTracksPerEvent->GetXaxis()->SetTitle("Tracks/Event");
+	fIdealPHisto = new TH1I("fIdealPHisto", "Ideal total Momentum", 1500, -0.5,14.5);
+	fIdealPHisto->GetXaxis()->SetTitle("p [GeV/c]");
+	fIdealPtHisto = new TH1I("fIdealPtHisto", "Ideal Tansversal Momentum", 1500, -0.5,14.5);
+	fIdealPtHisto->GetXaxis()->SetTitle("p_{t} [GeV/c]");
+	fIdealPlHisto = new TH1I("fIdealPlHisto", "Ideal Longitudinal Momentum", 1500, -0.5,14.5);
+	fIdealPlHisto->GetXaxis()->SetTitle("p_{l} [GeV/c]");
 	fPHisto = new TH1D("fPHisto", "Momentum Resolution", 1000, -1, 1);
 	fPHisto->GetXaxis()->SetTitle("p^{RECO} - p^{MC} / GeV");
 	fPHisto->GetYaxis()->SetTitle("counts");
@@ -218,6 +226,13 @@ void PndTrackingQATask::Exec(Option_t*) {
 
 	FillQualyHisto(qualiMap, qaAna.GetNGhosts());
 	FillMCStatus(mcStatusMap);
+	fIdealTracksPerEvent->Fill(fIdealTrack->GetEntries());
+	for (int i = 0; i < fIdealTrack->GetEntries(); i++){
+		PndTrack* myTrack = (PndTrack*)fIdealTrack->At(i);
+		fIdealPHisto->Fill(myTrack->GetParamFirst().GetMomentum().Mag());
+		fIdealPtHisto->Fill(myTrack->GetParamFirst().GetMomentum().Pt());
+		fIdealPlHisto->Fill(myTrack->GetParamFirst().GetMomentum().Pz());
+	}
 
 	FillEfficiencies(qaAna.GetEfficiencies());
 	MapToHist(qaAna.GetPResolution(), fPHisto);
@@ -241,7 +256,10 @@ void PndTrackingQATask::Exec(Option_t*) {
 			  
 	  PndTrack *idealtrack = (PndTrack*) fIdealTrack->At(idealTrackId);
 	  
-	  if (idealtrack == 0) continue;
+	  if (idealtrack == 0){
+		  std::cout << "-E- No ideal track found for idealTrackId " << idealTrackId << std::endl;
+		  continue;
+	  }
 	  if (mcTrackId == -1){
 		  std::cout << "-W- PndTrackingQATask::Exec mcTrackId == -1" << std::endl;
 		  continue;
@@ -260,6 +278,7 @@ void PndTrackingQATask::Exec(Option_t*) {
 	  mctrackinfo.SetMCTrackID(mcTrackId);
 	  mctrackinfo.SetQuality(trackQuality);
 	  mctrackinfo.SetPDGCode(pdgId);
+	  mctrackinfo.SetMomentum(myMcTrack->GetMomentum());
 	  mctrackinfo.SetMCQuality(mcStatusMap[mcTrackId]);
 	  //  mctrackinfo.SetReconstructabilityStatus();
 	  
@@ -275,7 +294,7 @@ void PndTrackingQATask::Exec(Option_t*) {
 	for(int itrk = 0; itrk < fRecoTrackInfo->GetEntriesFast(); itrk++) {
 	  PndTrackingQualityRecoInfo *recoinfo = (PndTrackingQualityRecoInfo *) fRecoTrackInfo->At(itrk);
 	  Int_t idealTrackId = qaAna.GetIdealTrackIdFromRecoTrackId(recoinfo->GetRecoTrackID());
-
+	  recoinfo->SetIdealTrackId(idealTrackId);
 	  if (idealTrackId < 0){
 		  std::cout << "-W- PndTrackingQATask::Exec no idealTrack for recoTrack " << itrk << std::endl;
 		  continue;
@@ -513,6 +532,11 @@ void PndTrackingQATask::Finish() {
 	for (size_t i = 0; i < fBranchNames.size(); i++){
 		fMapEfficiencies[fBranchNames[i]]->Write();
 	}
+	fIdealTracksPerEvent->Write();
+	fIdealPHisto->Write();
+	fIdealPtHisto->Write();
+	fIdealPlHisto->Write();
+
 	fPHisto->Write();
 	fPRelHisto->Write();
 	fPtHisto->Write();
@@ -652,7 +676,7 @@ PndTrackingQualityMCInfo PndTrackingQATask::GetMCInfoFromIdealTrack(PndTrack *id
     Int_t detID = idealcandhit.GetDetId();
       
     if(detID != FairRootManager::Instance()->GetBranchId("STTHit")) continue; 
-    PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitID);
+    PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitID);	//todo: For time based sim this has to be replaced with FariRootManager::GetCloneOfLinkData
     Int_t tubeID = stthit->GetTubeID();
     PndSttTube *tube = (PndSttTube*) fSttTubeArray->At(tubeID);
     if(tube->IsSkew()) nofsttskewpoint++;
@@ -660,7 +684,19 @@ PndTrackingQualityMCInfo PndTrackingQATask::GetMCInfoFromIdealTrack(PndTrack *id
   }
 
   PndTrackingQualityMCInfo info(nofmvdpixpoint, nofmvdstrpoint, nofsttparalpoint, nofsttskewpoint, nofgempoint, nofftspoint);
-
+  std::vector<FairLink> mcTracks = idealtrack->GetSortedMCTracks();
+  if (mcTracks.size() > 0){
+	  PndMCTrack* myMCTrack = (PndMCTrack*)FairRootManager::Instance()->GetCloneOfLinkData(mcTracks[0]);
+	  if (myMCTrack != nullptr){
+		  info.SetVertex(myMCTrack->GetStartVertex());
+		  if (myMCTrack->GetMotherID() < 0){
+			  info.SetIsPrimary(kTRUE);
+		  }
+		  else{
+			  info.SetIsPrimary(kFALSE);
+		  }
+	  }
+  }
   // CHECK
   // Bool_t isreco = Reconstructability(nofmvdpixpoint, nofmvdstrpoint, nofsttparalpoint, nofsttskewpoint, nofgempoint, nofscitilpoint);
   //  info.SetReconstructability(isreco);

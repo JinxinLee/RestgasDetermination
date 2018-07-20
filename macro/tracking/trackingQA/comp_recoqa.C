@@ -37,13 +37,13 @@ int comp_recoqa(TString fn = "QA_histograms.root", TString fn2 =
 		TIter next(f->GetListOfKeys());
 
 		int failcount = 0;
-		Int_t yy = 0;
+		Int_t histoCount = 0;
 		Int_t actualCanvas = 0;
 		Int_t actualPad = 0;
 		while ((key = (TKey*) next())) {
-			actualCanvas = TMath::Floor((double)yy / picpercan);
-			actualPad = (yy % picpercan) + 1;
-			cout << yy << " : " << actualCanvas << "/" << actualPad << endl;
+			actualCanvas = TMath::Floor((double)histoCount / picpercan);
+			actualPad = (histoCount % picpercan) + 1;
+			cout << histoCount << " : " << actualCanvas << "/" << actualPad << endl;
 			if (!(canvasses.size() > actualCanvas)){
 				cout << "New canvas" << endl;
 				canvasses.push_back(createCanvas(picpercan));
@@ -81,7 +81,13 @@ int comp_recoqa(TString fn = "QA_histograms.root", TString fn2 =
 					failcount++;
 				}
 			}
-			yy++;
+
+			auto legend = new TLegend(0.1,0.7,0.48,0.9);
+			legend->SetHeader("File Comparison","C"); // option "C" allows to center the header
+			legend->AddEntry(h,fn.Data(),"f");
+			legend->AddEntry(h2,fn2.Data(),"f");
+			legend->Draw();
+			histoCount++;
 		}
 
 		if (failcount < maxfail)

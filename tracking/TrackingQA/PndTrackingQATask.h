@@ -138,7 +138,12 @@ class PndTrackingQATask : public FairTask
 
 
   RhoTuple * fTuple;
-
+  TH1* fIdealTracksPerEvent;
+  TH1* fIdealPHisto;
+  TH1* fIdealPtHisto;
+  TH1* fIdealPlHisto;
+  TH1* fIdealPrimTracksPerEvent;
+  TH1* fIdealSecTracksPerEvent;
   TH1* fPHisto;
   TH1* fPRelHisto;
   TH1* fPtHisto;

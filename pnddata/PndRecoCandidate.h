@@ -71,7 +71,7 @@ class PndRecoCandidate : public FairTimeStamp
  
 	
   ClassDef(PndRecoCandidate,1) // Abstract base class for MicroDST candidates
-    };
+};
 
 std::ostream&  operator << (std::ostream& o, const PndRecoCandidate&);
 

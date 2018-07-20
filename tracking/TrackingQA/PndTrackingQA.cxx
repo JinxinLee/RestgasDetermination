@@ -314,7 +314,7 @@ void PndTrackingQA::FillMapTrackQualifikation()
 		//	std::cout << "AtLeastThreeHits: Track "<< i << " status: " << fMapTrackQualification[i] << std::endl;
 		}
 
-		else if (primaryTrack){  //No hits for primary track in central tracking detectors
+		else if (primaryTrack){  //No hits for primary track in tracking detectors
 			fMapTrackQualification[idealTrackCand->getMcTrackId()] = qualityNumbers::kLessThanThreePrim;
 		}
 
@@ -552,7 +552,7 @@ PndTrackingQualityRecoInfo PndTrackingQA::GetRecoInfoFromRecoTrack(Int_t trackId
 			// std::cout << "ihit " << ihit << " " << link.GetIndex() << " " << link.GetType() << " " << link.GetWeight() << std::endl;
 			FairHit * hit = (FairHit*) links.GetData(link);
 			if (!hit) {
-				std::cout << "ihit " << ihit << " " << link.GetIndex()
+				std::cout << "ihit " << ihit << " " << link
 						<< " is FAKE" << std::endl;
 				//    std::cout << "No Obj Hit" << std::endl;
 

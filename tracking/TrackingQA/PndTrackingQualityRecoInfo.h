@@ -20,8 +20,16 @@ class PndTrackingQualityRecoInfo : public TObject
   PndTrackingQualityRecoInfo(int recotrackid);
   ~PndTrackingQualityRecoInfo();    
 
-  void SetMCTrackInfo(PndTrackingQualityMCInfo *info) { 
+  void SetMCTrackInfo(PndTrackingQualityMCInfo *info) {
     fMCTrackInfo = *info;
+    fMCMomFirst = fMCTrackInfo.GetMomentumFirst();
+    fMCMomLast  = fMCTrackInfo.GetMomentumLast();
+    fMCVertex = fMCTrackInfo.GetVertex();
+    fMCCharge = fMCTrackInfo.GetCharge();
+    fIsPrimary = fMCTrackInfo.GetIsPrimary();
+    fMCPdg = fMCTrackInfo.GetPDGCode();
+    fQuality = fMCTrackInfo.GetQuality();
+    fMCQuality = fMCTrackInfo.GetMCQuality();
   }
   void SetNofMCTracks(Int_t nofmctracks) { fNofMCTracks = nofmctracks; }
   Int_t GetNofMCTracks() { return fNofMCTracks; }
@@ -70,6 +78,11 @@ class PndTrackingQualityRecoInfo : public TObject
   double GetFtsInefficiency();
   /*  double GetSciTilInefficiency(); */
 
+  int GetQuality(){ return fQuality; }
+  int GetMCQuality(){ return fMCQuality; }
+
+  void SetMCVertex(TVector3 pos) { fMCVertex = pos; }
+  void SetMCMomentum(TVector3 mom) { fMCMomentum = mom; }
 
   void SetPositionFirst(TVector3 pos) { fPosFirst = pos; }
   void SetMomentumFirst(TVector3 mom) { fMomFirst = mom; }
@@ -184,7 +197,8 @@ class PndTrackingQualityRecoInfo : public TObject
   void SetFlag(int flag) { fFlag = flag; }
   Int_t GetFlag()  { return fFlag; }
 
-
+  void SetIdealTrackId(int idealid) { fIdealTrackId = idealid; }
+  Int_t GetIdealTrackId() { return fIdealTrackId; }
 
  protected:
  
@@ -204,7 +218,19 @@ class PndTrackingQualityRecoInfo : public TObject
   TVector3 fPosLast, fMomLast;
   Int_t fCharge;
 
-  PndTrackingQualityMCInfo fMCTrackInfo; 
+  Int_t    fIdealTrackId;
+  TVector3 fMCMomFirst;
+  TVector3 fMCMomLast;
+  TVector3 fMCVertex;
+  TVector3 fMCMomentum;
+  Int_t    fMCCharge;
+  Int_t    fMCPdg;
+  Bool_t   fIsPrimary;
+  Int_t    fQuality;
+  Int_t    fMCQuality;
+
+
+  PndTrackingQualityMCInfo fMCTrackInfo;
   // true = 0, clone = 1
   Int_t fFlag;
   Int_t fNofMCTracks;

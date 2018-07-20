@@ -1,6 +1,8 @@
 /** PndTrackingQualityMCInfo
  ** 
- ** @author Lia Lavezzi 
+ ** Data container for the result of the ideal track finder and the information of the associated MCTrack
+ **
+ ** @author Lia Lavezzi with modifications by Tobias Stockmanns <t.stockmanns@fz-juelich.de>
  **/
 
 #ifndef PNDTRACKINGQUALITYMCINFO_H
@@ -29,8 +31,10 @@ class PndTrackingQualityMCInfo : public TObject
   void SetPositionLast(TVector3 pos) { fPosLast = pos; }
   void SetMomentumLast(TVector3 mom) { fMomLast = mom; }
 
-
   void SetCharge(int ch) { fCharge = ch; }
+  void SetIsPrimary(Bool_t val) { fIsPrimary = val;}
+  void SetVertex(TVector3 val) { fVertex = val;}
+  void SetMomentum(TVector3 val) { fMomentum = val; }
 
 
   Int_t GetNofMvdPixelPoints() { return fNofMvdPixelPoints; }
@@ -43,11 +47,11 @@ class PndTrackingQualityMCInfo : public TObject
   Int_t GetNofFtsPoints() {return fNofFtsPoints; }
   Int_t GetNofMCPoints() {return  fNofMvdPixelPoints + fNofMvdStripPoints + fNofSttParalPoints + fNofSttSkewPoints + fNofGemPoints + fNofFtsPoints; }
  
-  Int_t GetMCTrackID() { return fMCTrackID; }
-  Short_t GetNofRecoTracks(void)     const { return fRecoTrackIDs.GetSize(); }
-  Int_t GetRecoTrackID(Int_t i=0) const { 
-    if(GetNofRecoTracks() == 0) return -1;
-    return fRecoTrackIDs[i]; }
+  Int_t GetMCTrackID() { return fMCTrackID; }   //< Returns the corresponding MCTrack to an ideal track
+  Short_t GetNofRecoTracks(void)     const { return fRecoTrackIDs.size(); } //< Returns the number of reco tracks associated to the ideal track
+  Int_t GetRecoTrackID(Int_t i=0) const {                                   //< Returns the id of the ith reco track associated to the ideal track
+    if(i < GetNofRecoTracks()) return fRecoTrackIDs[i];
+    return -1; }
   Int_t GetAssoRecoTrackID() const { return fAssoRecoTrackID; }
 
   TVector3 GetPositionFirst() { return fPosFirst; }
@@ -56,6 +60,9 @@ class PndTrackingQualityMCInfo : public TObject
   TVector3 GetMomentumLast() { return fMomLast; }
 
   Int_t GetCharge() { return fCharge; }
+  Bool_t GetIsPrimary() { return fIsPrimary; }
+  TVector3 GetVertex() { return fVertex; }
+  TVector3 GetStartMomentum() { return fMomentum; }
 
   void SetPDGCode(int pdg) { fPDGCode = pdg; }
   Int_t GetPDGCode() { return fPDGCode; }
@@ -64,11 +71,9 @@ class PndTrackingQualityMCInfo : public TObject
   Int_t GetReconstructabilityStatus() { return fReconstructabilityStatus; }
 
   void SetMCTrackID(Int_t mctrackid) { fMCTrackID = mctrackid; }
-  void SetRecoTrackIDs(const TArrayI recotrkids) { fRecoTrackIDs = recotrkids; }
+  void SetRecoTrackIDs(const std::vector<int> recotrkids) { fRecoTrackIDs = recotrkids; }
   void SetRecoTrackID(int recotrkid) { 
-    int size = GetNofRecoTracks();
-    fRecoTrackIDs.Set(size + 1);
-    fRecoTrackIDs[size] = recotrkid; 
+    fRecoTrackIDs.push_back(recotrkid);
   }
   void SetAssoRecoTrackID(int asso) { fAssoRecoTrackID = asso; }
   Bool_t IsReconstructed() { return GetNofRecoTracks() > 0;}
@@ -83,20 +88,24 @@ class PndTrackingQualityMCInfo : public TObject
  
   Int_t fNofMvdPixelPoints,  fNofMvdStripPoints,  fNofSttParalPoints, fNofSttSkewPoints, fNofGemPoints, fNofFtsPoints;
   Bool_t fReconstructabilityStatus;
+  Bool_t fIsPrimary;
   Int_t fMCTrackID;
+  TVector3 fVertex;	  //< Vertex position from MCTrack
+  TVector3 fMomentum; //< Momentum at vertex position from MCTrack
+  Int_t fCharge;	  //< Charge from MCTrack
+  Int_t fPDGCode;	  //< PDG code from MCTrack
   
-  TArrayI fRecoTrackIDs;
+  std::vector<int> fRecoTrackIDs;
   
   TVector3 fPosFirst, fMomFirst;
   TVector3 fPosLast, fMomLast;
-  Int_t fCharge;
-  Int_t fPDGCode;
+
 
   Int_t fQuality;
   Int_t fMCQuality;
-  Int_t fAssoRecoTrackID;
+  Int_t fAssoRecoTrackID;   //< Id of the reco track with the highest efficiency (or highest purity if two tracks with identical eff. exist)
 
-  ClassDef(PndTrackingQualityMCInfo,2);
+  ClassDef(PndTrackingQualityMCInfo,3);
 };
 
 

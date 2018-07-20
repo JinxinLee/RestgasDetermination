@@ -8,10 +8,10 @@ int trackingQA_complete(TString prefix, TString branch, Int_t nEvents=0)
   TString  input          = "";
   TString  output         = "trackingQA_";
   output.Append(branch);
-  TString  friend1        = "reco";
+  TString  friend1        = "catracking";
   TString  friend2        = "digi";
-  TString  friend3        = "";
-  TString  friend4        = "";
+  TString  friend3        = "sim";
+  TString  friend4        = "idealbarreltracking";
 
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
@@ -29,7 +29,7 @@ int trackingQA_complete(TString prefix, TString branch, Int_t nEvents=0)
 
 
     /// QA task
-    PndTrackingQATask* trackingQA = new PndTrackingQATask(branch, "IdealTrack");
+    PndTrackingQATask* trackingQA = new PndTrackingQATask(branch, "BarrelIdealTrack");
     trackingQA->SetVerbose(0);
     fRun->AddTask(trackingQA);
 

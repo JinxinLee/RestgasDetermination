@@ -155,8 +155,8 @@ private:
 	Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
 	virtual Int_t AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo, Int_t trackId);
 	virtual void CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo);
-	FairMultiLinkedData GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand); ///< returns how often a MCTrack (marked by a FairLink) was seen by the hits of a PndTrackCand
-	std::map<TString, FairMultiLinkedData> AnalyseTrackCand(PndTrackCand* trackCand);	///< returns a map<BranchName, MCTrackLinks> which returns the FairLinks to MCTracks grouped by hit branches and all
+	FairMultiLinkedData GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand); ///< returns which MCTracks and how often (marked by a FairLink) they were seen by the hits of a PndTrackCand
+	std::map<TString, FairMultiLinkedData> AnalyseTrackCand(PndTrackCand* trackCand);	///< returns a map<BranchNameOfHits, MCTrackLinks> which returns the FairLinks to MCTracks grouped by hit branches and all
 
 //	virtual Bool_t IsCorrectGemHit(FairLink& gemLink);
 
@@ -173,7 +173,7 @@ private:
 	Bool_t fUseCorrectedSkewedHits;
 	Int_t fVerbose;
 
-	std::vector<TString> fBranchNames;                              //!
+	std::vector<TString> fBranchNames;                  //!<! branch names of hits taken into account in the analysis (e.g. MVDHitsPixel, STTHit, ...)
 	std::map<Int_t, Int_t> fTrackIdMCId;				//!<! map between track id and most probable MC track id
 	std::map<Int_t, Int_t> fMCIdTrackId;				//!<! map between MC id and track id
 	std::map<Int_t, Int_t> fMCIdIdealTrackId;			//!<! map between MC id and ideal track id
@@ -184,7 +184,7 @@ private:
 
 	std::map<Int_t, Int_t> fMapTrackMCStatus;			//!<! TrackId vs TrackStatus from MC
 	std::map<Int_t, Int_t> fMapTrackQualification;    		//!<! TrackId vs TrackStatus after analysis of track finding
-	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficiencies;  //!<! MostProbable TrackId, BranchName, Efficiency, #FoundHits / #MCHits, #MCHits
+	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficiencies;  //!<! MostProbable TrackId, BranchName, Efficiency (#FoundHits / #MCHits), #MCHits
 	std::map<Int_t, Double_t> fMapPResolution;                      //!
 	std::map<Int_t, TVector3> fMapP;                                //!
 	std::map<Int_t, Double_t> fMapPtResolution;                     //!
