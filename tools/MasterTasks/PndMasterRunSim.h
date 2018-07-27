@@ -72,11 +72,21 @@ class PndMasterRunSim : public FairRunSim
   void CreateGeometryDefault();
 
   /**
+   * @brief It creates the standard geometry volumes for phase1 of the experiment
+   * @details # Master Geometry List
+   * It creates all the standard geometry volumes which have to be used in simulation,
+   * with the setup for phase1 experiments. All the MCPoint will be stored, except for EMC
+   */
+
+  void CreateGeometryPhase1();
+
+  /**
    * @brief It creates the standard geometry volumes for day1 phase
    * @details # Master Geometry List
    * It creates all the standard geometry volumes which have to be used in simulation,
-   * with the setup for day1 experiments. All the MCPoint will be stored, expect for EMC
+   * with the setup for day1 experiments. All the MCPoint will be stored, except for EMC
    */
+
   void CreateGeometryDay1();
 
   /**

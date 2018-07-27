@@ -123,7 +123,8 @@ Bool_t PndMasterRunSim::Setup(TString outprefix)
 void PndMasterRunSim::CreateGeometry()
 {
   if (fOptions=="") CreateGeometryDefault();
-  if (fOptions.Contains("day1")) CreateGeometryDay1();
+  else if (fOptions.Contains("phase1")) CreateGeometryPhase1();
+  else if (fOptions.Contains("day1")) CreateGeometryDay1();
 }
 
 // -----   CreateGeometry   -------------------------------------------------
@@ -201,6 +202,81 @@ void PndMasterRunSim::CreateGeometryDefault()
   AddModule(Rich);
 }
 
+// -----   CreateGeometry   -------------------------------------------------
+void PndMasterRunSim::CreateGeometryPhase1()
+{
+  //-------------------------  CAVE      -----------------
+  FairModule *Cave= new PndCave("CAVE");
+  Cave->SetGeometryFileName("pndcave.geo");
+  AddModule(Cave);
+  //-------------------------  Magnet   -----------------
+  // This part is commented because the MDT geometry contains the magnet now
+  //FairModule *Magnet= new PndMagnet("MAGNET");
+  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+  //AddModule(Magnet);
+  FairModule *Dipole= new PndMagnet("MAGNET");
+  Dipole->SetGeometryFileName("dipole.geo");
+  AddModule(Dipole);
+  //-------------------------  Pipe     -----------------
+  FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("beampipe_201309.root");
+  AddModule(Pipe);
+  //-------------------------  STT       -----------------
+  FairDetector *Stt= new PndStt("STT", kTRUE);
+  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  AddModule(Stt);
+  //-------------------------  MVD       -----------------
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+  AddModule(Mvd);
+  //-------------------------  GEM       -----------------
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  Gem->SetGeometryFileName("gem_3Stations_realistic_v2.root");
+  AddModule(Gem);
+  //-------------------------  EMC       -----------------
+  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  Emc->SetGeometryVersion(1);
+  Emc->SetStorageOfData(kFALSE);
+  AddModule(Emc);
+  //-------------------------  SCITIL    -----------------
+  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  SciT->SetGeometryFileName("SciTil_201601.root");
+  AddModule(SciT);
+  //-------------------------  DRC       -----------------
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_e3_b3_l6_m40.root");
+  Drc->SetRunCherenkov(kFALSE);
+  AddModule(Drc);
+  //-------------------------  DISC      -----------------
+  //PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  //Dsk->SetStoreCerenkovs(kFALSE);
+  //Dsk->SetStoreTrackPoints(kFALSE);
+  //AddModule(Dsk);
+  //-------------------------  MDT       -----------------
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtCoil(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
+  AddModule(Muo);
+  //-------------------------  FTS       -----------------
+  FairDetector *Fts= new PndFts("FTS", kTRUE);
+  Fts->SetGeometryFileName("fts.geo");
+  AddModule(Fts);
+  //-------------------------  FTOF      -----------------
+  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  FTof->SetGeometryFileName("ftofwall.root");
+  AddModule(FTof);
+  //-------------------------  RICH       ----------------
+  //PndRich *Rich= new PndRich("RICH",kTRUE);
+  //Rich->SetGeometryFileName("rich_v313.root");
+  //AddModule(Rich);
+}
+
 // -----   CreateGeometryDay1   ---------------------------------------------
 void PndMasterRunSim::CreateGeometryDay1()
 {
@@ -226,7 +302,7 @@ void PndMasterRunSim::CreateGeometryDay1()
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   AddModule(Stt);
   //-------------------------  MVD       -----------------
-  if (fOptions.Contains("strip")){
+  if (fOptions.Contains("strip")||fOptions.Contains("nopixels")){
 	  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
 	  Mvd->SetGeometryFileName("Mvd-2.1-Strips.root");
 	  AddModule(Mvd);
@@ -264,19 +340,21 @@ void PndMasterRunSim::CreateGeometryDay1()
   FTof->SetGeometryFileName("ftofwall.root");
   AddModule(FTof);
 
-  if (fOptions.Contains("gem2"))
-    {
-      //-------------------------  GEM       -----------------
-      FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-      Gem->SetGeometryFileName("gem_2Stations_realistic_v2.root");
-      AddModule(Gem);
-    }
-
-  else if (fOptions.Contains("gem3"))
+  if (fOptions.Contains("nogem")||fOptions.Contains("gem0")) {
+    // do nothing
+  }
+  else if (fOptions.Contains("gem3")) // GEM 3 Stations
   {
 	  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
 	  Gem->SetGeometryFileName("gem_3Stations_realistic_v2.root");
 	  AddModule(Gem);
+  }
+  else   //GEM 2 Stations
+  {
+    //-------------------------  GEM       -----------------
+    FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+    Gem->SetGeometryFileName("gem_2Stations_realistic_v2.root");
+    AddModule(Gem);
   }
 
   if (fOptions.Contains("fts1256"))
