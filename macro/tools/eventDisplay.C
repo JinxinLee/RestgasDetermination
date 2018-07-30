@@ -8,12 +8,12 @@ int eventDisplay()
   Bool_t enableTrackDraw = kTRUE;
 
   TString  parAsciiFile   = "all.par";
-	  TString  prefix         = "./data/evtcomplete_15G";
+	  TString  prefix         = "evtcomplete";
 	  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-	  TString  output         = "digionly";
-	  TString  friend1        = "digi";
-	  TString  friend2        = "reco";
-	  TString  friend3        = "";
+	  TString  output         = "eventdisplay";
+	  TString  friend1        = "sim";
+	  TString  friend2        = "digi";
+	  TString  friend3        = "reco";
 	  TString  friend4        = "";
 
 	  // -----   Initial Settings   --------------------------------------------
