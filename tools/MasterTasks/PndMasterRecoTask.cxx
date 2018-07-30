@@ -68,7 +68,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 	} else {
 		PndRecoMultiKalmanTask* recoKalman = NULL;
 		fBranchTasks.push_back(recoKalman = new PndRecoMultiKalmanTask());
-		if ((!fOptions.Contains("day1")) || (fOptions.Contains("gem"))) {
+		if ((!fOptions.Contains("nogem")) || (!fOptions.Contains("gem0"))) {
 			recoKalman->SetTrackInBranchName("SttMvdGemTrack");
 			//      recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
 			recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
@@ -87,7 +87,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 	if (fOptions.Contains("filtered")) {
 		PndMissingPzCleanerTask* cleaner = NULL;
 		fBranchTasks.push_back(cleaner = new PndMissingPzCleanerTask());
-		if ((!fOptions.Contains("day1")) || (fOptions.Contains("gem"))) {
+		if ((!fOptions.Contains("nogem")) || (!fOptions.Contains("gem0"))) {
 			cleaner->SetInputTrackBranch("SttMvdGemGenTrack");
 		} else {
 			cleaner->SetInputTrackBranch("SttMvdGenTrack");

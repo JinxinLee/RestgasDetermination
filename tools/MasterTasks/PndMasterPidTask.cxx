@@ -32,7 +32,7 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   PndMasterTask("Master Pid Task"), fOptions(options)
 {
   pid = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-   
+
   // -----   Correlation   ---------------------------------
   PndPidCorrelator* corr = NULL;
   this->Add(corr = new PndPidCorrelator()); // 1
@@ -64,51 +64,51 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   // -----   Bremsstrahlung Correction ----------------------
   this->Add(new PndPidBremCorrector()); // 2
   pid.kPndPidBremCorrector = GetListOfTasks()->GetSize()-1;
-  
+
   // -----   MC Cloner   ------------------------------------
   PndMcCloner *clone = NULL;
   this->Add(clone = new PndMcCloner()); // 3
   pid.kPndMcCloner = GetListOfTasks()->GetSize()-1;
   // Option to clean the MCTrack TClonesArray from particles which were not interacting with sensitive detectors
   clone->SetCleanMc();
-  
+
   // -----   Classifiers   ----------------------------------
   this->Add(new PndPidIdealAssociatorTask()); // 4
   pid.kPndPidIdealAssociatorTask = GetListOfTasks()->GetSize()-1;
-  
+
   this->Add(new PndPidMvdAssociatorTask()); // 5
   pid.kPndPidMvdAssociatorTask = GetListOfTasks()->GetSize()-1;
-    
+
   this->Add(new PndPidMdtHCAssociatorTask()); // 6
   pid.kPndPidMdtHCAssociatorTask = GetListOfTasks()->GetSize()-1;
-  
+
   this->Add(new PndPidDrcAssociatorTask()); // 7
   pid.kPndPidDrcAssociatorTask = GetListOfTasks()->GetSize()-1;
 
-  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+  if ( (!fOptions.Contains("nogem")) || (!fOptions.Contains("gem0")) )
     {
       this->Add(new PndPidDiscAssociatorTask()); // 8
       pid.kPndPidDiscAssociatorTask = GetListOfTasks()->GetSize()-1;
     }
- 
+
   this->Add(new PndPidSttAssociatorTask()); // 9
   pid.kPndPidSttAssociatorTask = GetListOfTasks()->GetSize()-1;
-    
+
   this->Add(new PndPidEmcBayesAssociatorTask()); // 10
   pid.kPndPidEmcBayesAssociatorTask = GetListOfTasks()->GetSize()-1;
-   
+
   this->Add(new PndPidSciTAssociatorTask()); // 11
   pid.kPndPidSciTAssociatorTask = GetListOfTasks()->GetSize()-1;
 
   this->Add(new PndPidFtofAssociatorTask()); // 12
   pid.kPndPidFtofAssociatorTask = GetListOfTasks()->GetSize()-1;
 
-  if ( (!fOptions.Contains("day1")) )
+  if ( !fOptions.Contains("day1") || !fOptions.Contains("phase1") )
     {
       this->Add(new PndPidRichAssociatorTask()); // 13
       pid.kPndPidRichAssociatorTask = GetListOfTasks()->GetSize()-1;
     }
-  
+
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------

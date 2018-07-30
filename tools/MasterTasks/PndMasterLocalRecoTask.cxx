@@ -46,7 +46,10 @@ PndMasterLocalRecoTask::PndMasterLocalRecoTask(TString options) :
 	fBranchTasks.push_back(new PndMdtHitProducerIdeal());
 	fBranchTasks.push_back(new PndDrcHitProducerReal());
 	fBranchTasks.push_back(new PndFtofHitProducerIdeal());
-	fBranchTasks.push_back(new PndRichHitProducer());
+  if ( !fOptions.Contains("day1") || !fOptions.Contains("phase1") )
+  {
+    fBranchTasks.push_back(new PndRichHitProducer());
+  }
 
   fBranchTasks.push_back(new PndMvdClusterTask());
 
@@ -56,7 +59,7 @@ PndMasterLocalRecoTask::PndMasterLocalRecoTask(TString options) :
   fBranchTasks.push_back(new PndMdtTrkProducer());
 
   // -----   GEM hit producers   ---------------------------------
-  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+  if ( (!fOptions.Contains("nogem")) || (!fOptions.Contains("gem0")) )
   {
 	  fBranchTasks.push_back(new PndGemFindHits("GEM Hit Finder", 0));
   }

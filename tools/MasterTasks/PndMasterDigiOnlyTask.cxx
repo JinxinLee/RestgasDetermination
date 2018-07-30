@@ -53,7 +53,7 @@ PndMasterDigiOnlyTask::PndMasterDigiOnlyTask(TString options) :
   fBranchTasks.push_back(new PndDrcHitProducerReal());
 
   // -----   GEM hit producers   ---------------------------------
-  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+  if ( (!fOptions.Contains("nogem")) || (!fOptions.Contains("gem0")) )
   {
 	  fBranchTasks.push_back(new PndGemDigitize("GEM Digitizer", 0));
   }
@@ -61,7 +61,7 @@ PndMasterDigiOnlyTask::PndMasterDigiOnlyTask(TString options) :
   fBranchTasks.push_back(new PndFtofHitProducerIdeal());
 
   // -----   Rich hit producers   ---------------------------
-  if ( !fOptions.Contains("day1") )
+  if ( !fOptions.Contains("day1") || !fOptions.Contains("phase1") )
   {
 	  fBranchTasks.push_back(new PndRichHitProducer());
   }
