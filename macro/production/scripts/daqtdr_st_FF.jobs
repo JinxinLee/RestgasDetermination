@@ -1,0 +1,8 @@
+sbatch -a1-25  jobsim_kronos_day1.sh M030_2254   2000  decfiles/M030_ee.dec  1.5
+
+sbatch -a1-500    jobsim_kronos_day1.sh DPM2254  2000  DPM  1.5
+sbatch -a501-1000 jobsim_kronos_day1.sh DPM2254  2000  DPM  1.5
+
+sbatch -a1-250 jobsim_kronos_day1.sh DPMel2254  2000  DPM2  1.5
+
+

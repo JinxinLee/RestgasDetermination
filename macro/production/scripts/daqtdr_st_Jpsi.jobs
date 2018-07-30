@@ -1,0 +1,15 @@
+sbatch -a1-25  jobsim_kronos_day1.sh M010_3872   2000  decfiles/M010_Jee.dec  -3.872
+sbatch -a1-25  jobsim_kronos_day1.sh M011_3872   2000  decfiles/M011_Jee.dec  -3.872
+sbatch -a1-25  jobsim_kronos_day1.sh M012_3872   2000  decfiles/M012_Jee.dec  -3.872
+sbatch -a1-25  jobsim_kronos_day1.sh M013_3872   2000  decfiles/M013_Jee.dec  -3.872
+sbatch -a1-25  jobsim_kronos_day1.sh M014_3872   2000  decfiles/M014_Jee.dec  -3.872
+
+sbatch -a1-25  jobsim_kronos_day1.sh M020_3872   2000  decfiles/M020_Jmm.dec  -3.872
+sbatch -a1-25  jobsim_kronos_day1.sh M021_3872   2000  decfiles/M021_Jmm.dec  -3.872
+sbatch -a1-25  jobsim_kronos_day1.sh M022_3872   2000  decfiles/M022_Jmm.dec  -3.872
+sbatch -a1-25  jobsim_kronos_day1.sh M023_3872   2000  decfiles/M023_Jmm.dec  -3.872
+sbatch -a1-25  jobsim_kronos_day1.sh M024_3872   2000  decfiles/M024_Jmm.dec  -3.872
+
+
+sbatch -a1-500 jobsim_kronos_day1.sh DPM3872     2000  DPM  -3.872
+sbatch -a501-1000 jobsim_kronos_day1.sh DPM3872     2000  DPM  -3.872

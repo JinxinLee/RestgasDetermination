@@ -1,0 +1,30 @@
+int prod_pid(TString prefix="")
+{
+  //-----User Settings:------------------------------------------------------
+  TString  parAsciiFile   = "all.par";
+  TString  output         = "pid";
+  TString  friend1        = "digi";
+  TString  friend2        = "reco";
+  TString  opt            = "";
+  
+  // -----   Initial Settings   --------------------------------------------
+  PndMasterRunAna *fRun= new PndMasterRunAna();
+  fRun->SetInput("dummy");
+  fRun->SetOutput(output);
+  fRun->AddFriend(friend1);
+  fRun->AddFriend(friend2);
+  fRun->SetParamAsciiFile(parAsciiFile);
+  fRun->Setup(prefix);
+  if (opt!="") fRun->SetOptions(opt);
+  
+  // -----   Add tasks   ----------------------------------------------------
+  fRun->AddPidTasks();
+  
+  // -----   Intialise and run   --------------------------------------------
+  PndEmcMapper::Init(1);
+  fRun->Init();
+  fRun->Run(0, nEvents);
+  fRun->Finish();
+
+  return 0;
+}
