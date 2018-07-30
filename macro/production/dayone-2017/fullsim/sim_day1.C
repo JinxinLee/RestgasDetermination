@@ -11,8 +11,8 @@ int sim_day1(Int_t nEvents = 100)
   Double_t BeamMomentum = 6.231552;
   TString  SimEngine ="TGeant3";
   TString parAsciiFile   = "all.par";
-  TString options        = "day1+gem2+strip"; //with fts1234
-  //TString options        = "day1+gem2+strip+fts1256";
+  TString options        = "day1+strip"; //with fts1234
+  //TString options        = "day1+strip+fts1256";
   TString prefix         = "evtday1";     // prefix string for output files
 
   // TString inputGenerator =

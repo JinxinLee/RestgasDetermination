@@ -5,8 +5,8 @@ int digi_day1(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString options        = "day1+gem2+strip"; //with fts1234
-  //TString options        = "day1+gem2+strip+fts1256";
+  TString options        = "day1+strip"; //with fts1234
+  //TString options        = "day1+strip+fts1256";
   TString  input          = "evtday1";
   TString  output         = "digi";
   TString  friend1        = "";
