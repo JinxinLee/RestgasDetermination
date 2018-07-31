@@ -5,5 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class PndMissingPzCleanerTask+;
+#pragma link C++ class PndTrackSmearTask+;
 
 #endif

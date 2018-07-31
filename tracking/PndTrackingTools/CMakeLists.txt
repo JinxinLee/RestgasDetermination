@@ -3,12 +3,12 @@
 # The extension is already found.  Any number of sources could be listed here.
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
-  ${SYSTEM_INCLUDE_DIRECTORIES} 
-  ${BASE_INCLUDE_DIRECTORIES} 
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES}
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/pndbase 
+  ${CMAKE_SOURCE_DIR}/pndbase
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/trackbase
@@ -22,11 +22,12 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 PndMissingPzCleanerTask.cxx
+PndTrackSmearTask.cxx
 )
 
 set(LINKDEF  PndTrackingToolsLinkDef.h)
