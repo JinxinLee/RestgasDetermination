@@ -19,17 +19,18 @@
 #include "PndPersistencyTask.h"
 #include "TString.h"
 #include "TVector3.h"
+#include "FairTrackParP.h"
 
 class TClonesArray;
 
 class PndTrackSmearTask: public PndPersistencyTask {
 public:
 	PndTrackSmearTask()
-		: PndPersistencyTask("Missing Pz Track Cleaner Task"), fInputTrackBranches(), fOutputTrackBranches(),fTracks(0),fMomSigma(0,0,0)
+		: PndPersistencyTask("Missing Pz Track Cleaner Task"), fInputTrackBranches(), fOutputTrackBranches(),fTracks(0),fMomSigma(0.03,0.03,0.03)
     {SetPersistency(kTRUE); };
 
 	PndTrackSmearTask(const TString& branchName)
-		: PndPersistencyTask("Missing Pz Track Cleaner Task"), fInputTrackBranches(), fOutputTrackBranches(),fTracks(0),fMomSigma(0,0,0)
+		: PndPersistencyTask("Missing Pz Track Cleaner Task"), fInputTrackBranches(), fOutputTrackBranches(),fTracks(0),fMomSigma(0.03,0.03,0.03)
       {SetPersistency(kTRUE); AddInputTrackBranch(branchName);};
 
 	virtual ~PndTrackSmearTask(){};
@@ -43,17 +44,21 @@ public:
 	virtual void FinishEvent();
 	virtual void Finish();
 
+  void SetMomSmearing(TVector3 dpop){fMomSigma=dpop;}
   void AddInputTrackBranch(const TString& name) { fInputTrackBranches.push_back(name); fOutputTrackBranches.push_back(name+"FakeOnline");}
-  void SetPersistence(const Bool_t& val) { SetPersistency(val); }
-  void SmearVector(TVector3 &vec, const TVector3 &sigma);
+  void SetPersistence(const Bool_t& val) { SetPersistency(val);}
 
 private:
-    std::vector<TString> fInputTrackBranches;
-    std::vector<TString> fOutputTrackBranches;
-    std::vector<TClonesArray*> fTracks;
-    std::vector<TClonesArray*> fOutputTracks;
+  FairTrackParP SmearTrackPar(FairTrackParP par);
+  void SmearMom(TVector3 &vec);
+  void SmearCov(Double_t Cov66[6][6]);
 
-	  TVector3 fMomSigma;          ///< Momentum smearing sigma [GeV]
+  std::vector<TString> fInputTrackBranches;
+  std::vector<TString> fOutputTrackBranches;
+  std::vector<TClonesArray*> fTracks;
+  std::vector<TClonesArray*> fOutputTracks;
+
+  TVector3 fMomSigma;          ///< Momentum smearing sigma (dp/p)
 
 	ClassDef(PndTrackSmearTask,1);
 

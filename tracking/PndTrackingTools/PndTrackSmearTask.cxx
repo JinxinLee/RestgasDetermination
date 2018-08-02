@@ -51,32 +51,65 @@ void PndTrackSmearTask::Exec(Option_t *) {
 		std::cout << "============= Begin PndTrackSmearTask::Exec" << std::endl;
 		std::cout << std::endl;
 	}
-	//FairRootManager* ioman = FairRootManager::Instance();
+	FairRootManager* ioman = FairRootManager::Instance();
+  for(TClonesArray* arr : fOutputTracks) {arr->Delete();}
 
-  //for(TClonesArray* trkArray : fTracks)
-  //{
-  	//for (int i = 0; i < trkArray->GetEntriesFast(); i++)
-    //{
-  		//PndTrack* myTrack = (PndTrack*)trkArray->At(i);
-      //TVector3 mom = myTrack->Get
-    //}
-  //}
+
+  for (int i=0;i<fTracks.size();i++)
+  {
+    TClonesArray* trkArray=fTracks[i];
+    TClonesArray* trkOutArray=fOutputTracks[i];
+    TString trkbranchname = fInputTrackBranches[i];
+    for (int j = 0; j < trkArray->GetEntriesFast(); j++)
+    {
+  		PndTrack* myTrack = (PndTrack*)trkArray->At(j);
+      //PndTrackCand& myTrackCand=myTrack->GetTrackCand();
+      PndTrackCand* myTrackCand=myTrack->GetPndTrackCandViaRef();
+      new((*trkOutArray)[j]) PndTrack(
+    		SmearTrackPar(myTrack->GetParamFirst()), SmearTrackPar(myTrack->GetParamLast()),
+				myTrack->GetTrackCand(), myTrack->GetFlag(),
+				myTrack->GetChi2(), myTrack->GetNDF(), myTrack->GetPidHypo(),
+				j,
+				FairRootManager::Instance()->GetBranchId(trkbranchname));    }
+  }
 
 }
 
-void PndTrackSmearTask::SmearVector(TVector3 &vec, const TVector3 &sigma)
+
+FairTrackParP PndTrackSmearTask::SmearTrackPar(FairTrackParP par)
+{
+  TVector3 mom=par.GetMomentum();
+  SmearMom(mom);
+  Double_t Cov66[6][6];
+  par.GetMARSCov(Cov66);
+  SmearCov(Cov66);
+  FairTrackParP result(par.GetPosition(), mom, Cov66,par.GetQ(), par.GetOrigin(), par.GetJVer(), par.GetKVer());
+  return result;
+}
+
+
+void PndTrackSmearTask::SmearMom(TVector3 &vec)
 {
   // gaussian smearing
   Double_t rannn=0.;
-  rannn = gRandom->Gaus(vec.X(),sigma.X());
+  rannn = gRandom->Gaus(vec.X(),fMomSigma.X());
   vec.SetX(rannn);
 
-  rannn = gRandom->Gaus(vec.Y(),sigma.Y());
+  rannn = gRandom->Gaus(vec.Y(),fMomSigma.Y());
   vec.SetY(rannn);
 
-  rannn = gRandom->Gaus(vec.Z(),sigma.Z());
+  rannn = gRandom->Gaus(vec.Z(),fMomSigma.Z());
   vec.SetZ(rannn);
 
+  return;
+}
+
+
+void PndTrackSmearTask::SmearCov(Double_t Cov66[6][6])
+{
+  Cov66[3][3]+=fMomSigma.X()*fMomSigma.X();
+  Cov66[4][4]+=fMomSigma.Y()*fMomSigma.Y();
+  Cov66[5][5]+=fMomSigma.Z()*fMomSigma.Z();
   return;
 }
 
