@@ -6,7 +6,7 @@
 // root  sim_day1.C"(100, "TGeant4",2)"
 #include "TaskTool.C"
 
-int sim_day1(Int_t nEvents = 1000, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552)
+int sim_day1(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";

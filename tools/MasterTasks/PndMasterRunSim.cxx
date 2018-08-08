@@ -379,7 +379,7 @@ void PndMasterRunSim::AddSimTasks()
   // -----   Event Counter   --------------------------------
   AddTask(new PndEventCounterTask("Event Counter", fNEvents, fEventCounterRate));
 
-  PndMasterSimTask *sim = new PndMasterSimTask();
+  PndMasterSimTask *sim = new PndMasterSimTask(fOptions);
   AddTask(sim);
 
   return;

@@ -6,7 +6,7 @@
 //
 //  Created 14/08/06  by S.Spataro
 //
-/////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////
 
 #include "PndEmcHitProducer.h"
 
@@ -14,8 +14,8 @@
 #include "PndEmcHit.h"
 #include "PndEmcPoint.h"
 #include "PndEmcGeoPar.h"
-#include "PndEmcDigiPar.h"		
-#include "PndEmcDigiNonuniformityPar.h"		
+#include "PndEmcDigiPar.h"
+#include "PndEmcDigiNonuniformityPar.h"
 #include "PndMCTrack.h"
 
 #include "PndEmcXtal.h"
@@ -43,7 +43,7 @@ static Int_t HowManyHitsAboveThreshold = 0;
 // -----   Default constructor   -------------------------------------------
 PndEmcHitProducer::PndEmcHitProducer() :
 	PndPersistencyTask("Ideal EMC hit Producer"),
-	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar()
+	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fDayOne(false)
 {
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
 	fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
@@ -53,8 +53,8 @@ PndEmcHitProducer::PndEmcHitProducer() :
 
 PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
 	PndPersistencyTask("Ideal EMC hit Producer"),
-	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar()
-{ 
+	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fDayOne(false)
+{
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
 	fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
 	SetPersistency(val);
@@ -157,7 +157,7 @@ void PndEmcHitProducer::SetParContainers(){
 	fNonuniformityPar = (PndEmcDigiNonuniformityPar*) db->getContainer("PndEmcDigiNonuniformityPar");
 
 	fDigiPar->setChanged();
-	fDigiPar->setInputVersion(run->GetRunId(),1); 
+	fDigiPar->setInputVersion(run->GetRunId(),1);
 
 	fNonuniformityPar->setChanged();
 	fNonuniformityPar->setInputVersion(run->GetRunId(),1);
@@ -182,7 +182,7 @@ void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 		PndMCTrack *pt;
 		Int_t id = tmplist[j];
                 // if -1 index put it in the list and continue
-		if(id < 0) { 
+		if(id < 0) {
 			tmplist2.push_back(id);
 			continue;
 		}
@@ -195,7 +195,7 @@ void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 			}
                         // Stop when it finds the first MCTrack not produced in emc
                         TString node =  gGeoManager->FindNode(pt->GetStartVertex().X(),pt->GetStartVertex().Y(),pt->GetStartVertex().Z())->GetName();
-                        if ( !(node.BeginsWith("emc") || node.BeginsWith("CrystalVol") || node.BeginsWith("Fsc") ) ) { 
+                        if ( !(node.BeginsWith("emc") || node.BeginsWith("CrystalVol") || node.BeginsWith("Fsc") ) ) {
                                 tmplist2.push_back(id);
                                 break;
                         }
@@ -216,7 +216,7 @@ void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 
 // -----   Public method Exec   --------------------------------------------
 void PndEmcHitProducer::Exec(Option_t*)
-{  
+{
 	if (fVerbose>1) cout << " -I- PndEmcHitProducer POINT EXECUTION *********************" << endl;
 	// Reset output array
 	if (! fHitArray ) Fatal("Exec", "No DigiArray");
@@ -251,10 +251,11 @@ void PndEmcHitProducer::Exec(Option_t*)
 	Int_t nPoints = fPointArray->GetEntriesFast();
 
 	Double_t point_time = 0.00;
-	//------- init containers --- 
+	//------- init containers ---
 
 	for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
 		PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
+    if ( ! AcceptDayOne(point) ) continue;
 		fTrackEnergy[point->GetDetectorID()] = 0.00;
 		fTrackTime  [point->GetDetectorID()] = std::numeric_limits<float>::max();
 	}
@@ -267,6 +268,7 @@ void PndEmcHitProducer::Exec(Option_t*)
 	for (Int_t iPoint=0; iPoint<nPoints; iPoint++)
 	{
 		PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
+    if ( ! AcceptDayOne(point) ) continue;
 		DetId = point->GetDetectorID();
 
 		if (point->GetEntering()){
@@ -276,7 +278,7 @@ void PndEmcHitProducer::Exec(Option_t*)
 			fTrackExiting[DetId].AddLinks(point->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")));
 		}
 		if(point->GetEnergyLoss() == 0 ) continue;
-		if(point->GetModule() == 10 ) 
+		if(point->GetModule() == 10 )
 		  {
 		    cout << " -I-  PndEmcHitProducer::Exec" << "\t" << "Skipping Module 10 (FscFiber)" << endl;
 		    continue;
@@ -307,12 +309,12 @@ void PndEmcHitProducer::Exec(Option_t*)
 			energyscalefactor=c[0]+zpos*(c[1]+zpos*c[2]);
 			fTrackEnergy[DetId] += point->GetEnergyLoss() * energyscalefactor;
 			fPointMatch[DetId].push_back(iPoint);
-			//        printf("point with detID %d has z Position %f and energyloss %f scaled with %f\n",DetId,zpos, point->GetEnergyLoss(),energyscalefactor);	
+			//        printf("point with detID %d has z Position %f and energyloss %f scaled with %f\n",DetId,zpos, point->GetEnergyLoss(),energyscalefactor);
 			//        printf("front is at x: %f y: %f z: %f\n", frontvec.X(),frontvec.Y(),frontvec.Z());
 		} else {
 			fTrackEnergy[DetId] += point->GetEnergyLoss();
 			fPointMatch[DetId].push_back(iPoint);
-			//        printf("point with detID %d has z Position %f and energyloss %f not scaled\n",DetId,zpos, point->GetEnergyLoss());	
+			//        printf("point with detID %d has z Position %f and energyloss %f not scaled\n",DetId,zpos, point->GetEnergyLoss());
 		}
 		point_time=point->GetTime();
 
@@ -411,10 +413,23 @@ void PndEmcHitProducer::FinishTask()
 	std::cout<<"========================================================="<<std::endl;
 	std::cout<<"PndEmcHitProducer::FinishTask"<<std::endl;
 	std::cout<<"*********************************************************"<<std::endl;
+  if(fDayOne)	std::cout<<" DAY 1 Setup active, only 12/16 Slices available "<<std::endl;
 	std::cout<<"Read points # "<<HowManyPoints<<std::endl;
 	std::cout<<"Produc hits# "<<HowManyHitsAll<<", threshold# "<<fEnergyThreshold<<std::endl;
 	std::cout<<"Hits above threshhod#"<<HowManyHitsAboveThreshold<<std::endl;
 	std::cout<<"*********************************************************"<<std::endl;
 }
+
+bool PndEmcHitProducer::AcceptDayOne(PndEmcPoint* p)
+{
+  if(!fDayOne) return true;
+  if(p->GetModule()>250) return true; // afaik this is convention for the barrel
+  float phi=p->GetPhi();
+  if(abs(phi-90)<22.5) return false;
+  if(abs(phi-270)<22.5) return false;
+  if(abs(phi+90)<22.5) return false;
+  return true;
+}
+
 
 ClassImp(PndEmcHitProducer)

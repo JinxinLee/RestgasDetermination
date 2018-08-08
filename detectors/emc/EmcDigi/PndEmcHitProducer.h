@@ -16,7 +16,7 @@
 
 #include "PndEmcHit.h"
 #include "PndEmcStructure.h"
-#include "PndEmcMapper.h"		
+#include "PndEmcMapper.h"
 
 
 class TClonesArray;
@@ -36,46 +36,46 @@ using std::map;
  */
 class PndEmcHitProducer : public PndPersistencyTask
 {
-  
+
  public:
   typedef std::map<Int_t, Float_t> mapper;
-  
-  /** Default constructor **/  
+
+  /** Default constructor **/
   PndEmcHitProducer();
-  
+
   PndEmcHitProducer(Bool_t val);
-  
+
   /** Destructor **/
   ~PndEmcHitProducer();
-  
-  
+
+
   /** Virtual method Init **/
   virtual InitStatus Init();
-  
-  
+
+
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-  
+
   PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector <Int_t> &mctruth, FairMultiLinkedData entering, FairMultiLinkedData exiting);
 
   //PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector<PndEmcPoint*> pointList);
   // not implemented
   //void CreateStructure();
-  
+
 	void SetStorageOfData(Bool_t val); // Method to specify whether hits are stored or not.
 	void SetNonuniformityFile(const char * filename){fNonuniformityFile = filename;};
+  void SetDayOne(bool d=true){fDayOne=d;};
 
 	void FinishTask();
- private: 
+ private:
 	Int_t fUse_nonuniformity;
 	TString fNonuniformityFile;
-
 	/** Input array of PndEmcPoints **/
 	TClonesArray* fPointArray;
 	TClonesArray* fMCTrackArray;
 
 	/** Output array of PndEmcHit **/
-	TClonesArray* fHitArray;  
+	TClonesArray* fHitArray;
 	//TClonesArray* fMcTrackArray;
 
 	TObjArray *fVolumeArray;
@@ -113,5 +113,9 @@ class PndEmcHitProducer : public PndPersistencyTask
 	map<Int_t, std::vector <Int_t> > fPointMatch; //DetId , PointIds with same DetId
 	map<Int_t, FairMultiLinkedData> fTrackEntering; //DetId, link to tracks entering same DetId
 	map<Int_t, FairMultiLinkedData> fTrackExiting; //DetId, link to track exiting same DetId
+
+  bool fDayOne;
+  bool AcceptDayOne(PndEmcPoint* p);
+
 };
 #endif
