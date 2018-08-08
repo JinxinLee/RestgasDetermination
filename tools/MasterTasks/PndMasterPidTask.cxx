@@ -37,26 +37,18 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   PndPidCorrelator* corr = NULL;
   this->Add(corr = new PndPidCorrelator()); // 1
   pid.kPndPidCorrelator = GetListOfTasks()->GetSize()-1;
-  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
-    {
-	  if (fOptions.Contains("filtered")){
-		  corr->SetBarrelTrackBranch("SttMvdGemGenTrack_filtered");
-	  } else {
-		  corr->SetBarrelTrackBranch("SttMvdGemGenTrack");
-	  }
-//      corr->SetInputIDBranch("SttMvdGemGenTrackID");
-    }
-  else
-    {
-	  if (fOptions.Contains("filtered")){
-		  corr->SetBarrelTrackBranch("SttMvdGenTrack_filtered");
-	  } else {
-		  corr->SetBarrelTrackBranch("SttMvdGenTrack");
-	  }
-//      corr->SetInputIDBranch("SttMvdGenTrackID");
-    }
-  corr->SetForwardTrackBranch("FtsIdealGenTrack");
-//  corr->SetInputIDBranch2("FtsIdealGenTrackID");
+  TString barrelbranchname="SttMvdGemGenTrack";
+  if (fOptions.Contains("nogem")||fOptions.Contains("gem0")){
+    barrelbranchname="SttMvdGenTrack";
+  }
+  if (fOptions.Contains("filtered")) barrelbranchname+="_filtered";
+  if (fOptions.Contains("fakeonline")) barrelbranchname+="_fakeonline";
+  corr->SetBarrelTrackBranch(barrelbranchname);
+
+  TString fwdbranchname="FtsIdealGenTrack";
+  if (fOptions.Contains("fakeonline")) fwdbranchname+="_fakeonline";
+  corr->SetForwardTrackBranch(fwdbranchname);
+
   corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   //corr->SetBackPropagate(kFALSE);
@@ -85,7 +77,7 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   this->Add(new PndPidDrcAssociatorTask()); // 7
   pid.kPndPidDrcAssociatorTask = GetListOfTasks()->GetSize()-1;
 
-  if ( (!fOptions.Contains("nogem")) || (!fOptions.Contains("gem0")) )
+  if ( (!fOptions.Contains("nogem")) && (!fOptions.Contains("gem0")) )
     {
       this->Add(new PndPidDiscAssociatorTask()); // 8
       pid.kPndPidDiscAssociatorTask = GetListOfTasks()->GetSize()-1;
@@ -103,7 +95,7 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   this->Add(new PndPidFtofAssociatorTask()); // 12
   pid.kPndPidFtofAssociatorTask = GetListOfTasks()->GetSize()-1;
 
-  if ( !fOptions.Contains("day1") || !fOptions.Contains("phase1") )
+  if ( !fOptions.Contains("day1") && !fOptions.Contains("phase1") )
     {
       this->Add(new PndPidRichAssociatorTask()); // 13
       pid.kPndPidRichAssociatorTask = GetListOfTasks()->GetSize()-1;

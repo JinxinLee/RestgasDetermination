@@ -54,7 +54,7 @@ void countDoubles(RhoCandList &l, int &n1, int &n2, int &n3)
 	n3 = n_both;
 }
 
-int ana_day1(int nevts=0)
+int ana_day1(int nevts=0, TString prefix="fakeonline")
 {
         TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",1.9,kFALSE,0.1,0,"",88888);
         TStopwatch fTimer;
@@ -66,11 +66,11 @@ int ana_day1(int nevts=0)
 	TString OutFile="output.root";
 
 	// *** the files coming from the simulation
-	TString inPidFile  = "psi2s_jpsi2pi_jpsi_mumu_pid.root";    // this file contains the PndPidCandidates and McTruth
-	TString inParFile  = "psi2s_jpsi2pi_jpsi_mumu_par.root";
+	TString inPidFile  = prefix+"_pid.root";    // this file contains the PndPidCandidates and McTruth
+	TString inParFile  = prefix+"_par.root";
 
 	// *** PID table with selection thresholds; can be modified by the user
-	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all_day1.par";
+	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";
 
 	// *** initialization
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
@@ -92,7 +92,8 @@ int ana_day1(int nevts=0)
 	fRun->Init();
 
         // *** create an output file for all histograms
-	TFile *out = TFile::Open("output_ana.root","RECREATE");
+  TString histofile=prefix+"_histo.root";
+	TFile *out = TFile::Open(histofile,"RECREATE");
 
 	// *** create some histograms
 	TH1F *hmomtrk    = new TH1F("hmomtrk","track momentum (all)",200,0,5);

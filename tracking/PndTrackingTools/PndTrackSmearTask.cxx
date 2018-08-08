@@ -32,6 +32,7 @@ InitStatus PndTrackSmearTask::Init() {
 	// get track branches
   for(TString branchname : fInputTrackBranches)
   {
+    std::cout<<"PndTrackSmearTask::Init(): Adding track branch "<<branchname.Data()<<std::endl;
 	  fTracks.push_back( (TClonesArray*) ioman->GetObject(branchname));
   }
 
@@ -50,8 +51,8 @@ void PndTrackSmearTask::Exec(Option_t *) {
 	if (fVerbose > 1) {
 		std::cout << "============= Begin PndTrackSmearTask::Exec" << std::endl;
 		std::cout << std::endl;
+    std::cout << "Array size check: fTracks ("<<fTracks.size()<<")  fOutputTracks ("<<fOutputTracks.size()<<")  fInputTrackBranches ("<<fInputTrackBranches.size()<<")"<<std::endl;
 	}
-	FairRootManager* ioman = FairRootManager::Instance();
   for(TClonesArray* arr : fOutputTracks) {arr->Delete();}
 
 
@@ -63,14 +64,13 @@ void PndTrackSmearTask::Exec(Option_t *) {
     for (int j = 0; j < trkArray->GetEntriesFast(); j++)
     {
   		PndTrack* myTrack = (PndTrack*)trkArray->At(j);
-      //PndTrackCand& myTrackCand=myTrack->GetTrackCand();
-      PndTrackCand* myTrackCand=myTrack->GetPndTrackCandViaRef();
-      new((*trkOutArray)[j]) PndTrack(
-    		SmearTrackPar(myTrack->GetParamFirst()), SmearTrackPar(myTrack->GetParamLast()),
-				myTrack->GetTrackCand(), myTrack->GetFlag(),
-				myTrack->GetChi2(), myTrack->GetNDF(), myTrack->GetPidHypo(),
-				j,
-				FairRootManager::Instance()->GetBranchId(trkbranchname));    }
+      //PndTrackCand* myTrackCand=myTrack->GetPndTrackCandViaRef();
+        new((*trkOutArray)[j]) PndTrack(
+    		  SmearTrackPar(myTrack->GetParamFirst()), SmearTrackPar(myTrack->GetParamLast()),
+				  myTrack->GetTrackCand(), myTrack->GetFlag(),
+				  myTrack->GetChi2(), myTrack->GetNDF(), myTrack->GetPidHypo(), j,
+				  FairRootManager::Instance()->GetBranchId(trkbranchname));
+    }
   }
 
 }
@@ -79,37 +79,33 @@ void PndTrackSmearTask::Exec(Option_t *) {
 FairTrackParP PndTrackSmearTask::SmearTrackPar(FairTrackParP par)
 {
   TVector3 mom=par.GetMomentum();
-  SmearMom(mom);
   Double_t Cov66[6][6];
   par.GetMARSCov(Cov66);
-  SmearCov(Cov66);
+  SmearMom(mom,Cov66);
+
   FairTrackParP result(par.GetPosition(), mom, Cov66,par.GetQ(), par.GetOrigin(), par.GetJVer(), par.GetKVer());
+
   return result;
 }
 
 
-void PndTrackSmearTask::SmearMom(TVector3 &vec)
+void PndTrackSmearTask::SmearMom(TVector3 &vec, Double_t Cov66[6][6])
 {
   // gaussian smearing
   Double_t rannn=0.;
-  rannn = gRandom->Gaus(vec.X(),fMomSigma.X());
+  rannn = gRandom->Gaus(vec.X(),vec.X()*fMomSigma.X());
   vec.SetX(rannn);
 
-  rannn = gRandom->Gaus(vec.Y(),fMomSigma.Y());
+  rannn = gRandom->Gaus(vec.Y(),vec.Y()*fMomSigma.Y());
   vec.SetY(rannn);
 
-  rannn = gRandom->Gaus(vec.Z(),fMomSigma.Z());
+  rannn = gRandom->Gaus(vec.Z(),vec.Z()*fMomSigma.Z());
   vec.SetZ(rannn);
 
-  return;
-}
+  Cov66[3][3]+=vec.X()*vec.X()*fMomSigma.X()*fMomSigma.X();
+  Cov66[4][4]+=vec.Y()*vec.Y()*fMomSigma.Y()*fMomSigma.Y();
+  Cov66[5][5]+=vec.Z()*vec.Z()*fMomSigma.Z()*fMomSigma.Z();
 
-
-void PndTrackSmearTask::SmearCov(Double_t Cov66[6][6])
-{
-  Cov66[3][3]+=fMomSigma.X()*fMomSigma.X();
-  Cov66[4][4]+=fMomSigma.Y()*fMomSigma.Y();
-  Cov66[5][5]+=fMomSigma.Z()*fMomSigma.Z();
   return;
 }
 

@@ -16,6 +16,7 @@
 
 #include "PndMissingPzCleanerTask.h"
 //#include "PndFtsTrackerIdeal.h"
+#include "PndTrackSmearTask.h"
 
 /**
  * @brief Default Constructor
@@ -30,8 +31,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 	//  use the constructor with input :
 	//      printout flag (int) , plotting flag (bool), MC comparison flag (bool), SciTil.
 	PndTrkTracking2* tracking = NULL;
-	fBranchTasks.push_back(
-			tracking = new PndTrkTracking2(0, false, false, true));
+	fBranchTasks.push_back(tracking = new PndTrkTracking2(0, false, false, true));
 	tracking->SetInputBranchName("STTHit", "MVDHitsPixel", "MVDHitsStrip");
 	// tracking->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
 	//  don't do the Pattern Recognition second part, starting from the Mvd;
@@ -41,7 +41,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 	fFixedPersistency[tracking] = kFALSE;
 
 	// ----- MVD + STT + GEM Pattern Recognition --------------
-	if ((!fOptions.Contains("day1")) || (fOptions.Contains("gem"))) {
+		if ((!fOptions.Contains("nogem")) && (!fOptions.Contains("gem0"))) {
 		PndSttMvdGemTracking *SttMvdGemTracking = NULL;
 		fBranchTasks.push_back(SttMvdGemTracking = new PndSttMvdGemTracking(0));
 		fFixedPersistency[SttMvdGemTracking] = kFALSE;
@@ -51,7 +51,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 	if (!fOptions.Contains("multikalman")) {
 		PndRecoKalmanTask* recoKalman = NULL;
 		fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask());
-		if ((!fOptions.Contains("day1")) || (fOptions.Contains("gem"))) {
+		if ((!fOptions.Contains("nogem")) && (!fOptions.Contains("gem0"))) {
 			recoKalman->SetTrackInBranchName("SttMvdGemTrack");
 			//      recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
 			recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
@@ -65,10 +65,12 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 		//recoKalman->SetNumIterations(3);
 		recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
 		//recoKalman->SetPropagateToIP(kFALSE);
-	} else {
-		PndRecoMultiKalmanTask* recoKalman = NULL;
+	}
+  else //Multikalman
+  {
+	  PndRecoMultiKalmanTask* recoKalman = NULL;
 		fBranchTasks.push_back(recoKalman = new PndRecoMultiKalmanTask());
-		if ((!fOptions.Contains("nogem")) || (!fOptions.Contains("gem0"))) {
+		if ((!fOptions.Contains("nogem")) && (!fOptions.Contains("gem0"))) {
 			recoKalman->SetTrackInBranchName("SttMvdGemTrack");
 			//      recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
 			recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
@@ -87,13 +89,14 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 	if (fOptions.Contains("filtered")) {
 		PndMissingPzCleanerTask* cleaner = NULL;
 		fBranchTasks.push_back(cleaner = new PndMissingPzCleanerTask());
-		if ((!fOptions.Contains("nogem")) || (!fOptions.Contains("gem0"))) {
+		if ((!fOptions.Contains("nogem")) && (!fOptions.Contains("gem0"))) {
 			cleaner->SetInputTrackBranch("SttMvdGemGenTrack");
 		} else {
 			cleaner->SetInputTrackBranch("SttMvdGenTrack");
 		}
 		cleaner->SetRemoveTrack(kTRUE);
 	}
+
 
 	// -----  FTS Ideal Tracking    ----------------------------
 	PndIdealTrackFinder* trackFts = NULL;
@@ -111,18 +114,16 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 	// ----- Forward Kalman Task     ---------------------------
 
 	//if (!fOptions.Contains("multikalman")) {
-		PndRecoKalmanTask* recoKalman = NULL;
-		fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask());
-
-		recoKalman->SetTrackInBranchName("FtsIdealTrack");
-		//      recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
-		recoKalman->SetTrackOutBranchName("FtsIdealGenTrack");
-
-		recoKalman->SetBusyCut(50); // CHECK to be tuned
-		//recoKalman->SetIdealHyp(kTRUE);
-		//recoKalman->SetNumIterations(3);
-		recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
-		//recoKalman->SetPropagateToIP(kFALSE);
+	PndRecoKalmanTask* recoKalman = NULL;
+	fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask());
+	recoKalman->SetTrackInBranchName("FtsIdealTrack");
+	//      recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
+	recoKalman->SetTrackOutBranchName("FtsIdealGenTrack");
+	recoKalman->SetBusyCut(50); // CHECK to be tuned
+	//recoKalman->SetIdealHyp(kTRUE);
+	//recoKalman->SetNumIterations(3);
+	recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
+	//recoKalman->SetPropagateToIP(kFALSE);
 //	} else {
 //		PndRecoMultiKalmanTask* recoKalman = NULL;
 //		fBranchTasks.push_back(recoKalman = new PndRecoMultiKalmanTask());
@@ -135,6 +136,19 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 //		//recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
 //		//recoKalman->SetPropagateToIP(kFALSE);
 //	}
+
+  if(fOptions.Contains("fakeonline"))
+  {
+    PndTrackSmearTask* smearer=NULL;
+    fBranchTasks.push_back(smearer=new PndTrackSmearTask());
+    TString barrelbranchname="SttMvdGemGenTrack";
+    if (fOptions.Contains("nogem")||fOptions.Contains("gem0")){
+      barrelbranchname="SttMvdGenTrack";
+    }
+    if (fOptions.Contains("filtered")) barrelbranchname+="_filtered";
+    smearer->AddInputTrackBranch(barrelbranchname);
+    smearer->AddInputTrackBranch("FtsIdealGenTrack");
+  }
 
 	std::for_each(fBranchTasks.begin(), fBranchTasks.end(),
 			[this](const FairTask* task) {Add((TTask*)task);});

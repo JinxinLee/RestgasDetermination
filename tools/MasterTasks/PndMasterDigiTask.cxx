@@ -75,7 +75,7 @@ PndMasterDigiTask::PndMasterDigiTask(TString options) :
   digi.kPndDrcHitProducerReal = GetListOfTasks()->GetSize()-1;
 
   // -----   GEM hit producers   ---------------------------------
-  if ( (!fOptions.Contains("nogem")) || (!fOptions.Contains("gem0")))
+  if ( (!fOptions.Contains("nogem")) && (!fOptions.Contains("gem0")))
     {
       Add(new PndGemDigitize("GEM Digitizer", 0)); // 11
       digi.kPndGemDigitize = GetListOfTasks()->GetSize()-1;
@@ -129,7 +129,7 @@ void PndMasterDigiTask::SetPersistency(Bool_t pers)
   // -----   DRC hit producers   ---------------------------------
   ((PndDrcHitProducerReal*)GetListOfTasks()->At(digi.kPndDrcHitProducerReal))->SetPersistency(pers);
 
-  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+  if ( (!fOptions.Contains("nogem")) && (!fOptions.Contains("gem0")))
     {
       // -----   GEM hit producers   ---------------------------------
       ((PndGemDigitize*)GetListOfTasks()->At(digi.kPndGemDigitize))->SetPersistency(pers);
@@ -142,7 +142,7 @@ void PndMasterDigiTask::SetPersistency(Bool_t pers)
   // -----   Ftof hit producers   ---------------------------
   ((PndFtofHitProducerIdeal*)GetListOfTasks()->At(digi.kPndFtofHitProducerIdeal))->SetPersistency(pers);
 
-   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+   if ( (!fOptions.Contains("day1")) )
      {
        // -----   Rich hit producers   ---------------------------
        ((PndRichHitProducer*)GetListOfTasks()->At(digi.kPndRichHitProducer))->SetPersistency(pers);

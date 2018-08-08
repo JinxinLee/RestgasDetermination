@@ -4,23 +4,24 @@
 // root  sim_complete.C  or in root session root>.x  sim_complete.C
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_day1.C"(100, "TGeant4",2)"
+#include "TaskTool.C"
 
-int sim_day1(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552)
+int sim_day1(Int_t nEvents = 1000, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552)
 {
   //-----User Settings:------------------------------------------------------
-  TString  parAsciiFile   = "all_day1.par";
-  // TString inputGenerator = 
+  TString  parAsciiFile   = "all.par";
+  // TString inputGenerator =
   // EvtGen -> "xxxxxxxx.dec"
   // DPM    -> "dpm_xxxxx"
   // FTF    -> "ftf_xxxxx"
-  TString  inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  inputDir = gSystem->Getenv("VMCWORKDIR");
   inputDir += "/macro/QA/day1/";
   gRandom->SetSeed(1234);
   //-------------------------------------------------------------------------
   // -----   Create the Simulation run manager ------------------------------
   PndMasterRunSim *fRun = new PndMasterRunSim();
-  fRun->SetOptions("day1");
+  fRun->SetOptions("day1+fakeonline"); // day1 phase1 gem3 nogem fakeonline
   fRun->SetInput(inputGenerator);
   fRun->SetInputDir(inputDir);
   fRun->SetName(SimEngine);
@@ -28,7 +29,7 @@ int sim_day1(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMo
   fRun->SetNumberOfEvents(nEvents);
   fRun->SetBeamMom(BeamMomentum);
   // -----  Initialization   ------------------------------------------------
-  fRun->Setup();
+  fRun->Setup("fakeonline");
   // -----   Geometry   -----------------------------------------------------
   fRun->CreateGeometry();
   // -----   Event generator   ----------------------------------------------
@@ -37,9 +38,18 @@ int sim_day1(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMo
   fRun->AddSimTasks();
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  fRun->Run(nEvents); 
+  //gROOT->GetListOfFiles()->ls();
+  //TString text=((TObjString*)gDirectory->GetObjectUnchecked("TaskList"))->String();
+  //IterateTasksList(fRun->GetMainTask(), text);
+  //cout<<text.Data()<<endl;
+  //IterateTasksList(fRun->GetMainTask(), text);
+  //TObjString otext(text);
+  //otext.Write("TaskList");
+  // fetch text from root file:  cout << TaskList->String().Data() <<endl;
+  // --- now run!
+  fRun->Run(nEvents);
   fRun->Finish();
-  
+
   return 0;
 };
 

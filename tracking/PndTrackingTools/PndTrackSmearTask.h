@@ -45,13 +45,12 @@ public:
 	virtual void Finish();
 
   void SetMomSmearing(TVector3 dpop){fMomSigma=dpop;}
-  void AddInputTrackBranch(const TString& name) { fInputTrackBranches.push_back(name); fOutputTrackBranches.push_back(name+"FakeOnline");}
+  void AddInputTrackBranch(const TString& name) { fInputTrackBranches.push_back(name); fOutputTrackBranches.push_back(name+"_fakeonline");}
   void SetPersistence(const Bool_t& val) { SetPersistency(val);}
 
 private:
   FairTrackParP SmearTrackPar(FairTrackParP par);
-  void SmearMom(TVector3 &vec);
-  void SmearCov(Double_t Cov66[6][6]);
+  void SmearMom(TVector3 &vec, Double_t Cov66[6][6]);
 
   std::vector<TString> fInputTrackBranches;
   std::vector<TString> fOutputTrackBranches;
