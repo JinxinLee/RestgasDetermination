@@ -1,7 +1,7 @@
 // Macro for running Panda reconstruction tasks
 // to run the macro:
 // root  reco_day1.C  or in root session root>.x  reco_complete.C
-#include "TaskTool.C"
+
 int reco_day1(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------

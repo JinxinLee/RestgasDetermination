@@ -1,6 +1,7 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
 // root  digi_day1.C  or in root session root>.x  digi_complete.C
+
 int digi_day1(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
