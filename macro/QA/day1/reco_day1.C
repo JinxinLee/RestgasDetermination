@@ -31,14 +31,6 @@ int reco_day1(Int_t nEvents = 0)
   // -----Intialise and run--------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();
-  //gROOT->GetListOfFiles()->ls();
-  //TString text=((TObjString*)gDirectory->GetObjectUnchecked("TaskList"))->String();
-  //IterateTasksList(fRun->GetMainTask(), text);
-  //cout<<text.Data()<<endl;
-  //IterateTasksList(fRun->GetMainTask(), text);
-  //TObjString otext(text);
-  //otext.Write("TaskList");
-  // fetch text from root file:  cout << TaskList->String().Data() <<endl;
   // --- now run!
   fRun->Run(0, nEvents);
   fRun->Finish();

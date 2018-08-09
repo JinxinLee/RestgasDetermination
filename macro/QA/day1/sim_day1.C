@@ -37,14 +37,6 @@ int sim_day1(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMo
   fRun->AddSimTasks();
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  //gROOT->GetListOfFiles()->ls();
-  //TString text=((TObjString*)gDirectory->GetObjectUnchecked("TaskList"))->String();
-  //IterateTasksList(fRun->GetMainTask(), text);
-  //cout<<text.Data()<<endl;
-  //IterateTasksList(fRun->GetMainTask(), text);
-  //TObjString otext(text);
-  //otext.Write("TaskList");
-  // fetch text from root file:  cout << TaskList->String().Data() <<endl;
   // --- now run!
   fRun->Run(nEvents);
   fRun->Finish();
