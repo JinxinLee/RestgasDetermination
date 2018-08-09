@@ -423,7 +423,7 @@ void PndEmcHitProducer::FinishTask()
 bool PndEmcHitProducer::AcceptDayOne(PndEmcPoint* p)
 {
   if(!fDayOne) return true;
-  if(p->GetModule()>250) return true; // afaik this is convention for the barrel
+  if(p->GetDetectorID()>250e6) return true; // afaik this is convention for the barrel
   float phi=p->GetPhi();
   if(abs(phi-90)<22.5) return false;
   if(abs(phi-270)<22.5) return false;
