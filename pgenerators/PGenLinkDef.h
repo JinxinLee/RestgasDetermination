@@ -28,5 +28,8 @@
 #pragma link C++ class  FairEvtFilterOnSingleParticleCounts+;
 #pragma link C++ class  PndEvtFilter+;
 #pragma link C++ class  PndEvtFilterOnInvMassCounts+;
+#pragma link C++ class  PndFilteredPrimaryGenerator+;
+#pragma link C++ class  PndSmpFilt+;
+#pragma link C++ class  PndSmpCand+;
 
 #endif

@@ -20,6 +20,7 @@
 #include "TString.h"
 
 class FairFilteredPrimaryGenerator;
+class PndFilteredPrimaryGenerator;
 class FairBoxGenerator;
 class PndBoxGenerator;
 
@@ -259,6 +260,7 @@ class PndMasterRunSim : public FairRunSim
    * @brief Getter for the primary generator, e.g. to configure the event filter
    */
   FairFilteredPrimaryGenerator* GetFilteredPrimaryGenerator() {return (FairFilteredPrimaryGenerator*)fGen;}
+  PndFilteredPrimaryGenerator* GetPndFilteredPrimaryGenerator() {return (PndFilteredPrimaryGenerator*)fGen;}
 
  private:
 

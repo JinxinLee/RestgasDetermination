@@ -71,6 +71,10 @@ eventFilter/FairEvtFilter.cxx
 eventFilter/FairEvtFilterOnSingleParticleCounts.cxx
 eventFilter/PndEvtFilter.cxx
 eventFilter/PndEvtFilterOnInvMassCounts.cxx
+eventFilter/PndEvtFilterOnInvMassCounts.cxx
+eventFilter/PndFilteredPrimaryGenerator.cxx
+eventFilter/PndSmpFilt.cxx
+eventFilter/PndSmpCand.cxx
 )
 
 set(LINKDEF  PGenLinkDef.h)

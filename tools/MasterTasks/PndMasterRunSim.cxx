@@ -36,6 +36,7 @@
 #include "FairDetector.h"
 #include "FairPrimaryGenerator.h"
 #include "FairFilteredPrimaryGenerator.h"
+#include "PndFilteredPrimaryGenerator.h"
 #include "FairBoxGenerator.h"
 #include "FairLogger.h"
 
@@ -122,9 +123,9 @@ Bool_t PndMasterRunSim::Setup(TString outprefix)
 // -----   CreateGeometry   -------------------------------------------------
 void PndMasterRunSim::CreateGeometry()
 {
-  if (fOptions=="") CreateGeometryDefault();
-  else if (fOptions.Contains("phase1")) CreateGeometryPhase1();
+  if (fOptions.Contains("phase1")) CreateGeometryPhase1();
   else if (fOptions.Contains("day1")) CreateGeometryDay1();
+  else CreateGeometryDefault();
 }
 
 // -----   CreateGeometry   -------------------------------------------------
@@ -388,7 +389,10 @@ void PndMasterRunSim::AddSimTasks()
 // -----   SetGenerator   --------------------------------------------------
 void PndMasterRunSim::SetGenerator()
 {
-  fGen = new FairFilteredPrimaryGenerator();
+  if (fOptions.Contains("PndFiltPrim"))
+  	fGen = new PndFilteredPrimaryGenerator();
+  else
+  	fGen = new FairFilteredPrimaryGenerator();
 
   switch (fTargetMode)
     {
@@ -614,7 +618,10 @@ void PndMasterRunSim::UseLepLepGenerator(TString leplepConfig)
  void PndMasterRunSim::SetGenerator(PndBoxGenerator *boxGen)
 {
   LOG(INFO) << "Using PndBoxGenerator generator" << FairLogger::endl;
-  fGen = new FairFilteredPrimaryGenerator();
+  if (fOptions.Contains("PndFiltPrim"))
+  	fGen = new PndFilteredPrimaryGenerator();
+  else
+  	fGen = new FairFilteredPrimaryGenerator();
   fGen->AddGenerator(boxGen);
 }
 
@@ -622,7 +629,10 @@ void PndMasterRunSim::UseLepLepGenerator(TString leplepConfig)
 void PndMasterRunSim::SetGenerator(FairBoxGenerator *boxGen)
  {
   LOG(INFO) << "Using FairBoxGenerator generator" << FairLogger::endl;
-  fGen = new FairFilteredPrimaryGenerator();
+  if (fOptions.Contains("PndFiltPrim"))
+  	fGen = new PndFilteredPrimaryGenerator();
+  else
+  	fGen = new FairFilteredPrimaryGenerator();
   fGen->AddGenerator(boxGen);
 }
 
