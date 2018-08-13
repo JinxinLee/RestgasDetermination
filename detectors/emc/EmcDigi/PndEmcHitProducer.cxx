@@ -35,6 +35,7 @@
 #include "TVector3.h"
 #include "TSystem.h"
 #include "TString.h"
+#include "TRandom.h"
 
 static Int_t HowManyPoints = 0;
 static Int_t HowManyHitsAll = 0;
@@ -43,7 +44,7 @@ static Int_t HowManyHitsAboveThreshold = 0;
 // -----   Default constructor   -------------------------------------------
 PndEmcHitProducer::PndEmcHitProducer() :
 	PndPersistencyTask("Ideal EMC hit Producer"),
-	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fDayOne(false)
+	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fDayOne(false),fFakeOnline(false)
 {
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
 	fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
@@ -53,7 +54,7 @@ PndEmcHitProducer::PndEmcHitProducer() :
 
 PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
 	PndPersistencyTask("Ideal EMC hit Producer"),
-	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fDayOne(false)
+	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), fEnergyThreshold(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fDayOne(false),fFakeOnline(false)
 {
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
 	fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
@@ -396,6 +397,7 @@ PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy,
 	//" << box << " tube " << tub << endl;
 	TClonesArray& clref = *fHitArray;
 	Int_t size = clref.GetEntriesFast();
+  if(fFakeOnline) energy = SmearFakeOnline(energy);
 	PndEmcHit* hit = new(clref[size]) PndEmcHit(trackID, detID, energy, time, emcX[detID],
 			emcY[detID], emcZ[detID], mctruth, entering, exiting);
 	//hit->Print();
@@ -408,6 +410,7 @@ void PndEmcHitProducer::SetStorageOfData(Bool_t val)
 	fStoreHits=val;
 	return;
 }
+
 void PndEmcHitProducer::FinishTask()
 {
 	std::cout<<"========================================================="<<std::endl;
@@ -431,5 +434,12 @@ bool PndEmcHitProducer::AcceptDayOne(PndEmcPoint* p)
   return true;
 }
 
+Float_t PndEmcHitProducer::SmearFakeOnline(Float_t energy)
+{ // Additional fake energy resolution to get about a factor 2 worse
+  // dE/E =~ 1% + 1.63%/(E/GeV)
+  if(!fFakeOnline) return energy;
+  Float_t resolution=0.01*energy+0.0163*sqrt(energy);
+  return gRandom->Gaus(energy,resolution);
+}
 
 ClassImp(PndEmcHitProducer)

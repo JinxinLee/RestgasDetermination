@@ -26,6 +26,9 @@ PndMasterSimTask::PndMasterSimTask(TString options) :
   if(fOptions.Contains("day1")){
     hp->SetDayOne(true);
   }
+   if(fOptions.Contains("fakeonline")){
+    hp->SetFakeOnline(true);
+  }
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------
