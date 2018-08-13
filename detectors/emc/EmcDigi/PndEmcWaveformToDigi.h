@@ -5,11 +5,11 @@
 //      Class PndEmcWaveformToDigi. Module to take the ADC waveforms and produces digi.
 //
 //	 Software developed for the BaBar Detector at the SLAC B-Factory.
-// Adapted for the PANDA experiment at GSI		
-//		
+// Adapted for the PANDA experiment at GSI
+//
 // Author List:
 //      Phil Strother                  Original Author
-// Dima Melnichuk - adaption for PANDA				
+// Dima Melnichuk - adaption for PANDA
 //
 // Copyright Information:
 //      Copyright (C) 1996             Imperial College
@@ -21,7 +21,7 @@
 
 #include <PndPersistencyTask.h>
 #include "PndEmcDigiWriteoutBuffer.h"
-#include <string>		
+#include <string>
 #include "FairTSBufferFunctional.h"
 #include <map>
 #include <list>
@@ -62,6 +62,7 @@ public:
 	void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
 
 	void UseDigitizationVersion2() { fDigitizationVersion2 = kTRUE;}
+  void SetFakeOnline(bool d=true){fFakeOnline=d;};
 
 	/**
 	 * @brief Set PSA Algorithm to be used for Barrel and Backward Endcap
@@ -82,15 +83,15 @@ public:
 	 *
 	 * @param psa  The psa to be used
 	 *
-	 * @return 
+	 * @return
 	 **/
 	virtual void SetPSAAlgorithmPMT(PndEmcAbsPSA *psa){fpsaAlgorithm_pmt=psa;}
 	/**
 	 * @brief Set The Crystal Calibrator to use
 	 *
-	 * @param Cal The Calibrator to be used  
+	 * @param Cal The Calibrator to be used
 	 *
-	 * @return 
+	 * @return
 	 **/
 	virtual void SetCrystalCalibrator(PndEmcAbsCrystalCalibrator *Cal){fCalibrator=Cal;}
 
@@ -109,12 +110,12 @@ private:
 
 private:
 	/** Input array of PndEmcWaveforms **/
-	TClonesArray* fWaveformArray;  
-	//TClonesArray* fMcTrackArray;  
-	TClonesArray* fEvtHeaderArray;  
+	TClonesArray* fWaveformArray;
+	//TClonesArray* fMcTrackArray;
+	TClonesArray* fEvtHeaderArray;
 
 	/** output array of EmcDigis **/
-	TClonesArray* fDigiArray;  
+	TClonesArray* fDigiArray;
 
 	Double_t fSampleRate;
 	Double_t fSampleRate_PMT;
@@ -179,6 +180,9 @@ private:
 
 	Bool_t fDigitizationVersion2;
 	//
+  bool fFakeOnline; // Flag to add ~factor2 of worse resolution .
+  Float_t SmearFakeOnline(Float_t energy);
+
 
 	ClassDef(PndEmcWaveformToDigi,1);
 };

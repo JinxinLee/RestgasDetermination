@@ -65,7 +65,6 @@ class PndEmcHitProducer : public PndPersistencyTask
 	void SetStorageOfData(Bool_t val); // Method to specify whether hits are stored or not.
 	void SetNonuniformityFile(const char * filename){fNonuniformityFile = filename;};
   void SetDayOne(bool d=true){fDayOne=d;};
-  void SetFakeOnline(bool d=true){fFakeOnline=d;};
 
 	void FinishTask();
  private:
@@ -117,8 +116,6 @@ class PndEmcHitProducer : public PndPersistencyTask
 
   bool fDayOne;
   bool AcceptDayOne(PndEmcPoint* p);
-  bool fFakeOnline; // Flag to add ~factor2 of worse resolution .
-  Float_t SmearFakeOnline(Float_t energy);
 
 };
 #endif

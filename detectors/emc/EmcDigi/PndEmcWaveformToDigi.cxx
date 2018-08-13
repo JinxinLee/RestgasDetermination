@@ -3,13 +3,13 @@
 //      $Id: //
 // Description:
 //      Class PndEmcWaveformToDigi. Module to take the ADC waveforms and produces digi.
-// 
+//
 //	 Software developed for the BaBar Detector at the SLAC B-Factory.
-// Adapted for the PANDA experiment at GSI		
-//		
+// Adapted for the PANDA experiment at GSI
+//
 // Author List:
 //      Phil Strother                  Original Author
-// Dima Melnichuk - adaption for PANDA		
+// Dima Melnichuk - adaption for PANDA
 // Copyright Information:
 //      Copyright (C) 1996             Imperial College
 //
@@ -41,6 +41,7 @@
 #include "PndEmcSimCrystalCalibrator.h"
 #include "TCanvas.h"
 #include "TGraphErrors.h"
+#include "TRandom.h"
 
 using std::cout;
 using std::endl;
@@ -71,13 +72,14 @@ PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis)
   , fCalibrator()
   , fDigiPar(new PndEmcDigiPar())
   ,	fRecoPar(new PndEmcRecoPar())
-  , fFpgaPar(new PndEmcFpgaPar()) 
+  , fFpgaPar(new PndEmcFpgaPar())
   , fVerbose(verbose)
   , fTimeOrderedDigi(kFALSE)
   , fWfNormalisation(0)
   , fWfNormalisation_fwd(0)
   , fWfNormalisation_pmt(0)
   , fDigitizationVersion2(kFALSE)
+  , fFakeOnline(false)
 {
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;
@@ -99,11 +101,11 @@ PndEmcWaveformToDigi::~PndEmcWaveformToDigi()
 
 /**
  * @brief Init Task
- * 
- * Prepares the TClonesArrays of PndEmcWaveform for reading 
+ *
+ * Prepares the TClonesArrays of PndEmcWaveform for reading
  * and of PndEmcDigi for writing. Also reads the EMC parameters and prepares the pulseshapes
  * (PndEmcAbsPulseshape) and pulse shape analyser (PndEmcAbsPSA).
- * 
+ *
  * @return InitStatus
  * @retval kSUCCESS success
  */
@@ -158,7 +160,7 @@ InitStatus PndEmcWaveformToDigi::Init()
 	fEmcDigiPositionDepthShashlyk=fRecoPar->GetEmcDigiPositionDepthShashlyk();
 	fNumber_of_samples_in_waveform_fwd=fDigiPar->GetNumber_of_samples_in_waveform_fwd();
 	fFWD_Shaping_int_time=fDigiPar->GetFWD_Shaping_int_time();
-	fFWD_time_constant=fDigiPar->GetFWD_time_constant(); 
+	fFWD_time_constant=fDigiPar->GetFWD_time_constant();
 
 	if(fVerbose>2){
 		cout<<"fEnergyDigiThreshold: "<<fEnergyDigiThreshold<<endl;
@@ -172,10 +174,10 @@ InitStatus PndEmcWaveformToDigi::Init()
 	}
 	else if (!fDigiPosMethod.CompareTo("depth"))
 	{
-		PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::depth, 
+		PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::depth,
 				fEmcDigiPositionDepthPWO, fEmcDigiPositionDepthShashlyk, fEmcDigiRescaleFactor);
 	}
-	else 
+	else
 	{
 		cout << "-W- PndEmcWaveformToDigi::Init: "
 			<< "Unknown digi position method!" << endl;
@@ -201,7 +203,7 @@ InitStatus PndEmcWaveformToDigi::Init()
 	fWfNormalisation = tmpwaveform1->Max();
 	fWfNormalisation_pmt = tmpwaveform2->Max();
 	fWfNormalisation_fwd = tmpwaveform3->Max();
-	
+
 	fFpgaPar->printParams();
 	if(fVerbose > 2){
 		cout<<"fWfNormalisation#"<<fWfNormalisation<<", I/A ="<<(tmpwaveform1->Integral()/fWfNormalisation)<<endl;
@@ -322,10 +324,10 @@ InitStatus PndEmcWaveformToDigi::Init()
 
 /**
  * @brief Runs the task.
- * 
+ *
  * The task loops over the waveforms and uses the pulse shape analyser (PndEmcAbsPSA) to
  * extract signal height and timing. From this the PndEmcDigi are created.
- * 
+ *
  * @param opt unused
  * @return void
  */
@@ -375,7 +377,7 @@ void PndEmcWaveformToDigi::Exec(Option_t*)
 	PndEmcAbsPSA *thePSA(0);
 
 	totNumOfWave += nWaveforms;
-	for (Int_t iWaveform=0; iWaveform<nWaveforms; iWaveform++) 
+	for (Int_t iWaveform=0; iWaveform<nWaveforms; iWaveform++)
 	{
 		PndEmcWaveform* theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWaveform);
 		hitIndex=theWaveform->GetHitIndex();
@@ -431,6 +433,8 @@ void PndEmcWaveformToDigi::Exec(Option_t*)
 					cout<<"fdigiEnergy#"<<fdigiEnergy<<", fdigiTime#"<<fdigiTime<<", evtTime#"<<fevtTime<<", diffT#"<<(fdigiTime-fevtTime)<<endl;
 				}
 			}
+      // [R.K.] Assume there is either time based or non-time based, so smearung runs only once
+      if(fFakeOnline) fdigiEnergy = SmearFakeOnline(fdigiEnergy);
 
 			if (fdigiEnergy>fEnergyDigiThreshold)
 			{
@@ -449,8 +453,9 @@ void PndEmcWaveformToDigi::Exec(Option_t*)
 	Int_t nDigi =  PndEmcDigi::fDigiArrayTBD->GetEntriesFast();
 	if(fTimeOrderedDigi){
 		for(Int_t iDigi = 0; iDigi < nDigi; ++iDigi)
-		{
+		{ // [R.K.] Assume there is either time based or non-time based, so smearung runs only once
 			PndEmcDigi* copy = (PndEmcDigi*)PndEmcDigi::fDigiArrayTBD->At(iDigi);
+      if(fFakeOnline) copy->SetEnergy(SmearFakeOnline(copy->GetEnergy()));
 			new((*fDigiArray)[i_digi++]) PndEmcDigi(*copy);
 		}
 		//free buffer
@@ -504,9 +509,9 @@ void PndEmcWaveformToDigi::SetStorageOfData(Bool_t val)
 
 /**
  * @brief Called at end of task.
- * 
+ *
  * Outputs some statistics.
- * 
+ *
  * @return void
  */
 void PndEmcWaveformToDigi::FinishTask()
@@ -587,6 +592,15 @@ if(energy >= 0.1){
 return 12;
 }
 }*/
+
+
+Float_t PndEmcWaveformToDigi::SmearFakeOnline(Float_t energy)
+{ // Additional fake energy resolution to get about a factor 2 worse
+  // dE/E =~ 1% + 1.63%/(E/GeV)
+  if(!fFakeOnline) return energy;
+  Float_t resolution=0.01*energy+0.0163*sqrt(energy);
+  return gRandom->Gaus(energy,resolution);
+}
 
 
 ClassImp(PndEmcWaveformToDigi)

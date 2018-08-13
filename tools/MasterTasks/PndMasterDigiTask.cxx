@@ -51,8 +51,13 @@ PndMasterDigiTask::PndMasterDigiTask(TString options) :
   // -----   EMC hit producers   ---------------------------------
   Add(new PndEmcHitsToWaveform()); // 3
   digi.kPndEmcHitsToWaveform = GetListOfTasks()->GetSize()-1;
-  Add(new PndEmcWaveformToDigi()); // 4
+  PndEmcWaveformToDigi* emcwavetodigi = new PndEmcWaveformToDigi();
+  Add(emcwavetodigi); // 4
   digi.kPndEmcWaveformToDigi = GetListOfTasks()->GetSize()-1;
+  if(fOptions.Contains("fakeonline")){
+    emcwavetodigi->SetFakeOnline(true);
+  }
+
   Add(new PndEmcMakeCluster()); // 5
   digi.kPndEmcMakeCluster = GetListOfTasks()->GetSize()-1;
   Add(new PndEmcMakeBump()); // 6
