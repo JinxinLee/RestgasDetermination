@@ -32,8 +32,6 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	parFile += startEvent;
 	parFile += ".root";
 	TString digiparFile = "lumi.digi.par";
-	TString cutParameterfile = storePath + TString("/cutParameters.json");
-
 
 	// -----   Output File   --------------------------------------------------
 	TString outFile = storePath+"/Lumi_Pairs_";
@@ -65,7 +63,6 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 
 	//use dynamic cut parameters
 	PndLmdPairFinderTask* pndLmdPairFinder = new PndLmdPairFinderTask();
-	pndLmdPairFinder->useDynamicCut(true, cutParameterfile.Data() );
 	fRun->AddTask(pndLmdPairFinder);
 
 	rtdb->setOutput(parInput1);
@@ -98,3 +95,4 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 
 	return;
 }
+

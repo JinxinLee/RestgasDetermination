@@ -1,46 +1,46 @@
 /*
- * Finds pixel hit pairs and stores them to pair File
- *
- *	Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
- *
- *
+ *	@author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
-//#include <string>
-//#include <PndLmdAlignManager.h>
-//
-//int main() {
-//
-//	std::string pairFilePath = "/home/arbeit/RedPro3TB/simulationData/newGeometry";
-//	std::string binaryPairFilePath = pairFilePath + "/binaryPairs/";
-//	std::string LMDmatrixDir = pairFilePath + "/LMDmatrices/";
-//
-//	PndLmdAlignManager manager;
-//	manager.setInCentimeters(true);
-//	manager.setBinaryPairFileDirectory(binaryPairFilePath);
-//	manager.setMaxPairs(300e3);
-//	manager.verboseLevel(3);
-//
-//	cout << "reading binary pair files.\n";
-//	manager.setMatrixOutDir(LMDmatrixDir);
-//	manager.readPairsFromBinaryFiles();
-//	manager.alignAllSensors();
-//
-//	return 0;
-//}
+// initialize a minimal, boiler plate FairRunAna so the gGeoManager loads the geometry
+void initMiniAna(TString storePath) {
 
-int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput",
-    TString binaryPairFilePath = "", TString LMDmatrixDir = "", bool incentimeters = true,
-    const int verboseLevel = 2) {
+	//FIXME: don't hard code starting event!
+	TString inFile = storePath + "/Lumi_MC_1000000.root";
+	TString parFile = storePath + "/Lumi_Params_1000000.root";
+	TString outFile = storePath + "/Lumi_digi_0-dummy.root";
+	FairRunAna *fRun = new FairRunAna();
+	FairFileSource *input_source = new FairFileSource(inFile);
+	fRun->SetSource(input_source);
+	fRun->SetOutputFile(outFile);
+	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+	FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+	parInput1->open(parFile.Data(), "in");
+	rtdb->setFirstInput(parInput1);
+	FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+	rtdb->setSecondInput(parInput2);
+	fRun->Init();
+}
+
+void cleanup(){
+	// -----   Finish   -------------------------------------------------------
+	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
+	gGeoManager->GetListOfVolumes()->Delete();
+	gGeoManager->GetListOfShapes()->Delete();
+	delete gGeoManager;
+
+}
+
+int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binaryPairFilePath = "",
+    TString LMDmatrixDir = "", bool incentimeters = true, const int verboseLevel = 2) {
 	// -----   Timer   --------------------------------------------------------
 
-	//do we really need those?
+	//load neccessary libraries
 	gSystem->Load("libLmd");
 	gSystem->Load("libLmdSensorAligner");
 
-	// ---------------------- init parameters
-
-	string pandaDir = getenv("VMCWORKDIR");
+	//FIXME: don't hard code starting event!
+	initMiniAna(pairFilePath);
 
 	// don't forget trailing slashes!!
 	if (LMDmatrixDir == "") {
@@ -52,43 +52,38 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput",
 
 	int readNoOfFiles = 0;			//how many files should be processed? 0 for all
 
-	// ---------------------- init Matrix Finder
-
-	cout << "searching available files...\n";
-
 	PndLmdAlignManager manager;
+
 	manager.setInCentimeters(incentimeters);
 	manager.setBinaryPairFileDirectory(binaryPairFilePath.Data());
-	manager.setMaxPairs(300e3);
+	manager.setMaxPairs(3e5);
 	manager.verboseLevel(verboseLevel);
+
+	cout << "pairFilePath: " << pairFilePath << "\n";
+	cout << "binaryPairFilePath: " << binaryPairFilePath << "\n";
+	cout << "LMDmatrixDir: " << LMDmatrixDir << "\n";
 
 	// ---------------------- check for binary files and sort/write, if necessary
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
-
 	if (!binaryPairsPresent) {
+
 		manager.addFilesFromDirectory(pairFilePath.Data(), readNoOfFiles);
 		manager.setMatrixOutDir(LMDmatrixDir.Data());
-
 		manager.readFilesAndAlign();
-		manager.waitForCompletion();
-		return 0;
 	}
-
-	//check for LMD Matrix Files
-	bool LMDMatrixFilesPresent = manager.checkForLmdMatrixFiles();
-	if (!LMDMatrixFilesPresent) {
-		cout << "reading binary pair files.\n";
-		manager.setMatrixOutDir(LMDmatrixDir.Data());
-		manager.readPairsFromBinaryFiles();
-		manager.alignAllSensors();
+	else {
+		//check for LMD Matrix Files
+		bool LMDMatrixFilesPresent = manager.checkForLmdMatrixFiles();
+		if (!LMDMatrixFilesPresent) {
+			cout << "reading binary pair files.\n";
+			manager.setMatrixOutDir(LMDmatrixDir.Data());
+			manager.readPairsFromBinaryFilesAndAlign();
+		}
 	}
 
 	//manager.computeCombinedMatrices();
-
 	// ---------------------- compute absolute correction matrices from overlap matrices and store to PndLmdDim format, compare to pndLmdDim
-
 	//TODO: well, this ^
-
 	// steps:
 	/*
 	 * gather all modules
@@ -98,7 +93,8 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput",
 	 *
 	 */
 
-	// -----   Finish   -------------------------------------------------------
+
+	cleanup();
 	return 0;
 }
 
