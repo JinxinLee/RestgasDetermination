@@ -22,36 +22,27 @@
 
 #include <matrix.h>
 
-//forward declarations so we can use a reference to these objects here
-class PndLmdAlignManager;
-
 class PndLmdSensorAligner {
 
 private:
 
 	friend class PndLmdAlignQA;
 
-	bool forceInstant, debug;
-	unsigned int maxNoOfPairs, numberOfPairs, lastNoOfPairs, dim;
-	std::string inputFilename;
+	bool forceInstant, debug, applyDynamicCutBool;
+<<<<<<< HEAD
+	unsigned int _maxNoOfPairs, numberOfPairs, lastNoOfPairs;
+=======
+	int _maxNoOfPairs, numberOfPairs, lastNoOfPairs;
+>>>>>>> Added dynamic cut, ready for testing.
+	std::string _inputFilename;
 	int _moduleID, overlapID;
-	unsigned int nonSanePairs, skippedPairs, swappedPairs, verbose;
+	int nonSanePairs, skippedPairs, swappedPairs, verbose;
 
-	std::vector<std::vector<double> > simplePairs;
+	std::vector< std::vector<double> > simplePairs;
 
-	bool inCentimeters, success, zIsTimestamp;
+	bool _inCentimeters, _success, _zIsTimestamp;
 
-	Matrix transformToLmdLocal();
-	Matrix transformToSensorOne();
-
-	void printPairSpread(int what = 0);
-	void transformPair(Matrix &trafoMatrix, std::vector<double> &pair);
-	std::vector<double> getPairSpread(int what = 0);
-
-	bool zeroValCheck();
-
-	//the manager which contains this SensorAligner
-	PndLmdAlignManager *superManager;
+	void dynamicCut();
 
 	//FIXME: in the future, return a TGeoHMatrix
 	Matrix resultMatrix;
@@ -73,15 +64,12 @@ public:
 	bool readPairsFromBinary(const std::string directory);
 
 	//set how many pairs the aligner should use, if higher than available in file, it will use all available
-	//set 0 for all
-	void setMaximumNumberOfHitPairs(Int_t maxPairs) {
-		if (maxPairs > 0) {
-			maxNoOfPairs = maxPairs;
-			simplePairs.reserve(maxPairs);
+	void setMaximumNumberOfHitPairs(Int_t maxPais) {
+		if (maxPais > 0) {
+			_maxNoOfPairs = maxPais;
+			simplePairs.reserve(maxPais);
 		}
 	}
-
-	bool check();
 
 	void clearPairs();
 
@@ -97,18 +85,8 @@ public:
 		return _moduleID;
 	}
 	int getNoOfPairs() {
-		// usually, simplePairs contains all pairs, but if it gets cleared,
-		// the info is lost, so we save the number of pairs somewhere else.
-		int sPairs = simplePairs.size();
-		if (sPairs > 0) {
-			return sPairs;
-		}
-		else {
-			return lastNoOfPairs;
-		}
+		return std::max(simplePairs.size(), (size_t) lastNoOfPairs);
 	}
-
-	void applyDynamicCut();
 
 	void calculateMatrix();
 
@@ -125,32 +103,24 @@ public:
 	}
 
 	//true in cm, false in pixels
-	void setInCentimeters(bool value) {
-		inCentimeters = value;
+	void setInCentimeters(bool inCentimeters) {
+		_inCentimeters = inCentimeters;
 	}
 
 	bool successful() {
-		return success;
+		return _success;
 	}
 
 	void setZasTimetamp(bool value) {
-		zIsTimestamp = value;
+		_zIsTimestamp = value;
 	}
 
 	void verboseLevel(int level) {
 		verbose = level;
 	}
 
-	void setManager(PndLmdAlignManager* manager) {
-		superManager = manager;
-	}
-
-	unsigned int getDim() const {
-		return dim;
-	}
-
-	void setDim(unsigned int value) {
-		dim = value;
+	void applyDynamicCut(bool value) {
+		applyDynamicCutBool = value;
 	}
 };
 

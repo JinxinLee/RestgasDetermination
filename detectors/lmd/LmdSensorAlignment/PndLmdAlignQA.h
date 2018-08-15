@@ -17,6 +17,8 @@
 #include <PndLmdAlignManager.h>
 #include <PndLmdGeometryHelper.h>
 
+#include <TGeoMatrix.h>
+
 #include <matrix.h>
 
 struct histParams{
@@ -45,10 +47,12 @@ private:
 	//contains number of pairs on overlap area
 	std::map<int, int> matrixInfo;
 
+	//set of misaligned matrices read from disk
+	std::map<std::string, TGeoHMatrix> *matricesMisaligned;
+
 	void createHist(std::vector<std::vector<double> > &vec, histParams &parameters);
 
-	void histPixelDistances(int sen1, int sen2, bool aligned=true);
-	double calculateOverlappingArea(int id1, int id2, bool aligned=true);
+	double calculateOverlappingArea(int id1, int id2);
 
 	int noOfPairs(int overlapID);
 
@@ -59,31 +63,28 @@ public:
 	void init();
 
 	// ========== QA functions
+	void checkCombined();
 	//TODO: reimplement these with new geometry
 	void checkCyclicMatrices(bool inCentimeters=true);
 	void checkCombinedMatrices(bool inCentimeters=true);
-	void plotCMvsPXmatrices();
-	void plotMatrixresiduals(bool inCentimeters=true);
-	void plotPXvsCMmatricesResiduals();
-	void histogramPairDistances();
-
-	// ========== end of QA
-
 
 	// ========== helper functions
+	std::map<std::string, TGeoHMatrix> * readRootMatrices(TString &filename);
+	TGeoHMatrix baseTransformation(TGeoHMatrix &input, TGeoHMatrix &toBaseMatrix);
+	TGeoHMatrix getMatrixSensorToSensor(int sensorOne, int sensorTwo);
+	TGeoHMatrix getOverlapMatrixLikeICP(PndLmdOverlapInfo &info);
+	TGeoHMatrix getMisalignedOverlapFromGeoManager(PndLmdOverlapInfo &info);
+	TGeoHMatrix getMisalignedOverlapFromICP(PndLmdOverlapInfo &info, std::string ICPmatrix);
+	std::vector<double> getMatrixDiffCM(PndLmdOverlapInfo &info, std::string &icpFile);
+	PndLmdOverlapInfo& getSmallOverlapInfo(std::vector<PndLmdOverlapInfo> &infos, int smallOverlap);
 
-	void calculatePixelDistancesFrontToBack();
 	void readMatrixInfo();
 	void checkIOpaths();
 	bool checkForMatrixFiles();
 	void calculateOverlapingAreas();
 
-	// ========== end of helper functions
-
-
 
 	// ========== settings for this QA task
-
 	void setInCentimeters(bool inCentimeters) {	this->_inCentimeters = inCentimeters; }
 	void setLmdMatPath(const std::string& path) { LMDMatPath = path; }
 	void setBinaryMatPath(const std::string& path) { binaryMatPath = path; }
@@ -94,8 +95,6 @@ public:
 	void setInfoAbsolute(bool info) { infoAbsolute = info; }
 	void setInfoMomentum(double info) { infoMomentum = info; }
 	void setInfoRelative(bool info) { infoRelative = info; }
-
-	// ========== end of settings
 };
 
 #endif /* LMD_LMDSENSORALIGNMENT_PNDLMDALIGNQA_H_ */

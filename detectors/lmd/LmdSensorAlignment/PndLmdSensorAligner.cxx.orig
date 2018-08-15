@@ -169,7 +169,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		return;
 	}
 
-	//check for zer values, largely not needed anymore, but keep it for now
+	//check for zero values, largely not needed anymore, but keep it for now
 	zeroValCheck();
 
 	//transform pairs to local module frame of reference
@@ -330,7 +330,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		    << " iterations.\n";
 
 		alignlog << "pairs available: " << nPairs;
-		if (nPairs < 100000) {
+		if (nPairs < 50000) {
 			alignlog << " (WARNING! This is not enough for accurate alignment!)\n";
 		}
 		else {
@@ -616,7 +616,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 	if (!is.is_open()) return false;
 	is.read(reinterpret_cast<char*>(pdata), std::streamsize(noOfDoubles * sizeof(double)));
 	is.close();
-	// the entire file is now in memory. it's only about 30 MB, so this is okay
+	// the entire file is now in memory. it's only about 60 MB, so this is okay
 
 	//save data
 	unsigned int currentIndex = headersize;				//data starts here
@@ -638,9 +638,13 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 	}
 
 	//check size one last time
-
 	if (nPairs != simplePairs.size()) {
+<<<<<<< HEAD
 		cerr << "Warning! Error while reading binary pair file!\n";
+=======
+		cerr
+		    << "Warning! Unknown error while reading binary pair file! Number of read pairs is not as stated in header.\n";
+>>>>>>> Small bugfixes, comparison in sensor local system now works.
 		return false;
 	}
 
@@ -820,19 +824,23 @@ Matrix PndLmdSensorAligner::transformToSensorOne() {
 	Matrix toLMD = Matrix::eye(4);
 
 	PndLmdGeometryHelper *helper = &PndLmdGeometryHelper::getInstance();
+
+	// I really hate this way of checking for errors...
+	if(!helper){
+		cerr << "PndLmdSensorAligner::ERROR! Could not get Instance of PndLmdGeometryHelper!\n";
+		return toLMD;
+	}
+
 	int id1 = helper->getSensorOneFromOverlapID(overlapID);
 	TGeoHMatrix matrix = helper->getMatrixPndGlobalToSensor(id1);
 	toLMD = superManager->castTGeoHMatrixToMatrix(matrix);
 
-	// ======== for testing only
-	// it appears we have to make an actrive trafo from a passive one
+	// we have to make an actrive trafo from a passive one
 	toLMD.inv();
-	// ======== for testing only
 
 	for (auto &pair : simplePairs) {
 		transformPair(toLMD, pair);
 	}
-
 	return toLMD;
 }
 
@@ -844,10 +852,8 @@ Matrix PndLmdSensorAligner::transformToLmdLocal() {
 	TGeoHMatrix matrix = helper->getMatrixPndGlobalToLmdLocal();
 	toLMD = superManager->castTGeoHMatrixToMatrix(matrix);
 
-	// ======== for testing only
-	// it appears we have to make an actrive trafo from a passive one
+	// we have to make an actrive trafo from a passive one
 	toLMD.inv();
-	// ======== for testing only
 
 	for (auto &pair : simplePairs) {
 		transformPair(toLMD, pair);
@@ -862,6 +868,8 @@ void PndLmdSensorAligner::transformPair(Matrix& trafoMatrix, std::vector<double>
 		std::cerr << "ERROR. Matrix is not 4x4 or pair has less than 6 entries\n";
 		return;
 	}
+
+	// this is pretty wasteful, I know. but this way I'm sure it'c correct
 
 	Matrix pairVal1(4, 1);
 	Matrix pairVal2(4, 1);
@@ -879,7 +887,7 @@ void PndLmdSensorAligner::transformPair(Matrix& trafoMatrix, std::vector<double>
 	pairVal1 = trafoMatrix * pairVal1;
 	pairVal2 = trafoMatrix * pairVal2;
 
-	// don't forget do de-homogenize
+	// don't forget do de-homogenize, even though w is pretty much always 1.0
 	pair[0] = pairVal1.val[0][0] / pairVal1.val[3][0];
 	pair[1] = pairVal1.val[1][0] / pairVal1.val[3][0];
 	pair[2] = pairVal1.val[2][0] / pairVal1.val[3][0];
@@ -887,5 +895,9 @@ void PndLmdSensorAligner::transformPair(Matrix& trafoMatrix, std::vector<double>
 	pair[3] = pairVal2.val[0][0] / pairVal2.val[3][0];
 	pair[4] = pairVal2.val[1][0] / pairVal2.val[3][0];
 	pair[5] = pairVal2.val[2][0] / pairVal2.val[3][0];
+
+	// the distance has changed as well
+	pair[6] = (pairVal1 - pairVal2).l2norm();
+
 
 }

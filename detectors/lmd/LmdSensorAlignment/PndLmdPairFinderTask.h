@@ -15,8 +15,6 @@
 
 #include "TClonesArray.h"
 
-#include <boost/property_tree/ptree.hpp>
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -41,15 +39,7 @@ private:
 
 	Bool_t _ignoreClusters;
 
-	//data for dynamic cut
-	Bool_t _findDynamicCutParameters;
-	Bool_t _useDynamicCut;
-	std::string _cutParameterFile;
-	std::map<int, dynamicCutHandler> cutHandlers;
-
 	pixelHit getPixelHitFromSdsHit(PndSdsHit *sdsHit);
-
-	boost::property_tree::ptree config;
 
 public:
 
@@ -71,18 +61,6 @@ public:
 
 	virtual void FinishEvent();
 	virtual void FinishTask();
-
-	//find the minDistance and maxDistance for dynamic cut
-	void findDynamicCutParameters(Bool_t value, std::string parameterFile) {
-		_findDynamicCutParameters = value;
-		_cutParameterFile = parameterFile;
-	}
-
-	//apply a dynamic cut. uses the first N pairs to decide what min and max distance should be.
-	void useDynamicCut(Bool_t value, std::string parameterFile) {
-		_useDynamicCut = value;
-		_cutParameterFile = parameterFile;
-	}
 
 	// apply distance cut, will be ignored when using dynamic cut
 	void setMaxDistance(Double_t value) {
@@ -108,7 +86,6 @@ protected:
 	TString fInClusterCandidates;
 
 	std::map<int, TClonesArray*> hitPairMap;
-	std::map<int, int> hitCountMap;
 
 	void Register();
 	void Reset();
@@ -116,16 +93,12 @@ protected:
 	//function to return result of all checks, distance cut etc.
 	void getStatistics(PndLmdHitPair &candidate);
 
-	bool applyDynamicDistanceCut(PndLmdHitPair &candidate);
-	bool applyStaticDistanceCut(PndLmdHitPair &candidate);
+	bool pairDistanceValid(PndLmdHitPair &candidate);
 
 	//self explanatory
 	bool candHitsOverlappingArea(const PndLmdHitPair &candidate);
 
-	//means two clusters can reasonably belong to a single track
-	bool candDistanceIsGood(PndLmdHitPair &candidate);
-
-ClassDef(PndLmdPairFinderTask,19)
+ClassDef(PndLmdPairFinderTask,20)
 	;
 };
 

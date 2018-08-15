@@ -23,6 +23,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include <PndLmdAlignStructs.h>
+#include <PndLmdGeometryHelper.h>
 #include <PndLmdSensorAligner.h>
 
 #include <TGeoMatrix.h>
@@ -51,36 +52,24 @@ private:
 	std::map<int, PndLmdSensorAligner> aligners;
 	std::map<int, bool> alignersFull;
 
-	bool _allFilesAdded, allAlignersDone;
+	bool _allFilesAdded;
 	std::vector<std::string> fileNames;
-	bool _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp, startAlignerWhenFull;
-	std::string outFilename, _matrixOutDir, _binaryPairFileDirectory;
+	bool _singleAligner, _inCentimeters, enableHelperMatrix, _zIsTimestamp;
+	std::string outFilename, matrixOutDir, binaryPairFileDirectory;
 	bool _firstInitDone;
 	bool _multithreaded;
 
 	vector<int> overlapIDs;
 
-	//FIXME: remove
-	// we don't want that here anymore
-	//PndLmdGeometryHelper *helper;
+	bool allAlignersFull();
 
-	void alignST();
-	void alignMT();
-
-	void alignOne(PndLmdSensorAligner &aligner);
+	void runSensorAligner(PndLmdSensorAligner &aligner);
 	void resetMTLB(int n, int r, int w);
 	void incrementMTLB();
 	void checkIOpaths();
 
-	//don't use, doesn't work with root like that
-	static void readPairsFromChainMT(std::vector<std::string> files,
-	    std::map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager);
-
-	//produces matrices 0 -> 1,2,3,4,5,6,7,8,9
-	//Matrix combineMatrix(int id1, int id2);
-
-	//produces matrices i -> ... -> i (should be almost identity matrix)
-	//Matrix combineCyclicMatrix(int id);
+	//let all threads finish their work
+	void waitForCompletion();
 
 	//generate the file name of a matrix or pair file, so changes must only be made once
 	static std::string makeBinaryPairFileName(int overlapId = 0, bool incentimeters = true);
@@ -94,26 +83,18 @@ public:
 	PndLmdAlignManager();
 	virtual ~PndLmdAlignManager();
 
-	// initializes Manager on construction or RESETS every value to default
+	// initializes Manager on construction or resets every value to default
 	void init();
-
-	// returns true if successful or false if aligner has enough pairs
-	//bool addPair(PndLmdHitPair &pair);
 
 	//adds pairs just like the other function but starts an aligner if it is full
 	bool addPairAndStartAligner(PndLmdHitPair &pair);
 
 	//add filename, so the aligner adds the pairs itself
 	bool addFile(std::string filename);
-	//void readFiles();		// deprecated
 	void readFilesAndAlign();
-	void waitForCompletion();
-
-	//don't use, doesn't work with root like this
-	//void readFilesMT();
 
 	bool writePairsToBinaryFiles();
-	bool readPairsFromBinaryFiles();
+	bool readPairsFromBinaryFilesAndAlign();
 	bool checkForBinaryFiles();
 	bool checkForLmdMatrixFiles();
 	void clearPairs();
@@ -126,23 +107,18 @@ public:
 	void validate();
 
 	//perform last checks and run calculations on all aligners
-	void alignAllSensors();
+	//void alignAllSensors();
 
 	static void loadBar(int current, int total, int resolution, int width, std::string message = "");
 
 	void setMaxPairs(int maxPairs);
 
-	//considers inactive area, guard rings, pixel size etc
-	//TODO: remove, replace, deprecate, return
-	//static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
-
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);
-
-	//static Matrix getPixelToCentimeterTransformation();
-	//Matrix getMatrixSensorToSensor(int fromSensor, int toSensor);
 
 	// read and write matrix files to and from disk
 	static Matrix readMatrix(std::string filename);
+	static TGeoHMatrix readTGeoHMatrix(std::string filename);
+
 	static bool writeMatrix(Matrix &mat, std::string filename);
 
 	void setSingleAligner(bool singleAligner) {
@@ -154,7 +130,7 @@ public:
 		checkIOpaths();
 	}
 
-	static std::stringstream* readFile(std::string filename);
+	//static std::stringstream readFile(std::string filename);
 	static std::vector<std::vector<double> > readFromCSVFile(std::string filename);
 
 	/*
@@ -175,8 +151,8 @@ public:
 	static bool exists(std::string file);
 	static std::vector<std::string> findRegex(std::string source, std::string regex);
 
-	void setMatrixOutDir(std::string matrixOutDir) {
-		_matrixOutDir = matrixOutDir;
+	void setMatrixOutDir(std::string directory) {
+		matrixOutDir = directory;
 	}
 
 	/*
@@ -199,12 +175,8 @@ public:
 	//read json config file
 	static boost::property_tree::ptree readConfigFile(std::string filename);
 
-	void setBinaryPairFileDirectory(const std::string& binaryPairFileDirectory) {
-		_binaryPairFileDirectory = binaryPairFileDirectory;
-	}
-
-	void setStartAlignerWhenFull(bool value) {
-		startAlignerWhenFull = value;
+	void setBinaryPairFileDirectory(const std::string& directory) {
+		binaryPairFileDirectory = directory;
 	}
 
 	void verboseLevel(int verbose) {

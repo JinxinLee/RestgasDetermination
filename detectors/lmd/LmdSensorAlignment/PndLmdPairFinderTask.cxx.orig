@@ -41,7 +41,11 @@ PndLmdPairFinderTask::PndLmdPairFinderTask() :  // @suppress("Class members shou
 	digiArray = NULL;
 	recoArray = NULL;
 	clusterCandidateArray = NULL;
+
 	unsuitable = 0;
+	_useDynamicCut = false;
+	_findDynamicCutParameters = false;
+	_cutParameterFile = "";
 	_ignoreClusters = false;
 
 }
@@ -53,6 +57,9 @@ PndLmdPairFinderTask::PndLmdPairFinderTask(const char* name) :  // @suppress("Cl
 	clusterCandidateArray = NULL;
 
 	if (!strcmp(name, "")) SetName(name);
+	_useDynamicCut = false;
+	_findDynamicCutParameters = false;
+	_cutParameterFile = "";
 	_ignoreClusters = false;
 }
 
@@ -109,6 +116,43 @@ InitStatus PndLmdPairFinderTask::Init() {
 		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInClusterCandidates
 		    << " not found!" << "\n";
 		return kERROR;
+	}
+
+	if (!_findDynamicCutParameters && _useDynamicCut) {
+
+		const std::vector<int> overlapIDs = helper->getAvailableOverlapIDs();
+
+		cout << "PndLmdSensorAligner: reading dynamic cut Parameters from file... ";
+		if (!PndLmdAlignManager::exists(_cutParameterFile)) {
+			cout << "cut parameter file does not exist! using static cut instead.\n";
+			_useDynamicCut = false;
+		}
+		else {
+			config = PndLmdAlignManager::readConfigFile(_cutParameterFile);
+
+			for (unsigned int i = 0; i < overlapIDs.size(); i++) {
+				int overlapID = overlapIDs[i];
+				dynamicCutHandler &handler = cutHandlers[overlapID];
+				handler._overlapID = overlapIDs[i];
+
+				std::stringstream configput("");
+				configput << "dynamicCut.aligners." << handler._overlapID << ".";
+
+				try {
+					handler._minDist = config.get<double>(configput.str() + "minDist");
+					handler._maxDist = config.get<double>(configput.str() + "maxDist");
+				}
+				catch (std::exception &e) {
+					cerr << "PndLmdSensorAligner: ERROR! Parameter not found in config file!\n";
+				}
+				handler._ready = true;
+			}
+			cout << "done.\n";
+		}
+	}
+
+	if (_findDynamicCutParameters) {
+		cout << "PndLmdSensorAligner: trying to find dynamic cut Parameters.\n";
 	}
 
 	hitPairArray = new TClonesArray("PndLmdHitPair");
@@ -201,6 +245,9 @@ void PndLmdPairFinderTask::Exec(Option_t*) {
 			const TVector3 vecOneGlobal = hitOne->GetPosition();
 			const TVector3 vecTwoGlobal = hitTwo->GetPosition();
 
+			//auto vecOneLocal = helper->transformPndGlobalToLmdLocal(vecOneGlobal);
+			//auto vecTwoLocal = helper->transformPndGlobalToLmdLocal(vecTwoGlobal);
+
 			//make PndLmdHitPair and check for data sanity, then store to vector
 			PndLmdHitPair pairCanditate(vecOneGlobal, vecTwoGlobal, id1, id2);
 
@@ -229,11 +276,57 @@ void PndLmdPairFinderTask::Exec(Option_t*) {
 				continue;
 			}
 
-			//pair must now be sane, in Panda Global and has overlapID et al.
-			if (!pairDistanceValid(pairCanditate)) {
-				unsuitable++;
+			//pair must now be sane, in LMD local and has overlapID et al.
+
+			//are we still looking for the dynamic cut values?
+			if (_findDynamicCutParameters) {
+				dynamicCutHandler &handler = cutHandlers[pairCanditate.getOverlapId()];
+				handler.addToSamples(pairCanditate);
+				//we don't want to store the pair, we only need it's distance
 				continue;
 			}
+
+			//choose whether to apply dynamic cut or simple cut.
+			if (!_useDynamicCut) {
+				if (!applyStaticDistanceCut(pairCanditate)) {
+					unsuitable++;
+					continue;
+				}
+				//pair survived distance cut? great, store!
+			}
+
+			/*
+<<<<<<< HEAD
+			 if (_useDynamicCut) {
+			 //is the cutHandler ready for this overlapID? if not, something went wrong.
+			 dynamicCutHandler &handler = cutHandlers[pairCanditate.getOverlapId()];
+			 if (!handler.ready()) {
+			 continue;
+			 }
+			 //the cutHandler is ready, apply distance cut
+			 if (!applyDynamicDistanceCut(pairCanditate)) {
+			 distanceTooHigh++;
+			 continue;
+			 }
+			 //pair survived distance cut? great, store!
+			 }
+			 */
+=======
+			if (_useDynamicCut) {
+				//is the cutHandler ready for this overlapID? if not, something went wrong.
+				dynamicCutHandler &handler = cutHandlers[pairCanditate.getOverlapId()];
+				if (!handler.ready()) {
+					continue;
+				}
+				//the cutHandler is ready, apply distance cut
+				if (!applyDynamicDistanceCut(pairCanditate)) {
+					distanceTooHigh++;
+					continue;
+				}
+				//pair survived distance cut? great, store!
+			}
+			*/
+>>>>>>> Somehow the PairFinder Macro was still using cbmsim folder names.
 
 			// if the pair survived to this point, it's valid. store!
 			getStatistics(pairCanditate);
@@ -241,6 +334,7 @@ void PndLmdPairFinderTask::Exec(Option_t*) {
 			storedPairsPerEvent++;
 		}
 	}
+
 	return;
 }
 
@@ -248,6 +342,44 @@ void PndLmdPairFinderTask::FinishEvent() {
 }
 
 void PndLmdPairFinderTask::FinishTask() {
+
+	int notReady = 0;
+
+	//were we looking for dynamic cut parameters? write them to disk
+	if (_findDynamicCutParameters) {
+		cout << "PndLmdSensorAligner: writing cut parameters to disk...\n";
+
+		cout << "There are " << cutHandlers.size() << " handlers.\n";
+
+		for (auto &handlerIt : cutHandlers) {
+			dynamicCutHandler &handler = handlerIt.second;
+			if (!handler._ready) {
+				notReady++;
+				cout << "Warning! handler " << handler._overlapID << " only has  " << handler.samples.size()
+				    << " pairs!\n";
+				continue;
+			}
+			handler.calcMinAndMax();
+
+			std::stringstream configput("");
+			configput << "dynamicCut.aligners." << handler._overlapID << ".";
+			config.put(configput.str() + "minDist", handler._minDist);
+			config.put(configput.str() + "maxDist", handler._maxDist);
+			config.put(configput.str() + "mean", handler._mean);
+			config.put(configput.str() + "RMS", handler._RMS);
+
+		}
+		if (notReady > 0) {
+			cout << "PndLmdSensorAligner: Attention! " << notReady << " handlers don't have enough pairs.\n";
+		}
+
+		if (PndLmdAlignManager::writeConfigFile(config, _cutParameterFile, true)) {
+			cout << "PndLmdSensorAligner: Successfully written cutParameters to " << _cutParameterFile << "\n";
+		}
+		else {
+			cout << "PndLmdSensorAligner: could not write cut parameters to disk!\n";
+		}
+	}
 
 	//also, write statistics
 	Int_t sumOfAllPlanes = plane0 + plane1 + plane2 + plane3;
@@ -294,7 +426,20 @@ void PndLmdPairFinderTask::FinishTask() {
 void PndLmdPairFinderTask::Register() {
 }
 
-bool PndLmdPairFinderTask::pairDistanceValid(PndLmdHitPair &candidate) {
+bool PndLmdPairFinderTask::applyDynamicDistanceCut(PndLmdHitPair &candidate) {
+
+	int overlapID = candidate.getOverlapId();
+
+	double distance = candidate.getDistance();
+	dynamicCutHandler &handler = cutHandlers[overlapID];
+
+	if (distance < handler.getMinDist() || distance > handler.getMaxDist()) {
+		return false;
+	}
+	return true;
+}
+
+bool PndLmdPairFinderTask::applyStaticDistanceCut(PndLmdHitPair &candidate) {
 
 	//check distance squared
 	double distance = candidate.getDistance();
@@ -410,9 +555,12 @@ pixelHit PndLmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 	for (size_t i = 0; i < clusters.size(); i++) {
 		clusters[i].calculateCenter();
 
+		//FIXME: read from parameter file!
 		if (clusters[i].clusterSize > 1) {
 			hitsClustered++;
 
+			//if ignoreClustres is set, skip clustered events
+			//FIXME: get maximum cluster size from config file
 			if (_ignoreClusters || clusters[i].clusterSize > 3) {
 				clusters.erase(clusters.begin() + i);
 				/*
@@ -440,6 +588,7 @@ bool PndLmdPairFinderTask::candHitsOverlappingArea(const PndLmdHitPair &candidat
 	if (firstSensorId == secondSensorId) {
 		return false;
 	}
+	candidate.PrintPair();
 	return helper->isOverlappingArea(firstSensorId, secondSensorId);
 }
 

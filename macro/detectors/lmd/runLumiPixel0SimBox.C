@@ -2,8 +2,8 @@
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
 int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString storePath = "tmpOutput",
-        const int verboseLevel = 0, const int particle = -2212, double mom = 15, const int trkNum = 1,
-        const int seed = 0, const double dP = 0, TString geometryFile = "") {
+    const int verboseLevel = 0, const int particle = -2212, double mom = 15, const int trkNum = 1,
+    const int seed = 0, const double dP = 0, TString geometryFile = "") {
 
 	// ///PROOF lite
 	// TProof::Open("");
@@ -83,7 +83,7 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	//  fBox->SetThetaRange(0.52,0.63); // 9 ... 11 mrad
 	//  fBox->SetThetaRange(0.12,0.7); // 2... 12 mrad
 	//  fBox->SetThetaRange(1.3,1.4); // mrad outside of the detector geometry by purpose
-	fBox->SetThetaRange(0.13, 0.65); // 2... 11 mrad
+	fBox->SetThetaRange(0.13, 0.65);  // 2... 11 mrad
 	//fBox->SetThetaRange(0.12,0.65); // 2... 11 mrad
 	//fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
 	//fBox->SetThetaRange(0.229183,0.31512);//4..5.5 mrad
@@ -105,16 +105,13 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 
 	fRun->SetField(fField);
 
-	if (nEvents < 101)
-		fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
-	else
-		fRun->SetStoreTraj(kFALSE);
+	if (nEvents < 101) fRun->SetStoreTraj(kTRUE);  // toggle this for use with EVE
+	else fRun->SetStoreTraj(kFALSE);
 
-	// misalign Geometery
-	bool misalignedGeometry = false;
+	bool misalignedGeometry = true;
 	if (misalignedGeometry) {
 
-		string misMatricesFilePath = "misalignMatrices-SensorsOnly.root";
+		string misMatricesFilePath = "geo/misalignMatrices-SensorsOnly-100u-himster2.root";
 
 		// check if file exists, if true, try to read it
 		TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "READ");
@@ -147,10 +144,57 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 			cerr << "but no misaligned matrices could be found in " << misMatricesFilePath << "\n";
 			return 1;
 		}
-
 	}
 
-	// fRun->SetStoreTraj(kTRUE);
+	// misalign Geometery
+	//temporary misalignment, run only once so it's okay to do this in macro
+	//TODO: put this in a MisalignmentHandler class
+	// this block doesnt work right now, since the geometry is empty at this point!
+	bool misaligned = true;
+	if (misaligned) {
+		//load matrices
+		string misMatricesFilePath = "geo/misalignMatrices-SensorsOnly-100u.root";
+		TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "READ");
+
+		if (misalignmentMatrixRootfile->IsOpen()) {
+			std::map < std::string, TGeoHMatrix > *matrices;
+
+			gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
+			misalignmentMatrixRootfile->Close();
+
+			cout << matrices->size() << " matrices successfully read from file.\napplying misalignment.\n";
+
+			//iterate over matrices
+			for (auto const& entry : *matrices) {
+				TString volPath = entry.first;
+
+				if (!gGeoManager) {
+					cout << "Error! No geoManager!\n";
+				}
+
+				gGeoManager->cd(volPath);
+
+				TGeoNode* currentNode = gGeoManager->GetCurrentNode();
+				TGeoMatrix* matrixToNode = currentNode->GetMatrix();
+
+				TGeoHMatrix misalignedMatrixToNode = *matrixToNode * entry.second;
+
+				//this is just for clarity, can probably be removed
+				TGeoHMatrix* newMatrixToNode = new TGeoHMatrix(misalignedMatrixToNode);  // new matrix, representing real position
+
+				TGeoPhysicalNode* physicalNode = gGeoManager->MakePhysicalNode(volPath);
+
+				physicalNode->Align(newMatrixToNode);
+			}
+			cout << "all misalignments applied.\n";
+		}
+		else {
+			cout << "file could not be read\n";
+			return 1;
+		}
+		cout << "starting digi macro\n";
+	}
+
 	fRun->Init();
 
 	// Fill the Parameter containers for this run
@@ -180,10 +224,23 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
 
+	FairLogger *logger = FairLogger::GetLogger();
+
+	// log to screen and to file
+	logger->SetLogToScreen(kTRUE);
+	logger->SetLogToFile(kFALSE);
+
+	logger->SetLogVerbosityLevel("LOW");
+
+	// Set different levels of verbosity. In the example everything >=INFO goes to the
+	// file and everything >= ERROR is printed on the screen
+	// LogLevels are (FATAL, ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2, DEBUG3, DEBUG4)
+	logger->SetLogScreenLevel("INFO");  //Only FATAL and ERROR to screen
+
 	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
-        gGeoManager->GetListOfVolumes()->Delete();
-        gGeoManager->GetListOfShapes()->Delete();
-        delete gGeoManager;
+	gGeoManager->GetListOfVolumes()->Delete();
+	gGeoManager->GetListOfShapes()->Delete();
+	delete gGeoManager;
 
 	return 0;
 }

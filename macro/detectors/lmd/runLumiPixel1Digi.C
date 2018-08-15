@@ -1,6 +1,5 @@
-int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0,
-		TString storePath = "tmpOutput", const int verboseLevel = 0,
-		const int pitch = 1) {
+int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString storePath = "tmpOutput",
+    const int verboseLevel = 0, const int pitch = 1) {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
 	timer.Start();
@@ -54,8 +53,55 @@ int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0,
 	// =========================================================================
 	PndSdsGeoPar* geoPar = (PndSdsGeoPar*) (rtdb->getContainer("PndSdsGeoPar"));
 
-	// -----   Intialise and run   --------------------------------------------
+	//we need to Init so the gGeoManager gets populated!
 	fRun->Init();
+
+	// MialignmentHandler sits here
+
+	//temporary misalignment, run only once so it's okay to do this in macro
+	//TODO: put this in a MisalignmentHandler class
+	bool misaligned = true;
+	if (misaligned) {
+		//load matrices
+		string misMatricesFilePath = "geo/misalignMatrices-SensorsOnly-100u-himster2.root";
+		TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "READ");
+
+		if (misalignmentMatrixRootfile->IsOpen()) {
+			std::map < std::string, TGeoHMatrix > *matrices;
+
+			gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
+			misalignmentMatrixRootfile->Close();
+
+			cout << matrices->size() << " matrices successfully read from file.\napplying misalignment.\n";
+
+			//iterate over matrices
+			for (auto const& entry : *matrices) {
+				TString volPath = entry.first;
+
+				gGeoManager->cd(volPath);
+
+						TGeoNode* currentNode = gGeoManager->GetCurrentNode();
+						TGeoMatrix* matrixToNode = currentNode->GetMatrix();
+
+						TGeoHMatrix misalignedMatrixToNode = *matrixToNode * entry.second;
+						//this is just for clarity, can probably be removed
+						TGeoHMatrix* newMatrixToNode = new TGeoHMatrix(misalignedMatrixToNode);  // new matrix, representing real position
+
+						TGeoPhysicalNode* physicalNode = gGeoManager->MakePhysicalNode(volPath);
+
+						physicalNode->Align(newMatrixToNode);
+					}
+					cout << "all misalignments applied.\n";
+		}
+		else {
+			cout << "file could not be read\n";
+			return 1;
+		}
+		cout << "starting digi macro\n";
+	}
+
+	// -----   Intialise and run   --------------------------------------------
+	//fRun->Init();
 	fRun->Run(0, nEvents);
 	rtdb->saveOutput();
 	rtdb->print();
@@ -78,3 +124,4 @@ int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0,
 
 	return 0;
 }
+

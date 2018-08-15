@@ -173,14 +173,9 @@ bool PndLmdHitPair::hitSensors(Int_t first, Int_t second) {
 
 void PndLmdHitPair::calculateDistance() {
 
-/*
- * calculate absolute distance between hit1 and hit2, keeping the z distance of 250 present.
- * TODO: check if this significantly changes the shape of he distance histogram! and the dynamic
- * cut finder quality.
- */
-	if(hit1present && hit2present){
+// calculate absolute distance between hit1 and hit2, keeping the z distance of 250 present.
+ 	if(hit1present && hit2present){
 		TVector3 distV = _hit1 - _hit2;
-		//distV.SetZ(0.0);
 		_distance = distV.Mag();
 	}
 	else{
