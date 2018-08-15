@@ -28,7 +28,6 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdDigi
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdSensorAlignment
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdSensorAlignment/icp
-  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdSensorAlignment/SensorAligner
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdReco
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdTrack
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdTools
@@ -185,3 +184,47 @@ set(LIBRARY_NAME LmdTool)
 set(DEPENDENCIES Sds LmdTrk)
 
 GENERATE_LIBRARY()
+
+
+########################### create tests ##################################
+ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK) 
+
+set(TEST_SRCS
+	test_SensorAligner.cxx
+)
+foreach(testSrc ${TEST_SRCS})
+    # Extract the filename without an extension (NAME_WE)
+    get_filename_component(fileName ${testSrc} NAME_WE)
+    SET(testName "Lmd_${fileName}")
+
+    # Add compile target
+    add_executable( ${testName} tests/${testSrc} )
+
+
+    # Link to Boost libraries AND your targets and dependencies
+    target_link_libraries( ${testName}
+      MathMore
+      LmdSensorAligner
+      LmdSensorAlignerTools
+      Core
+      Geom
+      MathCore
+      Physics
+      boost_unit_test_framework
+    )
+  
+    target_include_directories( ${testName}
+      PUBLIC ${Boost_INCLUDE_DIR})
+
+    # Move testing binaries into a testBin directory
+    set_target_properties( ${testName}
+      PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin/test/
+    )
+
+    # Finally add it to test execution -
+    # Notice the WORKING_DIRECTORY and COMMAND
+    add_test(NAME ${testName}
+      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin/test/
+      COMMAND ${PROJECT_BINARY_DIR}/bin/test/${testName})      
+endforeach(testSrc)
+
