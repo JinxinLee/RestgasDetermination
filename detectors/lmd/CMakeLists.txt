@@ -28,6 +28,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdDigi
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdSensorAlignment
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdSensorAlignment/icp
+#  ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdSensorAlignment/SensorAligner
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdReco
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdTrack
   ${CMAKE_SOURCE_DIR}/detectors/lmd/LmdTools
@@ -190,7 +191,7 @@ GENERATE_LIBRARY()
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK) 
 
 set(TEST_SRCS
-	test_SensorAligner.cxx
+	#test_SensorAligner.cxx
 )
 foreach(testSrc ${TEST_SRCS})
     # Extract the filename without an extension (NAME_WE)

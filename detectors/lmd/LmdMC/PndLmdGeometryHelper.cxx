@@ -73,6 +73,70 @@ PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo
 	return hit_info;
 }
 
+std::vector<PndLmdOverlapInfo> PndLmdGeometryHelper::getOverlapInfos(int iHalf, int iPlane,
+    int iModule) {
+	std::vector<PndLmdOverlapInfo> result;
+
+	bool all = false;
+
+	if (iHalf < 0 || iPlane < 0 || iModule < 0) {
+		all = true;
+	}
+	//FIXME: this should be read from config file
+	if (iHalf > 2 || iPlane > 4 || iModule > 5) {
+		std::cerr << "ERROR. Invalid module specified.\n";
+		return result;
+	}
+
+	PndGeoHandling *geo_handling = PndGeoHandling::Instance();
+	if (!geo_handling) {
+		std::cerr << "WARNING! No geoHandling present!\n";
+		exit(1);
+	}
+
+	PndLmdHitLocationInfo hitLoc;
+
+	// FIXME: also, this might break if our sensor ids are not 0-399. this needs handling!
+	for (int iSensor = 0; iSensor < 400; iSensor++) {
+		for (int jSensor = iSensor; jSensor < 400; jSensor++) {
+			if (isOverlappingArea(iSensor, jSensor)) {
+
+				if (!all) {
+					hitLoc = getHitLocationInfo(iSensor);
+					if (iHalf != hitLoc.detector_half) continue;
+					if (iPlane != hitLoc.plane) continue;
+					if (iModule != hitLoc.module) continue;
+				}
+
+				std::string path1(geo_handling->GetPath(int(iSensor)));
+				gGeoManager->cd(path1.c_str());
+				gGeoManager->CdUp();		//exclude toActiveRect
+				path1 = (gGeoManager->GetPath());
+				std::string path2(geo_handling->GetPath(int(jSensor)));
+				gGeoManager->cd(path2.c_str());
+				gGeoManager->CdUp();		//exclude toActiveRect
+				path2 = (gGeoManager->GetPath());
+
+				auto overlapID = getOverlapIdFromSensorIDs(iSensor, jSensor);
+
+				PndLmdOverlapInfo temp;
+				temp.path1 = path1;
+				temp.path2 = path2;
+				temp.overlapID = overlapID;
+				temp.id1 = iSensor;
+				temp.id2 = jSensor;
+
+				temp.hit1 = getHitLocationInfo(iSensor);
+				temp.hit2 = getHitLocationInfo(jSensor);
+
+				result.push_back(temp);
+			}
+		}
+	}
+
+	return result;
+}
+
 const PndLmdHitLocationInfo &PndLmdGeometryHelper::createMappingEntry(int sensor_id) {
 	PndGeoHandling *geo_handling = PndGeoHandling::Instance();
 
@@ -119,16 +183,9 @@ const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(int sensor
 
 std::vector<int> PndLmdGeometryHelper::getAvailableOverlapIDs() {
 	std::vector<int> result;
-	int overlapID;
-	for (int iHalf = 0; iHalf < 2; iHalf++) {
-		for (int iPlane = 0; iPlane < 4; iPlane++) {
-			for (int iModule = 0; iModule < 5; iModule++) {
-				for (int iOverlap = 0; iOverlap < 9; iOverlap++) {
-					overlapID = 1000 * iHalf + 100 * iPlane + 10 * iModule + iOverlap;
-					result.push_back(overlapID);
-				}
-			}
-		}
+	auto infos = getOverlapInfos();
+	for (auto &info : infos) {
+		result.push_back(info.overlapID);
 	}
 	return result;
 }
@@ -157,6 +214,7 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3 &global
 	return TVector3(result);
 }
 
+//that's because the geoManager only produces the matrix to the next super volume
 const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sensorId) {
 	PndGeoHandling *geo_handling = PndGeoHandling::Instance();
 	std::string vol_path(geo_handling->GetPath(int(sensorId)));
@@ -174,8 +232,7 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sen
 }
 
 const TGeoHMatrix PndLmdGeometryHelper::getMatrixSensorToPndGlobal(const int sensorId) {
-	auto result = getMatrixPndGlobalToSensor(sensorId);
-	return TGeoHMatrix(result.Inverse());
+	return getMatrixPndGlobalToSensor(sensorId).Inverse();
 }
 
 int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
@@ -209,6 +266,11 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 
 	if (fside == bside) {
 		return -1;
+	}
+
+	// sort so that id1 is always upstream
+	if (fside > bside) {
+		std::swap(fside, bside);
 	}
 
 	if (bplane != fplane) {
@@ -254,6 +316,10 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 	else if (fsensor == 4 && bsensor == 7) {
 		smalloverlap = 8;
 	}
+	// don't overlap, return -1
+	else {
+		return -1;
+	}
 	return 1000 * fhalf + 100 * fplane + 10 * fmodule + smalloverlap;
 }
 
@@ -262,7 +328,7 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToLmdLocal() {
 	TString actPath = fGeoManager->GetPath();
 
 	fGeoManager->cd(lmd_root_path.c_str());
-	TGeoHMatrix *matrix = (TGeoHMatrix *) (fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *matrix = (TGeoHMatrix *) (fGeoManager->GetCurrentMatrix());
 
 	if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
 
@@ -274,81 +340,7 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixLmdLocalToPndGlobal() {
 }
 
 bool PndLmdGeometryHelper::isOverlappingArea(const int id1, const int id2) {
-
-	int fhalf, fplane, fmodule, fside, fsensor;
-	int bhalf, bplane, bmodule, bside, bsensor;
-
-	auto &infoOne = getHitLocationInfo(id1);
-	auto &infoTwo = getHitLocationInfo(id2);
-
-	fhalf = infoOne.detector_half;
-	bhalf = infoTwo.detector_half;
-
-	//the necessities for overlapping, must be on same half, plane, module and other side
-	if (bhalf != fhalf) {
-		return false;
-	}
-
-	fside = infoOne.module_side;
-	bside = infoTwo.module_side;
-
-	fplane = infoOne.plane;
-	bplane = infoTwo.plane;
-
-	fmodule = infoOne.module;
-	bmodule = infoTwo.module;
-
-	fsensor = infoOne.module_sensor_id;
-	bsensor = infoTwo.module_sensor_id;
-
-	if (bplane != fplane) {
-		return false;
-	}
-	if (bmodule != fmodule) {
-		return false;
-	}
-	if (bside == fside) {
-		return false;
-	}
-
-	//0to5
-	if (fsensor == 0 && bsensor == 5) {
-		return true;
-	}
-	//3to8
-	if (fsensor == 3 && bsensor == 8) {
-		return true;
-	}
-	//4to9
-	if (fsensor == 4 && bsensor == 9) {
-		return true;
-	}
-	//3to6
-	if (fsensor == 3 && bsensor == 6) {
-		return true;
-	}
-	//1to8
-	if (fsensor == 1 && bsensor == 8) {
-		return true;
-	}
-	//2to8
-	if (fsensor == 2 && bsensor == 8) {
-		return true;
-	}
-	//2to9
-	if (fsensor == 2 && bsensor == 9) {
-		return true;
-	}
-	//3to7
-	if (fsensor == 3 && bsensor == 7) {
-		return true;
-	}
-	//4to7
-	if (fsensor == 4 && bsensor == 7) {
-		return true;
-	}
-	//all other checks are negative? then the sensors don't overlap!
-	return false;
+	return (getOverlapIdFromSensorIDs(id1, id2) > -1);
 }
 
 std::vector<std::string> PndLmdGeometryHelper::getAllAlignPaths(bool sensors, bool modules, bool planes,
@@ -390,6 +382,26 @@ std::vector<std::string> PndLmdGeometryHelper::getAllAlignPaths(bool sensors, bo
 	return result;
 }
 
+int PndLmdGeometryHelper::getSensorOneFromOverlapID(int overlapID) {
+	auto allInfos = getOverlapInfos();
+	for (auto &info : allInfos) {
+		if (info.overlapID == overlapID) {
+			return info.id1;
+		}
+	}
+	return -1;
+}
+
+int PndLmdGeometryHelper::getSensorTwoFromOverlapID(int overlapID) {
+	auto allInfos = getOverlapInfos();
+	for (auto &info : allInfos) {
+		if (info.overlapID == overlapID) {
+			return info.id2;
+		}
+	}
+	return -1;
+}
+
 std::vector<std::string> PndLmdGeometryHelper::getAllAlignableVolumePaths() const {
 	TGeoNode* node = fGeoManager->GetTopNode();
 
@@ -429,4 +441,5 @@ std::vector<std::string> PndLmdGeometryHelper::getAllAlignableVolumePaths() cons
 	}
 	return alignable_volumes;
 }
+
 

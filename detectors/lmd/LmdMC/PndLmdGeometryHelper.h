@@ -1,6 +1,8 @@
 #ifndef LMD_LMDMC_PNDLMDGEOMETRYHELPER_H_
 #define LMD_LMDMC_PNDLMDGEOMETRYHELPER_H_
 
+#include <exception>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
@@ -35,6 +37,27 @@ struct PndLmdHitLocationInfo {
 	}
 };
 
+struct PndLmdOverlapInfo {
+	std::string path1;
+	std::string path2;
+	int overlapID;
+	int id1;
+	int id2;
+
+	// two dummy HitLocationInfo objects for the sensors
+	PndLmdHitLocationInfo hit1;
+	PndLmdHitLocationInfo hit2;
+
+	friend std::ostream& operator<<(std::ostream& stream, const PndLmdOverlapInfo& overlap_info) {
+		stream << "path 1: " << overlap_info.path1 << "\n";
+		stream << "path 2: " << overlap_info.path2 << "\n";
+		stream << "id 1: " << overlap_info.id1 << "\n";
+		stream << "id 2: " << overlap_info.id2 << "\n";
+		stream << "overlapID: " << overlap_info.overlapID << "\n";
+		return stream;
+	}
+};
+
 class PndLmdGeometryHelper {
 	boost::property_tree::ptree geometry_properties;
 	std::vector<std::pair<std::string, bool> > navigation_paths;
@@ -46,10 +69,29 @@ class PndLmdGeometryHelper {
 
 	TGeoManager* fGeoManager;
 
-	PndLmdGeometryHelper(const std::string& geo_params_config_file_url = "lmd-geo-params.json") :
+	PndLmdGeometryHelper(const std::string& geo_params_config_file_url = "") :
 			fGeoManager(gGeoManager) {
+		std::string file_url(geo_params_config_file_url);
+		if (geo_params_config_file_url == "") {
+			file_url = std::getenv("VMCWORKDIR");
+			file_url += "/macro/detectors/lmd/geo/lmd-geo-params.json";
+		}
 		// load parameters
-		read_json(geo_params_config_file_url, geometry_properties);
+		try {
+			read_json(file_url, geometry_properties);
+		}
+		catch (std::exception &e) {
+			std::cerr << "PndLmdGeometryHelper::PndLmdGeometryHelper(): ERROR! Parameter file not present!\n";
+			std::cerr << "Was looking for file: " << file_url << "\n";
+			exit(1);
+		}
+
+		if (!fGeoManager) {
+			std::cerr
+			    << "ERROR! gGeoManager is unitialized! Please populate the gGeoManager or initialize a run!\n";
+			exit(2);
+		}
+
 		auto pt_general = geometry_properties.get_child("general");
 		for (boost::property_tree::ptree::value_type &nav_path : pt_general.get_child("navigation_paths")) {
 			navigation_paths.push_back(
@@ -76,6 +118,7 @@ public:
 		static PndLmdGeometryHelper instance;
 		return instance;
 	}
+
 	virtual ~PndLmdGeometryHelper();
 
 	PndLmdGeometryHelper(const PndLmdGeometryHelper&) = delete;
@@ -87,8 +130,10 @@ public:
 
 	const PndLmdHitLocationInfo& getHitLocationInfo(int sensor_id);
 
-	static std::vector<int> getAvailableOverlapIDs();
+	std::vector<int> getAvailableOverlapIDs();
 	int getOverlapIdFromSensorIDs(int id1, int id2);
+	int getSensorOneFromOverlapID(int overlapID);
+	int getSensorTwoFromOverlapID(int overlapID);
 
 	TVector3 transformPndGlobalToLmdLocal(const TVector3 &vec);
 	TVector3 transformPndGlobalToSensor(const TVector3 &vec, int sensorId);
@@ -103,12 +148,15 @@ public:
 	const TGeoHMatrix getMatrixPndGlobalToLmdLocal();
 	const TGeoHMatrix getMatrixLmdLocalToPndGlobal();
 
-	// returns all paths to alignable objects, filtered by bools
-	    std::vector<std::string> getAllAlignPaths(bool sensors=true, bool modules=false, bool planes=false,
-	    bool halfs=false, bool detector=false);
+	std::vector<std::string> getAllAlignPaths(bool sensors=true, bool modules=false, bool planes=false,
+	bool halfs=false, bool detector=false);
 
-	    std::vector<std::string> getAllAlignableVolumePaths() const;
+	//can be restriced by half, plane and module
+	std::vector<PndLmdOverlapInfo> getOverlapInfos(int iHalf=-1, int iPlane=-1, int iModule=-1);
 
-    };
+	std::vector<std::string> getAllAlignableVolumePaths() const;
+
+};
 
 #endif /* LMD_LMDMC_PNDLMDGEOMETRYHELPER_H_ */
+
