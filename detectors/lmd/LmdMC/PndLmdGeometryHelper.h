@@ -74,7 +74,7 @@ class PndLmdGeometryHelper {
 		std::string file_url(geo_params_config_file_url);
 		if (geo_params_config_file_url == "") {
 			file_url = std::getenv("VMCWORKDIR");
-			file_url += "/macro/detectors/lmd/geo/lmd-geo-params.json";
+			file_url += "/macro/detectors/lmd/lmd-geo-params.json";
 		}
 		// load parameters
 		try {
