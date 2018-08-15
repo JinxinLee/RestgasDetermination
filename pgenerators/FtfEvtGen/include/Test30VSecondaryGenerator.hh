@@ -37,6 +37,7 @@
 
 #ifndef Test30VSecondaryGenerator_Test30VSecondaryGenerator_h
 #define Test30VSecondaryGenerator_Test30VSecondaryGenerator_h 1
+#include <iostream>
 
 #include <string>
 #include <vector>
@@ -90,6 +91,14 @@ private:
   G4HadFinalState* result;
   G4int targetZ;
   G4int targetA;
+  void TestPointers()
+  {
+    std::cout<<"Test30VSecondaryGenerator::this         -> "<< this <<std::endl;
+    std::cout<<"Test30VSecondaryGenerator::hInteraction -> "<< hInteraction <<std::endl;
+    std::cout<<"Test30VSecondaryGenerator::material     -> "<< material <<std::endl;
+    std::cout<<"Test30VSecondaryGenerator::elm          -> "<< elm <<std::endl;
+    std::cout<<"Test30VSecondaryGenerator::result       -> "<< result <<std::endl;
+  };
 
 };
 

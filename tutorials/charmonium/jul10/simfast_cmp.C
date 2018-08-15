@@ -15,7 +15,7 @@ void simfast_cmp(TString part="psi(2S)", TString decfile="PSI2S.DEC",int nevts=1
 
   // Load this example libraries
   //gSystem->Load("libRho");
-  gSystem->Load("libfsim");
+  gSystem->Load("libfastsim");
  
   if (outfile=="") outfile=decfile+".fast.root";
 

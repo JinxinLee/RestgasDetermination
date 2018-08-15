@@ -56,7 +56,7 @@ PndSolenoidMap::PndSolenoidMap(PndMapPar* fieldPar)
     fPosZ  = fieldPar->GetPositionZ();
     fScale = fieldPar->GetScale();
     TString dir = getenv("VMCWORKDIR");
-    fFileName = dir + "/input/" + fName + ".root";
+    fFileName = dir + "/input/fieldmaps/" + fName + ".root";
     fType = fieldPar->GetType();
   }
 }

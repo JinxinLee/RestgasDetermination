@@ -8,14 +8,12 @@
 #pragma link C++ class  PndDpmGenerator+;
 #pragma link C++ class  PndFtfGenerator+;
 #pragma link C++ class  PndEvtGenGenerator+;
-#pragma link C++ class  PndDpmDirect+;
-//#pragma link C++ class  PndFtfDirect+;
 #pragma link C++ class  PndBoxGenerator+;
 #pragma link C++ class  PndUrqmdSmmGenerator+;
 #pragma link C++ class  PndJRGenerator+;
 #pragma link C++ class  PndPythia6Generator+;
 #pragma link C++ class  PndPythia8Generator+;
-#pragma link C++ class  PndFlatParticleGenerator+;
+#pragma link C++ class  PndFixStepParticleGun+;
 #pragma link C++ class  PndFlukaGenerator+;
 #pragma link C++ class  PndRangeValues+;
 #pragma link C++ class  PndGasGenerator+;
@@ -30,5 +28,8 @@
 #pragma link C++ class  FairEvtFilterOnSingleParticleCounts+;
 #pragma link C++ class  PndEvtFilter+;
 #pragma link C++ class  PndEvtFilterOnInvMassCounts+;
+#pragma link C++ class  PndFilteredPrimaryGenerator+;
+#pragma link C++ class  PndSmpFilt+;
+#pragma link C++ class  PndSmpCand+;
 
 #endif

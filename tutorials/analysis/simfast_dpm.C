@@ -15,7 +15,7 @@ void simfast_dpm(double mom, int mode=0,int soff=0,int nevts=100,TString outfile
 
   // Load this libraries
   gSystem->Load("libRho");
-  gSystem->Load("libfsim");
+  gSystem->Load("libfastsim");
  
   double mp=0.938272;
   double p=0,M=0;

@@ -20,11 +20,11 @@
   gSystem->Load("libGen");
   gSystem->Load("libGeom.so");
 
- 
+
   TFile* file = new TFile("ex1.root");
   TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
-  
+
   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800);
   c1->SetFillColor(10);
 
@@ -36,17 +36,17 @@
   view->Top();
   view->Centered();
   //    view->SetParralel();
-  
+
   //drawing tracks
-  TTree *t=file->Get("cbmsim") ;
-   
+  TTree *t=file->Get("pndsim") ;
+
   TClonesArray *fT=new TClonesArray("TGeoTrack");
 
   t->SetBranchAddress("GeoTracks",&fT) ;
 
- 
+
 TGeoTrack *tr;
- TObjArray *TrList= geoMan->GetListOfTracks(); 
+ TObjArray *TrList= geoMan->GetListOfTracks();
  for (Int_t j=0; j< t->GetEntriesFast(); j++)	{
  	t->GetEntry(j);
 	for (Int_t i=0; i<fT->GetEntriesFast(); i++)	{
@@ -55,10 +55,10 @@ TGeoTrack *tr;
 		TrList->AddLast(tr);
 	}
  }
-   
+
  //geoMan->AnimateTracks(0,1E-7, 500,"/G");	// uncommit this to animate the tracks
-  
-   geoMan->DrawTracks("same");  // this will draw all tracks added to the TrList at once 
+
+   geoMan->DrawTracks("same");  // this will draw all tracks added to the TrList at once
 
 }
 

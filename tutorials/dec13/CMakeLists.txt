@@ -7,15 +7,14 @@ ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
-${CMAKE_SOURCE_DIR}/rho
-${CMAKE_SOURCE_DIR}/rho/RhoBase
-${CMAKE_SOURCE_DIR}/rho/RhoSelector
-${CMAKE_SOURCE_DIR}/rho/RhoHistogram
-${CMAKE_SOURCE_DIR}/rho/RhoTools
+${CMAKE_SOURCE_DIR}/analysis/rho
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoSelector
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoHistogram
+${CMAKE_SOURCE_DIR}/analysis/rho/RhoTools
 ${CMAKE_SOURCE_DIR}/tutorials/dec13
 ${CMAKE_SOURCE_DIR}/tutorials/dec13/example_D0toKpi
-${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
-${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+${CMAKE_SOURCE_DIR}/analysis/AnalysisTools
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

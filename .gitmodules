@@ -1,0 +1,4 @@
+[submodule "external/vc"]
+	path = external/vc
+	url = https://github.com/VcDevel/Vc.git
+	branch = 0.7.5

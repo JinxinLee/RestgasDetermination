@@ -4,6 +4,7 @@
 
 #include "PndEvtFilterOnInvMassCounts.h"
 #include "TParticlePDG.h"
+#include <algorithm>
 
 
 
@@ -125,13 +126,16 @@ Bool_t PndEvtFilterOnInvMassCounts::SetPdgCodesToCombine( Int_t pdgCode1, Int_t 
 
 
 	// create temp. vector of all input pdg codes
-	std::vector< Int_t > pdgCodes;
+	std::vector< Int_t > pdgCodes, apdgCodes;
 	pdgCodes.push_back(pdgCode1);
 	pdgCodes.push_back(pdgCode2);
 	pdgCodes.push_back(pdgCode3);
 	pdgCodes.push_back(pdgCode4);
 	pdgCodes.push_back(pdgCode5);
-
+	
+	
+//	std::cout <<"[PndEvtFilterOnInvMassCounts]"<<pdgCode1<<" "<<pdgCode2<<" "<<pdgCode3<<" "<<pdgCode4<<" "<<pdgCode5<<std::endl;
+	
 	// Copy valid entries from pdgCodes to fPdgCodesCharges
 	for (UInt_t iPdgCodes = 0; iPdgCodes < pdgCodes.size(); ++iPdgCodes){
 		// skip kInvalidPdgCode entries in pdgCodes
@@ -184,31 +188,79 @@ Bool_t PndEvtFilterOnInvMassCounts::EventMatches(Int_t evtNr)
 		if (0<fVerbose) std::cout << "\n\n\n PndEvtFilterOnInvMassCounts: Event contains less than " << fPdgCodesCharges.size() << " particles. " << this->GetTitle() << ": " << this->GetName() << " will not accept this event.\n\n\n";
 		return kFALSE;
 	}
-
+	
 	// get rho cand lists of particles and combine them
 	RhoCandList p0, p1, p2, p3, p4;
+	// also care about charged conjugate 
+	RhoCandList ap0, ap1, ap2, ap3, ap4;
+	
+	std::vector<int> pdg, apdg;
+	
+	// make list with anti-pdg codes
+	for (UInt_t i=0;i<fPdgCodesCharges.size();++i)
+	{
+		int cpdg = fPdgCodesCharges[i].first;
+		pdg.push_back(cpdg);
+		
+		if (fdbPdg->GetParticle(cpdg)!=0x0 && fdbPdg->GetParticle(cpdg)->AntiParticle()!=0x0) 
+			apdg.push_back(fdbPdg->GetParticle(cpdg)->AntiParticle()->PdgCode()); 
+		else 
+			apdg.push_back(cpdg);
+	}
+	
+	// is the cc'd list the same as the original one (= a permutation)?
+	bool isperm = is_permutation(pdg.begin(), pdg.end(), apdg.begin());
+	
+		
 	FillList( p0, fPdgCodesCharges[0].first, fPdgCodesCharges[0].second );
 	FillList( p1, fPdgCodesCharges[1].first, fPdgCodesCharges[1].second );
+	
+	// fill anti-particle lists
+	if (!isperm)
+	{
+		FillList( ap0, apdg[0], -fPdgCodesCharges[0].second );
+		FillList( ap1, apdg[1], -fPdgCodesCharges[1].second );
+	}
 
-	RhoCandList combinedList;
+	RhoCandList combinedList, combinedAntiList;
+	
 	switch( fPdgCodesCharges.size() ) {
 	case 2:
 		combinedList.Combine(p0, p1);
+		if (!isperm) combinedAntiList.Combine(ap0, ap1);
 		break;
 	case 3:
 		FillList( p2, fPdgCodesCharges[2].first, fPdgCodesCharges[2].second );
 		combinedList.Combine(p0, p1, p2);
+		if (!isperm)
+		{
+			FillList( ap2, apdg[2], -fPdgCodesCharges[2].second );
+			combinedAntiList.Combine(ap0, ap1, ap2);
+		}
 		break;
 	case 4:
 		FillList( p2, fPdgCodesCharges[2].first, fPdgCodesCharges[2].second );
 		FillList( p3, fPdgCodesCharges[3].first, fPdgCodesCharges[3].second );
 		combinedList.Combine(p0, p1, p2, p3);
+		if (!isperm)
+		{
+			FillList( ap2, apdg[2], -fPdgCodesCharges[2].second );
+			FillList( ap3, apdg[3], -fPdgCodesCharges[3].second );
+			combinedAntiList.Combine(ap0, ap1, ap2, ap3);
+		}
 		break;
 	case 5:
 		FillList( p2, fPdgCodesCharges[2].first, fPdgCodesCharges[2].second );
 		FillList( p3, fPdgCodesCharges[3].first, fPdgCodesCharges[3].second );
 		FillList( p4, fPdgCodesCharges[4].first, fPdgCodesCharges[4].second );
 		combinedList.Combine(p0, p1, p2, p3, p4);
+		if (!isperm)
+		{
+			FillList( p2, apdg[2], -fPdgCodesCharges[2].second );
+			FillList( p3, apdg[3], -fPdgCodesCharges[3].second );
+			FillList( p4, apdg[4], -fPdgCodesCharges[4].second );
+			combinedAntiList.Combine(ap0, ap1, ap2, ap3, ap4);
+		}
 		break;
 	default:
 		std::cout << "FATAL ERROR in PndEvtFilterOnInvMassCounts::EventMatches of " << this->GetTitle() << ": " << this->GetName() << ". The number of pdg codes is not supported. \n";
@@ -226,19 +278,22 @@ Bool_t PndEvtFilterOnInvMassCounts::EventMatches(Int_t evtNr)
 
 	// select acceptable invariant mass range
 	combinedList.Select(fInvMassSel);
-
+	if (!isperm) combinedAntiList.Select(fInvMassSel);
+	
+	int ncand = combinedList.GetLength() + combinedAntiList.GetLength();
+	
 	if (fVerbose > 3){
-		std::cout << combinedList.GetLength() << " particles in combined list after mass selection\n";
+		std::cout << combinedList.GetLength()<<" + "<< combinedAntiList.GetLength()<< " particles in combined list after mass selection\n";
 	}
 
 	// check if number of acceptable combinations is within acceptable limits
-	if ( combinedList.GetLength() < fCountsMinMax.first){
+	if ( ncand < fCountsMinMax.first){
 		if (fVerbose >9){
 			std::cout << "Event is not accepted by " << this->GetTitle() << ": " << this->GetName() << " because there are too few matching inv. mass combinations in the event. \n";
 		}
 		return kFALSE;
 	}
-	if ( combinedList.GetLength() > fCountsMinMax.second ){
+	if ( ncand > fCountsMinMax.second ){
 		if (fVerbose >9){
 			std::cout << "Event is not accepted by " << this->GetTitle() << ": " << this->GetName() << " because there are too many matching inv. mass combinations in the event. \n";
 		}

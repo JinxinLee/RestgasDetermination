@@ -12,7 +12,7 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/plane
-${CMAKE_SOURCE_DIR}/stt
+${CMAKE_SOURCE_DIR}/detectors/stt
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/GeaneEx
 )

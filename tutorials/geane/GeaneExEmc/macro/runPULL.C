@@ -1,7 +1,7 @@
 {
 	gROOT->Reset();
 	gStyle->SetOptFit(1);
-	
+
 
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
 	basiclibs();
@@ -17,13 +17,13 @@
         gSystem->Load("libGeaneExEmc");
         gSystem->Load("libTrkBase");
 
-	TFile *f=new TFile("geane.root");	
-	TTree *cbmsim=f->Get("cbmsim") ;
+	TFile *f=new TFile("geane.root");
+	TTree *simtree=f->Get("pndsim") ;
 
         fTrackParGeane = new TClonesArray("FairTrackParH");
  	fTrackParIni = new TClonesArray("FairTrackParH");
   	fTrackParFinal = new TClonesArray("FairTrackParH");
-  	
+
         TH1F *h1=new TH1F("h1","Phi ",100,-10.,10.);
 	TH1F *h2=new TH1F("h2","Lambda",100,-10,10);
 	TH1F *h3=new TH1F("h3","Qp",100,-10.,10.);
@@ -43,22 +43,22 @@
 	TH2F *h201=new TH2F("h201","PX_MC vs PX_GE",100,-2,2,100,-2,2);
 	TH2F *h202=new TH2F("h202","PY_MC vs PY_GE",100,-2,2,100,-2,2);
 	TH2F *h203=new TH2F("h203","PZ_MC vs PZ_GE",100,-2,2,100,-2,2);
-       
-        cbmsim->SetBranchAddress("GeaneTrackFinal",&fTrackParFinal);
-	cbmsim->SetBranchAddress("GeaneTrackPar",&fTrackParGeane);
+
+        simtree->SetBranchAddress("GeaneTrackFinal",&fTrackParFinal);
+	simtree->SetBranchAddress("GeaneTrackPar",&fTrackParGeane);
         FairTrackParH *fTrkF  ;
         FairTrackParH *fTrkG;
-        Int_t Nevents= cbmsim->GetEntriesFast();
+        Int_t Nevents= simtree->GetEntriesFast();
 	cout<<Nevents<<endl;
 	for(Int_t i=0; i<Nevents; i++){
 		fTrackParGeane->Delete();
-		fTrackParFinal->Delete();               
-		cbmsim->GetEntry(i);
+		fTrackParFinal->Delete();
+		simtree->GetEntry(i);
 		 for (Int_t k=0; k<fTrackParGeane->GetEntriesFast(); k++)	{
     			fTrkF = (FairTrackParH *)fTrackParFinal->At(k);
 			fTrkG = (FairTrackParH *)fTrackParGeane->At(k);
 			if(fTrkF &&fTrkG ){
-			  
+
 			  h101->Fill(fTrkF->GetX(),fTrkG->GetX());
 			  h102->Fill(fTrkF->GetY(),fTrkG->GetY());
 			  h103->Fill(fTrkF->GetZ(),fTrkG->GetZ());
@@ -67,7 +67,7 @@
 			  h202->Fill(fTrkF->GetPy(),fTrkG->GetPy());
 			  h203->Fill(fTrkF->GetPz(),fTrkG->GetPz());
 
-			if(fTrkG->GetDPhi())h1->Fill((fTrkF->GetPhi()-fTrkG->GetPhi())/fTrkG->GetDPhi());		
+			if(fTrkG->GetDPhi())h1->Fill((fTrkF->GetPhi()-fTrkG->GetPhi())/fTrkG->GetDPhi());
 		        if(fTrkG->GetDLambda())h2->Fill((fTrkF->GetLambda()-fTrkG->GetLambda())/fTrkG->GetDLambda());
 			if(fTrkG->GetDQp())h3->Fill((fTrkF->GetQp()-fTrkG->GetQp())/fTrkG->GetDQp());
                         if(fTrkG->GetDY())h4->Fill((fTrkF->GetY() -fTrkG->GetY()) /fTrkG->GetDY());

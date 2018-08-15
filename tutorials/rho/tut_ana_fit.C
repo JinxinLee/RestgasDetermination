@@ -103,7 +103,7 @@ void tut_ana_fit(int nevts = 0, TString prefix = "signal")
 		{
 			hjpsim_all->Fill(jpsi[j]->M());		// fill histo for all J/psi candidates
 			
-			PndKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
+			RhoKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
 			vtxfitter.Fit();
 			
 			double chi2_vtx = vtxfitter.GetChi2();	// access chi2 of fit
@@ -134,7 +134,7 @@ void tut_ana_fit(int nevts = 0, TString prefix = "signal")
 		{
 			hpsim_all->Fill(psi2s[j]->M());		// fill histo for all psi(2S) candidates
 			
-			PndKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
+			RhoKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
 			fitter.Add4MomConstraint(ini);	// set 4 constraint
 			fitter.Fit();		            // do fit
 			
@@ -156,7 +156,7 @@ void tut_ana_fit(int nevts = 0, TString prefix = "signal")
 		// ***
 		for (j=0;j<jpsi.GetLength();++j) 
 		{
-			PndKinFitter mfitter(jpsi[j]);		// instantiate the PndKinFitter in psi(2S)
+			RhoKinFitter mfitter(jpsi[j]);		// instantiate the RhoKinFitter in psi(2S)
 			mfitter.AddMassConstraint(m0_jpsi);	// add the mass constraint
 			mfitter.Fit();				// do fit
 			

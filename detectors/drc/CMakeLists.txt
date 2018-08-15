@@ -1,0 +1,55 @@
+# Create a library called "" which includes the source files given in
+# the array .
+# The extension is already found.  Any number of sources could be listed here.
+
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES}
+)
+
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/fairtools
+  ${CMAKE_SOURCE_DIR}/field
+  ${CMAKE_SOURCE_DIR}/pnddata 
+  ${CMAKE_SOURCE_DIR}/detectors/drc/
+  ${CMAKE_SOURCE_DIR}/pnddata/DrcData
+  ${CMAKE_SOURCE_DIR}/tools 
+
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
+
+set(LINK_DIRECTORIES
+${ROOT_LIBRARY_DIR}
+${FAIRROOT_LIBRARY_DIR}
+)
+ 
+link_directories( ${LINK_DIRECTORIES})
+
+set(SRCS
+PndGeoDrc.cxx 
+PndDrc.cxx 
+PndGeoDrcPar.cxx 
+PndDrcDigiRingSorter.cxx
+PndDrcDigiSorterTask.cxx
+PndDrcDigiWriteoutBuffer.cxx
+PndDrcContFact.cxx 
+PndDrcHitProducerIdeal.cxx 
+PndDrcHitProducerReal.cxx 
+PndDrcDigiTask.cxx
+PndDrcTimeDigiTask.cxx
+PndDrcHitFinder.cxx
+DrawHits.cxx 
+PndDrcDigiPar.cxx
+PndDrcLutFill.cxx
+PndDrcLutReco.cxx
+PndDrcReco.cxx
+)
+
+set(LINKDEF  DrcLinkDef.h)
+set(LIBRARY_NAME Drc) 
+
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools)
+
+GENERATE_LIBRARY()

@@ -1,0 +1,63 @@
+# Create a library called "libPndEventDisplay" 
+# 18.06.09  T.Stockmanns
+
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${BASE_INCLUDE_DIRECTORIES} 
+  ${GEANT3_INCLUDE_DIR} 
+)
+
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/tools 
+  ${CMAKE_SOURCE_DIR}/tracking/HelixPropagator
+ # ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
+  ${CMAKE_SOURCE_DIR}/field 
+  ${CMAKE_SOURCE_DIR}/geane
+  ${CMAKE_SOURCE_DIR}/genfit
+  ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/pnddata/DrcData
+  ${CMAKE_SOURCE_DIR}/pnddata/SttData
+  ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+  ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+  ${CMAKE_SOURCE_DIR}/detectors/drc
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdDigi
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsDigi
+  ${CMAKE_SOURCE_DIR}/detectors/sds/SdsTools
+  ${CMAKE_SOURCE_DIR}/detectors/stt
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcTools
+  ${CMAKE_SOURCE_DIR}/eventdisplay
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
+
+set(LINK_DIRECTORIES
+${ROOT_LIBRARY_DIR}
+${FAIRROOT_LIBRARY_DIR}
+)
+ 
+link_directories( ${LINK_DIRECTORIES})
+
+set(SRCS
+PndTrackCandDraw.cxx
+PndTrackDraw.cxx
+PndDrcAccuDigiPixelDraw.cxx
+PndSttMCPointDraw.cxx
+PndMvdDigiPixelDraw.cxx
+PndSttIsochroneDraw.cxx
+PndEmcClusterDraw.cxx
+PndEmcHitDraw.cxx
+PndCaloDraw.cxx
+PndEmcHitCaloDraw.cxx
+PndEmcDigiCaloDraw.cxx
+)
+
+set(LINKDEF PndEventDisplayLinkDef.h)
+set(LIBRARY_NAME PndEventDisplay)
+
+set(DEPENDENCIES Base EventDisplay generalTools Geane
+ParBase PndData Sds Stt Drc helixpropagator)
+
+GENERATE_LIBRARY()

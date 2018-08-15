@@ -16,7 +16,7 @@ class PndAnalysis;
 class RhoCandList;
 class RhoCandidate;
 class RhoTuple;
-class PndVtxPoca;
+class RhoVtxPoca;
 
 
 class PndTutAnaTaskD0 : public FairTask
@@ -57,7 +57,7 @@ class PndTutAnaTaskD0 : public FairTask
 	// *******
 	RhoTuple *nd0;
 	RhoMassParticleSelector *fD0Sel;
-	PndVtxPoca *fVtxPoca;
+	RhoVtxPoca *fVtxPoca;
 	
 	
 	// *** Get parameter containers

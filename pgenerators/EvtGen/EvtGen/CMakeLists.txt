@@ -1,9 +1,9 @@
 # Create a library called "libEvtGen" which includes the source files given in
 # the array . libEvtGenExternal will be created if enabled by variable
 
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 OLD)
-endif(COMMAND cmake_policy)
+#if(COMMAND cmake_policy)
+  #cmake_policy(SET CMP0003 OLD)
+#endif(COMMAND cmake_policy)
 
 set(EVTGEN_PRIVATE_DIR     "Private")
 set(EVTGEN_DIR             "R01-03-00")
@@ -49,7 +49,7 @@ set(EVTGEN_SRCS
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBar.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBarPol.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBarHE.cpp
-   ${EVTGEN_PRIVATE_DIR}/EvtDsDalitz.cpp 
+   ${EVTGEN_PRIVATE_DIR}/EvtDsDalitz.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtChic1toJpsiGam.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtChic2toJpsiGam.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtDecayNew.cpp

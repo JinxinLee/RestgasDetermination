@@ -1,115 +1,97 @@
-int pid_complete()
+// Macro for running Panda digitization tasks
+// to run the macro:
+// root  digi_complete.C  or in root session root>.x  digi_complete.C
+int pid_complete(Int_t nEvents = 0)
 {
-  // Macro created 02/10/2012 by S.Spataro
-  // It loads a reconstruction file and compute PID informations
+  //-----User Settings:------------------------------------------------------
+  TString  parAsciiFile   = "all.par";
+  TString  prefix         = "evtcomplete";
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
+  TString  output         = "pid";
+  TString  friend1        = "sim";
+  TString  friend2        = "reco";
+  TString  friend3        = "digi";
+  TString  friend4        = "";
+  TString  fOptions       = "";
 
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0; // just forget about it, for the moment
-  
-	// Number of events to process
-  Int_t nEvents = 0;  // if 0 all the vents will be processed
-  
-  // Parameter file
-  TString parFile = "simparams.root"; // at the moment you do not need it
-  
-  // Digitisation file (ascii)
-  TString digiFile = "all.par";
-  
-  // Output file
-  TString outFile = "pid_complete.root";
-  
-  // -----   Timer   --------------------------------------------------------
-  TStopwatch timer;
-    // ------------------------------------------------------------------------
-  
-  // -----   Reconstruction run   -------------------------------------------
-  FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile("sim_complete.root");
-  fRun->AddFriend("digi_complete.root");
-  fRun->AddFriend("reco_complete.root");
-  fRun->SetOutputFile(outFile);
-  fRun->SetGenerateRunInfo(kFALSE);
-  fRun->SetUseFairLinks(kTRUE);
+  // -----   Initial Settings   --------------------------------------------
+  PndMasterRunAna *fRun= new PndMasterRunAna();
+  fRun->SetInput(input);
+  fRun->SetOutput(output);
+  fRun->AddFriend(friend1);
+  fRun->AddFriend(friend2);
+  fRun->AddFriend(friend3);
+  fRun->AddFriend(friend4);
+  fRun->SetParamAsciiFile(parAsciiFile);
+  fRun->Setup(prefix);
+
   FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
+    fRun->AddTask(Geane);
 
-  // -----  Parameter database   --------------------------------------------
-  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
-  
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(parFile.Data());
-  
-  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(emcDigiFile.Data(),"in");
-        
-  rtdb->setFirstInput(parInput1);
-  rtdb->setSecondInput(parIo1);
+    PndPidCorrelator* corr = NULL;
+    fRun->AddTask(corr = new PndPidCorrelator());
+    if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+      {
+	  if (fOptions.Contains("filtered")){
+		  corr->SetBarrelTrackBranch("SttMvdGemGenTrack_filtered");
+	  } else {
+		  corr->SetBarrelTrackBranch("SttMvdGemGenTrack");
+	  }
+  //      corr->SetInputIDBranch("SttMvdGemGenTrackID");
+      }
+    else
+      {
+	  if (fOptions.Contains("filtered")){
+		  corr->SetBarrelTrackBranch("SttMvdGenTrack_filtered");
+	  } else {
+		  corr->SetBarrelTrackBranch("SttMvdGenTrack");
+	  }
+  //      corr->SetInputIDBranch("SttMvdGenTrackID");
+      }
+    corr->SetForwardTrackBranch("FtsIdealGenTrack");
+  //  corr->SetInputIDBranch2("FtsIdealGenTrackID");
+    corr->SetDebugMode(kTRUE);
+    //corr->SetFast(kTRUE);
+    //corr->SetBackPropagate(kFALSE);
 
-  // ------------------------------------------------------------------------
+    // -----   Bremsstrahlung Correction ----------------------
+    fRun->AddTask(new PndPidBremCorrector());
 
-  PndPidCorrelator* corr = new PndPidCorrelator();
-  //corr->SetVerbose();
-  corr->SetInputBranch("SttMvdGemGenTrack");
-//  corr->SetInputIDBranch("SttMvdGemGenTrackID");
-  corr->SetInputBranch2("FtsIdealGenTrack");
-//  corr->SetInputIDBranch2("FtsIdealGenTrackID");
-  //corr->SetDebugMode(kTRUE);
-  //corr->SetFast(kTRUE);
-  //corr->SetBackPropagate(kFALSE);
-  fRun->AddTask(corr);
+    // -----   MC Cloner   ------------------------------------
+  //  PndMcCloner *clone = NULL;
+  //  fRun->AddTask(clone = new PndMcCloner());
+    // Option to clean the MCTrack TClonesArray from particles which were not interacting with sensitive detectors
+    //clone->SetCleanMc();
 
-  PndPidBremCorrector *bremCorr = new PndPidBremCorrector();
-  fRun->AddTask(bremCorr);
+    // -----   Classifiers   ----------------------------------
+    fRun->AddTask(new PndPidIdealAssociatorTask());
+    fRun->AddTask(new PndPidMvdAssociatorTask());
+    fRun->AddTask(new PndPidMdtHCAssociatorTask());
+    fRun->AddTask(new PndPidDrcAssociatorTask());
 
-  PndMcCloner *clone = new PndMcCloner();
-  fRun->AddTask(clone);
- 
-  PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
-  fRun->AddTask(assMC);
+    if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+      {
+        fRun->AddTask(new PndPidDiscAssociatorTask());
+      }
 
-  PndPidMvdAssociatorTask *assMvd= new PndPidMvdAssociatorTask();
-  fRun->AddTask(assMvd);
+    fRun->AddTask(new PndPidSttAssociatorTask());
 
-  PndPidMdtHCAssociatorTask *assMdt= new PndPidMdtHCAssociatorTask();
-  fRun->AddTask(assMdt);
+    fRun->AddTask(new PndPidEmcBayesAssociatorTask());
 
-  PndPidDrcAssociatorTask *assDrc= new PndPidDrcAssociatorTask();
-  fRun->AddTask(assDrc);
+    fRun->AddTask(new PndPidSciTAssociatorTask());
 
-  PndPidDiscAssociatorTask *assDisc= new PndPidDiscAssociatorTask();
-  fRun->AddTask(assDisc);
+    fRun->AddTask(new PndPidFtofAssociatorTask());
 
-  PndPidSttAssociatorTask *assStt= new PndPidSttAssociatorTask();
-  fRun->AddTask(assStt);
+    if ( (!fOptions.Contains("day1")) )
+      {
+        fRun->AddTask(new PndPidRichAssociatorTask());
+      }
 
-  PndPidEmcBayesAssociatorTask *assEMC= new PndPidEmcBayesAssociatorTask();
-  fRun->AddTask(assEMC);
 
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
-  cout << "fRun->Init()" << endl;
   fRun->Init();
-
-  timer.Start();
-  fRun->Run(0,nEvents);
-  // ------------------------------------------------------------------------
-
-
-  // -----   Finish   -------------------------------------------------------
-  timer.Stop();
-  Double_t rtime = timer.RealTime();
-  Double_t ctime = timer.CpuTime();
-  cout << endl << endl;
-  cout << "Macro finished successfully." << endl;
-  cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << parFile << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-  cout << endl;
-  // ------------------------------------------------------------------------
-  cout << " Test passed" << endl;
-  cout << " All ok " << endl;
+  fRun->Run(0, nEvents);
+  fRun->Finish();
   return 0;
 }

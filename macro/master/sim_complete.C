@@ -22,7 +22,7 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t Be
   // LEP    -> "leplep:pid(value):gegm(value):cosTheta(min,max)"
 
   //TString inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  TString inputGenerator = "dpm";
+  TString inputGenerator = "ftf";
   //TString inputGenerator = "ftf";
   //TString inputGenerator = "box:type(211,1):p(1,1):tht(10,120):phi(0,360)";
  

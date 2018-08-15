@@ -54,7 +54,7 @@ PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
 {
   SetName(mapName);
   TString dir = getenv("VMCWORKDIR");
-  fFileName = dir + "/input/" + mapName;
+  fFileName = dir + "/input/fieldmaps/" + mapName;
   if ( fileType[0] == 'R' ) fFileName += ".root";
   else                      fFileName += ".dat";
   fType = 1;
@@ -90,7 +90,7 @@ PndFieldMap::PndFieldMap(PndFieldPar* fieldPar)
     fPosZ  = fieldPar->GetPositionZ();
     fScale = fieldPar->GetScale();
     TString dir = getenv("VMCWORKDIR");
-    fFileName = dir + "/input/" + Name + ".root";
+    fFileName = dir + "/input/fieldmaps/" + Name + ".root";
     fType = fieldPar->GetType();
   }
 }

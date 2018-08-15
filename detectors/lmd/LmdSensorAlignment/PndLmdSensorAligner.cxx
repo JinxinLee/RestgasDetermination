@@ -1,0 +1,763 @@
+/*
+ * PndLmdSensorAligner.cxx
+ *
+ *  Created on: May 6, 2015
+ *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
+ */
+
+#include "PndLmdSensorAligner.h"
+
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <sstream>
+
+#include <icpPointToPoint.h>
+#include <matrix.h>
+#include <PndLmdAlignManager.h>
+
+//do NOT delete this, or else abs() is a C style macro that casts a double to an int!!
+using std::abs;
+
+using std::cerr;
+using std::cout;
+using std::make_pair;
+using std::string;
+
+void PndLmdSensorAligner::init() {
+	_maxNoOfPairs = 3e5;
+
+	forceInstant = true;
+	_moduleID = -1;
+	nonSanePairs = 0;
+	skippedPairs = 0;
+	swappedPairs = 0;
+//	ID1 = -1;
+//	ID2 = -1;
+	verbose = 0;
+	overlapID = -1;
+	_inCentimeters = true;
+	_success = false;
+	_zIsTimestamp = true;
+
+	debug = false;
+
+	//cout << "PndLmdSensorAligner::Init(): Initialization successful.\n";
+}
+
+PndLmdSensorAligner::PndLmdSensorAligner() {
+	init();
+}
+
+PndLmdSensorAligner::~PndLmdSensorAligner() {
+	//destroy everything. leave nothing standing.
+}
+
+PndLmdSensorAligner::PndLmdSensorAligner(const PndLmdSensorAligner&) {  // other //FIXME [R.K.03/2017] unused variable(s)
+	std::cerr << "PndLmdSensorAligner::Warning! Unnecessary copy-construction." << "\n";
+	init();
+}
+
+void PndLmdSensorAligner::calculateMatrix() {
+
+	int nPairs;
+
+	//check if all vectors have the same size
+	int s1 = simpleSensorOneX.size();
+	int s2 = simpleSensorOneY.size();
+	int s3 = simpleSensorOneZ.size();
+
+	int s4 = simpleSensorTwoX.size();
+	int s5 = simpleSensorTwoY.size();
+	int s6 = simpleSensorTwoZ.size();
+
+	if (s1 == s2 && s2 == s3 && s3 == s4 && s4 == s5 && s5 == s6) {
+		nPairs = simpleSensorOneX.size();
+	}
+	else {
+		cout
+		    << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
+		cout << "s1: " << s1 << "\n";
+		cout << "s2: " << s2 << "\n";
+		cout << "s3: " << s3 << "\n";
+		cout << "s4: " << s4 << "\n";
+		cout << "s5: " << s5 << "\n";
+		cout << "s6: " << s6 << "\n";
+		exit(1);
+	}
+
+	if (skippedPairs > 0) {
+		cout << "=====================================================\n";
+		cout << "WARNING! Invalid pairs in pair file, check your data!\n";
+		cout << "=====================================================\n";
+	}
+
+	//TODO: set from Manager or parameter file!
+	/*
+	 * =============== Global Parameters, from file in the future ===================
+	 */
+	int dim = 2;
+	bool eventTimeCheck = true;
+	double minDelta = 1e-6;
+	_zIsTimestamp = true;
+
+	// only allow max Pairs!
+	if (nPairs > _maxNoOfPairs) {
+		nPairs = _maxNoOfPairs;
+	}
+
+	//check if maxPairs > 0
+	if (nPairs < 500) {
+		cerr
+		    << "PndLmdSensrAligner::Error: Trying to use less than 5 pairs! (And that's not going to work.) Aborting.\n";
+		_success = false;
+		return;
+	}
+	else {
+		//	cout << "PndLmdSensrAligner::CalculateMatrix: Using " << nPairs << " pairs.\n";
+	}
+
+	double* Model = new double[dim * nPairs];
+	double* Template = new double[dim * nPairs];
+
+	if (verbose == 3) {
+		cout << "arranging pairs...\n";
+		cout << "num pairs from bin: " << numberOfPairs << "\n";
+		cout << "num pairs from vec: " << simpleSensorOneX.size() << "\n";
+		cout << "num pairs from dec: " << nPairs << "\n";
+	}
+
+	if (dim == 2) {
+		for (int ipair = 0; ipair < nPairs; ipair++) {
+			Model[ipair * dim + 0] = simpleSensorOneX[ipair];
+			Model[ipair * dim + 1] = simpleSensorOneY[ipair];
+			Template[ipair * dim + 0] = simpleSensorTwoX[ipair];
+			Template[ipair * dim + 1] = simpleSensorTwoY[ipair];
+		}
+	}
+
+	else if (dim == 3) {
+		for (int ipair = 0; ipair < nPairs; ipair++) {
+			Model[ipair * dim + 0] = simpleSensorOneX[ipair];
+			Model[ipair * dim + 1] = simpleSensorOneY[ipair];
+			Model[ipair * dim + 2] = (double) ipair;
+			Template[ipair * dim + 0] = simpleSensorTwoX[ipair];
+			Template[ipair * dim + 1] = simpleSensorTwoY[ipair];
+			Template[ipair * dim + 2] = (double) ipair;
+		}
+
+		//artificial z component, only really relevant if using cm coordinate system
+		// UPDATE: well that's not exactly true. If using CM coordinates, the z is artificial
+		// as well. So to get comparable results of CM vs PX, we should use this in BOTH cases
+
+		if (_zIsTimestamp) {
+			if (verbose == 3) cout << "applying artificial Z coordinate...\n";
+
+			for (int ipair = 0; ipair < nPairs; ipair++) {
+				Model[ipair * dim + 2] = ((2.0 * ipair / (double) nPairs - 1.0) * 1e4);
+				Template[ipair * dim + 2] = ((2.0 * ipair / (double) nPairs - 1.0) * 1e4);
+			}
+		}
+
+		int zeroVals = 0;
+		int modxinv = 0, modyinv = 0, modzinv = 0;
+		int temxinv = 0, temyinv = 0, temzinv = 0;
+
+		/*
+		 * zero factor had to be introduced because a bug in earlier versions led to many entries
+		 * being filled with zeros. it shouldn't be needed anymore, but it doesn't cost much and
+		 * could still be useful.
+		 */
+
+		if (verbose == 3) cout << "checking for zero values...\n";
+
+		for (int iCheck = 0; iCheck < dim * nPairs; iCheck++) {
+			double val1 = abs(Model[iCheck]);
+			double val2 = abs(Template[iCheck]);
+			if (val1 < 1e-15) {
+				if (iCheck % 3 == 0) {
+					//cout << "model xval invalid: " << val1 << "\n";
+					modxinv++;
+				}
+				if (iCheck % 3 == 1) {
+					//cout << "model yval invalid\n";
+					modyinv++;
+				}
+				if (iCheck % 3 == 2) {
+					//cout << "model zval invalid\n";
+					modzinv++;
+				}
+				zeroVals++;
+				//cout << val1 << "\n";
+			}
+			if (val2 < 1e-15) {
+				if (iCheck % 3 == 0) {
+					//cout << "template xval invalid: " << val2 << "\n";
+					temxinv++;
+				}
+				if (iCheck % 3 == 1) {
+					//cout << "template yval invalid\n";
+					temyinv++;
+				}
+				if (iCheck % 3 == 2) {
+					//cout << "template zval invalid\n";
+					temzinv++;
+				}
+				zeroVals++;
+				//cout << val2 << "\n";
+			}
+		}
+
+		// 3 dimension and 2 arrays = 6
+		double zeroFactor = zeroVals / ((double) nPairs * 6.0);
+		if (zeroFactor > 0.1 && zeroFactor < 0.3) {
+			cout << "WARNING. More than 10 % of your entries is zero. That must be a mistake. \n";
+			cout << "Also, the kdtree creation could crash. Keep an eye out for that...\n";
+			cout << "Zero factor: " << zeroFactor << "\n";
+			cout << "model x vals invalid: " << modxinv / (double) nPairs << "\n";
+			cout << "model y vals invalid: " << modyinv / (double) nPairs << "\n";
+			cout << "model z vals invalid: " << modzinv / (double) nPairs << "\n";
+			cout << "templ x vals invalid: " << temxinv / (double) nPairs << "\n";
+			cout << "templ y vals invalid: " << temyinv / (double) nPairs << "\n";
+			cout << "templ z vals invalid: " << temzinv / (double) nPairs << "\n";
+
+		}
+		if (zeroFactor > 0.3) {
+			cout << "ERROR. More than 30 % of your entries is zero. That must be a mistake. \n";
+			cout << "Also, the kdtree creation will crash. Exiting.\n";
+			cout << "Zero factor: " << zeroFactor << "\n";
+			cout << "model x vals invalid: " << modxinv / (double) nPairs << "\n";
+			cout << "model y vals invalid: " << modyinv / (double) nPairs << "\n";
+			cout << "model z vals invalid: " << modzinv / (double) nPairs << "\n";
+			cout << "templ x vals invalid: " << temxinv / (double) nPairs << "\n";
+			cout << "templ y vals invalid: " << temyinv / (double) nPairs << "\n";
+			cout << "templ z vals invalid: " << temzinv / (double) nPairs << "\n";
+			cout << "=== additional data ===\n";
+			cout << "overlap id: " << overlapID << "\n";
+			cout << "no of Pairs: " << nPairs << "\n";
+			exit(1);
+		}
+	}
+
+//	if (verbose >= 2) {
+//		if (overlapID == 0) {
+//			cout << std::setprecision(16);
+//			cout << "grep::pairs::begin\n";
+//			for (int i = 0; i < nPairs * dim; i++) {
+//				cout << "model " << i << ": " << Model[i] << "\n";
+//				cout << "templ " << i << ": " << Template[i] << "\n";
+//				cout << "-------------\n";
+//			}
+//			cout << "grep::pairs::end\n";
+//		}
+//	}
+
+	if (verbose == 3) {
+		cout << "creating ICP...\n";
+	}
+
+	// start with identity as initial transformation
+	// in practice you might want to use some kind of prediction here
+	Matrix Rotation;
+	Matrix translation;
+
+	//perform ICP and store quality parameters
+	//attention! dim * nPairs must equal size of model!
+	IcpPointToPoint icp(Model, nPairs, dim);
+
+	if (verbose == 3) cout << "ICP and model created...\n";
+
+	//TODO: clean this up!
+	//prepare Matrices
+	if (dim == 2) {
+		Rotation = Matrix::eye(2);
+		translation = Matrix(2, 1);
+	}
+	else if (dim == 3) {
+		Rotation = Matrix::eye(3);
+		translation = Matrix(3, 1);
+	}
+
+	icp.forceInstantResult(forceInstant);
+	icp.fit(Template, nPairs, Rotation, translation, -1);
+
+	if (verbose == 3) cout << "ICP fit step done.\n";
+
+	if (dim == 2) {
+
+		//make 4x4 matrix
+		double* tempR = new double[4];
+		double* tempT = new double[2];
+
+		Rotation.getData(tempR);
+		translation.getData(tempT);
+
+		double* finalMatrix = new double[16];
+
+		//okay, this is the version that FIRST rotates, THEN translates.
+		finalMatrix[0] = tempR[0];
+		finalMatrix[1] = tempR[1];
+		finalMatrix[2] = 0;
+		finalMatrix[3] = tempT[0];
+		finalMatrix[4] = tempR[2];
+		finalMatrix[5] = tempR[3];
+		finalMatrix[6] = 0;
+		finalMatrix[7] = tempT[1];
+		finalMatrix[8] = 0;
+		finalMatrix[9] = 0;
+		finalMatrix[10] = 1.0;
+		finalMatrix[11] = 0;
+		finalMatrix[12] = 0;
+		finalMatrix[13] = 0;
+		finalMatrix[14] = 0;
+		finalMatrix[15] = 1.0;
+		resultMatrix = Matrix(4, 4);
+
+		//save matrix!
+		resultMatrix.setVal(4, 4, finalMatrix);
+
+		delete tempR;
+		delete tempT;
+		delete finalMatrix;
+
+	}
+	else if (dim == 3) {
+
+		//make 4x4 matrix
+		double* tempR = new double[9];
+		double* tempT = new double[3];
+
+		Rotation.getData(tempR);
+		translation.getData(tempT);
+
+		double* finalMatrix = new double[16];
+
+		//okay, this is the version that FIRST rotates, THEN translates.
+		finalMatrix[0] = tempR[0];
+		finalMatrix[1] = tempR[1];
+		finalMatrix[2] = tempR[2];
+		finalMatrix[3] = tempT[0];
+		finalMatrix[4] = tempR[3];
+		finalMatrix[5] = tempR[4];
+		finalMatrix[6] = tempR[5];
+		finalMatrix[7] = tempT[1];
+		finalMatrix[8] = tempR[6];
+		finalMatrix[9] = tempR[7];
+		finalMatrix[10] = tempR[8];
+		finalMatrix[11] = tempT[2];
+		finalMatrix[12] = 0;
+		finalMatrix[13] = 0;
+		finalMatrix[14] = 0;
+		finalMatrix[15] = 1;
+
+		resultMatrix = Matrix(4, 4);
+
+		//save matrix!
+		resultMatrix.setVal(4, 4, finalMatrix);
+
+		delete tempR;
+		delete tempT;
+		delete finalMatrix;
+	}
+
+	std::stringstream alignlog;
+
+	if (icp.hasConverged()) {
+		if (verbose == 3) cout << "ICP convergence ok.\n";
+		_success = true;
+
+		//and say a few words for the log
+		alignlog << "\n";
+		alignlog << "====================================================\n";
+		alignlog << "icp converged for overlapID " << overlapID << " in " << icp.getInterations()
+		    << " iterations.\n";
+		alignlog << "pairs available: " << nPairs;
+		if (nPairs < 100000) {
+			alignlog << " (WARNING! This is not enough for accurate alignment!)\n";
+		}
+		else {
+			alignlog << "\n";
+		}
+		//log << "euclidean fitness score: " << icp.getFitnessScore() << " (that is " << icp.getFitnessScore()/8e-4 << " pixels)"<< "\n";
+		alignlog << "euclidean fitness score: " << icp.getFitnessScore();
+		if (icp.getFitnessScore() > 0.55) {
+			alignlog << " (WARNING! This is bad! Should be ~0.55)";  //FIXME: no it should not
+		}
+		alignlog << "\n";
+		alignlog << "minDelta: " << minDelta << "\n";
+
+		alignlog << "EventTimeCheck: ";
+		if (eventTimeCheck) {
+			alignlog << "on (and passed)\n";
+		}
+		else {
+			alignlog << "off\n";
+		}
+		alignlog << "Force Instant: ";
+		if (forceInstant) {
+			alignlog << "on\n";
+		}
+		else {
+			alignlog << "off\n";
+		}
+		alignlog << "====================================================\n";
+	}
+	else {
+		alignlog << "\n";
+		alignlog << "====================================================\n";
+		alignlog << "CRITICAL ERROR:\n";
+		alignlog << "no convergence for overlapID " << overlapID << "." << "\n";
+		alignlog << "====================================================\n";
+		alignlog << "\n";
+		if (verbose == 3) cout << "ICP did not converge!\n";
+		_success = false;
+	}
+	if (verbose == 3) cout << alignlog.str();
+
+	delete[] Model;
+	delete[] Template;
+
+	// DONT DO THIS HERE. The AlignManager takes care of that!
+	// we must save the pairs before that!
+	// this shit just cost me three hours of my life!
+	// clearPairs();
+	return;
+}
+
+bool PndLmdSensorAligner::addSimplePair(const PndLmdHitPair &pair) {
+
+	if ((int) simpleSensorOneX.size() >= _maxNoOfPairs) {
+		// add no more
+		return false;
+	}
+
+	//finally, add pair
+	if (_inCentimeters) {
+		simpleSensorOneX.push_back(pair.getHit1().x());
+		simpleSensorOneY.push_back(pair.getHit1().y());
+		simpleSensorOneZ.push_back(pair.getHit1().z());
+
+		simpleSensorTwoX.push_back(pair.getHit2().x());
+		simpleSensorTwoY.push_back(pair.getHit2().y());
+		simpleSensorTwoZ.push_back(pair.getHit2().z());
+	}
+	else {
+		simpleSensorOneX.push_back(pair.getCol1());
+		simpleSensorOneY.push_back(pair.getRow1());
+		simpleSensorOneZ.push_back(simpleSensorOneZ.size());	//vecor grows, so this is okay
+
+		simpleSensorTwoX.push_back(pair.getCol2());
+		simpleSensorTwoY.push_back(pair.getRow2());
+		simpleSensorTwoZ.push_back(simpleSensorTwoZ.size());	//vecor grows, so this is okay
+	}
+
+	return true;
+}
+
+bool PndLmdSensorAligner::writePairsToBinary(const std::string directory) {
+
+	string filename;					//target directory
+	double* pdata;						//array with pairs
+	int doublesPerPair = 6;				//well, doubles per Pair
+	int nPairs = 0;
+
+	if (simpleSensorOneX.size() == simpleSensorOneY.size()
+	    && simpleSensorOneX.size() == simpleSensorOneZ.size()
+	    && simpleSensorOneX.size() == simpleSensorTwoX.size()
+	    && simpleSensorOneX.size() == simpleSensorTwoY.size()
+	    && simpleSensorOneX.size() == simpleSensorTwoZ.size()) {
+		nPairs = simpleSensorOneX.size();
+	}
+	else {
+		cout << "PndLmdSensorAligner::ERROR: x, y and z have different amounts of entries!\n";
+		cout << "oneX: " << simpleSensorOneX.size() << "\n";
+		cout << "oneY: " << simpleSensorOneY.size() << "\n";
+		cout << "oneZ: " << simpleSensorOneZ.size() << "\n";
+		cout << "twoX: " << simpleSensorTwoX.size() << "\n";
+		cout << "twoY: " << simpleSensorTwoY.size() << "\n";
+		cout << "twoZ: " << simpleSensorTwoZ.size() << "\n";
+
+		nPairs = 0;
+	}
+
+	if (nPairs == 0) {
+		cout << "warning: attempting to write empty binary pair file! (no pairs in buffer for overlapID "
+		    << overlapID << ")\n";
+		return false;
+	}
+
+	size_t length = nPairs * doublesPerPair + 6;	//number of raw doubles (including header), remember pairs have 6 doubles
+
+	filename = directory;
+	filename += PndLmdAlignManager::makeBinaryPairFileName(overlapID, _inCentimeters);
+
+	//construct header
+	double* header = new double[6];
+	header[0] = 6;					//header size in double fields
+	header[1] = doublesPerPair;		//doubles per pair
+	header[2] = nPairs;				//nPairs, read the correct vector!
+	header[3] = sizeof(double);		//sizeof(double), check when reading files!
+	header[4] = overlapID;			//overlapID
+	header[5] = -1;					//value not assigned yet
+
+	pdata = new double[length];
+
+	//save header
+	for (int i = 0; i < 6; i++) {
+		pdata[i] = header[i];
+	}
+	//save data
+	int currentIndex = 6;				//data starts here
+
+	//	if(_simpleStorage){
+	for (int i = 0; i < nPairs; i++) {
+		//first, only assume simple storage
+		pdata[currentIndex + 0] = simpleSensorOneX[i];
+		pdata[currentIndex + 1] = simpleSensorOneY[i];
+		pdata[currentIndex + 2] = simpleSensorOneZ[i];
+		pdata[currentIndex + 3] = simpleSensorTwoX[i];
+		pdata[currentIndex + 4] = simpleSensorTwoY[i];
+		pdata[currentIndex + 5] = simpleSensorTwoZ[i];
+		currentIndex += 6;
+	}
+
+	/*
+	 * the write part is easy, just dump everything. read part is more difficult,
+	 * need to check file first
+	 */
+
+	//TODO: abstract this to Manager!
+	//create directory if not already present
+	PndLmdAlignManager::mkdir(directory);
+	std::ofstream os(filename.c_str(), std::ios::binary | std::ios::out);
+	if (!os.is_open()) {
+		cout << "ERROR! Could not write to " << filename << "!\n";
+		return false;
+	}
+
+	os.write(reinterpret_cast<const char*>(pdata), std::streamsize(length * sizeof(double)));
+	os.close();
+	delete[] pdata;
+	delete[] header;
+	return true;
+}
+
+bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
+
+	string filename;				//binary pair file
+	//size_t length;				//number of raw doubles, remember pairs have 6 doubles
+	double* pdata;					//array with pairs
+	size_t filesize;
+	size_t doublesize = sizeof(double);
+	int nPairs;
+	int doublesPerPair;
+	int noOfDoubles = 0;
+
+	/*
+	 * read goes as follows:
+	 *
+	 * first, check file size.
+	 * file size is larger than 6 doubles (header)? -> read header only! else return false;
+	 * read header and interpret data from header.
+	 * is nPairs*6*sizeof(double) + 6*sizeof(double) (header) == filezise?
+	 * is nPairs in header == 6 * sizeof(double) (filesize - header)
+	 * if so, file seems okay, read header + file. else return false;
+	 * when entire file is read, copy data without header to arrays for ICP	 *
+	 */
+
+	filename = directory;
+	filename += PndLmdAlignManager::makeBinaryPairFileName(overlapID, _inCentimeters);
+
+	//check if file exists and file size
+	std::fstream inStream(filename.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
+	if (inStream) {
+		std::fstream::pos_type size = inStream.tellg();
+		filesize = size;
+	}
+	else {
+		cout << filename.c_str() << " could not be read!\n";
+		return false;
+	}
+
+	double* headersizeD = new double[1];
+	//read header size
+	if (filesize >= sizeof(double)) {
+		//read header
+		std::ifstream is(filename.c_str(), std::ios::binary | std::ios::in);
+		if (!is.is_open()) return false;
+		is.read(reinterpret_cast<char*>(headersizeD), std::streamsize(sizeof(double)));
+		is.close();
+	}
+
+	int headersize;
+	if (headersizeD[0] < 6) {
+		//cout << "headersize is " << headersizeD[0] << ", seems to be old format. using 6 for now.";
+		headersize = 6;
+	}
+	else {
+		headersize = headersizeD[0];
+	}
+
+	//read header
+	if (filesize >= headersize * sizeof(double)) {
+		double* header = new double[headersize];
+
+		//read header
+		std::ifstream is(filename.c_str(), std::ios::binary | std::ios::in);
+		if (!is.is_open()) return false;
+		is.read(reinterpret_cast<char*>(header), std::streamsize(headersize * sizeof(double)));
+		is.close();
+
+		//check header
+		if (verbose == 3) {
+			cout << "file version: " << header[0] << "\n";
+			cout << "doubles / pair: " << header[1] << "\n";
+			cout << "no of pairs: " << header[2] << "\n";
+		}
+
+		//check header
+		doublesPerPair = header[1];
+		nPairs = header[2];
+		numberOfPairs = nPairs;
+		noOfDoubles = nPairs * doublesPerPair + headersize;
+		size_t filesizeMust = sizeof(double) * (noOfDoubles);
+
+		if (doublesize != header[3]) {
+			cout
+			    << "warning! sizeof(double) on this system is different than on the system that made this binary!\n";
+			//TODO: decide what to do in this case
+			exit(1);
+			doublesize = header[3];
+			return false;
+		}
+
+		if (overlapID != header[4]) {
+			cout << "error! file name and overlapID do not match! did you rename the file?\n";
+
+			//FIXME: allow this, for now...
+			//return false;
+		}
+
+		if (filesizeMust == filesize) {
+			if (verbose == 3) cout << "file seems okay!\n";
+		}
+		else {
+			cout << "file is corrupt!\n";
+			return false;
+		}
+
+		//free allocated space!
+		delete[] header;
+
+	}
+	else {
+		cout << filename.c_str() << " is too small, file corrupt!\n";
+		return false;
+	}
+
+	pdata = new double[noOfDoubles];
+
+	//actually read file
+	std::ifstream is(filename.c_str(), std::ios::binary | std::ios::in);
+	if (!is.is_open()) return false;
+	is.read(reinterpret_cast<char*>(pdata), std::streamsize(noOfDoubles * sizeof(double)));
+	is.close();
+
+	//store data correctly or whatever
+	//save data
+	int currentIndex = headersize;				//data starts here
+	bool error = false;
+
+	bool compareBinaryToStored = false;
+
+	if (compareBinaryToStored) {
+		if ((int) simpleSensorOneX.size() != nPairs) {
+			cout << "fatal, can't compare to empty vector.\n";
+			return false;
+		}
+	}
+
+	//from here on, only simpleStorage is supported
+	//TODO: 4 doubles per pair (eq in px) is not supported yet, or other storage options like distance
+	for (int i = 0; i < nPairs; i++) {
+		//assign pair data
+		if (!compareBinaryToStored) {
+			simpleSensorOneX.push_back(pdata[currentIndex + 0]);
+			simpleSensorOneY.push_back(pdata[currentIndex + 1]);
+			simpleSensorOneZ.push_back(pdata[currentIndex + 2]);
+
+			simpleSensorTwoX.push_back(pdata[currentIndex + 3]);
+			simpleSensorTwoY.push_back(pdata[currentIndex + 4]);
+			simpleSensorTwoZ.push_back(pdata[currentIndex + 5]);
+		}
+		//check read data
+		else {
+			if (pdata[currentIndex + 0] != simpleSensorOneX[i]) error = true;
+			if (pdata[currentIndex + 1] != simpleSensorOneY[i]) error = true;
+			if (pdata[currentIndex + 2] != simpleSensorOneZ[i]) error = true;
+			if (pdata[currentIndex + 3] != simpleSensorTwoX[i]) error = true;
+			if (pdata[currentIndex + 4] != simpleSensorTwoY[i]) error = true;
+			if (pdata[currentIndex + 5] != simpleSensorTwoZ[i]) error = true;
+
+			if (error) {
+				cout << pdata[currentIndex + 0] << "|" << simpleSensorOneX[i] << "\n";
+				cout << pdata[currentIndex + 1] << "|" << simpleSensorOneY[i] << "\n";
+				cout << pdata[currentIndex + 2] << "|" << simpleSensorOneZ[i] << "\n";
+				cout << pdata[currentIndex + 3] << "|" << simpleSensorTwoX[i] << "\n";
+				cout << pdata[currentIndex + 4] << "|" << simpleSensorTwoY[i] << "\n";
+				cout << pdata[currentIndex + 5] << "|" << simpleSensorTwoZ[i] << "\n";
+
+				cout << "error!\n";
+				return false;
+			}
+		}
+
+		//get next index, every pair has doublesPerPair doubles
+		currentIndex += doublesPerPair;
+	}
+
+	if (!error) {
+		if (verbose == 3) {
+			cout << "file check successful, everything okay!\n";
+			cout << "read " << nPairs << " from binary file.\n";
+			cout << "vector sizes:\n";
+			cout << "1x: " << simpleSensorOneX.size() << "\n";
+			cout << "1y: " << simpleSensorOneY.size() << "\n";
+			cout << "1z: " << simpleSensorOneZ.size() << "\n";
+			cout << "2x: " << simpleSensorTwoX.size() << "\n";
+			cout << "2y: " << simpleSensorTwoY.size() << "\n";
+			cout << "2z: " << simpleSensorTwoZ.size() << "\n";
+		}
+	}
+
+	//delete array!
+	delete[] pdata;
+
+	// now, check if ID1 and ID2 can be generated from overlapID
+	// well, they can, but only from dimension->, so this is done in manager, not here
+	return true;
+}
+
+void PndLmdSensorAligner::clearPairs() {
+
+	lastNoOfPairs = simpleSensorOneX.size();
+
+	//call destructors of the member objects (well, they're doubles, so... yeah.)
+	simpleSensorOneX.clear();
+	simpleSensorOneY.clear();
+	simpleSensorOneZ.clear();
+	simpleSensorTwoX.clear();
+	simpleSensorTwoY.clear();
+	simpleSensorTwoZ.clear();
+
+	//force release of allocated memory by vectors
+	vector<double>().swap(simpleSensorOneX);
+	vector<double>().swap(simpleSensorOneY);
+	vector<double>().swap(simpleSensorOneZ);
+	vector<double>().swap(simpleSensorTwoX);
+	vector<double>().swap(simpleSensorTwoY);
+	vector<double>().swap(simpleSensorTwoZ);
+
+}

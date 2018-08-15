@@ -288,8 +288,6 @@ Else()
   )
 EndIf()
 
-Generate_Version_Info()
-
 SET(CBMLIBDIR ${CMAKE_BINARY_DIR}/lib)
 SET(LD_LIBRARY_PATH  ${CBMLIBDIR} ${LD_LIBRARY_PATH})
 
@@ -331,7 +329,7 @@ string(FIND " ${CMAKE_CXX_FLAGS} " "-std=c++11" POS_C++11)
 #of Print(), or is the new (2016->) PrintLinkInfo implemented
 Message(STATUS "Checking for FairMultiLinkedData::PrintLinkInfo() function")
 Execute_process(COMMAND ${CMAKE_CXX_COMPILER} -c
-                ${CMAKE_SOURCE_DIR}/PndTools/test/testFairMultiLinkedData.cpp
+                ${CMAKE_SOURCE_DIR}/tools/test/testFairMultiLinkedData.cpp
         	-I${ROOT_INCLUDE_DIR} -I${FAIRROOTPATH}/include
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                 RESULT_VARIABLE NO_PrintLinkInfo
@@ -364,94 +362,94 @@ add_subdirectory (geane)
 add_subdirectory (generators)
 ENDIF (NOT FAIRROOT_FOUND)
 
-add_subdirectory (PndTools/generalTools)
-add_subdirectory (PndTools/buffers)
-#add_subdirectory (PndTools/PndTrkMerge)
 add_subdirectory (pnddata)
-add_subdirectory (passive)
 add_subdirectory (field)
+
 add_subdirectory (pgenerators)
-add_subdirectory (pgenerators/DpmEvtGen)
-add_subdirectory (pgenerators/FtfEvtGen)
-add_subdirectory (pgenerators/Direct)
-add_subdirectory (pgenerators/EvtGen)
-#add_subdirectory (pgenerators/PndFlukaGen)
-#add_subdirectory (pgenerators/EMFFgenerators)
-add_subdirectory (stt)
-add_subdirectory (sds)
-add_subdirectory (mvd)
-add_subdirectory (mdt)
-add_subdirectory (emc)
-add_subdirectory (drc)
-#add_subdirectory (drc/drcprop)
-add_subdirectory (fts)
-add_subdirectory (hyp)
+
+add_subdirectory (detectors/passive)
+add_subdirectory (detectors/stt)
+add_subdirectory (detectors/sds)
+add_subdirectory (detectors/mvd)
+add_subdirectory (detectors/mdt)
+#add_subdirectory(detectors/mvd/MvdOfflineTBAnalysis_Topix4)
+#add_subdirectory(detectors/mvd/MvdOfflineTBAnalysis_Topix4/MQ)
+#add_subdirectory(detectors/mvd/MvdMQ)
+add_subdirectory (detectors/emc)
+add_subdirectory (detectors/drc)
+#add_subdirectory (detectors/drc/drcprop)
+add_subdirectory (detectors/fts)
+add_subdirectory (detectors/hyp)
+add_subdirectory (detectors/scitil)
+add_subdirectory (detectors/ftof)
+add_subdirectory (detectors/rich)
+add_subdirectory (detectors/gem)
+#add_subdirectory(detectors/hypGe)
+add_subdirectory (detectors/dsk)
+add_subdirectory (detectors/disc)
+add_subdirectory (detectors/lmd)
+
 add_subdirectory (genfit)
 add_subdirectory (genfit2)
-add_subdirectory (scitil)
-add_subdirectory (ftof)
-add_subdirectory (rich)
-add_subdirectory (gem)
-add_subdirectory (macro)
-add_subdirectory (GenfitTools)
-#add_subdirectory(hypGe)
-add_subdirectory (fsim)
-add_subdirectory (rho)
-add_subdirectory (PndTools/AnalysisTools)
-add_subdirectory (PndTools/PndParticleFitters)
-add_subdirectory (PndTools/master)
-add_subdirectory (PndTools/TimeBasedTools)
-add_subdirectory (PndTrackers/sttmvdtracking)
-add_subdirectory (PndTrackers/CentralTracking)
-add_subdirectory (PndTrackers/SecondariesTracking)
-add_subdirectory (PndTrackers/SttCellTrackFinder)
-add_subdirectory (PndTrackers/catracking)
-add_subdirectory (PndTrackers/ftscatracking)
-add_subdirectory (PndTrackers/TrackingQA)
-add_subdirectory (PndTrackers/PndForwardTrackFinder)
-add_subdirectory (PndTrackers/PndIdealTrackFinder)
-add_subdirectory (PndTrackers/PndTrackingTools)
-add_subdirectory (PndTrackers/PndBarrelTrackFinder)
-add_subdirectory (PndTrackers/PndMvdGemTrackFinderOnHits)
 
-#add_subdirectory(online)
+add_subdirectory (tracking/GenfitTools)
+add_subdirectory (tracking/sttmvdtracking)
+add_subdirectory (tracking/CentralTracking)
+add_subdirectory (tracking/SecondariesTracking)
+add_subdirectory (tracking/SttCellTrackFinder)
+add_subdirectory (tracking/catracking)
+add_subdirectory (tracking/ftscatracking)
+add_subdirectory (tracking/TrackingQA)
+add_subdirectory (tracking/PndForwardTrackFinder)
+add_subdirectory (tracking/PndIdealTrackFinder)
+add_subdirectory (tracking/PndTrackingTools)
+add_subdirectory (tracking/PndBarrelTrackFinder)
+add_subdirectory (tracking/PndMvdGemTrackFinderOnHits)
+add_subdirectory (tracking/riemannfit)
+add_subdirectory (tracking/HelixPropagator)
+add_subdirectory (tracking/PndPatternMatcher)
+
 #add_subdirectory(tracking/online/CircleHough)
-#add_subdirectory(PndTools/MQ)
-#add_subdirectory(mvd/MvdOfflineTBAnalysis_Topix4)
-#add_subdirectory(mvd/MvdOfflineTBAnalysis_Topix4/MQ)
-#add_subdirectory(mvd/MvdMQ)
+
+add_subdirectory (analysis/rho)
+add_subdirectory (analysis/AnalysisTools)
+
+add_subdirectory (timebased/Tools)
+add_subdirectory (timebased/Buffers)
+
+add_subdirectory (tools)
+#add_subdirectory(tools/PndMQ)
+add_subdirectory (tools/MVA)
+add_subdirectory (tools/MasterTasks)
+add_subdirectory (tools/RadMapTool)
+add_subdirectory (tools/PndBurstBuilder)
+#add_subdirectory (tools/PndTrkMerge)
+
+add_subdirectory (pid)
+
+add_subdirectory (fastsim)
+add_subdirectory (softrig)
+
+add_subdirectory (macro)
+
+add_subdirectory (PndMCMatchNewLinks)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
   ${SIMPATH}/include/root
   NO_DEFAULT_PATH
 )
-
 If(TEvePath)
 #find_package(OpenGL)
 #If (OPENGL_FOUND AND OPENGL_GLU_FOUND)
   Message("Found TEve, so the eventdisplay will be compiled.")
-
 IF(NOT FAIRROOT_FOUND)
   add_subdirectory (eventdisplay)
 ENDIF(NOT FAIRROOT_FOUND)
 
-  add_subdirectory(PndEventdisplay)
+  add_subdirectory(eventdisplay)
 #EndIf (OPENGL_FOUND AND OPENGL_GLU_FOUND)
 EndIf(TEvePath)
-
-add_subdirectory (dsk)
-add_subdirectory (disc)
-add_subdirectory (PndTrackers/riemannfit)
-add_subdirectory (PndTools/MVA)
-add_subdirectory (PndPropagators/HelixPropagator)
-add_subdirectory (lmd)
-add_subdirectory (pid)
-add_subdirectory (PndMCMatchNewLinks)
-add_subdirectory (global)
-
-add_subdirectory (softrig)
-#add_subdirectory (kfparticle)
 
 if(RULE_CHECKER_FOUND)
 

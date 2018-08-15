@@ -1,3 +1,3 @@
 #!/bin/bash
 
-source Dart.sh Experimental Dart.cfg
+source Dart.sh Continuous Dart.cfg

@@ -1,148 +1,122 @@
-int reco_complete()
+// Macro for running Panda digitization tasks
+// to run the macro:
+// root  digi_complete.C  or in root session root>.x  digi_complete.C
+int reco_complete(Int_t nEvents = 0)
 {
-  // Macro created 20/09/2006 by S.Spataro
-  // It loads a digi file and performs tracking
+  //-----User Settings:------------------------------------------------------
+  TString  parAsciiFile   = "all.par";
+  TString  prefix         = "evtcomplete";
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
+  TString  output         = "reco";
+  TString  friend1        = "sim";
+  TString  friend2        = "digi";
+  TString  friend3        = "";
+  TString  friend4        = "";
+  TString  fOptions       = "gf2"; // "gf2" for genfit 2
 
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0; // just forget about it, for the moment
-  
-	// Number of events to process
-  Int_t nEvents = 0;  // if 0 all the vents will be processed
-  
-  // Parameter file
-  TString parFile = "simparams.root"; // at the moment you do not need it
-  
-  // Digitisation file (ascii)
-  TString digiFile = "all.par";
-  
-  // Output file
-  TString outFile = "reco_complete.root";
-  
-  // -----   Timer   --------------------------------------------------------
-  TStopwatch timer;
-    // ------------------------------------------------------------------------
-  
-  // -----   Reconstruction run   -------------------------------------------
-  FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile("sim_complete.root");
-  fRun->AddFriend("digi_complete.root");
-  fRun->SetOutputFile(outFile);
-  fRun->SetGenerateRunInfo(kFALSE);
-  fRun->SetUseFairLinks(kTRUE);
+  // -----   Initial Settings   --------------------------------------------
+  PndMasterRunAna *fRun= new PndMasterRunAna();
+  fRun->SetInput(input);
+  fRun->SetOutput(output);
+  fRun->AddFriend(friend1);
+  fRun->AddFriend(friend2);
+  fRun->AddFriend(friend3);
+  fRun->AddFriend(friend4);
+  fRun->SetParamAsciiFile(parAsciiFile);
+  fRun->Setup(prefix);
+
   FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
+    fRun->AddTask(Geane);
 
-  // -----  Parameter database   --------------------------------------------
-  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
-  
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(parFile.Data());
-  
-  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(emcDigiFile.Data(),"in");
-        
-  rtdb->setFirstInput(parInput1);
-  rtdb->setSecondInput(parIo1);
 
-  // ------------------------------------------------------------------------
-  //  use the constructor with input :
-  //      printout flag (int) , plotting flag (bool), MC comparison flag (bool), SciTil.
-  PndTrkTracking2* tracking = new PndTrkTracking2(0,false,false,true);
-  tracking->SetInputBranchName("STTHit","MVDHitsPixel","MVDHitsStrip");
-  // tracking->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
-  //  don't do the Pattern Recognition second part, starting from the Mvd;
-  tracking->NoMvdAloneTracking();
-  // do Cleanup only when there is Mixing;
-  // tracking->Cleanup();
-  tracking->SetPersistence(kFALSE);
-  fRun->AddTask(tracking);
-  
-  PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
-  //SttMvdGemTracking->SetPdgFromMC();
-  SttMvdGemTracking->SetPersistence(kFALSE);
-  fRun->AddTask(SttMvdGemTracking);
-  
-//  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
-//  trackMC->SetTrackInBranchName("SttMvdGemTrack");
-//  trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
-//  trackMC->SetPersistence(kFALSE);
-//  fRun->AddTask(trackMC);
+	PndTrkTracking2* tracking = NULL;
+	fRun->AddTask(tracking = new PndTrkTracking2(0,false,false,true)); // 1
+	tracking->SetInputBranchName("STTHit","MVDHitsPixel","MVDHitsStrip");
+	tracking->NoMvdAloneTracking();
+	tracking->SetPersistency(kFALSE);
 
-  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
-  recoKalman->SetTrackInBranchName("SttMvdGemTrack");
-//  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
-  recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
-  recoKalman->SetBusyCut(50); // CHECK to be tuned
-//  recoKalman->SetIdealHyp(kTRUE);
-  //recoKalman->SetNumIterations(3);
-  recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
-  //recoKalman->SetPropagateToIP(kFALSE);
-  fRun->AddTask(recoKalman);
+    PndSttMvdGemTracking *SttMvdGemTracking = NULL;
+    fRun->AddTask(SttMvdGemTracking = new PndSttMvdGemTracking(0));
+    SttMvdGemTracking->SetPersistency(kFALSE);
 
-//  PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
-//  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack");
-//  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
-//  fRun->AddTask(trackMC2);
- 
-  PndIdealTrackFinder* trackFts = new PndIdealTrackFinder();
-  trackFts->SetTrackSelector("FtsTrackFunctor");
-  trackFts->SetRelativeMomentumSmearing(0.05);
-  trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
-  trackFts->SetTrackingEfficiency(1.);
-  trackFts->SetOutputBranchName("FtsIdealTrack");
-  trackFts->SetPersistence(kFALSE);
-  fRun->AddTask(trackFts);
+    if (!fOptions.Contains("gf2")){
+		PndRecoKalmanTask* recoKalman = NULL;
+		fRun->AddTask(recoKalman = new PndRecoKalmanTask());
+		recoKalman->SetTrackInBranchName("SttMvdGemTrack");
+		recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
 
-//  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();
-//  trackMCfwd->SetTrackInBranchName("FtsIdealTrack");
-//  trackMCfwd->SetTrackOutBranchName("FtsIdealTrackID");
-//  fRun->AddTask(trackMCfwd);
+		recoKalman->SetBusyCut(50); // CHECK to be tuned
+		//recoKalman->SetIdealHyp(kTRUE);
+		//recoKalman->SetNumIterations(3);
+		recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
+		//recoKalman->SetPropagateToIP(kFALSE);
+	} else {
+		PndRecoKalmanTask2* recoKalman = NULL;
+		fRun->AddTask(recoKalman = new PndRecoKalmanTask2());
+		recoKalman->SetTrackInBranchName("SttMvdGemTrack");
+		recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
 
-  PndRecoKalmanTask* recoKalmanFwd = new PndRecoKalmanTask();
-  recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
-  //recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
-  recoKalmanFwd->SetTrackOutBranchName("FtsIdealGenTrack");
-  recoKalmanFwd->SetBusyCut(50); // CHECK to be tuned
-  //recoKalmanFwd->SetIdealHyp(kTRUE);
-  //recoKalmanFwd->SetNumIterations(3);
-  recoKalmanFwd->SetTrackRep(0); // 0 Geane (default), 1 RK
-  //recoKalmanFwd->SetPropagateToIP(kFALSE);
-  fRun->AddTask(recoKalmanFwd);
+		recoKalman->SetBusyCut(50); // CHECK to be tuned
+		//recoKalman->SetIdealHyp(kTRUE);
+		//recoKalman->SetNumIterations(3);
+		//recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
+		//recoKalman->SetPropagateToIP(kFALSE);
+	}
 
-//  PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();
-//  trackMC3->SetTrackInBranchName("FtsIdealGenTrack");
-//  trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
-//  fRun->AddTask(trackMC3);
+	if (fOptions.Contains("filtered")){
+		  PndMissingPzCleanerTask* cleaner = NULL;
+		  fRun->AddTask(cleaner = new PndMissingPzCleanerTask()); //4
+		  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+		  {
+			  cleaner->SetInputTrackBranch("SttMvdGemGenTrack");
+		  } else {
+			  cleaner->SetInputTrackBranch("SttMvdGenTrack");
+		  }
+		  cleaner->SetRemoveTrack(kTRUE);
+	}
 
-  PndIdealTrackFinder* idealTracking = new PndIdealTrackFinder();
-  idealTracking->SetTrackSelector("FtsTrackFunctor");
-  fRun->AddTask(idealTracking);
+	PndIdealTrackFinder* trackFts = NULL;
+	fRun->AddTask(trackFts = new PndIdealTrackFinder());
+	trackFts->SetTrackSelector("FtsTrackFunctor");
+	trackFts->AddBranchName("FTSHit");
+	trackFts->AddBranchName("MVDHitsPixel");
+	trackFts->AddBranchName("MVDHitsStrip");
+	trackFts->SetRelativeMomentumSmearing(0.05);
+	trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
+	trackFts->SetTrackingEfficiency(1.);
+	trackFts->SetOutputBranchName("FtsIdealTrack");
+	trackFts->SetPersistence(kFALSE);
+
+	if (!fOptions.Contains("gf2")){
+		PndRecoKalmanTask* recoKalmanFwd = NULL;
+		fRun->AddTask(recoKalmanFwd = new PndRecoKalmanTask());
+		recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
+		//recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
+		recoKalmanFwd->SetTrackOutBranchName("FtsIdealGenTrack");
+		recoKalmanFwd->SetBusyCut(50); // CHECK to be tuned
+		//recoKalmanFwd->SetIdealHyp(kTRUE);
+		//recoKalmanFwd->SetNumIterations(3);
+		recoKalmanFwd->SetTrackRep(0); // 0 Geane (default), 1 RK
+		//recoKalmanFwd->SetPropagateToIP(kFALSE);
+	} else {
+		PndRecoKalmanTask2* recoKalmanFwd = NULL;
+		fRun->AddTask(recoKalmanFwd = new PndRecoKalmanTask2());
+		recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
+		//recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
+		recoKalmanFwd->SetTrackOutBranchName("FtsIdealGenTrack");
+		recoKalmanFwd->SetBusyCut(50); // CHECK to be tuned
+		//recoKalmanFwd->SetIdealHyp(kTRUE);
+		//recoKalmanFwd->SetNumIterations(3);
+		//recoKalmanFwd->SetTrackRep(0); // 0 Geane (default), 1 RK
+		//recoKalmanFwd->SetPropagateToIP(kFALSE);
+	}
+
+
+
 
   // -----   Intialise and run   --------------------------------------------
-  PndEmcMapper::Init(1);
-  cout << "fRun->Init()" << endl;
   fRun->Init();
-
-  timer.Start();
-  fRun->Run(0,nEvents);
-  // ------------------------------------------------------------------------
-
-
-  // -----   Finish   -------------------------------------------------------
-  timer.Stop();
-  Double_t rtime = timer.RealTime();
-  Double_t ctime = timer.CpuTime();
-  cout << endl << endl;
-  cout << "Macro finished successfully." << endl;
-  cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << parFile << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-  cout << endl;
-  // ------------------------------------------------------------------------
-  cout << " Test passed" << endl;
-  cout << " All ok " << endl;
+  fRun->Run(0, nEvents);
+  fRun->Finish();
   return 0;
 }

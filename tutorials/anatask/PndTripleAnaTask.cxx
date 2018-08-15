@@ -45,10 +45,10 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 #include "PndRhoTupleQA.h"
 #include "PndEventShape.h"
 
@@ -252,7 +252,7 @@ void PndTripleAnaTask::JpsiAnalysis()
 	// *** write ntuple for the jpsi reconstruction
 	for (j=0;j<jpsi.GetLength();++j) 
 	{
-		PndKinVtxFitter vtxfit(jpsi[j]);
+		RhoKinVtxFitter vtxfit(jpsi[j]);
 		//vtxfit.AddMassConstraint(fPdg->GetParticle("J/psi")->Mass());
 		vtxfit.Fit();
 		
@@ -269,7 +269,7 @@ void PndTripleAnaTask::JpsiAnalysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp1);
 			
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("j", jpsi[j], ntp1);
 		fQA->qaCand("fj",jfit,    ntp1);
 		ntp1->Column("fchi2", (Float_t) chi2);
@@ -297,7 +297,7 @@ void PndTripleAnaTask::JpsiAnalysis()
 	// *** write ntuple for the psi(2S) reconstruction
 	for (j=0;j<ppb.GetLength();++j) 
 	{
-		PndKinFitter kinfit(ppb[j]);
+		RhoKinFitter kinfit(ppb[j]);
 		kinfit.Add4MomConstraint(fIni);
 		kinfit.Fit();
 		
@@ -314,7 +314,7 @@ void PndTripleAnaTask::JpsiAnalysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp2);
 		
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ppb", ppb[j], ntp2);
 		fQA->qaComp("fppb",ppbfit, ntp2);
 		ntp2->Column("fchi2", (Float_t) chi2);
@@ -368,7 +368,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 	// *** write ntuple for the ds reconstruction
 	for (j=0;j<ds.GetLength();++j) 
 	{
-		PndKinVtxFitter vtxfit(ds[j]);
+		RhoKinVtxFitter vtxfit(ds[j]);
 		//vtxfit.AddMassConstraint(fPdg->GetParticle("D_s+")->Mass());
 		vtxfit.Fit();
 		
@@ -385,7 +385,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp1);
 			
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ds", ds[j], ntp1);
 		fQA->qaCand("fds",dsfit,    ntp1);
 		ntp1->Column("fchi2", (Float_t) chi2);
@@ -437,7 +437,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 	// *** write ntuple for the ds reconstruction
 	for (j=0;j<ds0.GetLength();++j) 
 	{
-		PndKinFitter kinfit(ds0[j]);
+		RhoKinFitter kinfit(ds0[j]);
 		kinfit.AddMassConstraint(2.3178);
 		kinfit.Fit();
 		
@@ -454,7 +454,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp2);
 			
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ds0", ds0[j], ntp2);
 		fQA->qaCand("fds0",ds0fit,    ntp2);
 		ntp2->Column("fchi2", (Float_t) chi2);
@@ -481,7 +481,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 	// *** write ntuple for the psi(2S) reconstruction
 	for (j=0;j<ppb.GetLength();++j) 
 	{
-		PndKinFitter kinfit(ppb[j]);
+		RhoKinFitter kinfit(ppb[j]);
 		kinfit.Add4MomConstraint(fIni);
 		kinfit.Fit();
 		
@@ -498,7 +498,7 @@ void PndTripleAnaTask::DsDs2317Analysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp3);
 		
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ppb", ppb[j], ntp3);
 		fQA->qaComp("fppb",ppbfit, ntp3);
 		ntp3->Column("fchi2", (Float_t) chi2);
@@ -552,7 +552,7 @@ void PndTripleAnaTask::ThreePiAnalysis()
 	// *** write ntuple for the psi(2S) reconstruction
 	for (j=0;j<ppb.GetLength();++j) 
 	{
-		PndKinFitter kinfit(ppb[j]);
+		RhoKinFitter kinfit(ppb[j]);
 		kinfit.Add4MomConstraint(fIni);
 		kinfit.Fit();
 		
@@ -569,7 +569,7 @@ void PndTripleAnaTask::ThreePiAnalysis()
 		// store info about initial 4-vector
 		fQA->qaP4("beam", fIni, ntp2);
 		
-		// dump information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+		// dump information about composite candidate tree recursively (see analysis/AnalysisTools/PndRhoTupleQA)
 		fQA->qaComp("ppb", ppb[j], ntp2);
 		fQA->qaComp("fppb",ppbfit, ntp2);
 		ntp2->Column("fchi2", (Float_t) chi2);

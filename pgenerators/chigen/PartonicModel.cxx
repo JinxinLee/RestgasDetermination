@@ -31,8 +31,8 @@ bool chigen::PartonicModel::next() {
         if (sigma > MaxSigma) {
             //todo add proper info
             __chigen_cout__ <<
-                    "sigma=" << setiosflags(ios::scientific) << sigma <<
-                    " > MasSigma=" << setiosflags(ios::scientific) << MaxSigma <<
+                    "sigma=" << std::setiosflags(ios::scientific) << sigma <<
+                    " > MasSigma=" << std::setiosflags(ios::scientific) << MaxSigma <<
                     " Efct=" << sigma / MaxSigma << endl;
             MaxSigma = sigma;
             continue;

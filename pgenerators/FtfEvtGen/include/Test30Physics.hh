@@ -25,11 +25,11 @@
 //
 //
 // -------------------------------------------------------------
-//      GEANT 4 class 
+//      GEANT 4 class
 //
 //      ---------- Test30Physics -------
-//                by Vladimir Ivanchenko, 12 March 2002 
-// 
+//                by Vladimir Ivanchenko, 12 March 2002
+//
 //    Modified:
 //
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -37,6 +37,7 @@
 
 #ifndef Test30Physics_h
 #define Test30Physics_h 1
+#include <iostream>
 
 #include "globals.hh"
 #include "Test30HadronProduction.hh"
@@ -86,10 +87,20 @@ private:
   G4PreCompoundModel*     thePreCompound;
   G4BinaryCascade*        hkmod;
   G4QuasiElasticChannel*  theQuasiElastic;
+
+  void TestPointers()
+  {
+    std::cout<<"Test30Physics::this            -> "<< this <<std::endl;
+    std::cout<<"Test30Physics::theProcess      -> "<< theProcess <<std::endl;
+    std::cout<<"Test30Physics::theDeExcitation -> "<< theDeExcitation <<std::endl;
+    std::cout<<"Test30Physics::thePreCompound  -> "<< thePreCompound <<std::endl;
+    std::cout<<"Test30Physics::hkmod           -> "<< hkmod <<std::endl;
+    std::cout<<"Test30Physics::theQuasiElastic -> "<< theQuasiElastic <<std::endl;
+  };
 };
 
 #endif
 
- 
+
 
 

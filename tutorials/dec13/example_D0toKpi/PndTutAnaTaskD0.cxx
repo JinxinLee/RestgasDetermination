@@ -45,12 +45,12 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
 #include "PndChiVtxFitter.h"
-#include "PndVtxPRG.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "RhoKalmanVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 #include "PndPidCandidate.h"
 #include "PndEventShape.h"
 		
@@ -88,7 +88,7 @@ InitStatus PndTutAnaTaskD0::Init()
 	// *******
 	fD0Sel 	 = new RhoMassParticleSelector("D0Sel",   1.864, 1.0);
 	nd0 	 = new RhoTuple("nd0","my D0 tuple");
-	fVtxPoca = new PndVtxPoca();
+	fVtxPoca = new RhoVtxPoca();
 	
 	return kSUCCESS;
 }

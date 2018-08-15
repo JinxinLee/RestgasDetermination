@@ -1,131 +1,103 @@
-int digi_complete()
+// Macro for running Panda digitization tasks
+// to run the macro:
+// root  digi_complete.C  or in root session root>.x  digi_complete.C
+int digi_complete(Int_t nEvents = 0)
 {
-  // Macro created 20/09/2006 by S.Spataro
-  // It loads a simulation file and digitize hits 
+  //-----User Settings:------------------------------------------------------
+  TString  parAsciiFile   = "all.par";
+  TString  prefix         = "evtcomplete";
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
+  TString  output         = "digi";
+  TString  friend1        = "";
+  TString  friend2        = "";
+  TString  friend3        = "";
+  TString  friend4        = "";
 
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0; // just forget about it, for the moment
-  
-  // Input file (MC events)
-  TString inFile = "sim_complete.root";
-  
-  // Parameter file
-  TString parFile = "simparams.root"; // at the moment you do not need it
-  
-  // Digitisation file (ascii)
-  TString digiFile = "all.par";
-  
-  // Output file
-  TString outFile = "digi_complete.root";
-  
-  // -----   Timer   --------------------------------------------------------
-  TStopwatch timer;
-  
-  // -----   Reconstruction run   -------------------------------------------
-  FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(inFile);
-  fRun->SetOutputFile(outFile);
-  fRun->SetGenerateRunInfo(kFALSE);  
-  fRun->SetUseFairLinks(kTRUE); 
-  // -----  Parameter database   --------------------------------------------
-  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
-  allDigiFile += "/macro/params/";
-  allDigiFile += digiFile;
-  
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(parFile.Data());
-  
-  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(allDigiFile.Data(),"in");
-        
-  rtdb->setFirstInput(parInput1);
-  rtdb->setSecondInput(parIo1);
-  
-  // -----   STT digi producers   ---------------------------------
-  PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
-  fRun->AddTask(sttHitProducer);
-  
-  // -----   MDV digi producers   ---------------------------------
-  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
-  mvddigi->SetVerbose(iVerbose);
-  fRun->AddTask(mvddigi);
+  // -----   Initial Settings   --------------------------------------------
+  PndMasterRunAna *fRun= new PndMasterRunAna();
+  fRun->SetInput(input);
+  fRun->SetOutput(output);
+  fRun->AddFriend(friend1);
+  fRun->AddFriend(friend2);
+  fRun->AddFriend(friend3);
+  fRun->AddFriend(friend4);
+  fRun->SetParamAsciiFile(parAsciiFile);
+  fRun->Setup(prefix);
 
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
-  mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls);
+  PndPersistencyTask *task;
 
-  // -----   EMC hit producers   ---------------------------------
-  PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
-  PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
-  emcHitsToWaveform->SetStorageOfData(kFALSE);
-  //emcWaveformToDigi->SetStorageOfData(kFALSE);
-  fRun->AddTask(emcHitsToWaveform);  // full digitization
-  fRun->AddTask(emcWaveformToDigi);  // full digitization
+  // -----   Add tasks   ----------------------------------------------------
 
-  PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
-  fRun->AddTask(emcMakeCluster);
+  task = new PndMvdDigiTask();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
-  fRun->AddTask(emcMakeBump);
+  task = new PndMvdClusterTask();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  //PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
-  //fRun->AddTask(emcHdrFiller); // ECM header
+  task = new PndSttHitProducerRealFast();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  // -----   SciT hit producers   ---------------------------
-  PndSciTDigiTask* tofhit = new PndSciTDigiTask();
-  tofhit->SetVerbose(iVerbose);
-  fRun->AddTask(tofhit);
+  task = new PndGemDigitize("GEM Digitizer", 0);
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  // -----   MDT hit producers   ---------------------------------
-  PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
-  mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]
-  fRun->AddTask(mdtHitProd);
+  task = new PndGemFindHits("GEM Hit Finder", 0);
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
-  fRun->AddTask(mdtTrkProd);
+  task = new PndDrcHitProducerReal();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  // -----   DRC hit producers   ---------------------------------
-  PndDrcHitProducerReal* drchit = new PndDrcHitProducerReal();
-  drchit->SetVerbose(iVerbose);
-  fRun->AddTask(drchit);
+  task = new PndSciTDigiTask();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  // -----   GEM hit producers   ---------------------------------
-  Int_t verboseLevel = 0;
-  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
-  fRun->AddTask(gemDigitize);
+  task = new PndEmcHitsToWaveform();
+  task->SetPersistency(kFALSE);
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
-  fRun->AddTask(gemFindHits);
+  task = new PndEmcWaveformToDigi();
+  task->SetPersistency(kTRUE);
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  // -----   FTS hit producers   ---------------------------------
-  PndFtsHitProducerRealFast* ftsHitProducer = new PndFtsHitProducerRealFast();
-  fRun->AddTask(ftsHitProducer);
+  task = new PndEmcMakeCluster();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
-  // -----   Ftof hit producers   ---------------------------
-  PndFtofHitProducerIdeal* ftofhit = new PndFtofHitProducerIdeal();
-  ftofhit->SetVerbose(iVerbose);
-  fRun->AddTask(ftofhit);
+  task = new PndEmcMakeBump();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  PndMdtHitProducerIdeal* mdt = new PndMdtHitProducerIdeal();
+  mdt->SetPositionSmearing(.3);
+  mdt->SetVerbose(0);
+  fRun->AddTask(mdt);
+
+  task = new PndMdtTrkProducer();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndFtsHitProducerRealFast();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndFtofHitProducerIdeal();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
+
+  task = new PndRichHitProducer();
+  task->SetVerbose(0);
+  fRun->AddTask(task);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-
-  timer.Start();
-  fRun->Run();
-
-  // -----   Finish   -------------------------------------------------------
-  timer.Stop();
-  Double_t rtime = timer.RealTime();
-  Double_t ctime = timer.CpuTime();
-  cout << endl << endl;
-  cout << "Macro finished successfully." << endl;
-  cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << parFile << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-  cout << endl;
-  // ------------------------------------------------------------------------
-  cout << " Test passed" << endl;
-  cout << " All ok " << endl;
-
+  fRun->Run(0, nEvents);
+  fRun->Finish();
   return 0;
 }

@@ -133,7 +133,7 @@ void anatut_psi2s(int nevts=0)
 		// *** do vertex fitting (J/psi)
 		for (j=0;j<jpsi.GetLength();++j) 
 		{
-			PndKinVtxFitter vtxfitter(jpsi[j]);        // instantiate a vertex fitter
+			RhoKinVtxFitter vtxfitter(jpsi[j]);        // instantiate a vertex fitter
 			
 			vtxfitter.Fit();
 			TCandidate *jfit = vtxfitter.FittedCand(jpsi[j]);  // access the fitted cand
@@ -176,7 +176,7 @@ void anatut_psi2s(int nevts=0)
 		// *** do 4c fit (initial psi(2S) system)
 		for (j=0;j<psi2s.GetLength();++j) 
 		{
-			Pnd4CFitter fitter(psi2s[j],ini);
+			Rho4CFitter fitter(psi2s[j],ini);
 			fitter.FitConserveMasses();
 			
 			double chi2_4c=fitter.GetChi2();
@@ -196,7 +196,7 @@ void anatut_psi2s(int nevts=0)
 		// do mass constraint fit
 		for (j=0;j<jpsi.GetLength();++j) 
 		{
-			PndKinFitter mfitter(jpsi[j]);
+			RhoKinFitter mfitter(jpsi[j]);
 			mfitter.AddMassConstraint(3.0965);
 			mfitter.Fit();
 			double chi2_m = mfitter.GlobalChi2();

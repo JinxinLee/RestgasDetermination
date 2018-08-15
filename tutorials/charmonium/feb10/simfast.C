@@ -15,7 +15,7 @@ void simfast(TString infile="output.evt",int soff=0,int nevts=1000,TString outfi
 
   // Load this libraries
   gSystem->Load("libRho");
-  gSystem->Load("libfsim");
+  gSystem->Load("libfastsim");
  
   if (outfile=="") outfile=infile+".fast.root";
 

@@ -10,7 +10,7 @@
  2.  New mode for fast simulation:
      in a simulation macro setting this flag will prevent the transport in Geant3/4 a  
       primGen->DoTracking(kFALSE);	
-     transport is parametrized via tasks (see pandaroot/fsim) 
+     transport is parametrized via tasks (see pandaroot/fastsim) 
  
  3.  New variable GEOMPATH  
      setting this variable, the framework will look for the detector geometry specified in detector ctor first in this path 

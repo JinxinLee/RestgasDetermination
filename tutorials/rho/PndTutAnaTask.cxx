@@ -37,10 +37,10 @@
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
+#include "Rho4CFitter.h"
+#include "RhoKinVtxFitter.h"
+#include "RhoKinFitter.h"
+#include "RhoVtxPoca.h"
 		
 		
 using std::cout;
@@ -193,7 +193,7 @@ void PndTutAnaTask::Exec(Option_t*)
 	// ***
 	for (j=0;j<jpsi.GetLength();++j) 
 	{
-		PndKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
+		RhoKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
 		vtxfitter.Fit();
 		
 		double chi2_vtx = vtxfitter.GetChi2();	// access chi2 of fit
@@ -240,7 +240,7 @@ void PndTutAnaTask::Exec(Option_t*)
 	// ***
 	for (j=0;j<psi2s.GetLength();++j) 
 	{
-		PndKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
+		RhoKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
 		fitter.Add4MomConstraint(fIni);	// set 4 constraint
 		fitter.Fit();		            // do fit
 			
@@ -263,7 +263,7 @@ void PndTutAnaTask::Exec(Option_t*)
 	// ***
 	for (j=0;j<jpsi.GetLength();++j) 
 	{
-		PndKinFitter mfitter(jpsi[j]);		// instantiate the PndKinFitter in psi(2S)
+		RhoKinFitter mfitter(jpsi[j]);		// instantiate the RhoKinFitter in psi(2S)
 		mfitter.AddMassConstraint(3.0965);	// add the mass constraint
 		mfitter.Fit();				// do fit
 		

@@ -1,0 +1,251 @@
+# Generic makefile for PandaRoot programs.
+# Elwin Dijck, December 2009
+
+# Based on the ROOT Makefile by Fons Rademakers.
+
+#------------------------------------------------------------------------------
+
+PANDADIR     := $(VMCWORKDIR)
+
+# Add include directories for the PandaRoot header files.
+INCLUDE       = -I$(PANDADIR)/base \
+		-I$(PANDADIR)/base/event \
+		-I$(PANDADIR)/base/field \
+		-I$(PANDADIR)/base/sim \
+		-I$(PANDADIR)/base/source \
+		-I$(PANDADIR)/base/steer \
+		-I$(PANDADIR)/dbase \
+		-I$(PANDADIR)/dbase/dbInput \
+                -I$(PANDADIR)/dbase/dbInterface \
+                -I$(PANDADIR)/dbase/dbUtils \
+                -I$(PANDADIR)/dbase/dbValidation \
+                -I$(PANDADIR)/drc \
+                -I$(PANDADIR)/dsk \
+                -I$(PANDADIR)/dsk/DskMC \
+                -I$(PANDADIR)/emc \
+                -I$(PANDADIR)/emc/EmcCorr \
+                -I$(PANDADIR)/emc/EmcData \
+                -I$(PANDADIR)/emc/EmcDigi \
+                -I$(PANDADIR)/emc/EmcDigi/PndEmcPSAFPGA \
+                -I$(PANDADIR)/emc/EmcMC \
+                -I$(PANDADIR)/emc/EmcProtoTools \
+                -I$(PANDADIR)/emc/EmcReco \
+                -I$(PANDADIR)/emc/EmcTimeBased \
+                -I$(PANDADIR)/emc/EmcTools \
+                -I$(PANDADIR)/emc/pwo25 \
+                -I$(PANDADIR)/eventdisplay \
+                -I$(PANDADIR)/fairtools \
+                -I$(PANDADIR)/field \
+                -I$(PANDADIR)/fastsim \
+                -I$(PANDADIR)/ftof \
+                -I$(PANDADIR)/fts \
+                -I$(PANDADIR)/fts/FtsTracking \
+                -I$(PANDADIR)/geane \
+                -I$(PANDADIR)/gem \
+                -I$(PANDADIR)/generators \
+                -I$(PANDADIR)/genfit \
+                -I$(PANDADIR)/tracking/GenfitTools/adapters \
+                -I$(PANDADIR)/tracking/GenfitTools/recohits \
+                -I$(PANDADIR)/tracking/GenfitTools/recotasks \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep/GeaneTrackRep \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep/GeaneTrackRep2 \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep/LSLtrackRep \
+                -I$(PANDADIR)/tracking/GenfitTools/trackrep/RKTrackRep \
+                -I$(PANDADIR)/geobase \
+#                -I$(PANDADIR)/global \
+                -I$(PANDADIR)/detectors/hyp \
+                -I$(PANDADIR)/detectors/hypGe \
+                -I$(PANDADIR)/detectors/hyp/hypData \
+                -I$(PANDADIR)/detectors/hyp/hypDigi \
+                -I$(PANDADIR)/detectors/hyp/hypFullAna \
+                -I$(PANDADIR)/detectors/hyp/hypPID \
+                -I$(PANDADIR)/detectors/hyp/hypReco \
+                -I$(PANDADIR)/detectors/hyp/hypTools \
+                -I$(PANDADIR)/detectors/hyp/hypTracking \
+                -I$(PANDADIR)/detectors/lmd \
+                -I$(PANDADIR)/detectors/lmd/LmdDigi \
+                -I$(PANDADIR)/detectors/lmd/LmdDigiSingle \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/LumiImpl \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/LumiImpl/data \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/LumiImpl/fit \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/LumiImpl/model \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/core \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit/data \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit/data/ROOT \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit/estimatorImpl \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/fit/minimizerImpl/ROOT \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/models1d \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/models2d \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/operators1d \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/operators1d/convolution \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/operators1d/integration \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/operators2d \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/visualization \
+                -I$(PANDADIR)/detectors/lmd/LmdFit/ModelFramework/visualization/ROOT \
+                -I$(PANDADIR)/detectors/lmd/LmdMC \
+                -I$(PANDADIR)/detectors/lmd/LmdQA \
+                -I$(PANDADIR)/detectors/lmd/LmdReco \
+                -I$(PANDADIR)/detectors/lmd/LmdTools \
+                -I$(PANDADIR)/detectors/lmd/LmdTrack \
+                -I$(PANDADIR)/detectors/lumi \
+                -I$(PANDADIR)/detectors/lumi/LumiData \
+                -I$(PANDADIR)/detectors/lumi/LumiDigi \
+                -I$(PANDADIR)/detectors/lumi/LumiMC \
+                -I$(PANDADIR)/detectors/lumi/LumiReco \
+                -I$(PANDADIR)/detectors/lumi/LumiTools \
+                -I$(PANDADIR)/detectors/lumi/LumiTracking \
+                -I$(PANDADIR)/MbsAPI \
+                -I$(PANDADIR)/detectors/mdt \
+                -I$(PANDADIR)/detectors/mdt/MdtDigi \
+                -I$(PANDADIR)/detectors/mdt/MdtMC \
+                -I$(PANDADIR)/detectors/mdt/MdtReco \
+                -I$(PANDADIR)/detectors/mvd \
+                -I$(PANDADIR)/detectors/mvd/MvdDAQ \
+                -I$(PANDADIR)/detectors/mvd/MvdDigi \
+                -I$(PANDADIR)/detectors/mvd/MvdMC \
+                -I$(PANDADIR)/detectors/mvd/MvdPid \
+                -I$(PANDADIR)/detectors/mvd/MvdReco \
+                -I$(PANDADIR)/detectors/mvd/MvdTools \
+                -I$(PANDADIR)/detectors/mvd/MvdTracking \
+                -I$(PANDADIR)/detectors/mvd/MvdTracking/LinFit \
+                -I$(PANDADIR)/ora \
+                -I$(PANDADIR)/parbase \
+                -I$(PANDADIR)/parbase/dbIO \
+                -I$(PANDADIR)/passive \
+                -I$(PANDADIR)/pgenerators \
+                -I$(PANDADIR)/pgenerators/EMFFgenerators \
+                -I$(PANDADIR)/pgenerators/EvtGen \
+                -I$(PANDADIR)/pgenerators/EvtGen/EvtGenDirect \
+                -I$(PANDADIR)/pgenerators/EvtGen/EvtGen/R01-03-00 \
+                -I$(PANDADIR)/pgenerators/EvtGenDirect \
+                -I$(PANDADIR)/pgenerators/EvtGenNew/EvtGenDirect \
+                -I$(PANDADIR)/pgenerators/EvtGenNew/Photos/Photos \
+                -I$(PANDADIR)/pgenerators/EvtGenNew/Photos/Photos.3.52/documentation/doxygen \
+                -I$(PANDADIR)/pgenerators/EvtGenNew/Photos/Photos.3.52/src/eventRecordInterfaces \
+                -I$(PANDADIR)/pgenerators/EvtGenNew/Photos/Photos.3.52/src/photosCInterfaces \
+                -I$(PANDADIR)/pgenerators/EvtGenNew/Photos/Photos.3.52/src/photosFortranInterfaces \
+                -I$(PANDADIR)/pgenerators/EvtGenNew/Photos/Photos.3.52/src/utilities \
+                -I$(PANDADIR)/pgenerators/PndFlukaGen \
+                -I$(PANDADIR)/pgenerators/PndJRGen \
+                -I$(PANDADIR)/pid \
+                -I$(PANDADIR)/pid/PidClassifier \
+                -I$(PANDADIR)/pid/PidCorr \
+                -I$(PANDADIR)/pnddata \
+                -I$(PANDADIR)/pnddata/DrcData \
+                -I$(PANDADIR)/pnddata/DskData \
+                -I$(PANDADIR)/pnddata/FtsData \
+                -I$(PANDADIR)/pnddata/GemData \
+                -I$(PANDADIR)/pnddata/HypData \
+                -I$(PANDADIR)/pnddata/MdtData \
+                -I$(PANDADIR)/pnddata/MvdData \
+                -I$(PANDADIR)/pnddata/PidData \
+                -I$(PANDADIR)/pnddata/RichData \
+                -I$(PANDADIR)/pnddata/SciTData \
+                -I$(PANDADIR)/pnddata/SdsData \
+                -I$(PANDADIR)/pnddata/SttData \
+                -I$(PANDADIR)/pnddata/TrackData \
+                -I$(PANDADIR)/eventdisplay \
+                -I$(PANDADIR)/PndMCMatch \
+                -I$(PANDADIR)/PndMCMatch/examples \
+                -I$(PANDADIR)/analysis/AnalysisTools \
+                -I$(PANDADIR)/analysis/AnalysisTools/Fitter \
+                -I$(PANDADIR)/tools/buffers \
+                -I$(PANDADIR)/tools \
+                -I$(PANDADIR)/tracking/HelixPropagator \
+                -I$(PANDADIR)/tools/MVA \
+                -I$(PANDADIR)/tools/MVA/Clusters \
+                -I$(PANDADIR)/tools/MVA/KNN \
+                -I$(PANDADIR)/tools/MVA/LVQ \
+                -I$(PANDADIR)/tools/MVA/TMVAkd_KNN \
+                -I$(PANDADIR)/tools/MVA/TMVA_MCL \
+                -I$(PANDADIR)/tools/MVA/TMVA_PDE_FOAM \
+                -I$(PANDADIR)/tracking/riemannfit \
+                -I$(PANDADIR)/tracking/SttCellTrackFinder \
+                -I$(PANDADIR)/tracking/TrackingQA \
+                -I$(PANDADIR)/analysis/rho \
+                -I$(PANDADIR)/analysis/rho/RhoBase \
+                -I$(PANDADIR)/analysis/rho/RhoConstraints \
+                -I$(PANDADIR)/analysis/rho/RhoHistogram \
+                -I$(PANDADIR)/analysis/rho/RhoMath \
+                -I$(PANDADIR)/analysis/rho/RhoSelector \
+                -I$(PANDADIR)/analysis/rho/RhoTools \
+                -I$(PANDADIR)/detectors/rich \
+                -I$(PANDADIR)/detectors/scitil/SciTMC \
+                -I$(PANDADIR)/detectors/sds \
+                -I$(PANDADIR)/detectors/sds/SdsDigi \
+                -I$(PANDADIR)/detectors/sds/SdsFEModel \
+                -I$(PANDADIR)/detectors/sds/SdsMC \
+                -I$(PANDADIR)/detectors/sds/SdsReco \
+                -I$(PANDADIR)/sdetectors/ds/SdsTools \
+                -I$(PANDADIR)/softrig \
+                -I$(PANDADIR)/detectors/stt \
+                -I$(PANDADIR)/tracking/sttmvdtracking \
+                -I$(PANDADIR)/detectors/stt/sttreco \
+                -I$(PANDADIR)/trackbase \
+                -I$(PANDADIR)/tracking/SecondariesTracking \
+                -I$(PANDADIR)/tracking/SecondariesTracking/TrkAlgo \
+                -I$(PANDADIR)/tracking/SecondariesTracking/TrkData \
+                -I$(PANDADIR)/tracking/SecondariesTracking/TrkSecondary \
+                -I$(PANDADIR)/tracking/SecondariesTracking/TrkStructure 
+
+#FAIRPATH	= /d/pndint02/carsten/fairsoft_mar15/buildFairRoot
+#FAIRPATH	= $(FAIRROOTPATH)
+FAIRPATH	= $(SIMPATH)
+INCLUDE        += -I$(FAIRPATH)/include \
+	       	  -I$(FAIRROOTPATH)/include \
+		  -I$(FAIRPATH)/include/BaseVGN \
+		  -I$(FAIRPATH)/include/boost \
+		  -I$(FAIRPATH)/include/ClhepVGM \
+		  -I$(FAIRPATH)/include/Geant4 \
+		  -I$(FAIRPATH)/include/Geant4GM \
+		  -I$(FAIRPATH)/include/geant4vmc \
+		  -I$(FAIRPATH)/include/gsl \
+		  -I$(FAIRPATH)/include/gtest \
+		  -I$(FAIRPATH)/include/HepMC \
+		  -I$(FAIRPATH)/include/pluto \
+		  -I$(FAIRPATH)/include/pythia8 \
+		  -I$(FAIRPATH)/include/root \
+		  -I$(FAIRPATH)/include/RootGM \
+		  -I$(FAIRPATH)/include/TGeant3 \
+		  -I$(FAIRPATH)/include/VGM \
+		  -I$(FAIRPATH)/include/XmlVGM
+#PANDAPATH	= /usr/local/src/GSISOFT/PandaRoot/BuildPanda
+#PANDAPATH	= $(PANDADIR)/../built
+PANDAPATH	= $(PANDADIR)/buildPanda
+#FAIRLIBS        = -L$(FAIRPATH)/lib/root -L$(FAIRPATH)/lib 
+FAIRLIBS        = -L$(FAIRPATH)/lib -L$(FAIRROOTPATH)/lib
+PNDLIBS         = -L$(PANDAPATH)/lib 
+PNDLIBS         += -lBase -lParBase
+PNDLIBS         += $(PANDAPATH)/lib/libPassive.so
+PNDLIBS         += -lField 
+
+#Detectors
+PNDLIBS		+= -lEmc -lStt -lMdt -lGem -lDsk -lDrc -lFts -lSds -lLmd \
+		   -lMvd -lSciT -lFtof -lRich
+#Sim
+PNDLIBS         += -lGen -lPhotosCxxInterface -lPhotosFortran 
+#PNDLIBS         += -lEvtGen -lEvtGenDirect -lPluto -lPGen
+PNDLIBS         += -lEvtGen -lEvtGenDirect -lPGen
+#Digi
+PNDLIBS         += -lMvdReco -lgeneralTools
+
+#Reco
+#Tracking
+#PNDLIBS         += -lMCMatch  
+#PNDLIBS         += -lGeane 
+#-lTracking
+#PNDLIBS         += -lTrkBase -lSttMvdTracking -lMvdTrk -lMvdReco 
+
+#PNDLIBS         += -lRecoHits -lRecoTasks -lPndData
+PNDLIBS         += -lPndData
+#pid
+PNDLIBS         += -lPid
+
+# #ana
+# PNDLIBS         += -lAnalysisTools -lRho -lFairTools
+# #-lFairTools -lMbsAPI -lAnalysisTools -lRho
+
+CXXFLAGS     += -ggdb 
+LIBS         += $(FAIRLIBS) $(PNDLIBS) -ggdb  -lrt

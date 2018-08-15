@@ -5,7 +5,7 @@ stages:
 cache:
   untracked: true
 
-configure:
+configure:current:
   stage: configure
   script: source generateDartConfig.sh
   variables:
@@ -15,9 +15,58 @@ configure:
     - may16p1
     - v-17.10
 
-cdash:
+configure:future:
+  stage: configure
+  script: source generateDartConfig.sh
+  variables:
+    FAIRSOFT_VERSION: dev
+    FAIRROOT_VERSION: dev
+  tags:
+   - FairSoft_dev
+   - FairRoot_dev
+
+cdash:current:full:
   stage: test
-  script: source runDart.sh
+  script: source Dart.sh Experimental Dart.cfg
+  only:
+  - branches@PandaRootGroup/PandaRoot
+  dependencies:
+   - configure:current
+  
   tags:
    - may16p1
    - v-17.10
+
+cdash:future:full:
+  stage: test
+  script: source Dart.sh Experimental Dart.cfg
+  only:
+  - branches@PandaRootGroup/PandaRoot
+  dependencies:
+    - configure:future
+  tags:
+    - FairSoft_dev
+    - FairRoot_dev
+
+cdash:current:continuous:
+  stage: test
+  script: source Dart.sh Continuous Dart.cfg
+  except:
+  - branches@PandaRootGroup/PandaRoot
+  dependencies:  
+   - configure:current
+  
+  tags:
+   - may16p1
+   - v-17.10
+
+cdash:future:continuous:
+  stage: test
+  script: source Dart.sh Continuous Dart.cfg
+  except:
+  - branches@PandaRootGroup/PandaRoot
+  dependencies:
+    - configure:future
+  tags:
+    - FairSoft_dev
+    - FairRoot_dev

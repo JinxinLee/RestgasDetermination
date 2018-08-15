@@ -162,7 +162,7 @@ void tut_ana_fast(int nevts = 0, TString prefix = "signal")
 		// ***
 		for (j=0;j<jpsi.GetLength();++j) 
 		{
-			PndKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
+			RhoKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
 			vtxfitter.Fit();
 			
 			double chi2_vtx = vtxfitter.GetChi2();	// access chi2 of fit
@@ -211,7 +211,7 @@ void tut_ana_fast(int nevts = 0, TString prefix = "signal")
 		// ***
 		for (j=0;j<psi2s.GetLength();++j) 
 		{
-			PndKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
+			RhoKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
 			fitter.Add4MomConstraint(ini);	// set 4 constraint
 			fitter.Fit();		            // do fit
 			
@@ -234,7 +234,7 @@ void tut_ana_fast(int nevts = 0, TString prefix = "signal")
 		// ***
 		for (j=0;j<jpsi.GetLength();++j) 
 		{
-			PndKinFitter mfitter(jpsi[j]);		// instantiate the PndKinFitter in psi(2S)
+			RhoKinFitter mfitter(jpsi[j]);		// instantiate the RhoKinFitter in psi(2S)
 			mfitter.AddMassConstraint(m0_jpsi);	// add the mass constraint
 			mfitter.Fit();						// do fit
 			

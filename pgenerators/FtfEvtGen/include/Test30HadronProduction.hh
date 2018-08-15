@@ -25,11 +25,11 @@
 //
 //
 // -------------------------------------------------------------
-//      GEANT 4 class 
+//      GEANT 4 class
 //
 //      ---------- Test30HadronProduction -------
-//                by Vladimir Ivanchenko, 12 March 2002 
-// 
+//                by Vladimir Ivanchenko, 12 March 2002
+//
 //    Modified:
 //
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -41,7 +41,7 @@
 
 
 #include "Test30VSecondaryGenerator.hh"
-
+#include <iostream>
 #include "G4ios.hh"
 #include "globals.hh"
 #include "G4VDiscreteProcess.hh"
@@ -94,6 +94,11 @@ private:
   Test30VSecondaryGenerator* theGenerator;
   G4VParticleChange          theChange;
 
+  void TestPointers()
+  {
+    std::cout<<"Test30HadronProduction::this         -> "<< this <<std::endl;
+    std::cout<<"Test30HadronProduction::theGenerator -> "<< theGenerator <<std::endl;
+  };
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
