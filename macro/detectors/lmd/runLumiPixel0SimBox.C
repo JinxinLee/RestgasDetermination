@@ -110,24 +110,17 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 
 	bool misalignedGeometry = true;
 	if (misalignedGeometry) {
-
 		string misMatricesFilePath = "geo/misalignMatrices-SensorsOnly-100u-himster2.root";
-
 		// check if file exists, if true, try to read it
 		TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "READ");
 		if (misalignmentMatrixRootfile->IsOpen()) {
-
 			printf("File opened successfully\n");
 			std::map < std::string, TGeoHMatrix > *matrices;
-
 			gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
 			misalignmentMatrixRootfile->Close();
-
 			cout << matrices->size() << " matrices successfully read from file.";
-
 			Lum->SetMisalignmentMatrices(*matrices);
 			cout << "matrix set!\n";
-
 			if (true) {
 				// checking for good measure
 				for (auto &i : *matrices) {
@@ -135,7 +128,6 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 					i.second.Print();
 				}
 			}
-
 		}
 
 		// if not, fail violently
@@ -144,55 +136,6 @@ int runLumiPixel0SimBox(const int nEvents = 10, const int startEv = 0, TString s
 			cerr << "but no misaligned matrices could be found in " << misMatricesFilePath << "\n";
 			return 1;
 		}
-	}
-
-	// misalign Geometery
-	//temporary misalignment, run only once so it's okay to do this in macro
-	//TODO: put this in a MisalignmentHandler class
-	// this block doesnt work right now, since the geometry is empty at this point!
-	bool misaligned = true;
-	if (misaligned) {
-		//load matrices
-		string misMatricesFilePath = "geo/misalignMatrices-SensorsOnly-100u.root";
-		TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "READ");
-
-		if (misalignmentMatrixRootfile->IsOpen()) {
-			std::map < std::string, TGeoHMatrix > *matrices;
-
-			gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
-			misalignmentMatrixRootfile->Close();
-
-			cout << matrices->size() << " matrices successfully read from file.\napplying misalignment.\n";
-
-			//iterate over matrices
-			for (auto const& entry : *matrices) {
-				TString volPath = entry.first;
-
-				if (!gGeoManager) {
-					cout << "Error! No geoManager!\n";
-				}
-
-				gGeoManager->cd(volPath);
-
-				TGeoNode* currentNode = gGeoManager->GetCurrentNode();
-				TGeoMatrix* matrixToNode = currentNode->GetMatrix();
-
-				TGeoHMatrix misalignedMatrixToNode = *matrixToNode * entry.second;
-
-				//this is just for clarity, can probably be removed
-				TGeoHMatrix* newMatrixToNode = new TGeoHMatrix(misalignedMatrixToNode);  // new matrix, representing real position
-
-				TGeoPhysicalNode* physicalNode = gGeoManager->MakePhysicalNode(volPath);
-
-				physicalNode->Align(newMatrixToNode);
-			}
-			cout << "all misalignments applied.\n";
-		}
-		else {
-			cout << "file could not be read\n";
-			return 1;
-		}
-		cout << "starting digi macro\n";
 	}
 
 	fRun->Init();

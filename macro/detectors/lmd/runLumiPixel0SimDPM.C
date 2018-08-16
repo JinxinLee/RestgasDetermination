@@ -170,6 +170,37 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
   // LogLevels are (FATAL, ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2, DEBUG3, DEBUG4)
 	logger->SetLogScreenLevel("ERROR"); //Only FATAL and ERROR to screen
 
+	bool misalignedGeometry = true;
+		if (misalignedGeometry) {
+			string misMatricesFilePath = "geo/misalignMatrices-SensorsOnly-100u-himster2.root";
+			// check if file exists, if true, try to read it
+			TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "READ");
+			if (misalignmentMatrixRootfile->IsOpen()) {
+				printf("File opened successfully\n");
+				std::map < std::string, TGeoHMatrix > *matrices;
+				gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
+				misalignmentMatrixRootfile->Close();
+				cout << matrices->size() << " matrices successfully read from file.";
+				Lum->SetMisalignmentMatrices(*matrices);
+				cout << "matrix set!\n";
+				if (true) {
+					// checking for good measure
+					for (auto &i : *matrices) {
+						cout << "\n---\n" << i.first << "\n";
+						i.second.Print();
+					}
+				}
+			}
+			// if not, fail violently
+			else {
+				cerr << "WARNING. I was instructed to use misaligned geometry,\n";
+				cerr << "but no misaligned matrices could be found in " << misMatricesFilePath << "\n";
+				return 1;
+			}
+		}
+
+
+
 	fRun->Init();
 	((TGeant4*)gMC)->ProcessGeantCommand("/mcVerbose/eventAction 0");
 
