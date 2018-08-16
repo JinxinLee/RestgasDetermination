@@ -87,7 +87,7 @@ PndRichCalDb::PndRichCalDb(PndRichCalDbPar* calDbPar)
 {
   fType = 1;
   if ( ! calDbPar ) {
-     gLogger->Error(MESSAGE_ORIGIN, "PndRichCalDb::PndRichCalDb: empty parameter container!");
+     Error(MESSAGE_ORIGIN, "PndRichCalDb::PndRichCalDb: empty parameter container!");
      SetName("");
      fType     = -1;
   }
@@ -135,7 +135,7 @@ void PndRichCalDb::Init() {
   if      (fFileName.EndsWith(".root")) ReadRootFile(fFileName, fName);
   else if (fFileName.EndsWith(".dat"))  ReadAsciiFile(fFileName);
   else {
-    gLogger->Error(MESSAGE_ORIGIN,"-E- PndRichCalDb::Init: No proper file name defined! (%s) ");
+    Error(MESSAGE_ORIGIN,"-E- PndRichCalDb::Init: No proper file name defined! (%s) ");
     Fatal("Init", "No proper file name");
   }
 }
@@ -386,10 +386,10 @@ Bool_t PndRichCalDb::IsInside(Double_t p, Double_t x, Double_t y, Double_t t, Do
 void PndRichCalDb::WriteAsciiFile(const char* fileName) {
 
   // Open file
-  gLogger->Info(MESSAGE_ORIGIN, "PndRichCalDb: Writing field map to ASCII file %s ",fileName);
+  Info(MESSAGE_ORIGIN, "PndRichCalDb: Writing field map to ASCII file %s ",fileName);
   ofstream mapFile(fileName);
   if ( ! mapFile.is_open() ) {
-    gLogger->Error(MESSAGE_ORIGIN, "PndRichCalDb:ReadAsciiFile: Could not open file! ");
+    Error(MESSAGE_ORIGIN, "PndRichCalDb:ReadAsciiFile: Could not open file! ");
     return;
   }
 
@@ -608,10 +608,10 @@ void PndRichCalDb::ReadRootFile(const char* fileName,
   TFile* oldFile = gFile;
 
   // Open root file
-  gLogger->Info(MESSAGE_ORIGIN, "PndRichCalDb: Reading field map from ROOT file  %s ",fileName); 
+  Info(MESSAGE_ORIGIN, "PndRichCalDb: Reading field map from ROOT file  %s ",fileName);
   TFile* file = new TFile(fileName, "READ");		
   if (file->IsZombie()) {
-    gLogger->Error(MESSAGE_ORIGIN, "-E- PndRichCalDb::ReadRootfile: Cannot read from file! ");
+    Error(MESSAGE_ORIGIN, "-E- PndRichCalDb::ReadRootfile: Cannot read from file! ");
     Fatal("ReadRootFile","Cannot read from file");
   }
 
@@ -619,7 +619,7 @@ void PndRichCalDb::ReadRootFile(const char* fileName,
   PndRichCalDbData* data = NULL;
   file->GetObject(mapName, data);
   if ( ! data ) {
-     gLogger->Error(MESSAGE_ORIGIN,"PndRichCalDb::ReadRootFile: data object %s not found in file! ", fileName);
+     Error(MESSAGE_ORIGIN,"PndRichCalDb::ReadRootFile: data object %s not found in file! ", fileName);
      exit(-1);
   }
 
@@ -644,7 +644,7 @@ void PndRichCalDb::SetCalDb(const PndRichCalDbData* data) {
    std::cout << "fType = " << fType << " " << data->GetType() << std::endl;
    fType = data->GetType();
   if ( data->GetType() != fType ) {
-    gLogger->Error(MESSAGE_ORIGIN,"PndRichCalDb::SetField: Incompatible map types Field map is of type %s \n but map on file is of type %s ",fType,data->GetType());
+    Error(MESSAGE_ORIGIN,"PndRichCalDb::SetField: Incompatible map types Field map is of type %s \n but map on file is of type %s ",fType,data->GetType());
     Fatal("SetField","Incompatible map types");
   }
   

@@ -78,7 +78,7 @@ PndFieldMap::PndFieldMap(PndFieldPar* fieldPar)
 {
   fType = 1;
   if ( ! fieldPar ) {
-    gLogger->Error(MESSAGE_ORIGIN, "PndConstField::PndConstField: empty parameter container!");
+    Error(MESSAGE_ORIGIN, "PndConstField::PndConstField: empty parameter container!");
     SetName("");
 	fType     = -1;
   }
@@ -145,7 +145,7 @@ void PndFieldMap::Init() {
   if      (fFileName.EndsWith(".root")) ReadRootFile(fFileName, fName);
   else if (fFileName.EndsWith(".dat"))  ReadAsciiFile(fFileName);
   else {
-    gLogger->Error(MESSAGE_ORIGIN,"-E- PndFieldMap::Init: No proper file name defined! (%s) ");
+    Error(MESSAGE_ORIGIN,"-E- PndFieldMap::Init: No proper file name defined! (%s) ");
     Fatal("Init", "No proper file name");
   }
 }
@@ -292,10 +292,10 @@ Bool_t PndFieldMap::IsInside(Double_t x, Double_t y, Double_t z,
 void PndFieldMap::WriteAsciiFile(const char* fileName) {
 
   // Open file
-  gLogger->Info(MESSAGE_ORIGIN, "PndFieldMap: Writing field map to ASCII file %s ",fileName);
+  Info(MESSAGE_ORIGIN, "PndFieldMap: Writing field map to ASCII file %s ",fileName);
   ofstream mapFile(fileName);
   if ( ! mapFile.is_open() ) {
-    gLogger->Error(MESSAGE_ORIGIN, "PndFieldMap:ReadAsciiFile: Could not open file! ");
+    Error(MESSAGE_ORIGIN, "PndFieldMap:ReadAsciiFile: Could not open file! ");
     return;
   }
 
@@ -540,10 +540,10 @@ void PndFieldMap::ReadRootFile(const char* fileName,
   TFile* oldFile = gFile;
 
   // Open root file
-  gLogger->Info(MESSAGE_ORIGIN, "PndFieldMap: Reading field map from ROOT file  %s ",fileName); 
+  Info(MESSAGE_ORIGIN, "PndFieldMap: Reading field map from ROOT file  %s ",fileName);
   TFile* file = new TFile(fileName, "READ");		
   if (file->IsZombie()) {
-    gLogger->Error(MESSAGE_ORIGIN, "-E- PndFieldMap::ReadRootfile: Cannot read from file! ");
+    Error(MESSAGE_ORIGIN, "-E- PndFieldMap::ReadRootfile: Cannot read from file! ");
     Fatal("ReadRootFile","Cannot read from file");
   }
 
@@ -551,7 +551,7 @@ void PndFieldMap::ReadRootFile(const char* fileName,
   PndFieldMapData* data = NULL;
   file->GetObject(mapName, data);
   if ( ! data ) {
-     gLogger->Error(MESSAGE_ORIGIN,"PndFieldMap::ReadRootFile: data object %s not found in file! ", fileName);
+     Error(MESSAGE_ORIGIN,"PndFieldMap::ReadRootFile: data object %s not found in file! ", fileName);
      exit(-1);
   }
 
@@ -574,7 +574,7 @@ void PndFieldMap::SetField(const PndFieldMapData* data) {
 
   // Check compatibility
   if ( data->GetType() != fType ) {
-    gLogger->Error(MESSAGE_ORIGIN,"PndFieldMap::SetField: Incompatible map types Field map is of type %s \n but map on file is of type %s ",fType,data->GetType());
+    Error(MESSAGE_ORIGIN,"PndFieldMap::SetField: Incompatible map types Field map is of type %s \n but map on file is of type %s ",fType,data->GetType());
     Fatal("SetField","Incompatible map types");
   }
   
