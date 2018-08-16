@@ -1,6 +1,5 @@
 int runLumiPixel2Reco(const int nEvents = 10, const int startEvent = 0,
-		TString storePath = "tmpOutput", const int verboseLevel = 0, bool misalign =
-				false) {
+		TString storePath = "tmpOutput", string alignment_matrices_path = "", const int verboseLevel = 0) {
 	// ========================================================================
 	TString DigiFile = storePath + "/Lumi_digi_"; //"/Lumi_digi_noise_";//"/Lumi_digi_";
 	DigiFile += startEvent;
@@ -77,6 +76,28 @@ int runLumiPixel2Reco(const int nEvents = 10, const int startEvent = 0,
 
 	// -----   Intialise and run   --------------------------------------------
 	fRun->Init();
+
+	if (alignment_matrices_path != "") {
+		//load matrices
+		TFile *alignmentMatrixRootfile = new TFile(alignment_matrices_path.c_str(), "READ");
+
+		if (alignmentMatrixRootfile->IsOpen()) {
+			std::map < std::string, TGeoHMatrix > *matrices;
+
+			gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
+			alignmentMatrixRootfile->Close();
+
+			cout << matrices->size() << " matrices successfully read from file.\n";
+
+			//iterate over matrices
+			fRun->SetAlignmentMatrices(*matrices);
+			fRun->AlignGeometry();
+		}
+		else {
+			cout << "file could not be read\n";
+			return 1;
+		}
+	}
 
 	fRun->Run(0, nEvents);
 	// ------------------------------------------------------------------------

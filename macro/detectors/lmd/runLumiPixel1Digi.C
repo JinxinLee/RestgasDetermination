@@ -1,5 +1,5 @@
 int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString storePath = "tmpOutput",
-    const int verboseLevel = 0, const int pitch = 1) {
+		std::string misalignment_matrices_path = "", const int verboseLevel = 0, const int pitch = 1) {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
 	timer.Start();
@@ -58,13 +58,9 @@ int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString 
 
 	// MialignmentHandler sits here
 
-	//temporary misalignment, run only once so it's okay to do this in macro
-	//TODO: put this in a MisalignmentHandler class
-	bool misaligned = true;
-	if (misaligned) {
+	if (misalignment_matrices_path != "") {
 		//load matrices
-		string misMatricesFilePath = "geo/misalignMatrices-SensorsOnly-100u-himster2.root";
-		TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "READ");
+		TFile *misalignmentMatrixRootfile = new TFile(misalignment_matrices_path.c_str(), "READ");
 
 		if (misalignmentMatrixRootfile->IsOpen()) {
 			std::map < std::string, TGeoHMatrix > *matrices;
@@ -72,26 +68,11 @@ int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString 
 			gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
 			misalignmentMatrixRootfile->Close();
 
-			cout << matrices->size() << " matrices successfully read from file.\napplying misalignment.\n";
+			cout << matrices->size() << " matrices successfully read from file.\n";
 
 			//iterate over matrices
-			for (auto const& entry : *matrices) {
-				TString volPath = entry.first;
-
-				gGeoManager->cd(volPath);
-
-						TGeoNode* currentNode = gGeoManager->GetCurrentNode();
-						TGeoMatrix* matrixToNode = currentNode->GetMatrix();
-
-						TGeoHMatrix misalignedMatrixToNode = *matrixToNode * entry.second;
-						//this is just for clarity, can probably be removed
-						TGeoHMatrix* newMatrixToNode = new TGeoHMatrix(misalignedMatrixToNode);  // new matrix, representing real position
-
-						TGeoPhysicalNode* physicalNode = gGeoManager->MakePhysicalNode(volPath);
-
-						physicalNode->Align(newMatrixToNode);
-					}
-					cout << "all misalignments applied.\n";
+			fRun->SetAlignmentMatrices(*matrices);
+			fRun->AlignGeometry();
 		}
 		else {
 			cout << "file could not be read\n";

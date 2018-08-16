@@ -8,6 +8,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 		const double beam_grad_X = 0.0, const double beam_grad_Y = 0.0,
 		const double beam_grad_sigma_X = 0.0, const double beam_grad_sigma_Y = 0.0, // beam gradiant parameters
 		const TString lmd_geometry_filename = "Luminosity-Detector.root",
+		std::string misalignment_matrices_path = "",
 		const int verboseLevel = 3) {
 	// gRandom->SetSeed(seed);
 	Int_t mode = 1;
@@ -155,20 +156,24 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 
   fRun->SetStoreTraj(false); // toggle this for use with EVE
 
-  //FairLogger
-  // get handle
-	FairLogger *logger = FairLogger::GetLogger();
 
-  // log to screen and to file
-	logger->SetLogToScreen(kTRUE);
-	logger->SetLogToFile(kFALSE);
+	// set misalignement matricies
+	if (misalignment_matrices_path != "") {
+		// check if file exists, if true, try to read it
+		TFile *misalignmentMatrixRootfile = new TFile(misalignment_matrices_path.c_str(), "READ");
+		if (misalignmentMatrixRootfile->IsOpen()) {
+			std::map < std::string, TGeoHMatrix > *matrices;
 
-	logger->SetLogVerbosityLevel("LOW");
+			gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
+			misalignmentMatrixRootfile->Close();
 
-  // Set different levels of verbosity. In the example everything >=INFO goes to the
-  // file and everything >= ERROR is printed on the screen
-  // LogLevels are (FATAL, ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2, DEBUG3, DEBUG4)
-	logger->SetLogScreenLevel("ERROR"); //Only FATAL and ERROR to screen
+			cout << matrices->size() << " matrices successfully read from file.";
+
+			fRun->SetAlignmentMatrices(*matrices);
+			cout << "matrices set!\n";
+		}
+	}
+
 
 	bool misalignedGeometry = true;
 		if (misalignedGeometry) {
@@ -203,6 +208,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 
 	fRun->Init();
 	((TGeant4*)gMC)->ProcessGeantCommand("/mcVerbose/eventAction 0");
+	((TGeant4*)gMC)->ProcessGeantCommand("/mcTracking/loopVerbose 0");
 
   // // Fill the Parameter containers for this run
   // //-------------------------------------------
