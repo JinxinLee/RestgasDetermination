@@ -103,7 +103,7 @@ void PndTrkCTGeometryCalculations::calculateintersections(
 	Double_t C0x,
 	Double_t C0y,
 	Double_t C0z,
-	Double_t , // r //[R.K.03/2017] unused variable(s)
+	Double_t r,
 	Double_t vx,
 	Double_t vy,
 	Double_t vz,
@@ -393,11 +393,15 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExitbis(
 
  Short_t
 	i;
-	//j; //[R.K. 01/2017] unused variable?
 
  PndTrkMergeSort MergeSort;
 
 // this method works under the hypothesis that there are at least 2 intersections.
+// It orders the nIntersections  intersections using as order parameter the azimuthal
+// angle fi (in the reference frame of the trajectory helix); then it returns the FIRST
+// TWO INTERSECTIONS assuming that the track was originated from (0,0,0) and taking into
+// account its charge;
+
 	if (nIntersections<2) return;
 
 	  if(Charge > 0) {
@@ -591,7 +595,7 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ(
 //-------------------------  begin of function  PndTrkCTGeometryCalculations::Dist_SZ_bis
 
 Double_t PndTrkCTGeometryCalculations::Dist_SZ_bis(
-	Double_t ,	// input // Rr //[R.K.03/2017] unused variable(s)
+	Double_t Rr,	// input
 	Double_t KAPPA,	// input
 	Double_t FI0,	// input
 	Double_t ZED,	// input
@@ -1301,24 +1305,24 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonLeft2(
 //
 
 
-//	      /|   //
-//	     / |   //
-//	    /  |   //
-//	   /  /    //
-//	  /  /     //
-//	 /  /      //
-//	/  /       //
-//	|  |       //
-//	|  |       //
-//	|  |       //
-//	|  |       //
-//	\  \       //
-//	 \  \      //
-//	  \  \     //
-//	   \  \    //
-//	    \  |   //
-//	     \ |   //
-//	      \|   //
+//	      /|
+//	     / |
+//	    /  |
+//	   /  /
+//	  /  / 
+//	 /  /  
+//	/  /   
+//	|  |   
+//	|  |   
+//	|  |   
+//	|  |   
+//	\  \   
+//	 \  \  
+//	  \  \ 
+//	   \  \
+//	    \  |
+//	     \ |
+//	      \|
 
 
 // finding all possible intersections with inner parallel straw region.
@@ -1417,19 +1421,19 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonRight(
 // geometrical shape considered in this method :
 //
 //
-//	|\         //
-//	| \        //
-//	|  \       //
-//	 \  \      // 
-//	  \  \     //
-//	   |  |    //
-//	   |  |    //
-//	   /  /    //
-//	  /  /     //
-//	 /  /      //
-//	|  /       //
-//	| /        //
-//	|/         //
+//	|\
+//	| \
+//	|  \
+//	 \  \
+//	  \  \
+//	   |  |
+//	   |  |
+//	   /  /
+//	  /  /
+//	 /  /
+//	|  /
+//	| /
+//	|/
 //
 
 // finding all possible intersections with inner parallel straw region.
@@ -1526,19 +1530,19 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonRight2(
 // geometrical shape considered in this method :
 //
 //
-//	|\        //
-//	| \       //
-//	|  \      //
-//	 \  \     //
-//	  \  \    //
-//	   |  |   //
-//	   |  |   //
-//	   /  /   //
-//	  /  /    //
-//	 /  /     //
-//	|  /      //
-//	| /       //
-//	|/        //
+//	|\
+//	| \
+//	|  \
+//	 \  \
+//	  \  \
+//	   |  |
+//	   |  |
+//	   /  /
+//	  /  /
+//	 /  /
+//	|  /
+//	| /
+//	|/
 //
 
 // finding all possible intersections with inner parallel straw region.
@@ -1631,21 +1635,10 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft(
 //  parameters  Oxx, Oyy, Rr   with the closed geometrical figure (in XY) formed by the STT
 //  external Left semicircle and the Outer STT parallel Left straw semi-Hexagon + Gap for
 //  the pellet target target.
-//  It returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
+//  It returns -1 if there are 0 or 1 intersections, or it returns 0
+//  if they are at least 2.
 
 
-	//Double_t	cosFi, //[R.K. 01/2017] unused variable?
-			//theta1, //[R.K. 01/2017] unused variable?
-			//theta2, //[R.K. 01/2017] unused variable?
-			//Theta1, //[R.K. 01/2017] unused variable?
-			//Theta2, //[R.K. 01/2017] unused variable?
-			//aaa, //[R.K. 01/2017] unused variable?
-			//Fi,
-			//FI0,
-			//x1,
-			//x2,
-			//y1,
-			//y2;
 //------------------
 
 	Short_t	nIntersectionsCircle,
@@ -1764,18 +1757,6 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft2(
 
 	Short_t		nIntersections;
 
-	//Double_t	cosFi, //[R.K. 01/2017] unused variable?
-			//theta1, //[R.K. 01/2017] unused variable?
-			//theta2, //[R.K. 01/2017] unused variable?
-			//Theta1, //[R.K. 01/2017] unused variable?
-			//Theta2, //[R.K. 01/2017] unused variable?
-			//aaa, //[R.K. 01/2017] unused variable?
-			//Fi, //[R.K. 01/2017] unused variable?
-			//FI0, //[R.K. 01/2017] unused variable?
-			//x1, //[R.K. 01/2017] unused variable?
-			//x2, //[R.K. 01/2017] unused variable?
-			//y1, //[R.K. 01/2017] unused variable?
-			//y2; //[R.K. 01/2017] unused variable?
 //------------------
 
 	Short_t	nIntersectionsCircle;
@@ -1885,24 +1866,13 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight(
 {
 
 //  This methods finds the intersections between a trajectory coming from (0,0) and
-//  parameters  Oxx, Oyy, Rr   with the closed geometrical figure (in XY) formed by the STT
+//  parameters  Oxx, Oyy, Rr  with the closed geometrical figure (in XY) formed by the STT
 //  external Left semicircle and the Outer STT parallel Left straw semi-Hexagon + Gap for
 //  the pellet target target.
-//  It returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
+//  It returns -1 if there are 0 or 1 intersections, or it returns 0
+//  if they are at least 2.
 
 
-	//Double_t	cosFi, //[R.K. 01/2017] unused variable?
-			//theta1, //[R.K. 01/2017] unused variable?
-			//theta2, //[R.K. 01/2017] unused variable?
-			//Theta1, //[R.K. 01/2017] unused variable?
-			//Theta2, //[R.K. 01/2017] unused variable?
-			//aaa, //[R.K. 01/2017] unused variable?
-			//Fi, //[R.K. 01/2017] unused variable?
-			//FI0, //[R.K. 01/2017] unused variable?
-			//x1, //[R.K. 01/2017] unused variable?
-			//x2, //[R.K. 01/2017] unused variable?
-			//y1, //[R.K. 01/2017] unused variable?
-			//y2; //[R.K. 01/2017] unused variable?
 //------------------
 
 	Short_t	nIntersectionsCircle,
@@ -1982,7 +1952,7 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight(
 					);
 
 
-	return nIntersections;
+	return 0;
 
 }
 
@@ -2383,8 +2353,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedbiHexagonLeft(
 	bool	internal,
 		AtLeast1;
 
-	Short_t //i, //[R.K. 01/2017] unused variable?
-		 is,
+	Short_t	is,
 		 j,
 		 Nintersections;
 
@@ -2955,7 +2924,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithOpenPolygon(
 
 
 
-//----------begin of function PndTrkCTGeometryCalculations::IsInsideCircle
+//----------begin of function PndTrkCTGeometryCalculations::IsInsideArc
 
 bool PndTrkCTGeometryCalculations::IsInsideArc(
 	Double_t Oxx,
@@ -2963,7 +2932,7 @@ bool PndTrkCTGeometryCalculations::IsInsideArc(
 	Short_t Charge,
 	Double_t Xcross[2],
 	Double_t Ycross[2],
-	Double_t f  // f should be between 0 and 2PI.
+	Double_t f  // f has to be between 0 and 2PI.
 	)
 {
 
@@ -3006,7 +2975,7 @@ bool PndTrkCTGeometryCalculations::IsInsideArc(
 	}	// end of if(Charge<0)
 }
 
-//----------end of function PndTrkCTGeometryCalculations::IsInsideCircle
+//----------end of function PndTrkCTGeometryCalculations::IsInsideArc
 
 
 
@@ -3741,8 +3710,8 @@ bool PndTrkCTGeometryCalculations::IsInsideArc(
   bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk21_77to21_79withMargin(
 	Double_t X,		//  X coordinate of point;
 	Double_t Y,		//  Y coordinate of point;
-	Double_t ,	//  safety margin in X coordinate; // xmargin //[R.K.03/2017] unused variable(s)
-	Double_t 	//  safety margin in Y coordinate; // ymargin //[R.K.03/2017] unused variable(s)
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
 	)
 {
 //	this is a set of sensors placed vertically perpendicularly to the Z direction;

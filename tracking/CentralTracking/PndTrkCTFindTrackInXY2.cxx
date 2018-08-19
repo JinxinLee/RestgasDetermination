@@ -24,7 +24,7 @@ using namespace std;
 
 void PndTrkCTFindTrackInXY2::AddMvdHitsToSttTracks(
 	Double_t delta,			// input;
-	Double_t ,	// input; // highqualitycut //[R.K.03/2017] unused variable(s)
+	Double_t highqualitycut,	// input;
 	Double_t FiRangeMvdLow,		// input;
 	Double_t FiRangeMvdUp,		// input;
 	const Short_t maxmvdpixelhitsintrack,	// input;
@@ -125,7 +125,7 @@ void PndTrkCTFindTrackInXY2::AddMvdHitsToSttTracks(
 
 
 Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
-	Double_t , // dimensionscitil //[R.K.03/2017] unused variable(s)
+	Double_t dimensionscitil,
 	Double_t *esse, // output, list of  S of the SciTil hits associated. 
 	bool* InclusionListSciTil,
 	Short_t *List, // output, list of SciTil hits associated (max. 2);
@@ -312,7 +312,7 @@ Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
 bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 	struct FindTrackInXYProjection2_InputOutputData* InOut,
 	int istampa,
-	int  // IVOLTE //[R.K.03/2017] unused variable(s)
+	int IVOLTE
 	)
 {
 
@@ -482,7 +482,7 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 //   here the factor 0.9 is used in order to be conservative.
  if ( R + aaa < InOut->apotemastrawdetectormin *0.9 ) return false;
 
-//-------------- stampa
+//-------------- debug printout
 if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
@@ -507,7 +507,7 @@ nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
 InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
 InOut->Fi_initial_helix_referenceframe,KAPPA);
 }
-//-------------- fine stampa
+//-------------- end of debug printout
 //---------------------  find the angular range for candidate track in the Stt detector (find
 //			 the two possibilities in general);
 
@@ -582,8 +582,10 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 		InOut->strawradius
 				);
 
-
+ // check that there are at least 2 axial STT hits (minimumhitspertrack is usually 2);
  if( NN < InOut->minimumhitspertrack ) return false;
+
+
  if( NN>InOut->maxstthitsintrack) {
 	nSttParHitsinTrack = InOut->maxstthitsintrack;
  } else {
@@ -596,7 +598,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
  }
 
 
-//-------------- stampa
+//-------------- debug printout
 
 if (istampa>=2){
 bool tkeepit[10];
@@ -620,7 +622,7 @@ nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
 InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
 InOut->Fi_initial_helix_referenceframe,KAPPA);
 }
-//-------------- fine stampa
+//-------------- end of debug printout
 
 
 // adding the Mvd hits;
@@ -654,7 +656,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	);
 
 
-//-------------- stampa
+//-------------- debug printout
 
 if (istampa>=2){
 bool tkeepit[10];
@@ -678,7 +680,7 @@ nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
 InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
 InOut->Fi_initial_helix_referenceframe,KAPPA);
 }
-//-------------- fine stampa
+//-------------- end of debug printout
 
 
 
@@ -719,7 +721,6 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 	// I assume the 'drift radius' to be  the max dimension of the Pixel;
 	gamma = r2 - 0.01 * 0.01 ;
-//	ErrorDriftRadiusconformal[j]=3. * 0.01 /fabs(gamma); // 3 is an arbitrary loose safety factor;
 							// 0.01 is the dimension of the pixel;
 	ErrorDriftRadiusconformal[j]= 3.*delta /fabs(gamma); // 3 is an arbitrary loose safety factor;
 
@@ -741,7 +742,6 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	gamma = r2 - 0.01 * 0.01 ;
 	ErrorDriftRadiusconformal[nFitPoints]= 3. * 0.01 /fabs(gamma); // 3 is an arbitrary loose safety factor;
 							// 0.01 is the dimension of the strip;
-//	ErrorDriftRadiusconformal[j]=3.*delta /fabs(gamma); // 3 is an arbitrary loose safety factor;
 	DriftRadiusconformal[nFitPoints]= -1; // // only to signal later this is a Mvd hit;
 
 	nFitPoints++;
@@ -755,14 +755,10 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	Xconformal[nFitPoints] =infoparalConformal[(InOut->ListHitsinTrack)[j]][0];
 	Yconformal[nFitPoints] =infoparalConformal[(InOut->ListHitsinTrack)[j]][1];
 
-//	ErrorDriftRadiusconformal[nFitPoints]=
-//		infoparalConformal[(InOut->ListHitsinTrack)[j]][2];
-
 	// errors on a Stt hit are assumed to be 0.5 cm in cartesian XY variables;
 	r2 = info [(InOut->ListHitsinTrack)[j] ][0]*info [(InOut->ListHitsinTrack)[j] ][0]+
 		info [(InOut->ListHitsinTrack)[j] ][1]*info [(InOut->ListHitsinTrack)[j] ][1];
 	gamma = r2 - 0.5 * 0.5 ;
-//	ErrorDriftRadiusconformal[nFitPoints]=0.5/( r2 - 0.025); 
 	ErrorDriftRadiusconformal[nFitPoints]=3.* 0.01/fabs(gamma);  // 3 is an arbitrary loose safety factor;
 
 	DriftRadiusconformal[nFitPoints]=
@@ -812,7 +808,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 
 
-//-------------- stampa
+//-------------- debug printout
 
 if (istampa>=2){
 bool tkeepit[10];
@@ -836,7 +832,7 @@ nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
 InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
 InOut->Fi_initial_helix_referenceframe,KAPPA);
 }
-//-------------- fine stampa
+//-------------- end of the debug printout
 
 
 	// find again the angular range for candidate track in the Stt detector (find
@@ -955,7 +951,6 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
    }  // end of  if(status> 0 )
 
 
-// }  // end of if  ( *(InOut->Mvdhits) )
 
  }  // end of if( nMvdPixelHitsinTrack + nMvdStripHitsinTrack == 0 )
 
@@ -1036,7 +1031,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
   }
 
 
-//-------------- stampa
+//-------------- debug printout
 if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
@@ -1061,87 +1056,10 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 
 }
-//-------------- fine stampa
-
-
-
- // now do the Cleanup of the track in the XY projection;
-
-/*
- if (
-	Cleanup.XYCleanup(
-		// general infos about the axial Straws;
-		istampa,
-		info,
-		InOut->ListParContiguous,
-		InOut->nParContiguous,
-		InOut->StrawCode, // first straw boundary code (a straw can belong to 2 boundaries);
-		InOut->StrawCode2, // second straw boundary code (a straw can belong to 2 boundaries);
-		InOut->TubeID,
-		InOut->xTube,
-		InOut->yTube,
-		InOut->zTube,
-		InOut->xxyyTube,
-		// the following are the info of the track under scrutiny;
-		Ox,			// input;
-		Oy,			// input;
-		R,			// input;
-		*InOut->Charge,		// input;
-		ListSttParHitsinTrack,	// input
-		nSttParHitsinTrack,	// input
-		InOut->r_stt_inner_par_max, // r_stt_inner_par_max ==> radius of the circumscribed
-					// circumference to the
-					//; outer hexagon defining THE INNER axial Stt straw region;
-		*InOut->nSciTilHitsinTrack,	// input, # of SciTil hits in the current track;
-		InOut->ListSciTilHitsinTrack,	// input, list of SciTil hits in the current track;
-		posizSciTil	// input, info on all the SciTil position;
-			)
- ){
-	if(istampa>=2){ cout<<"\tthis track candidate passes the stt parallel cleanup; here is the printout :\n";
-			bool tkeepit[10];
-			tkeepit[0] = true;
-			Short_t nSttSkewHitsinTrack[10],
-				nSciTilHitsinTrack[10],
-				IVOLTE = 0;
-			Short_t ListSttSkewHitsinTrack[100];
-			Double_t KAPPA[10] ;
-			KAPPA[0] = 0.;
-			nSttSkewHitsinTrack[0] = 0;
-			nSciTilHitsinTrack[0] = *(InOut->nSciTilHitsinTrack);
-
-			Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
-			ListMvdStripHitsinTrack,ListSttParHitsinTrack,
-			ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
-			&nMvdPixelHitsinTrack,&nMvdStripHitsinTrack,&nSttParHitsinTrack,
-			nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
-			-1, // print all candidates;
-			InOut->maxmvdpixelhitsintrack,
-			InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
-			InOut->Fi_initial_helix_referenceframe,KAPPA);
-			cout<<"---------------------------------------------------------------------\n";
-	}
-
-	return true;
- } else {
-	if(istampa>=2){ cout<<"\tthis track candidate DOES NOT pass the stt parallel cleanup.\n";}
-	return false;
-
- }
-
-*/
+//-------------- end debug printout
 
 
  return true;
-
-
-
-
-
-
-
-
-
-
 
 
 };

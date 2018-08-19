@@ -78,8 +78,8 @@ if(istampa>1) {cout<<"in BadTrack_ParStt : Xingresso "<<Xcross[0]<<", Yingresso 
 			Oxx,Oyy,Charge,
 			Xcross,
 			Ycross,
-			S
-		) ) {
+			S)
+		 ) {
 			continue;
 			}
 		ninside++;
@@ -184,7 +184,7 @@ bool PndTrkCleanup::GoodTrack(
 		Short_t ListParContiguous[][6],	// input
 		Double_t *xTube,		// input
 		Double_t *yTube,		// input
-		Double_t *,		// input // zTube //[R.K.03/2017] unused variable(s)
+		Double_t *zTube,		// input
 		Double_t *xxyyTube,		// input
 
 		Short_t & holes			// input and output
@@ -225,7 +225,6 @@ bool PndTrkCleanup::GoodTrack(
 
 
    Double_t
-		C2, // FIXME [R.K. 01/2017] C2 is not calculated below!
 		dist,
 		dist2,
 		fi,
@@ -339,9 +338,10 @@ bool PndTrkCleanup::GoodTrack(
 		tube_next = ListParContiguous[index_last][j]  ;
 
 		// calculate the distance between the center of the trajectory and the center of the straw;
-		// C2 has been calculated abova --> C2 = Ox*Ox + Oy*Oy ; 
-    //FIXME [R.K. 01/2017] NO, C2 is not calcualted!!!!!
-		dist2 = xxyyTube[tube_next-1] -2.*(xTube[tube_next-1]*Ox + yTube[tube_next-1]*Oy) +C2;
+    		// xxyyTube has been calculated (and passed trough various calling sequences) in
+		// PndTrkTracking2.cxx
+		dist2 = xxyyTube[tube_next-1] -2.*(xTube[tube_next-1]*Ox + yTube[tube_next-1]*Oy)+
+			Ox*Ox + Oy*Oy;
 		dist = fabs(sqrt(dist2)-R);
 		if( dist > STRAWRADIUS * 1.5) continue; //tubes doesn't lie on trajectory; the factor 1.5 just to be sure
 
@@ -1001,7 +1001,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 
 
 
-	// total Mvd hits that are supposed to be in this track (if the paramenter of the track were totally right);
+	// total Mvd hits that are supposed to be in this track (if the parameter of the track were totally right);
 	n_forseen_hits = 0;
 	// number of 'right' hits that are present in this track (belonging to the predicted Mvd layers);
 	n_present_hits = 0;
@@ -1012,10 +1012,11 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 
 	// loop over the number of barrel Mvd layers with full azimuthal coverage;
 	// calculate if trajectory intersects such Mvd barrel layers;
+
+
+
+
 	for(i=0;i<MVD_BARREL_LAYERS_FULL_AZIMUTH;i++){
-
-
-
 
 
 
@@ -1042,7 +1043,6 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 
 						);
 		// verify if actually there is a hit in this MVD barrel;
-
 
 
 		if( yes_hit){
@@ -1072,6 +1072,8 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 	}  // end of  for(i=0;i<MVD_BARREL_LAYERS_FULL_AZIMUTH;i++)
 
 	// check on the Barrel Mvd sector; allow only for one hit mismatch;
+
+
 	nFaults = n_forseen_hits - n_present_hits;
 	if( nFaults > 1 ) return false;
 
@@ -1087,6 +1089,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 	// loop over the number of barrel Mvd layers with partial azimuthal coverage;
 	// calculate if trajectory intersects such Mvd barrel layers;
 	for(i=0;i<MVD_BARREL_LAYERS_PARTIAL_AZIMUTH;i++){
+
 
 
 
@@ -1124,11 +1127,13 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 
 
 
+
+
 		if(yes_hit){
 			// loop over the at most 2 intersections (one with the Inner Barrel, one with the Outer Barrel);
 			for(j=0; j<2; j++){
 
-				// when there is no intersection between track an Barrel
+				// when there is no intersection between track and Barrel
 				// Xintersect[j] is set at -99999. ;
 				if(Xintersect[j] < -99998.) continue ;
 
@@ -1180,8 +1185,6 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 
    for(i=0;i<MVD_MINIDISK_LAYERS;i++){
 
-
-
 	if( Track_Crosses_MvdMiniDisk_withMargin (
 			MVD_Z_LAYER_BEGIN[i],	// Z of the beginning of the layer (end of layer = + 0.02);
 			0.5,	// xmargin;
@@ -1196,10 +1199,6 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 							// calculation;
 		)
 	){
-
-
-
-
 		yes_hit = IsThereHitInMvdMiniDisk(
 			MVD_Z_LAYER_BEGIN[i],	// Z of the beginning of the layer (end of layer = + 0.02);
 			nPixelHitsinTrack,
@@ -1223,8 +1222,6 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 			nFaults++;
 
 		}
-
-
 
 
 	}
@@ -1273,7 +1270,6 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 
 
 
-
 	};  // end of  for(i=0;i<MVD_DISKS_LAYERS;i++)
 
 
@@ -1303,6 +1299,8 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 					}
 				} // end of for(j=0;j< nStripHitsinTrack; j++)
 			}  // end of if(!yes_hit)
+
+// if( yes_hit) cout<<" true "<<endl ; else cout<<" false "<<endl ;
 
 			if(!yes_hit){
 				nFaults++;
@@ -1529,30 +1527,25 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 //	3)  eliminates the tracks if the hit sequence is not continuous enough.
 
 
-	bool
-		flaggo;
+	bool	flaggo= true ; // when flaggo is true it means that the track CROSSED the
+			// STT axial layer(s); flaggo can be falsified later in this method;
 
-	Short_t flagInnerSttR,
-		flagOuterSttR,
-		flagInnerSttL,
+	Short_t flagInnerSttL,
+		flagInnerSttR,
 		flagOuterSttL,
-		flagOutStt;
-
-	Short_t	//enne, //[R.K. 01/2017] unused variable?
+		flagOuterSttR,
+		flagOutStt,
 			i,
-			//ihit, //[R.K. 01/2017] unused variable?
 			ipurged,
 			islack,
 			nintersections,
-			nnn,
+			nConsideredHits,
 			nInnerHits,
 			nInnerHitsLeft,
 			nInnerHitsRight,
-			//nOuter, //[R.K. 01/2017] unused variable?
 			nOuterHits,
 			nOuterHitsLeft,
 			nOuterHitsRight,
-			//nIntersections[2], //[R.K. 01/2017] unused variable?
 			ListHits[nHits],
 			ListInnerHits[nHits],
 			ListInnerHitsLeft[nHits],
@@ -1563,8 +1556,7 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 
 	Double_t	epsilonTheta,
 			fi,
-			//r, //[R.K. 01/2017] unused variable?
-			aux[2],
+			LimitCoord[2],
 			Xcross[2],
 			Ycross[2],
 			XcrossL[2],
@@ -1579,19 +1571,23 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 
 
 	islack=1;  // uncertainty allowed in the # of straws that should be hit in a given part
-			// of the Stt detector.
+		// of the Stt detector.
+
+// calculation of the Limit X Y coordinates, corresponding to the Limiting angle FiLimitAdmissible,
+// used later in some circumstances;
+
+	LimitCoord[0] = Oxx+Rr*cos(FiLimitAdmissible);
+	LimitCoord[1] = Oyy+Rr*sin(FiLimitAdmissible);
 
 
-//------------------------
-//  elimination of hits outside the physical FI range (FiLimitAdmissible) due to finite length of
-//  Straws.
 
-
-if(istampa>1) {
-	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", n. || in ingresso "<<
-	nHits<<", prima di essere purgati."<<endl; }
+//-------------------------------------------------------------------------------------------
+//  elimination of hits outside the physical FI range (FiLimitAdmissible). The physical
+//  FI range depends on Pz and Pt of the track : given the Pz of the track, the azimuthal angle
+//  covered by te Helix of the trajectory may very well be less than 2 pi radians.
 
 	epsilonTheta = strawradius/Rr;  // some extra slac for being conservative.
+
 	for(i=0, ipurged=0; i< nHits; i++){
 
 		fi = atan2( info[Listofhits[i]][1]-Oyy,info[Listofhits[i]][0]-Oxx);
@@ -1615,12 +1611,16 @@ if(istampa>1) {
 	  ipurged++;
 	}  // end of    for(i=0, ipurged=0; i< nHits; i++)
 
+	// nHits is the final outcome of the elimination; it is the # of remaining hits;
 	nHits = ipurged;
-if(istampa>1) {
-	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", n. || hits "<<
-	nHits<<", dopo di essere purgati."<<endl; }
+
+
 
 	if(nHits==0){
+		// if the remaining hits is 0, don't discard track yet : maybe that
+		// its particular trajectory is such that it doesn't cross any axial
+		// straws (this doesn't prevent the Pattern Recognition - which requires
+		// at least 
 		nInnerHits=0;
 		nInnerHitsRight=0;
 		nInnerHitsLeft=0;
@@ -1628,6 +1628,9 @@ if(istampa>1) {
 		nOuterHitsRight=0;
 		nOuterHitsLeft=0;
 		// don't discard track yet, see if it should have parallel hits.
+
+
+
 	} else {
 
 //------------------
@@ -1658,26 +1661,21 @@ if(istampa>1) {
 				ListOuterHitsRight
 				);
 
-if(istampa>1) {
-	cout<<"SttParalCleanup, evento n. "<<IVOLTE
-	<<", dopo separate INNER/OUTER, n. || inner hits left "<<
-	nInnerHitsLeft<<", right : "<< nInnerHitsRight <<endl; }
-//------------------------------------------
-	// find the entrance and exit of the track in the Inner Left Parallel Straw region.
-	// This region is bounded by two Hexagons, and it has the target gap in the middle.
-
-	// flag meaning :
-	// -1 -->  track outside outer perimeter;
-	// 0 -->  at least 1 intersection with polygon, therefore a possible entry and an exit;
-	// 1 -->  track contained completely between the two polygons;
 
 	} // end of if(nHits==0)
 
-//	first of all, find possible intersection points with outer circle encompassing
-//	the Stt system.
 
+
+//--------------------------------------------------------------------------
 	//  class with all the geometry calculations:
 	PndTrkCTGeometryCalculations  GeometryCalculator;
+
+//-------------------------- intersection points with outer circle encompassing
+//	the Stt system.
+
+	// flag meaning :
+	// -1 -->  track does NOT intersect the Outer Circle (which has radius RStrawDetMax);
+	// 0 -->  2 intersections;
 
 	flagOutStt = GeometryCalculator.FindIntersectionsOuterCircle(
 				Oxx,
@@ -1689,7 +1687,12 @@ if(istampa>1) {
 				);
 
 
-//	intersection with Inner Section.
+//-----------------------------------------intersection with Inner Section.
+	// flag meaning :
+	// -1 -->  track outside outer perimeter OR less than 2 intersections;
+	// 0 -->  at least 2 intersection with polygon, therefore a possible entry and an exit;
+	// 1 -->  track contained completely between the two polygons : it should be
+	//  impossible for a track coming really from (0,0,0);
 
 	flagInnerSttL= GeometryCalculator.FindTrackEntranceExitbiHexagonLeft(
 				GAP,
@@ -1721,41 +1724,44 @@ if(istampa>1) {
 
 
 
-if(istampa>1) {
-	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", flagInnerSttR (-1,0,1) = "<<flagInnerSttR
-	<<", flagInnerSttL "<<flagInnerSttL<<", flagOutStt "<<flagOutStt<<
-	", FI0  "<<FI0<<",  FiLimitAdmissible "<<FiLimitAdmissible<<endl; }
-
 //-----------------
 
 //	working in the hypothesis that his is a track coming from Vertex at (0,0).
 
-	// case when track is contained either in Left of Right Inner Stt Parallel sections.
+	// case when track is completely contained either in Left of Right Inner Stt Parallel
+	// sections; that should not be possible if the track comes from (0,0,0) !
 	if( flagInnerSttL == 1 || flagInnerSttR == 1 ){
+
+
 		return false;
 	}
 
-	// if a track enters only marginally in the skew volumes, define the track
+	// if a track enters only marginally in the volumes, define the track
 	// as non-entering and the corresponding flag to -1.
 
 	if( flagInnerSttR == 0 && (XcrossR[0]-XcrossR[1])*(XcrossR[0]-XcrossR[1])+
 			(YcrossR[0]-YcrossR[1])*(YcrossR[0]-YcrossR[1])
-			< 9.*strawradius*strawradius ) flagInnerSttR=-1;
+			< 9.*strawradius*strawradius )         flagInnerSttR=-1;
 
 	if( flagInnerSttL == 0 && (XcrossL[0]-XcrossL[1])*(XcrossL[0]-XcrossL[1])+
 			(YcrossL[0]-YcrossL[1])*(YcrossL[0]-YcrossL[1])
-			< 9.*strawradius*strawradius ) flagInnerSttR=-1;
+			< 9.*strawradius*strawradius )         flagInnerSttR=-1;
+
+
+
 
 	// case when track is outside both Inner Stt Parallel sections.
+
 	if( flagInnerSttL == -1 && flagInnerSttR == -1 ){
+
 	} else {
-
-
-
-	// case when the track crosses both InnerLeft and InnerRight.
-	// Decide what was crossed first and ignore the other part.
-	// This may be changed in the future.
-	if( flagInnerSttL == 0 && flagInnerSttR == 0 ) {
+	    // here at least one of flagInnerSttL or flagInnerSttR is 0;
+	    // namely the track has at least 2 intersections with an Inner
+	    // section, Left or Right, or both;
+	    if( flagInnerSttL == 0 && flagInnerSttR == 0 ) {
+		// case when the track crosses both InnerLeft and InnerRight.
+		// Decide what was crossed first and ignore the other part.
+		// This may be changed in the future.
 		XintersectionList[0]=XcrossL[0];
 		YintersectionList[0]=YcrossL[0];
 		XintersectionList[1]=XcrossL[1];
@@ -1780,55 +1786,61 @@ if(istampa>1) {
 		if( (fabs(XcrossL[0]-Xcross[0])<1.e-5&&fabs(YcrossL[0]-Ycross[0])<1.e-5)
 					||
 		    (fabs(XcrossL[1]-Xcross[0])<1.e-5&&fabs(YcrossL[1]-Ycross[0])<1.e-5)
-		   ) {  // the Left part was entered first.
+		   )
+		{  // the Left part was entered first.
 		   flagInnerSttR=-1;
 		} else {  // the Right part was entered first.
 		   flagInnerSttL=-1;
 		} // end of  if( (fabs(XcrossL[0]-Xcross.....
-	}  // end of if( (flagInnerSttL == 0 && flagInnerSttR = 0 )
-
-
+	    }  // end of if( (flagInnerSttL == 0 && flagInnerSttR = 0 )
 
 //---------  the other 2 possible cases.
 
-	if( flagInnerSttL == 0){
-	   nnn=nInnerHitsLeft;
-	   for(i=0;i<2;i++){
-		XintersectionList[i]=XcrossL[i];
-		YintersectionList[i]=YcrossL[i];
-	   }
-	} else {  // continuation of if( (flagInnerSttL == 0), case in which
-		  // flagInnerSttR == 0.
-	   nnn=nInnerHitsRight;
-	   for(i=0;i<2;i++){
-		XintersectionList[i]=XcrossR[i];
-		YintersectionList[i]=YcrossR[i];
-	   }
-	}  // end of   if( (flagInnerSttL == 0)
+	    if( flagInnerSttL == 0){
+	   	nConsideredHits=nInnerHitsLeft;
+	   	for(i=0;i<2;i++)
+		{
+			XintersectionList[i]=XcrossL[i];
+			YintersectionList[i]=YcrossL[i];
+	   	}
+	    } else {  // continuation of if( (flagInnerSttL == 0), case in which
+		nConsideredHits=nInnerHitsRight;
+
+		for(i=0;i<2;i++)
+		{
+			XintersectionList[i]=XcrossR[i];
+			YintersectionList[i]=YcrossR[i];
+		}
+	    }  // end of   if( (flagInnerSttL == 0)
 
 
+	    nintersections=2;
+	    if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+	    {  // in this case the point
+		// corresponding to FiLimitAdmissible can play a role in the
+		// determination of the limiting points of the hits.
+		XintersectionList[2]=LimitCoord[0];
+		YintersectionList[2]=LimitCoord[1];
+		nintersections++;
+	    }  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 
-	nintersections=2;
-	if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
-			// corresponding to FiLimitAdmissible can play a role in the
-			// determination of the limiting points of the hits.
-			aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
-			aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
-			XintersectionList[2]=aux[0];
-			YintersectionList[2]=aux[1];
-			nintersections++;
-	}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
-
-	if( flagOutStt ==0){// 2 intersections with outer Stt circle.
-				XintersectionList[nintersections]=XcrossOut[0];
-				XintersectionList[nintersections+1]=XcrossOut[1];
-				YintersectionList[nintersections]=YcrossOut[0];
-				YintersectionList[nintersections+1]=YcrossOut[1];
-				nintersections +=2;
-	}
+	    if( flagOutStt ==0)
+	    {// 2 intersections with outer Stt circle.
+			XintersectionList[nintersections]=XcrossOut[0];
+			XintersectionList[nintersections+1]=XcrossOut[1];
+			YintersectionList[nintersections]=YcrossOut[0];
+			YintersectionList[nintersections+1]=YcrossOut[1];
+			nintersections +=2;
+	    }
 
 
-	GeometryCalculator.ChooseEntranceExitbis(
+// the method ChooseEntranceExitbis works under the hypothesis that there are
+// at least 2 intersections.
+// It orders the nintersections  intersections using as order parameter the azimuthal
+// angle fi (in the reference frame of the trajectory helix); then it returns the FIRST
+// TWO INTERSECTIONS assuming that the track was originated from (0,0,0) and taking into
+// account its charge;
+	    GeometryCalculator.ChooseEntranceExitbis(
 				Oxx,
 				Oyy,
 				Charge,
@@ -1840,71 +1852,93 @@ if(istampa>1) {
 				Ycross	// output
 				);
 
-	if(fabs(FiLimitAdmissible-FI0) < 2.*PI){
-			// case when this track exit in Z before having the possibility
-			// of hitting the Stt parallel inner section.
-		if( fabs(aux[0]-Xcross[0])<1.e-5&& fabs(aux[1]-Ycross[0])<1.e-5 ){
+
+	    if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+	    {
+		// case when this track exits in Z before having the possibility
+		// of hitting the Stt parallel inner section.
+		if( fabs(LimitCoord[0]-Xcross[0])<1.e-5&& fabs(LimitCoord[1]-Ycross[0])<1.e-5 )
+		{
 			return true;
 		}
-		flaggo=true;
-		if( flagOutStt ==0 // 2 intersections with outer Stt circle.
+
+
+		// case when this track exits in Z AFTER having the possibility
+		// of hitting the Stt parallel inner section.
+
+		if( flagOutStt ==0 // 2 intersections with outer Stt circle;
+		   //  those intersections were calculated in this method before,
+		   // they are called     XcrossOut    and    YcrossOut ;
 		   // case when this track exits the Stt outer circle without
-		   // hitting the Stt parallel inner section (for instance the track
+		   // hitting the Stt parallel inner section;
+		   // this is achieved by comparing the coordinates Xcross[0]
+		   // and Ycross[0] (i.e. the FIRST crossing point of this track)
+		   // to the crossing point with the outer Stt circle (i.e.
+		   // XcrossOut and YcrossOut );
+
 		   &&  ((fabs(XcrossOut[0]-Xcross[0])<1.e-5
-				&&fabs(YcrossOut[0]-Ycross[0])<1.e-5 )
+		   &&fabs(YcrossOut[0]-Ycross[0])<1.e-5 )
 					||
-				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
-				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
-				)
-				){
-			flaggo=false ;
-		} else { // continuation of  if( flagOutStt ==0)
+		   (fabs(XcrossOut[1]-Xcross[0])<1.e-5
+		   &&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
+			)
+		  )
+		{
+		   flaggo=false ; // this track DOES NOT intersect any STT axial layer;
+		} else
+		{ // continuation of  if( flagOutStt ==0)
 
-			// most usual case when track crossed the Inner parallel Stt.
-			if (nnn == 0) return false;
+		   // most usual case when track crossed the Inner parallel Stt;
+		   if (nConsideredHits == 0)
+		   {
+		     return false;
+		   }
 
-			// if the exit point is actually given by FiLimitAdmissible, then allow
-			// an extra uncertainty in the # Stt hit that must be present;
-			// this is done because FiLimitAdmissible is not a very precise number.
-			if( fabs(aux[0]-Xcross[1])<1.e-5&& fabs(aux[1]-Ycross[1])<1.e-5 ){
-				islack = 3;
-			}
+		   // if the exit point is actually given by FiLimitAdmissible, then allow
+		   // an extra uncertainty in the # Stt hit that must be present;
+		   // this is done because FiLimitAdmissible is not a very precise number.
+		   if( fabs(LimitCoord[0]-Xcross[1])<1.e-5&& fabs(LimitCoord[1]-Ycross[1])<1.e-5 )
+		   {
+			islack = 3;
+		   }
 		} //  end of  if( flagOutStt ==0)
 
-	} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
-		if( flagOutStt ==0){// 2 intersections with outer Stt circle.
-			   // case when this track exits the Stt outer circle without
-			   // hitting the Stt parallel inner section (for instance the track
-			   flaggo=true;
-			   if( (fabs(XcrossOut[0]-Xcross[0])<1.e-5
-				&&fabs(YcrossOut[0]-Ycross[0])<1.e-5 )
+	    } else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+		if( flagOutStt ==0)
+		{   // 2 intersections with outer Stt circle.
+		   // case when this track exits the Stt outer circle without
+		   // hitting the Stt parallel inner section
+		   if( (fabs(XcrossOut[0]-Xcross[0])<1.e-5
+			&&fabs(YcrossOut[0]-Ycross[0])<1.e-5 )
 					||
-				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
-				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
-				){
-				flaggo=false;
-			   }
+			(fabs(XcrossOut[1]-Xcross[0])<1.e-5
+			&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
+			)
+		   {
+		      flaggo=false;//this track DOES NOT intersect any STT axial layer;
+		   }
 		} else { // continuation of  if( flagOutStt ==0)
 
-			// most usual case when track crossed the Inner parallel Stt.
-			if (nnn == 0) return false;
+		   // most usual case when track crossed the Inner parallel Stt.
+		   if (nConsideredHits == 0)
+		   {
+			 return false;
+		   }
 		}  // end of  if( flagOutStt ==0)
-	}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+	    }  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 
 
 
-	if(flaggo){
-
+	    if(flaggo){
 //-------------  cleanup of the spurious tracks first using the inner parallel straws.
 
-if(istampa>1) {
+if(istampa>=1) {
 	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", prima di BadTrack_ParStt; Xin Inner "<<
 	Xcross[0]<<", Yin Inner "<<Ycross[0]<<
 	",  Xout Inner "<<Xcross[1]<<", Yout Inner "<<Ycross[1]<<endl; }
 
-
-	// at this point the n. of inner hits cannot be 0 for a true track.
-	if ( BadTrack_ParStt(
+	    // at this point the n. of inner hits cannot be 0 for a true track.
+	    if ( BadTrack_ParStt(
 			Oxx,
 			Oyy,
 			Rr,
@@ -1920,29 +1954,28 @@ if(istampa>1) {
 			1,	// maximum allowed # consecutive hits with distance > cut.
 			islack // uncertainty allowed as far as the n. of hits that should be present.
 					)
-	   ){
+	     ){
 
 		return false;
-	}
+	    }
 
-if(istampa>1) cout<<"uscito da BadTrack_ParStt.\n";
 
-//-----------------------------------------------------
-	}  // end of if(flaggo)
+	    }  // end of if(flaggo)
 	} // end of if( flagInnerSttL == -1 && flagInnerSttR == -1 )
-//outer: ;
 
 	islack=1;   // reset the extra uncertainty in the # Stt.
 
 
 
+//------------------------------------------------------------------------------------------------
 
 //------------ Outer Parallel Stt hits section.
 	// find the entrance and exit of the track in the Outer Parallel Straw region, Left side.
 	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
 	// the target gap in the middle.
 
-	//  Returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
+	//  It returns -1 if there are 0 or 1 intersections, or it returns 0
+	//  if they are at least 2.
 		flagOuterSttL= GeometryCalculator.FindTrackEntranceExitHexagonCircleLeft(
 				Oxx,
 				Oyy,
@@ -1955,9 +1988,6 @@ if(istampa>1) cout<<"uscito da BadTrack_ParStt.\n";
 				XcrossL,
 				YcrossL
 				);
-
-
-
 //------------
 	// find the entrance and exit of the track in the Outer Parallel Straw region, Right side.
 	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
@@ -1976,32 +2006,29 @@ if(istampa>1) cout<<"uscito da BadTrack_ParStt.\n";
 				);
 
 
-if(istampa>1) {
-	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", flagOuterSttR (-1,0,1) = "<<flagOuterSttR
+if(istampa>0) {
+	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<
+	", flagOuterSttR (-1,or 0 --> 2 or more inter.) = "<<flagOuterSttR
 	<<", flagOuterSttL "<<flagOuterSttL<<endl; }
 
 
 //--------------------------------
 
-	// case when track is contained either in Left of Right Outer Stt Parallel sections.
-	if( flagOuterSttL == 1 || flagOuterSttR == 1 ){
-		return false;
-	}
-
-
-	// if a track enters only marginally in the skew volumes, define the track
+	// if a track enters only marginally in the volumes, define the track
 	// as non-entering and the corresponding flag to -1.
 
-	if( flagInnerSttR == 0 && (XcrossR[0]-XcrossR[1])*(XcrossR[0]-XcrossR[1])+
+	if( flagOuterSttR == 0 && (XcrossR[0]-XcrossR[1])*(XcrossR[0]-XcrossR[1])+
 			(YcrossR[0]-YcrossR[1])*(YcrossR[0]-YcrossR[1])
-			< 9.*strawradius*strawradius ) flagInnerSttR=-1;
+			< 9.*strawradius*strawradius ) flagOuterSttR=-1;
 
-	if( flagInnerSttL == 0 && (XcrossL[0]-XcrossL[1])*(XcrossL[0]-XcrossL[1])+
+	if( flagOuterSttL == 0 && (XcrossL[0]-XcrossL[1])*(XcrossL[0]-XcrossL[1])+
 			(YcrossL[0]-YcrossL[1])*(YcrossL[0]-YcrossL[1])
-			< 9.*strawradius*strawradius ) flagInnerSttR=-1;
+			< 9.*strawradius*strawradius ) flagOuterSttR=-1;
 
 
-	// case when track is outside both Outer Stt Parallel sections.
+	// case when track is outside both Outer Stt Parallel sections; in such case
+	// the tracks doesn't have to have Stt Parallel hits in a continuos fashion
+	// in the Outer Sections;
 	if( flagOuterSttL == -1 && flagOuterSttR == -1 ){
 		return true ;
 	}
@@ -2011,6 +2038,8 @@ if(istampa>1) {
 	// Decide what was crossed first and ignore the other part.
 	// This may be changed in the future.
 	if( flagOuterSttL == 0 && flagOuterSttR == 0 ) {
+
+
 		XintersectionList[0]=XcrossL[0];
 		YintersectionList[0]=YcrossL[0];
 		XintersectionList[1]=XcrossL[1];
@@ -2042,22 +2071,18 @@ if(istampa>1) {
 		} // end of  if( (fabs(XcrossL[0]-Xcross.....
 	}  // end of if( (flagInnerSttL == 0 && flagInnerSttR = 0 )
 
-//-------------stampe.
-if(istampa>1) {
-cout<<"in SttParalCleanup Outer, caso traccia entra in L and R outer. Dopo scelta, flagOuterSttR "
-	<<flagOuterSttR<<", flagOuterSttL "<<flagOuterSttL<<endl;
-}
-//-------------fine stampe.
 
 	if( flagOuterSttL == 0){
-	   nnn=nOuterHitsLeft;
+	   nConsideredHits=nOuterHitsLeft;
+
+
 	   for(i=0;i<2;i++){
 		XintersectionList[i]=XcrossL[i];
 		YintersectionList[i]=YcrossL[i];
 	   }
 	} else {  // continuation of if( (flagOuterSttL == 0), case in which
 		  // flagOuterSttR == 0.
-	   nnn=nOuterHitsRight;
+	   nConsideredHits=nOuterHitsRight;
 	   for(i=0;i<2;i++){
 		XintersectionList[i]=XcrossR[i];
 		YintersectionList[i]=YcrossR[i];
@@ -2065,19 +2090,14 @@ cout<<"in SttParalCleanup Outer, caso traccia entra in L and R outer. Dopo scelt
 	}  // end of   if( (flagOuterSttL == 0)
 
 
-//-------------stampe.
-if(istampa>1) {
-cout<<"in SttParalCleanup Outer, nhit considerati "<< nnn <<endl;
-}
-//-------------fine stampe.
 
 
 	nintersections=2;
 	if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
 			// corresponding to FiLimitAdmissible can play a role in the
 			// determination of the limiting points of the hits.
-			XintersectionList[2]=aux[0];
-			YintersectionList[2]=aux[1];
+			XintersectionList[2]=LimitCoord[0];
+			YintersectionList[2]=LimitCoord[1];
 			nintersections++;
 //-------------stampe.
 if(istampa>1) {
@@ -2103,7 +2123,11 @@ cout<<"in SttParalCleanup Outer, prima di  ChooseEntranceExitbis, nintersections
 		<<", Y["<<ic<<"] = "<<YintersectionList[ic]<<endl;
 	}
 }
+
+
 //-------------fine stampe.
+
+
 
 	GeometryCalculator.ChooseEntranceExitbis(
 				Oxx,
@@ -2117,7 +2141,7 @@ cout<<"in SttParalCleanup Outer, prima di  ChooseEntranceExitbis, nintersections
 				Ycross	// output
 				);
 //-------------stampe.
-if(istampa>1) {
+if(istampa>=1) {
 cout<<"in SttParalCleanup Outer, dopo di  ChooseEntranceExitbis, Xin"
 << Xcross[0]<<", Yin "<< Ycross[0]<<", Xout " << Xcross[1]<<", Yout "<< Ycross[1]
 <<endl;
@@ -2129,9 +2153,7 @@ cout<<"in SttParalCleanup Outer, dopo di  ChooseEntranceExitbis, Xin"
 			// case when this track exit in Z before having the possibility
 			// of hitting the Stt parallel inner section.
 
-			// case when this track exit in Z before having the possibility
-			// of hitting the Stt parallel inner section.
-		if( fabs(aux[0]-Xcross[0])<1.e-5&& fabs(aux[1]-Ycross[0])<1.e-5 ){
+		if( fabs(LimitCoord[0]-Xcross[0])<1.e-5&& fabs(LimitCoord[1]-Ycross[0])<1.e-5 ){
 			return true;
 		}
 
@@ -2153,12 +2175,14 @@ cout<<"in SttParalCleanup Outer, dopo di  ChooseEntranceExitbis, Xin"
 
 
 		// most usual case when track crossed the Outer parallel Stt.
-		if (nnn == 0) return false;
+		if (nConsideredHits == 0){
+		 return false;
+		}
 
 		// if the exit point is actually given by FiLimitAdmissible, then allow
 		// an extra uncertainty in the # Stt hit that must be present;
 		// this is done because FiLimitAdmissible is not a very precise number.
-		if( fabs(aux[0]-Xcross[1])<1.e-5&& fabs(aux[1]-Ycross[1])<1.e-5 ){
+		if( fabs(LimitCoord[0]-Xcross[1])<1.e-5&& fabs(LimitCoord[1]-Ycross[1])<1.e-5 ){
 			islack = 3;
 		}
 
@@ -2182,7 +2206,9 @@ cout<<"in SttParalCleanup Outer, dopo di  ChooseEntranceExitbis, Xin"
 
 
 		// most usual case when track crossed the Outer parallel Stt.
-		if (nnn == 0) return false;
+		if (nConsideredHits == 0){
+		 return false;
+		}
 
 	}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 
@@ -2221,13 +2247,14 @@ cout<<"SttParalCleanup, OUTER, caso R || L true, IVOLTE = "<<IVOLTE<<"\n\t Xcros
 			1,	// maximum allowed # consecutive hits with distance > cut.
 			islack // uncertainty allowed as far as the n. of hits that should be present.
 					)
-	   ) return false;
+	   ){
+	    return false;
+	   }
 
 //      }  // end of  if(nOuterHits==0)
 
 //----------------------------------------------------------------------------
 
-// finito: ;
 
 	// if the code comes here it means that the track is acceptable.
 
@@ -2743,12 +2770,19 @@ bool PndTrkCleanup::TrackCleanup(
 	Double_t Rr,
 	Double_t RStrawDetMax,
 	Double_t RStrawDetMin,
-//	Double_t SEMILENGTH_STRAIGHT,
 	Double_t Start[3],
 	Double_t strawradius
-//	Double_t ZCENTER_STRAIGHT
 	)
 {
+
+
+// this method is called by PdnTrkTracking2::Exec for each track found (inside a loop over the
+// number of tracks found by the pattern recognition);
+
+
+
+
+
 // this method does 3 things :
 //
 //	1)  finds the entrance and exit points in the STT parallel and skew volumes of the current track;
@@ -2799,6 +2833,8 @@ bool PndTrkCleanup::TrackCleanup(
 
 	// parallel cleanup.
 
+
+
 //----------------stampe
 if(istampa>=2){
 cout<<" IVOLTE = "<<IVOLTE<<", prima di paral cleanup, nHitsPar "<<nHitsPar<<
@@ -2807,11 +2843,11 @@ cout<<" IVOLTE = "<<IVOLTE<<", prima di paral cleanup, nHitsPar "<<nHitsPar<<
 FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 ", Y limit "<<Oyy+Rr*sin(FiLimitAdmissible)<<", Ox "<<Oxx<<", Oy "<<Oyy<<", R "<<Rr<<endl;
 }
+
 //-------------------- fine stampe
 
-if(istampa>1) cout<<"\tentra in SttParalCleanup\n";
 
-//	if(nHitsPar>0 && !SttParalCleanup(
+
 	if(!SttParalCleanup(
 				ApotemaMaxInnerPar,
 				ApotemaMinOuterPar,
@@ -2833,50 +2869,19 @@ if(istampa>1) cout<<"\tentra in SttParalCleanup\n";
 				strawradius
 				)
 	){
-if(istampa>1) cout<<"uscito da SttParalCleanup : false\n";
+
+
+
+
 		return false;
 	}
-if(istampa>1) cout<<"uscito da : SttParalCleanup true\n";
 
 
-
-
-//----------------------------------------------------------------------------
-
-	// skew cleanup.
-if(istampa>1) cout<<"\tentra in SttSkewCleanup\n";
-	if ( ! (SttSkewCleanup(
-			ApotemaMaxSkew,
-			ApotemaMinSkew,
-			Charge,
-			3., // cut distance
-			FI0,
-			FiLimitAdmissible,
-			GAP,
-			info,
-			istampa,
-			IVOLTE,
-			ListHitsSkew, // it doesn't get modify for now.
-			1, // max number of failures allowed.
-			MAXSTTHITS,
-			nHitsSkew, // it doesn't get modify for now.
-			Oxx,
-			Oyy,
-			Rr,
-			RStrawDetMax,
-			auxS,
-			Start,  // starting point of trajectory.
-			strawradius
-			) ) ) {
-
-if(istampa>1) cout<<"uscito da SttSkewCleanup false\n";
-		  return false;
-				}
-
-if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 
 
 	return true;
+
+
 
 };
 
@@ -2898,7 +2903,7 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 		
 		const Double_t Zlow,	// Z low limit of this barrel;
 		const Double_t Zup,	// Z upper limit of this barrel;
-		Double_t RBarrel,	// R of this barrel at which the intersection of the particle
+		Double_t RBarrel,	// R of this barrel at whicazch the intersection of the particle
 					// trajectory is calculated;
 		PndTrkCTGeometryCalculations * GeometryCalculator,	// pointer
 					// to the class making useful geometry calculations;
@@ -2921,10 +2926,6 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 	// Pz is the opposite of   charge/kappa;
 	// the first check is the check that Pz of the track is consistent with the Z limits of
 	// this Mvd Barrel;
-
-
-
-
 	// yes_intersect = 0 --> 2 intersections
 	// otherwise yes_intersect = -1;
 	// I use the method FindIntersectionsOuterCircle that calculates the intersection between
@@ -2937,6 +2938,9 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 			Xcross,
 			Ycross
 			);
+
+
+
 	if(yes_intersect==0 ) {   // there are 2 intersections of the trajectory with this barrel;
 		// calculate the entrance point based on the rotation direction of the particle
 		// (positive --> clockwise);
@@ -2957,6 +2961,9 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 		// calculate the Z coordinate of the intersection; since kappa is necessarily
 		//  > 1.e-10 by construction, then Z is always well defined;
 		Zintersect = (FiOrderedList[0]-fi0)/kappa;
+
+
+
 
 		// condition for having Mvd hits in the Mvd Barrel layers certainly, namely taking
 		// into account also possible errors in the Z caused by the uncertainty of the
@@ -3042,6 +3049,10 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 
 
 	// first check if the trajectory crosses this Inner Barrel;
+	// to check that, the function GeometryCalculator->FindIntersectionsOuterCircle is
+	// used (despite the name, it is only a fuction that checks if a circular trajectory
+	// of center Ox and Oy and radius R crosses (in the XY view) another circle with center in 0,0
+	// and radius RInnerBarrel);
 
 
 	yes_intersect = GeometryCalculator->FindIntersectionsOuterCircle(
@@ -3066,7 +3077,7 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 			FiOrderedList // output; Fi of the intersections in the Helix frame;
 		);
 
-		// calculate the Z coordinate of the intersection; since kappa is necessarily
+		// calculate the Z coordinate of the intersection; since |kappa| is necessarily
 		//  > 1.e-10 by construction, so Z is always well defined;
 		Zintersect[0] = (FiOrderedList[0]-fi0)/kappa;
 
@@ -3079,7 +3090,8 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 		if( Zintersect[0]<= Zup - extra_distance_Z && 
 		    Zintersect[0]>= Zlow + extra_distance_Z
 		 ){	// case in which there should be Mvd hits;
-			// loop to check that the track doesn't fall in the gap region; fi must be between 0. and 2Pi;
+			// loop to check that the track doesn't fall in the gap region;
+			// fi must be between 0. and 2Pi;
 			fi = atan2(Ycross[0],Xcross[0]);
 			if(fi<0.) fi += TWO_PI;
 			if(fi<0.) fi = 0.;
@@ -3101,10 +3113,14 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 	// of the nalysis of the Outer Barrel;
 
 	// if there was no intersection Xintersect[0] is conventionally set at -99999.
+
 	if(cross)
 	{
 		Xintersect[0] = Xcross[0];
 		Yintersect[0] = Ycross[0];
+
+
+
 	} else {
 		Xintersect[0] = -99999. ;
 	}
@@ -3118,6 +3134,7 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 		//  at this point cross can be either true or false;
 		return cross;
 	}
+
 
 
 	yes_intersect = GeometryCalculator->FindIntersectionsOuterCircle(
@@ -3240,6 +3257,7 @@ bool PndTrkCleanup::Track_Crosses_MvdMiniDisk_withMargin(
 					// middle of this MiniDisk;
 
 
+
 	// the list of Mvd MiniDisks, listed according to the Z position of the silicon sensitive layer;
 	if ( ZLayerBegin ==  1.97){
 
@@ -3337,7 +3355,7 @@ bool PndTrkCleanup::XYCleanup(
 	Short_t Charge,
 	Short_t *ListHits,
 	Short_t nHits,
-	Double_t , // R_STT_INNER_PAR_MAX //[R.K.03/2017] unused variable(s)
+	Double_t R_STT_INNER_PAR_MAX,
 	Short_t nScitilHitsInTrack,	// input, # of SciTil hits in the current track;
 	Short_t* ListSciTilHitsinTrack,	// input, list of SciTil hits in the current track;
 	Double_t posizSciTil[][3]	// input, info on all the SciTil position;
