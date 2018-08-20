@@ -14,17 +14,18 @@
 
 #include "PndLmdHitPair.h"
 
-#include <boost/asio.hpp>
-#include <boost/asio/io_service.hpp>
+//#include <boost/asio.hpp>
+//#include <boost/asio/io_service.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
+//#include <boost/shared_ptr.hpp>
+//#include <boost/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include <PndLmdAlignStructs.h>
 #include <PndLmdGeometryHelper.h>
 #include <PndLmdSensorAligner.h>
+#include "PndLmdThreadPool.h"
 
 #include <TGeoMatrix.h>
 
@@ -64,13 +65,16 @@ private:
 
 	bool allAlignersFull();
 
+	//adds pairs just like the other function but starts an aligner if it is full
+	bool addPairAndStartAligner(PndLmdHitPair &pair, PndLmdThreadPool &threadPool);
+
 	void runSensorAligner(PndLmdSensorAligner &aligner);
 	void resetMTLB(int n, int r, int w);
 	void incrementMTLB();
 	void checkIOpaths();
 
 	//let all threads finish their work
-	void waitForCompletion();
+	void waitForCompletion(PndLmdThreadPool &threadPool);
 
 	//generate the file name of a matrix or pair file, so changes must only be made once
 	static std::string makeBinaryPairFileName(int overlapId = 0, bool incentimeters = true);
@@ -86,9 +90,6 @@ public:
 
 	// initializes Manager on construction or resets every value to default
 	void init();
-
-	//adds pairs just like the other function but starts an aligner if it is full
-	bool addPairAndStartAligner(PndLmdHitPair &pair);
 
 	//add filename, so the aligner adds the pairs itself
 	bool addFile(std::string filename);
@@ -166,9 +167,6 @@ public:
 	void setInCentimeters(bool inCentimeters);
 	void setZasTimestamp(bool timestamp);
 
-	//when supplied with a function object, this function executes in a new thread
-	void workerThread(boost::shared_ptr<boost::asio::io_service> io_service);
-
 	//write config file
 	static bool writeConfigFile(boost::property_tree::ptree configTree, std::string filename,
 	    bool replaceExisting = true);
@@ -187,7 +185,7 @@ public:
 		}
 	}
 
-	void setMaxThreads(int NmaxThreads) {
+	void setMaxThreads(int NmaxThreads = 0) {
 		if (NmaxThreads < 0 || NmaxThreads > 256) {
 			//cerr << "Invalid number of threasds!\n";
 		}

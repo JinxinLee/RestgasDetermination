@@ -1,4 +1,6 @@
 /*
+ * @author Sehe (https://stackoverflow.com/users/85371/sehe)
+ *
  * Thread Pool implementation using boost::threads.
  *
  * taken from this StackOverflow answer:
@@ -10,62 +12,74 @@
 #include <boost/phoenix.hpp>
 #include <boost/optional.hpp>
 
-using namespace boost;
+//using namespace boost;
 using namespace boost::phoenix::arg_names;
 
-boost::atomic_size_t counter(0ul);
-
-class thread_pool {
+class PndLmdThreadPool {
 private:
-	mutex mx;
-	condition_variable cv;
+	boost::mutex mx;
+	boost::condition_variable cv;
 
-	typedef function<void()> job_t;
+	typedef boost::function<void()> job_t;
 	std::deque<job_t> _queue;
 
-	thread_group pool;
+	boost::thread_group pool;
 
 	boost::atomic_bool shutdown;
-	static void worker_thread(thread_pool& q) {
-		while (optional<job_t> job = q.dequeue())
+	static void worker_thread(PndLmdThreadPool& q) {
+		while (boost::optional<job_t> job = q.dequeue())
 			(*job)();
 	}
 
 public:
-	thread_pool() :
+	//create thread pool with maximum possible threads
+	PndLmdThreadPool() :
 			shutdown(false) {
 		for (unsigned i = 0; i < boost::thread::hardware_concurrency(); ++i)
-			pool.create_thread(bind(worker_thread, ref(*this)));
+			pool.create_thread(boost::bind(worker_thread, boost::ref(*this)));
+	}
+
+	//create thread pool with maxThreads threads
+	PndLmdThreadPool(unsigned int maxThreads) :
+			shutdown(false) {
+		if (maxThreads > boost::thread::hardware_concurrency() || maxThreads == 0) maxThreads =
+		    boost::thread::hardware_concurrency();
+		for (unsigned i = 0; i < maxThreads; ++i)
+			pool.create_thread(boost::bind(worker_thread, boost::ref(*this)));
 	}
 
 	void enqueue(job_t job) {
-		lock_guard<mutex> lk(mx);
+		boost::lock_guard<boost::mutex> lk(mx);
 		_queue.push_back(job);
-
 		cv.notify_one();
 	}
 
-	optional<job_t> dequeue() {
-		unique_lock<mutex> lk(mx);
+	boost::optional<job_t> dequeue() {
+		boost::unique_lock<boost::mutex> lk(mx);
 		namespace phx = boost::phoenix;
-
 		cv.wait(lk, phx::ref(shutdown) || !phx::empty(phx::ref(_queue)));
-
-		if (_queue.empty()) return none;
-
+		if (_queue.empty()) return boost::none;
 		job_t job = _queue.front();
 		_queue.pop_front();
-
 		return job;
 	}
 
-	~thread_pool() {
+	// wait for all threads to complete
+	void wait() {
 		shutdown = true;
 		{
-			lock_guard<mutex> lk(mx);
+			boost::lock_guard<boost::mutex> lk(mx);
 			cv.notify_all();
 		}
+		pool.join_all();
+	}
 
+	~PndLmdThreadPool() {
+		shutdown = true;
+		{
+			boost::lock_guard<boost::mutex> lk(mx);
+			cv.notify_all();
+		}
 		pool.join_all();
 	}
 };

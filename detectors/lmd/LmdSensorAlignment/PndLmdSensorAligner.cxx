@@ -173,7 +173,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	zeroValCheck();
 
 	//transform pairs to local module frame of reference
-	bool transformToSensorBool = true;
+	bool transformToSensorBool = false;
 	Matrix toSensor;
 	if (transformToSensorBool && inCentimeters) {
 		toSensor = transformToSensorOne();

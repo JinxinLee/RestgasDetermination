@@ -26,8 +26,9 @@
 #include <vector>
 #include <stdexcept>
 
-#include <PndLmdSensorAligner.h>
-#include <PndLmdHitPair.h>
+#include "PndLmdSensorAligner.h"
+#include "PndLmdHitPair.h"
+
 #include <TChain.h>
 #include <TClonesArray.h>
 #include <TFile.h>
@@ -43,7 +44,7 @@ using std::stringstream;
 using std::vector;
 
 boost::mutex io_mutex;
-boost::thread_group alignerThreadGroup;
+//boost::thread_group alignerThreadGroup;
 
 void PndLmdAlignManager::resetMTLB(int n, int r, int w) {
 	_i = 0;
@@ -182,6 +183,8 @@ void PndLmdAlignManager::readFilesAndAlign() {
 
 	_allFilesAdded = true;
 
+	PndLmdThreadPool threadPool;
+
 	int noOfFiles = fileNames.size();
 	if (noOfFiles > 0) {
 		cout << "found " << noOfFiles << " file(s). reading...\n";
@@ -216,7 +219,7 @@ void PndLmdAlignManager::readFilesAndAlign() {
 		//loop over hitPairs per Event
 		for (int i_Pair = 0; i_Pair < nPairs; i_Pair++) {
 			PndLmdHitPair* currentPair = (PndLmdHitPair*) hitPairs->At(i_Pair);
-			addPairAndStartAligner(*currentPair);
+			addPairAndStartAligner(*currentPair, threadPool);
 			totalPairs++;
 		}
 
@@ -227,7 +230,7 @@ void PndLmdAlignManager::readFilesAndAlign() {
 	}
 
 	//save matrices to disk
-	waitForCompletion();
+	waitForCompletion(threadPool);
 
 	cout << "================================ \n";
 	cout << "total Pairs: " << totalPairs << "\n";
@@ -263,10 +266,6 @@ void PndLmdAlignManager::runSensorAligner(PndLmdSensorAligner &aligner) {
 
 	//free memory
 	aligner.clearPairs();
-}
-
-void WorkerThread(boost::shared_ptr<boost::asio::io_service> io_service) {
-	io_service->run();
 }
 
 void PndLmdAlignManager::loadBar(int i, int n, int r, int w, std::string message) {
@@ -367,7 +366,7 @@ TGeoHMatrix PndLmdAlignManager::readTGeoHMatrix(std::string filename) {
 	}
 
 	// have we even read a real matrix?
-	if(resultMat.m != 4 || resultMat.n != 4){
+	if (resultMat.m != 4 || resultMat.n != 4) {
 		cerr << "Error! Invalid matrix!\n";
 		return TGeoHMatrix();
 	}
@@ -721,7 +720,7 @@ void PndLmdAlignManager::clearScreen() {
 	cout << "\x1B[2J\x1B[H";
 }
 
-bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair) {
+bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair, PndLmdThreadPool &threadPool) {
 
 	bool pairAdded = false;
 
@@ -744,7 +743,8 @@ bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair) {
 
 	//if aligner is full, start thread directly.
 	if (alignersFull[thisID]) {
-		alignerThreadGroup.create_thread(
+		//alignerThreadGroup.create_thread(
+		threadPool.enqueue(
 		    boost::bind(&PndLmdAlignManager::runSensorAligner, this, boost::ref(aligners[thisID])));
 	}
 	return true;
@@ -761,7 +761,7 @@ bool PndLmdAlignManager::allAlignersFull() {
 	return true;
 }
 
-void PndLmdAlignManager::waitForCompletion() {
+void PndLmdAlignManager::waitForCompletion(PndLmdThreadPool &threadPool) {
 
 	//start all alignsers that have not already started (i.e. don't have required no of Pairs)
 	int notStarted = 0;
@@ -773,17 +773,20 @@ void PndLmdAlignManager::waitForCompletion() {
 		if (!(alignersFull[id])) {
 
 			//if pair could not be added, aligner is full. start thread directly.
-			alignerThreadGroup.create_thread(
+			//alignerThreadGroup.create_thread(
+			threadPool.enqueue(
 			    boost::bind(&PndLmdAlignManager::runSensorAligner, this, boost::ref(aligners[id])));
 			notStarted++;
 		}
 	}
 	cout << notStarted << " aligners remained.\n";
-	cout << "jobs queue size : " << alignerThreadGroup.size() << "/360\n";
+	//cout << "jobs queue size : " << alignerThreadGroup.size() << "/360\n";
 	cout << "waiting for all aligners to finish...";
 
 	//wait for all threads to complete
-	alignerThreadGroup.join_all();
+	//alignerThreadGroup.join_all();
+	threadPool.wait();
+
 	cout << "done!\n";
 
 	for (auto &id : overlapIDs) {
@@ -846,6 +849,8 @@ bool PndLmdAlignManager::writePairsToBinaryFiles() {
 
 bool PndLmdAlignManager::readPairsFromBinaryFilesAndAlign() {
 
+	PndLmdThreadPool threadPool(maxThreads);
+
 	bool success = true;
 	bool thisAlignerReady;
 
@@ -878,13 +883,14 @@ bool PndLmdAlignManager::readPairsFromBinaryFilesAndAlign() {
 
 		if (thisAlignerReady) {
 			alignersFull[id] = true;
-			alignerThreadGroup.create_thread(
+			//alignerThreadGroup.create_thread(
+			threadPool.enqueue(
 			    boost::bind(&PndLmdAlignManager::runSensorAligner, this, boost::ref(thisAligner)));
 		}
 	}
 
 	// write matrices to disk etc
-	waitForCompletion();
+	waitForCompletion(threadPool);
 	return success;
 }
 
