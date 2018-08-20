@@ -39,7 +39,6 @@ private:
 	friend class PndLmdAlignQA;
 
 	//loadBarMultiThreaded
-	int _i, _r, _w, _n;
 	std::mutex MTLBmutex;
 
 	int _verboseLevel;
@@ -65,8 +64,6 @@ private:
 	bool addPairAndStartAligner(PndLmdHitPair &pair, PndLmdThreadPool &threadPool);
 
 	void runSensorAligner(PndLmdSensorAligner &aligner);
-	void resetMTLB(int n, int r, int w);
-	void incrementMTLB();
 	void checkIOpaths();
 
 	//let all threads finish their work
@@ -107,7 +104,7 @@ public:
 	//perform last checks and run calculations on all aligners
 	//void alignAllSensors();
 
-	static void loadBar(int current, int total, int resolution, int width, std::string message = "");
+	void loadBar(int current, int total, int resolution, int width, std::string message = "");
 
 	void setMaxPairs(int maxPairs);
 

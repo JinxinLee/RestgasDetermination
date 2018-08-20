@@ -38,54 +38,6 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-void PndLmdAlignManager::resetMTLB(int n, int r, int w) {
-	std::lock_guard<std::mutex> lock(MTLBmutex);
-	_i = 0;
-	_n = n;
-	_r = r;
-	_w = w;
-}
-
-void PndLmdAlignManager::incrementMTLB() {
-
-	std::lock_guard<std::mutex> lock(MTLBmutex);
-
-	_i++;
-
-	// Only update r times.
-	if (_n == 0) return;
-	if (_n == 1) return;
-
-	if (_r > _n) {
-		_r = _n;
-	}
-
-	//calculate ev / sec every 100000 iterations
-	if (_i % (_n / _r) != 0) {
-		return;
-	}
-
-	flush(cout);
-
-	// Calculate the ratio of complete-to-incomplete.
-	float ratio = _i / (float) _n;
-	int c = ratio * _w;
-
-	// Show the percentage complete.
-	printf("%3d%% [", (int) (ratio * 100));
-
-	// Show the load bar.
-	for (int x = 0; x < c; x++)
-		printf("=");
-
-	for (int x = c; x < _w; x++)
-		printf(" ");
-
-	// ANSI Control codes to go back to the
-	// previous line and clear it.
-	printf("] %d of %d \n\033[F\033[J", _i, _n);
-}
-
 PndLmdAlignManager::PndLmdAlignManager() {
 	init();
 }
@@ -246,10 +198,6 @@ void PndLmdAlignManager::runSensorAligner(PndLmdSensorAligner &aligner) {
 	if (!checkForBinaryFiles()) {
 		aligner.writePairsToBinary(binaryPairFileDirectory);
 	}
-	//if binary files already present, then they have been read earlier and we can display a progress bar for the aliners
-	else {
-		incrementMTLB();
-	}
 
 	// apply dynamic cut. this changes the amount of pairs the aligner has,
 	// so don't re-save the pairs after that!
@@ -263,6 +211,8 @@ void PndLmdAlignManager::runSensorAligner(PndLmdSensorAligner &aligner) {
 }
 
 void PndLmdAlignManager::loadBar(int i, int n, int r, int w, std::string message) {
+
+	std::lock_guard<std::mutex> lock(MTLBmutex);
 
 	// Only update r times.
 	if (n == 0) return;
