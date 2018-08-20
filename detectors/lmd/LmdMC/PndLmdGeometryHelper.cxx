@@ -9,6 +9,7 @@
 #include "TGeoPhysicalNode.h"
 
 using std::string;
+using std::cout;
 
 PndLmdGeometryHelper::~PndLmdGeometryHelper() {
 }
@@ -218,6 +219,9 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3 &global
 const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sensorId) {
 	PndGeoHandling *geo_handling = PndGeoHandling::Instance();
 	std::string vol_path(geo_handling->GetPath(int(sensorId)));
+
+	cout << "cd-ing to path:\n";
+	cout << vol_path << "\n";
 
 	TString actPath = fGeoManager->GetPath();
 	// go to active part of sensor

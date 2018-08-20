@@ -6,8 +6,8 @@
 void initMiniAna(TString storePath) {
 
 	//FIXME: don't hard code starting event!
-	TString inFile = storePath + "/Lumi_MC_1000000.root";
-	TString parFile = storePath + "/Lumi_Params_1000000.root";
+	TString inFile = storePath + "/Lumi_MC_100000.root";
+	TString parFile = storePath + "/Lumi_Params_100000.root";
 	TString outFile = storePath + "/Lumi_digi_0-dummy.root";
 	FairRunAna *fRun = new FairRunAna();
 	FairFileSource *input_source = new FairFileSource(inFile);
@@ -40,7 +40,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 	gSystem->Load("libLmdSensorAligner");
 
 	//FIXME: don't hard code starting event!
-	//initMiniAna(pairFilePath);
+	initMiniAna(pairFilePath);
 
 	// don't forget trailing slashes!!
 	if (LMDmatrixDir == "") {

@@ -682,7 +682,6 @@ std::vector<double> PndLmdSensorAligner::getPairSpread(int what) {
 	    0.0;
 
 	// set all values to first entry
-
 	if (what == 0 || what == 1) {
 		xcom += simplePairs[0][0];
 		ycom += simplePairs[0][1];
@@ -690,10 +689,8 @@ std::vector<double> PndLmdSensorAligner::getPairSpread(int what) {
 
 		xmin = simplePairs[0][0];
 		xmax = simplePairs[0][0];
-
 		ymin = simplePairs[0][1];
 		ymax = simplePairs[0][1];
-
 		zmin = simplePairs[0][2];
 		zmax = simplePairs[0][2];
 	}
@@ -705,10 +702,8 @@ std::vector<double> PndLmdSensorAligner::getPairSpread(int what) {
 
 		xmin = simplePairs[0][3];
 		xmax = simplePairs[0][3];
-
 		ymin = simplePairs[0][4];
 		ymax = simplePairs[0][4];
-
 		zmin = simplePairs[0][5];
 		zmax = simplePairs[0][5];
 	}
@@ -726,10 +721,8 @@ std::vector<double> PndLmdSensorAligner::getPairSpread(int what) {
 
 			xmin = std::min(xmin, pair[0]);
 			xmax = std::max(xmax, pair[0]);
-
 			ymin = std::min(ymin, pair[1]);
 			ymax = std::max(ymax, pair[1]);
-
 			zmin = std::min(zmin, pair[2]);
 			zmax = std::max(zmax, pair[2]);
 		}
@@ -741,10 +734,8 @@ std::vector<double> PndLmdSensorAligner::getPairSpread(int what) {
 
 			xmin = std::min(xmin, pair[3]);
 			xmax = std::max(xmax, pair[3]);
-
 			ymin = std::min(ymin, pair[4]);
 			ymax = std::max(ymax, pair[4]);
-
 			zmin = std::min(zmin, pair[5]);
 			zmax = std::max(zmax, pair[5]);
 		}
@@ -840,7 +831,6 @@ Matrix PndLmdSensorAligner::transformToLmdLocal() {
 	for (auto &pair : simplePairs) {
 		transformPair(toLMD, pair);
 	}
-
 	return toLMD;
 }
 
