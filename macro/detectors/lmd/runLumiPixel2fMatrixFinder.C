@@ -40,7 +40,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 	gSystem->Load("libLmdSensorAligner");
 
 	//FIXME: don't hard code starting event!
-	initMiniAna(pairFilePath);
+	//initMiniAna(pairFilePath);
 
 	// don't forget trailing slashes!!
 	if (LMDmatrixDir == "") {
@@ -58,6 +58,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 	manager.setBinaryPairFileDirectory(binaryPairFilePath.Data());
 	manager.setMaxPairs(3e5);
 	manager.verboseLevel(verboseLevel);
+	manager.setMaxThreads(20);
 
 	cout << "pairFilePath: " << pairFilePath << "\n";
 	cout << "binaryPairFilePath: " << binaryPairFilePath << "\n";

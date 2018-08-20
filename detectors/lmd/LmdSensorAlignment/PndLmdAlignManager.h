@@ -46,6 +46,7 @@ private:
 	int _i, _r, _w, _n;
 
 	int _verboseLevel;
+	unsigned int maxThreads;
 
 	std::stringstream _info;
 
@@ -183,6 +184,15 @@ public:
 		_verboseLevel = verbose;
 		for (auto &a : aligners) {
 			a.second.verboseLevel(_verboseLevel);
+		}
+	}
+
+	void setMaxThreads(int NmaxThreads) {
+		if (NmaxThreads < 0 || NmaxThreads > 256) {
+			//cerr << "Invalid number of threasds!\n";
+		}
+		else {
+			maxThreads = NmaxThreads;
 		}
 	}
 };

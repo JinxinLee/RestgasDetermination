@@ -384,7 +384,6 @@ bool PndLmdSensorAligner::addSimplePair(const PndLmdHitPair &pair) {
 	 */
 
 	if (inCentimeters) {
-
 		vector<double> tempPair;
 
 		tempPair.push_back(pair.getHit1().x());
@@ -398,10 +397,8 @@ bool PndLmdSensorAligner::addSimplePair(const PndLmdHitPair &pair) {
 		tempPair.push_back(pair.getDistance());
 
 		simplePairs.push_back(tempPair);
-
 	}
 	else {
-
 		vector<double> tempPair;
 
 		tempPair.push_back(pair.getCol1());
@@ -414,17 +411,8 @@ bool PndLmdSensorAligner::addSimplePair(const PndLmdHitPair &pair) {
 
 		tempPair.push_back(pair.getDistance());
 
-		/*
-		 simpleSensorOneX.push_back(pair.getCol1());
-		 simpleSensorOneY.push_back(pair.getRow1());
-		 simpleSensorOneZ.push_back(simpleSensorOneZ.size());	//vecor grows, so this is okay
-
-		 simpleSensorTwoX.push_back(pair.getCol2());
-		 simpleSensorTwoY.push_back(pair.getRow2());
-		 simpleSensorTwoZ.push_back(simpleSensorTwoZ.size());	//vecor grows, so this is okay
-		 */
+		simplePairs.push_back(tempPair);
 	}
-
 	return true;
 }
 
@@ -672,7 +660,7 @@ bool PndLmdSensorAligner::check() {
 	}
 
 	//check if pair array is strictly rectangular
-	int dimy = simplePairs[0].size();
+	unsigned int dimy = simplePairs[0].size();
 	for(auto &pair : simplePairs){
 		if(pair.size() != dimy){
 			return false;

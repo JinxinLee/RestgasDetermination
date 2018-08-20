@@ -334,33 +334,6 @@ void PndLmdAlignManager::checkIOpaths() {
 }
 
 Matrix PndLmdAlignManager::readMatrix(std::string filename) {
-
-	/*
-	vector<vector<double> > temp = readFromCSVFile(filename);
-
-	if (temp.size() < 1) {
-		cout << "warning! can't read matrix from file " << filename << "\n";
-		exit(1);
-	}
-	if (temp[0].size() < 1) {
-		cout << "warning! can't read matrix from file " << filename << "\n";
-		exit(1);
-	}
-
-	int rows, columns;
-	rows = temp.size();
-	columns = temp[0].size();
-	Matrix result(rows, columns);
-
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			result.val[i][j] = temp[i][j];
-		}
-	}
-
-	return result;
-	*/
-
 	// avoid code duplication
 	return castTGeoHMatrixToMatrix(readTGeoHMatrix(filename));
 }
