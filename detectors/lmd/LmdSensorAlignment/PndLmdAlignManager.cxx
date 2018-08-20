@@ -7,16 +7,11 @@
 
 #include <PndLmdAlignManager.h>
 
-#include <boost/asio.hpp>
-#include <boost/asio/io_service.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/ref.hpp>
 #include <boost/regex.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
 
 #include <functional>
 #include <fstream>
@@ -43,10 +38,8 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-boost::mutex io_mutex;
-//boost::thread_group alignerThreadGroup;
-
 void PndLmdAlignManager::resetMTLB(int n, int r, int w) {
+	std::lock_guard<std::mutex> lock(MTLBmutex);
 	_i = 0;
 	_n = n;
 	_r = r;
@@ -55,7 +48,8 @@ void PndLmdAlignManager::resetMTLB(int n, int r, int w) {
 
 void PndLmdAlignManager::incrementMTLB() {
 
-	boost::mutex::scoped_lock lock(io_mutex);
+	std::lock_guard<std::mutex> lock(MTLBmutex);
+
 	_i++;
 
 	// Only update r times.

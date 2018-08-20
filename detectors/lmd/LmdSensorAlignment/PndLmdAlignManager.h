@@ -14,11 +14,6 @@
 
 #include "PndLmdHitPair.h"
 
-//#include <boost/asio.hpp>
-//#include <boost/asio/io_service.hpp>
-#include <boost/thread/mutex.hpp>
-//#include <boost/shared_ptr.hpp>
-//#include <boost/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -45,6 +40,7 @@ private:
 
 	//loadBarMultiThreaded
 	int _i, _r, _w, _n;
+	std::mutex MTLBmutex;
 
 	int _verboseLevel;
 	unsigned int maxThreads;
