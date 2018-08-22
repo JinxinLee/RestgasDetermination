@@ -224,15 +224,6 @@ void printMatrixDiff(TGeoHMatrix mat1, TGeoHMatrix mat2) {
 	cout << "=-=-=-=-=-=-=-=-=-=\n";
 }
 
-std::vector<double> getMatrixDiffCM(PndLmdOverlapInfo info) {
-	std::vector<double> result;
-
-	string icpFile = "/home/arbeit/RedPro3TB/simulationData/2018-05-07-misalign-100u/LMDmatrices-inSensorOne/m"
-	    + std::to_string(info.overlapID) + "cm.mat";
-	string path1 = info.path1;
-	string path2 = info.path2;
-}
-
 // this depends on the geometry currently loaded to gGeoManager!
 TGeoHMatrix getMatrixSensorToSensor(int sensorOne, int sensorTwo) {
 
@@ -254,29 +245,6 @@ TGeoHMatrix getOverlapMatrixLikeICP(PndLmdOverlapInfo info) {
 	TGeoHMatrix misSen1inSen0 = baseTransformation(misalignmentToSensor1, Sen0ToSen1);
 
 	return misalignmentToSensor0.Inverse() * misSen1inSen0;
-}
-
-	// target matrix
-	TGeoHMatrix Mtarget = totalmisinsensor0;
-
-	cout << info << "\n";
-	Mtarget.Print();
-	cout << "--------\n";
-
-	const double *translationDesign = Mtarget.GetTranslation();
-	const double *translationICP = ICP.GetTranslation();
-	const double *rotationDesign = Mtarget.GetRotationMatrix();
-	const double *rotationICP = ICP.GetRotationMatrix();
-
-	double dx = translationDesign[0] - translationICP[0];
-	double dy = translationDesign[1] - translationICP[1];
-	double da = rotationDesign[1] - rotationICP[1];
-
-	result.push_back(dx);
-	result.push_back(dy);
-	result.push_back(da);
-
-	return result;
 }
 
 void testInCMnew() {
@@ -341,33 +309,130 @@ void testInCMnew() {
 
 }
 
-void buildCyclic(int firstSensor, int secondsensor){
+PndLmdOverlapInfo& getSmallOverlapInfo(std::vector<PndLmdOverlapInfo> &infos, int smallOverlap) {
+	//PndLmdOverlapInfo result;
+	for (auto &info : infos) {
+		int smallOverlapHere = info.overlapID % 10;
+		if (smallOverlap == smallOverlapHere) {
+			return info;
+		}
+	}
+	return infos[0];
+}
 
-	// some logic that decides the path
+// WARNING. the geometry inside gGeomanager must be aligned for this to work!
+TGeoHMatrix getMisalignedOverlapFromGeoManager(PndLmdOverlapInfo &info) {
 
-	// paths:
-	/*
-	0->1: fixed externally
-	0->5: 0->5
+	TGeoHMatrix sen0to1 = getMatrixSensorToSensor(info.id1, info.id2);
+	TGeoHMatrix sen0to1ICPcorr = getOverlapMatrixLikeICP(info);
+	// this order is important!
+	return sen0to1ICPcorr * sen0to1;
+}
 
-	1->2: 1->8->2
-	1->3: 1->8->3
-	1->4: 1->8->2->9->4
-	1->4: 1->8->3->7->4
+void buildCyclic() {
 
-	1->6: 1->8->3->6
-	1->7: 1->8->3->7
-	1->8:	1->8
-	1->9: 1->8->2->9
-	1->9: 1->8->3->7->4->9
+	TString misalignedMatrices = "misalignMatrices-SensorsOnly-100u.root";
+	TString idealMatrices = "idealMatrices.root";
+	std::string path =
+	    "/home/arbeit/RedPro3TB/simulationData/2018-05-07-misalign-100u/LMDmatrices-inSensorOne";
 
+	matricesMisaligned = readRootMatrices(misalignedMatrices);
+	matricesIdeal = readRootMatrices(idealMatrices);
 
-	*/
+	for (int iHalf = 0; iHalf < 2; iHalf++) {
+		for (int iPlane = 0; iPlane < 4; iPlane++) {
+			for (int iModule = 0; iModule < 5; iModule++) {
 
-	// some logic to get all required info for that path
+				// the order in the vector is not defined, use getSmallOverlapInfo() for that
+				std::vector<PndLmdOverlapInfo> overlaps = helper->getOverlapInfos(iHalf, iPlane, iModule);
+				cout << "got " << overlaps.size() << " overlaps for module\n";
 
-	// avtuelly build and return matrices
+				// load all 9 overlap matrices
 
+				TGeoHMatrix mat0 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 0));
+				TGeoHMatrix mat1 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 1));
+				TGeoHMatrix mat2 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 2));
+				TGeoHMatrix mat3 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 3));
+				TGeoHMatrix mat4 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 4));
+				TGeoHMatrix mat5 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 5));
+				TGeoHMatrix mat6 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 6));
+				TGeoHMatrix mat7 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 7));
+				TGeoHMatrix mat8 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 8));
+
+				// paths:
+				/*
+				 0->1: fixed externally
+				 5->6: fixed externally
+
+				 0->5: 0->5
+
+				 1->2: 1->8->2
+				 1->3: 1->8->3
+				 1->4: 1->8->2->9->4
+				 1->4: 1->8->3->7->4
+
+				 1->6: 1->8->3->6
+				 1->7: 1->8->3->7
+				 1->8: 1->8
+				 1->9: 1->8->2->9
+				 1->9: 1->8->3->7->4->9
+
+				 */
+
+				// get 0->1 and 5->6
+				TGeoHMatrix sen0to1 = getMatrixSensorToSensor(0, 1);
+				TGeoHMatrix sen5to6 = getMatrixSensorToSensor(5, 6);
+
+				cout << "first step:\n";
+
+				// 1->2
+				TGeoHMatrix sen1to2 = mat4 * mat5.Inverse();
+				// 1->3
+				TGeoHMatrix sen1to3 = mat4 * mat1.Inverse();
+				// 1->4a
+				TGeoHMatrix sen1to4a = mat4 * mat5.Inverse() * mat6 * mat2.Inverse();
+				// 1->4b
+				TGeoHMatrix sen1to4b = mat4 * mat1.Inverse() * mat7 * mat8.Inverse();
+
+				// 1->5
+				TGeoHMatrix sen1to5 = mat0;		// well, kind of...
+				// 1->6
+				TGeoHMatrix sen1to6 = mat4 * mat5.Inverse() * mat3;
+				// 1->7
+				TGeoHMatrix sen1to7 = mat4 * mat5.Inverse() * mat7;
+				// 1->8
+				TGeoHMatrix sen1to8 = mat4;
+				// 1->9a
+				TGeoHMatrix sen1to9a = mat4 * mat5.Inverse() * mat6;
+				// 1->9b
+				TGeoHMatrix sen1to9b = mat4 * mat1.Inverse() * mat7 * mat8.Inverse() * mat2;
+
+				cout << "1to2:\n";
+				sen1to2.Print();
+				cout << "1to3:\n";
+				sen1to3.Print();
+				cout << "1to4a:\n";
+				sen1to4a.Print();
+				cout << "1to4b:\n";
+				sen1to4b.Print();
+				cout << "1to5:\n";
+				sen1to5.Print();
+				cout << "1to6:\n";
+				sen1to6.Print();
+				cout << "1to7:\n";
+				sen1to7.Print();
+				cout << "1to8:\n";
+				sen1to8.Print();
+				cout << "1to9a:\n";
+				sen1to9a.Print();
+				cout << "1to9b:\n";
+				sen1to9b.Print();
+
+			}
+		}
+	}
+
+	std::vector<PndLmdOverlapInfo> thisOverlaps;
 
 }
 
@@ -753,13 +818,10 @@ int testAlignMatrices() {
 	//histICPmatrices();
 	//histDairXYZdistances();
 
-	testInCMnew();
+	//testCyclic();
+	buildCyclic();
 
-	// compareMatrices(matrices, "/LMDMatrices/");
-	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
-	gGeoManager->GetListOfVolumes()->Delete();
-	gGeoManager->GetListOfShapes()->Delete();
-	delete gGeoManager;
+	cleanup();
 
 	return 0;
 }
