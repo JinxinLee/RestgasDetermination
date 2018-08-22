@@ -161,15 +161,15 @@ void PndLmdSensorAligner::calculateMatrix() {
 	//number of pairs used in this run can not change anymore
 	lastNoOfPairs = nPairs;
 
-	//check if maxPairs > 0
+	//check if nPairs > 0
 	if (nPairs < 50) {
-		cerr
-		    << "PndLmdSensrAligner::Error: Trying to use less than 50 pairs! (And that's not going to work.) Aborting.\n";
+		cerr << "PndLmdSensrAligner::Error: Trying to use less than 50 pairs!\n";
+		cerr << "(And that's not going to work.) Aborting.\n";
 		success = false;
 		return;
 	}
 
-	//check for zer values, largely not needed anymore, but keep it for now
+	//check for zero values, largely not needed anymore, but keep it for now
 	zeroValCheck();
 
 	//transform pairs to local module frame of reference
@@ -214,7 +214,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 	}
 
 	// start with identity as initial transformation
-	// in practice you might want to use some kind of prediction here
 	Matrix Rotation;
 	Matrix translation;
 
@@ -577,9 +576,6 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 
 		if (overlapID != header[4]) {
 			cout << "error! file name and overlapID do not match! did you rename the file?\n";
-
-			//FIXME: allow this, for now...
-			//return false;
 		}
 
 		if (filesizeMust != filesize) {
@@ -626,7 +622,6 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 	}
 
 	//check size one last time
-
 	if (nPairs != simplePairs.size()) {
 		cerr << "Warning! Error while reading binary pair file!\n";
 		return false;
@@ -639,15 +634,11 @@ bool PndLmdSensorAligner::readPairsFromBinary(const std::string directory) {
 }
 
 void PndLmdSensorAligner::clearPairs() {
-
 	lastNoOfPairs = simplePairs.size();
-
 	//call destructors of the member objects (well, they're doubles, so... yeah.)
 	simplePairs.clear();
-
 	//force release of allocated memory by vectors
 	vector<vector<double> >().swap(simplePairs);
-
 }
 
 bool PndLmdSensorAligner::check() {
@@ -661,8 +652,8 @@ bool PndLmdSensorAligner::check() {
 
 	//check if pair array is strictly rectangular
 	unsigned int dimy = simplePairs[0].size();
-	for(auto &pair : simplePairs){
-		if(pair.size() != dimy){
+	for (auto &pair : simplePairs) {
+		if (pair.size() != dimy) {
 			return false;
 		}
 	}
@@ -803,10 +794,8 @@ Matrix PndLmdSensorAligner::transformToSensorOne() {
 	TGeoHMatrix matrix = helper->getMatrixPndGlobalToSensor(id1);
 	toLMD = superManager->castTGeoHMatrixToMatrix(matrix);
 
-	// ======== for testing only
 	// it appears we have to make an actrive trafo from a passive one
 	toLMD.inv();
-	// ======== for testing only
 
 	for (auto &pair : simplePairs) {
 		transformPair(toLMD, pair);
@@ -823,11 +812,8 @@ Matrix PndLmdSensorAligner::transformToLmdLocal() {
 	TGeoHMatrix matrix = helper->getMatrixPndGlobalToLmdLocal();
 	toLMD = superManager->castTGeoHMatrixToMatrix(matrix);
 
-	// ======== for testing only
 	// it appears we have to make an actrive trafo from a passive one
 	toLMD.inv();
-	// ======== for testing only
-
 	for (auto &pair : simplePairs) {
 		transformPair(toLMD, pair);
 	}
@@ -857,7 +843,7 @@ void PndLmdSensorAligner::transformPair(Matrix& trafoMatrix, std::vector<double>
 	pairVal1 = trafoMatrix * pairVal1;
 	pairVal2 = trafoMatrix * pairVal2;
 
-	// don't forget do de-homogenize
+	// don't forget to de-homogenize
 	pair[0] = pairVal1.val[0][0] / pairVal1.val[3][0];
 	pair[1] = pairVal1.val[1][0] / pairVal1.val[3][0];
 	pair[2] = pairVal1.val[2][0] / pairVal1.val[3][0];

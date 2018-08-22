@@ -6,8 +6,8 @@
 void initMiniAna(TString storePath) {
 
 	//FIXME: don't hard code starting event!
-	TString inFile = storePath + "/Lumi_MC_100000.root";
-	TString parFile = storePath + "/Lumi_Params_100000.root";
+	TString inFile = storePath + "/Lumi_MC_1000000.root";
+	TString parFile = storePath + "/Lumi_Params_1000000.root";
 	TString outFile = storePath + "/Lumi_digi_0-dummy.root";
 	FairRunAna *fRun = new FairRunAna();
 	FairFileSource *input_source = new FairFileSource(inFile);
@@ -40,6 +40,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 	gSystem->Load("libLmdSensorAligner");
 
 	//FIXME: don't hard code starting event!
+	cout << "populating gGeoManager with geometry data...\n";
 	initMiniAna(pairFilePath);
 
 	// don't forget trailing slashes!!
@@ -65,14 +66,16 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 	cout << "LMDmatrixDir: " << LMDmatrixDir << "\n";
 
 	// ---------------------- check for binary files and sort/write, if necessary
+	cout << "looking for binary pair files...\n";
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
 	if (!binaryPairsPresent) {
-
+		cout << "None found, reading pair root files...\n";
 		manager.addFilesFromDirectory(pairFilePath.Data(), readNoOfFiles);
 		manager.setMatrixOutDir(LMDmatrixDir.Data());
 		manager.readFilesAndAlign();
 	}
 	else {
+		cout << "binary pair files found.\n";
 		//check for LMD Matrix Files
 		bool LMDMatrixFilesPresent = manager.checkForLmdMatrixFiles();
 		if (!LMDMatrixFilesPresent) {
