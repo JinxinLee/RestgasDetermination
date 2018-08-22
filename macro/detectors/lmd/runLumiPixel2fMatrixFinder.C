@@ -59,7 +59,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 	manager.setBinaryPairFileDirectory(binaryPairFilePath.Data());
 	manager.setMaxPairs(3e5);
 	manager.verboseLevel(verboseLevel);
-	manager.setMaxThreads(2);
+	manager.setMaxThreads(4);
 
 	cout << "pairFilePath: " << pairFilePath << "\n";
 	cout << "binaryPairFilePath: " << binaryPairFilePath << "\n";

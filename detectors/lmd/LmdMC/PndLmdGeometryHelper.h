@@ -69,6 +69,8 @@ class PndLmdGeometryHelper {
 
 	TGeoManager* fGeoManager;
 
+	std::mutex accessMutex;
+
 	PndLmdGeometryHelper(const std::string& geo_params_config_file_url = "") :
 			fGeoManager(gGeoManager) {
 		std::string file_url(geo_params_config_file_url);

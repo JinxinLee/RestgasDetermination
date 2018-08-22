@@ -217,11 +217,12 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3 &global
 
 //that's because the geoManager only produces the matrix to the next super volume
 const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sensorId) {
+
+	// to ensure only one thred at a time can do this
+	std::lock_guard<std::mutex> lock(accessMutex);
+
 	PndGeoHandling *geo_handling = PndGeoHandling::Instance();
 	std::string vol_path(geo_handling->GetPath(int(sensorId)));
-
-	cout << "cd-ing to path:\n";
-	cout << vol_path << "\n";
 
 	TString actPath = fGeoManager->GetPath();
 	// go to active part of sensor
@@ -328,6 +329,9 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 }
 
 const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToLmdLocal() {
+
+	// to ensure only one thred at a time can do this
+		std::lock_guard<std::mutex> lock(accessMutex);
 
 	TString actPath = fGeoManager->GetPath();
 
