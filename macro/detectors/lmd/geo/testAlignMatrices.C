@@ -235,6 +235,10 @@ TGeoHMatrix getMatrixSensorToSensor(int sensorOne, int sensorTwo) {
 
 }
 
+TGeoHMatrix baseTransformation(TGeoHMatrix &input, TGeoHMatrix &toBaseMatrix) {
+	return TGeoHMatrix(toBaseMatrix * input * toBaseMatrix.Inverse());
+}
+
 TGeoHMatrix getOverlapMatrixLikeICP(PndLmdOverlapInfo info) {
 
 	//prepare misalignment matrices
@@ -245,308 +249,6 @@ TGeoHMatrix getOverlapMatrixLikeICP(PndLmdOverlapInfo info) {
 	TGeoHMatrix misSen1inSen0 = baseTransformation(misalignmentToSensor1, Sen0ToSen1);
 
 	return misalignmentToSensor0.Inverse() * misSen1inSen0;
-}
-
-void testInCMnew() {
-
-	cout << " ===== Testing in CM =====\n";
-
-	TString misalignedMatrices = "misalignMatrices-SensorsOnly-100u.root";
-	TString idealMatrices = "idealMatrices.root";
-	std::string path =
-	    "/home/arbeit/RedPro3TB/simulationData/2018-05-07-misalign-100u/LMDmatrices-inSensorOne";
-
-	matricesMisaligned = readRootMatrices(misalignedMatrices);
-	matricesIdeal = readRootMatrices(idealMatrices);
-
-	if (!matricesMisaligned || !matricesIdeal) {
-		cout << "files not read, aborting.\n";
-		exit(1);
-	}
-
-	PndLmdGeometryHelper &helper = PndLmdGeometryHelper::getInstance();
-	auto overlaps = helper.getAllOverlapInfos();
-
-	string filename;
-
-	double dalpha, dx, dy, dxTarget, dyTarget, daTarget, dxICP, dyICP, daICP;
-	TH1D histA("h1", "h1", 30, -1, -1);
-	TH1D histX("h2", "h2", 30, -1, -1);
-	TH1D histY("h3", "h3", 30, -1, -1);
-
-	cout << "size of overlaps: " << overlaps.size() << "\n";
-	for (auto &overlap : overlaps) {
-
-		auto thisDiff = getMatrixDiffCM(overlap);
-
-		// hist das shizzle
-		histA.Fill(thisDiff[2] * 1e6);
-		histX.Fill(thisDiff[0] * 1e4);
-		histY.Fill(thisDiff[1] * 1e4);
-	}
-
-	//name histograms, clean up later
-	histA.GetXaxis()->SetTitle("d#alpha [#murad]");
-	histX.GetXaxis()->SetTitle("dx [#mum]");
-	histY.GetXaxis()->SetTitle("dy [#mum]");
-	histA.GetYaxis()->SetTitle("Entries");
-	histX.GetYaxis()->SetTitle("Entries");
-	histY.GetYaxis()->SetTitle("Entries");
-	histA.SetTitle("d#alpha");
-	histX.SetTitle("dx");
-	histY.SetTitle("dy");
-
-	TCanvas canvas("c1", "c1", 800, 600);
-	canvas.cd();
-	histA.Draw();
-	canvas.Print("dAlpha.pdf");
-
-	histX.Draw();
-	canvas.Print("dx.pdf");
-
-	histY.Draw();
-	canvas.Print("dy.pdf");
-
-}
-
-PndLmdOverlapInfo& getSmallOverlapInfo(std::vector<PndLmdOverlapInfo> &infos, int smallOverlap) {
-	//PndLmdOverlapInfo result;
-	for (auto &info : infos) {
-		int smallOverlapHere = info.overlapID % 10;
-		if (smallOverlap == smallOverlapHere) {
-			return info;
-		}
-	}
-	return infos[0];
-}
-
-// WARNING. the geometry inside gGeomanager must be aligned for this to work!
-TGeoHMatrix getMisalignedOverlapFromGeoManager(PndLmdOverlapInfo &info) {
-
-	TGeoHMatrix sen0to1 = getMatrixSensorToSensor(info.id1, info.id2);
-	TGeoHMatrix sen0to1ICPcorr = getOverlapMatrixLikeICP(info);
-	// this order is important!
-	return sen0to1ICPcorr * sen0to1;
-}
-
-void buildCyclic() {
-
-	TString misalignedMatrices = "misalignMatrices-SensorsOnly-100u.root";
-	TString idealMatrices = "idealMatrices.root";
-	std::string path =
-	    "/home/arbeit/RedPro3TB/simulationData/2018-05-07-misalign-100u/LMDmatrices-inSensorOne";
-
-	matricesMisaligned = readRootMatrices(misalignedMatrices);
-	matricesIdeal = readRootMatrices(idealMatrices);
-
-	for (int iHalf = 0; iHalf < 2; iHalf++) {
-		for (int iPlane = 0; iPlane < 4; iPlane++) {
-			for (int iModule = 0; iModule < 5; iModule++) {
-
-				// the order in the vector is not defined, use getSmallOverlapInfo() for that
-				std::vector<PndLmdOverlapInfo> overlaps = helper->getOverlapInfos(iHalf, iPlane, iModule);
-				cout << "got " << overlaps.size() << " overlaps for module\n";
-
-				// load all 9 overlap matrices
-
-				TGeoHMatrix mat0 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 0));
-				TGeoHMatrix mat1 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 1));
-				TGeoHMatrix mat2 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 2));
-				TGeoHMatrix mat3 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 3));
-				TGeoHMatrix mat4 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 4));
-				TGeoHMatrix mat5 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 5));
-				TGeoHMatrix mat6 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 6));
-				TGeoHMatrix mat7 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 7));
-				TGeoHMatrix mat8 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 8));
-
-				// paths:
-				/*
-				 0->1: fixed externally
-				 5->6: fixed externally
-
-				 0->5: 0->5
-
-				 1->2: 1->8->2
-				 1->3: 1->8->3
-				 1->4: 1->8->2->9->4
-				 1->4: 1->8->3->7->4
-
-				 1->6: 1->8->3->6
-				 1->7: 1->8->3->7
-				 1->8: 1->8
-				 1->9: 1->8->2->9
-				 1->9: 1->8->3->7->4->9
-
-				 */
-
-				// get 0->1 and 5->6
-				TGeoHMatrix sen0to1 = getMatrixSensorToSensor(0, 1);
-				TGeoHMatrix sen5to6 = getMatrixSensorToSensor(5, 6);
-
-				cout << "first step:\n";
-
-				// 1->2
-				TGeoHMatrix sen1to2 = mat4 * mat5.Inverse();
-				// 1->3
-				TGeoHMatrix sen1to3 = mat4 * mat1.Inverse();
-				// 1->4a
-				TGeoHMatrix sen1to4a = mat4 * mat5.Inverse() * mat6 * mat2.Inverse();
-				// 1->4b
-				TGeoHMatrix sen1to4b = mat4 * mat1.Inverse() * mat7 * mat8.Inverse();
-
-				// 1->5
-				TGeoHMatrix sen1to5 = mat0;		// well, kind of...
-				// 1->6
-				TGeoHMatrix sen1to6 = mat4 * mat5.Inverse() * mat3;
-				// 1->7
-				TGeoHMatrix sen1to7 = mat4 * mat5.Inverse() * mat7;
-				// 1->8
-				TGeoHMatrix sen1to8 = mat4;
-				// 1->9a
-				TGeoHMatrix sen1to9a = mat4 * mat5.Inverse() * mat6;
-				// 1->9b
-				TGeoHMatrix sen1to9b = mat4 * mat1.Inverse() * mat7 * mat8.Inverse() * mat2;
-
-				cout << "1to2:\n";
-				sen1to2.Print();
-				cout << "1to3:\n";
-				sen1to3.Print();
-				cout << "1to4a:\n";
-				sen1to4a.Print();
-				cout << "1to4b:\n";
-				sen1to4b.Print();
-				cout << "1to5:\n";
-				sen1to5.Print();
-				cout << "1to6:\n";
-				sen1to6.Print();
-				cout << "1to7:\n";
-				sen1to7.Print();
-				cout << "1to8:\n";
-				sen1to8.Print();
-				cout << "1to9a:\n";
-				sen1to9a.Print();
-				cout << "1to9b:\n";
-				sen1to9b.Print();
-
-			}
-		}
-	}
-
-	std::vector<PndLmdOverlapInfo> thisOverlaps;
-
-}
-
-void compareCyclic() {
-
-	// get all overlap infos
-
-	// sort them by module
-
-	// for every module, make the matrices
-
-}
-
-void testInCM() {
-
-	/*
-	 * REMEMBER! These matrices live in differnet reference frames! misalignment matrices
-	 * are in sensor frames, ICP matrices are in Panda global (or wherever the recos were
-	 * decoded in). I need the ideal matrix cave1 -> sensor1 and cave1 -> sensor2
-	 */
-
-	cout << " ===== Testing in CM =====\n";
-
-	bool testing = false;
-
-	TString misalignedMatrices = "misalignMatrices-SensorsOnly-100u.root";
-	TString idealMatrices = "idealMatrices.root";
-
-	std::map<std::string, TGeoHMatrix> *matricesMisaligned = readRootMatrices(misalignedMatrices);
-	std::map<std::string, TGeoHMatrix> *matricesIdeal = readRootMatrices(idealMatrices);
-
-	if (!matricesMisaligned || !matricesIdeal) {
-		cout << "files not read, aborting.\n";
-		exit(1);
-	}
-
-	//prepare matrices
-	TGeoHMatrix toLMD = (*matricesIdeal)["/cave_1/lmd_root_0"];
-	TGeoHMatrix toHalf = (*matricesIdeal)["/cave_1/lmd_root_0/half_0"];
-	TGeoHMatrix toPlane = (*matricesIdeal)["/cave_1/lmd_root_0/half_0/plane_0"];
-	TGeoHMatrix toModule = (*matricesIdeal)["/cave_1/lmd_root_0/half_0/plane_0/module_4"];
-	TGeoHMatrix toSensor0 = (*matricesIdeal)["/cave_1/lmd_root_0/half_0/plane_0/module_4/sensor_0"];
-	TGeoHMatrix toSensor5 = (*matricesIdeal)["/cave_1/lmd_root_0/half_0/plane_0/module_4/sensor_5"];
-
-	gGeoManager->cd("/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/LumActivePixelRect_0");
-	TGeoHMatrix toActive0 = *(gGeoManager->GetCurrentNode()->GetMatrix());
-
-	cout << "\n\n=====================================\n\n";
-
-	//TGeoHMatrix toActive0 = (*matricesIdeal)["/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/LumActivePixelRect"];
-
-	//prepare misalignment matrix
-	TGeoHMatrix misalignmentToSensor0 =
-	    (*matricesMisaligned)["/cave_1/lmd_root_0/half_0/plane_0/module_4/sensor_0"];
-	TGeoHMatrix misalignmentToSensor5 =
-	    (*matricesMisaligned)["/cave_1/lmd_root_0/half_0/plane_0/module_4/sensor_5"];
-
-	cout << "\n\n=====================================\n\n";
-	cout << "LMD to sen 0 :\n";
-	TGeoHMatrix PNDtoSen0 = toLMD * toHalf * toPlane * toModule * toSensor0;
-	PNDtoSen0.Print();
-
-	cout << "\n\n=====================================\n\n";
-	cout << "LMD to sen 5 :\n";
-	TGeoHMatrix PNDtoSen5 = toLMD * toHalf * toPlane * toModule * toSensor5;
-	PNDtoSen5.Print();
-
-	cout << "\n\n=====================================\n\n";
-	cout << "mis 0 :\n";
-	misalignmentToSensor0.Print();
-
-	cout << "\n\n=====================================\n\n";
-	cout << "mis 5 :\n";
-	misalignmentToSensor5.Print();
-
-	cout << "\n\n=====================================\n\n";
-	cout << "mis 0 complete:\n";
-	(toLMD * toHalf * toPlane * toModule * toSensor0 * misalignmentToSensor0).Print();
-
-	cout << "\n\n=====================================\n\n";
-	cout << "mis 5 complete:\n";
-	(toLMD * toHalf * toPlane * toModule * toSensor5 * misalignmentToSensor5).Print();
-
-	cout << "\n\n=====================================\n\n";
-	cout << "naiive 0to5 misalign:\n";
-	(misalignmentToSensor0.Inverse() * misalignmentToSensor5).Print();
-
-	TGeoHMatrix lmdLocalToSensor0 = toHalf * toPlane * toModule * toSensor0 * misalignmentToSensor0
-	    * toActive0;
-	TGeoHMatrix lmdLocalToSensor5 = toHalf * toPlane * toModule * toSensor5 * misalignmentToSensor5
-	    * toActive0;
-
-	cout << "\n\n=====================================\n\n";
-	cout << "sen0mis to sen5mis IN SENSOR 0:\n";
-	TGeoHMatrix Sen0ToSen5 = PNDtoSen0.Inverse() * PNDtoSen5;
-	TGeoHMatrix misSen5inSen0 = Sen0ToSen5 * misalignmentToSensor5 * Sen0ToSen5.Inverse();
-	TGeoHMatrix totalmisinsensor0 = misalignmentToSensor0.Inverse() * misSen5inSen0;
-	totalmisinsensor0.Print();
-	cout << "\n\n=====================================\n\n";
-
-	// transform each misalignment into lmd local:
-	TGeoHMatrix mis0inLmd = lmdLocalToSensor0.Inverse() * misalignmentToSensor0 * lmdLocalToSensor0;
-	TGeoHMatrix mis5inLmd = lmdLocalToSensor5.Inverse() * misalignmentToSensor5 * lmdLocalToSensor5;
-
-	// --------------- 0 to 5 MIS * 0 to 5 in LMD (should just be misalignment) ---------------
-	cout << "\n sen0to5mis * sen0to5Inv in LMD:\n";
-	(mis0inLmd.Inverse() * mis5inLmd).Print();
-
-	// --------------- 0 to 5 MIS * 0 to 5 in LMD (should just be misalignment) ---------------
-	cout << "\n complete sen0 to sen5:\n";
-	TGeoHMatrix toSen0 = toLMD * toHalf * toPlane * toModule * toSensor0 * toActive0;
-	TGeoHMatrix toSen5 = toLMD * toHalf * toPlane * toModule * toSensor0 * toActive0;
-	(toSen0.Inverse() * toSen5.Inverse()).Print();
-
 }
 
 // WARNING. the geometry inside gGeomanager must be aligned for this to work!
@@ -567,236 +269,230 @@ TGeoHMatrix getMisalignedOverlapFromICP(PndLmdOverlapInfo &info, std::string ICP
 	return sen0to1ICPcorr * sen0to1;
 }
 
-void testCyclic() {
+PndLmdOverlapInfo& getSmallOverlapInfo(std::vector<PndLmdOverlapInfo> &infos,
+    int smallOverlap) {
+	//PndLmdOverlapInfo result;
+	for (auto &info : infos) {
+		int smallOverlapHere = info.overlapID % 10;
+		if (smallOverlap == smallOverlapHere) {
+			return info;
+		}
+	}
+	return infos[0];
+}
 
-	TString misalignedMatrices = "misalignMatrices-SensorsOnly-100u.root";
-	TString idealMatrices = "idealMatrices.root";
-	std::string path =
-	    "/home/arbeit/RedPro3TB/simulationData/2018-05-07-misalign-100u/LMDmatrices-inSensorOne";
-
-	matricesMisaligned = readRootMatrices(misalignedMatrices);
-	matricesIdeal = readRootMatrices(idealMatrices);
-
-	/*
-	 * REMEMBER! These matrices live in differnet reference frames! misalignment matrices
-	 * are in sensor frames, ICP matrices are in Panda global (or wherever the recos were
-	 * decoded in). I need the ideal matrix cave1 -> sensor1 and cave1 -> sensor2
-	 */
-
-	auto overlapInfos = helper->getAllOverlapInfos();
-
-	// -----------------------------------------------------------------------------------
-
-	PndLmdOverlapInfo overlap1;
-	overlap1.id1 = 1;
-	overlap1.id2 = 8;
-	overlap1.path1 = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_1";
-	overlap1.path2 = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_8";
-	overlap1.overlapID = helper->getOverlapIdFromSensorIDs(1, 8);
-	//TGeoHMatrix sen1to8mis = getMisalignedOverlapFromGeoManager(overlap1);
-	string icpMat1 =
-	    "/home/arbeit/RedPro3TB/simulationData/2018-04-19-slight-misalignment/himster/m4cm.mat";
-	TGeoHMatrix sen1to8mis = getMisalignedOverlapFromICP(overlap1, icpMat1);
-
-	PndLmdOverlapInfo overlap2;
-	overlap2.id1 = 2;
-	overlap2.id2 = 8;
-	overlap2.path1 = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_2";
-	overlap2.path2 = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_8";
-	overlap2.overlapID = helper->getOverlapIdFromSensorIDs(2, 8);
-	//TGeoHMatrix sen2to8mis = getMisalignedOverlapFromGeoManager(overlap2);
-	string icpMat2 =
-	    "/home/arbeit/RedPro3TB/simulationData/2018-04-19-slight-misalignment/himster/m5cm.mat";
-	TGeoHMatrix sen2to8mis = getMisalignedOverlapFromICP(overlap2, icpMat2);
-
-	cout << "\n by function 1 to 2 by hand\n\n";
-	TGeoHMatrix sen1to2mis = sen1to8mis * sen2to8mis.Inverse();
-	sen1to2mis.Print();
-
-	// -----------------------------------------------------------------------------------
-
-	applyMisalignmentToGGeoManager();
-	cout << "\n sen 1 to 2 after misalignment\n\n";
-	TGeoHMatrix sen1to2GeoManager = getMatrixSensorToSensor(1, 2);
-	sen1to2GeoManager.Print();
-	// bloody fuck, this finally works
-
-	printMatrixDiff(sen1to2GeoManager, sen1to2mis);
-
-	cout << "okay, this works and delivers the matrix that transforms a point of sensor 2 ";
-	cout << "into the system of sensor 1 with misaligned geometry.\n";
-	cout << "this is our baseline for what the ICP must find.\n";
-
-	cout << "sen0 to sen5 misaligned:\n";
-	sen0to5misaligned.Print();
-
-	// we need the misaligned version because the geometry is misaligned
-	TGeoHMatrix PndToSensor0 = toSensor0completeMisaligned * toSensor0 * toModule * toPlane * toHalf
-	    * toPnd;
-
-	//transform calculated from sensor0 to pnd system
-	TGeoHMatrix sen0to5misalignedPND = sen0to5misaligned;
-	//TGeoHMatrix sen0to5misalignedPND = PndToSensor0 * sen0to5misaligned * PndToSensor0.Inverse();
-
-	cout << "sen0 to sen5 misaligned in PND:\n";
-	sen0to5misalignedPND.Print();
-
-	//then compare
-	cout << "ICP found overlap matrix:\n";
-	TGeoHMatrix mat1to2ICP = readMatrixFromDisk(
-	    "/home/arbeit/RedPro3TB/simulationData/2018-04-24-slight-misalignment/himster/m0px.mat");
-	mat1to2ICP.Print();
-
-	const double *translationDesign = sen0to5misalignedPND.GetTranslation();
-	const double *translationICP = mat1to2ICP.GetTranslation();
-	const double *rotationDesign = sen0to5misalignedPND.GetRotationMatrix();
-	const double *rotationICP = mat1to2ICP.GetRotationMatrix();
+std::vector<double> getMatrixDiff(TGeoHMatrix &mat1, TGeoHMatrix &mat2) {
+	const double *translationDesign = mat1.GetTranslation();
+	const double *translationICP = mat2.GetTranslation();
+	const double *rotationDesign = mat1.GetRotationMatrix();
+	const double *rotationICP = mat2.GetRotationMatrix();
 
 	double dx = translationDesign[0] - translationICP[0];
 	double dy = translationDesign[1] - translationICP[1];
 	double da = rotationDesign[1] - rotationICP[1];
 
-	cout << "=====================\n";
-	cout << "dx: " << dx * 1e4 << " um\n";
-	cout << "dy: " << dy * 1e4 << " um\n";
-	cout << "da: " << da * 1e3 << " mrad\n";
-	cout << "=====================\n";
+	std::vector<double> result;
+	result.push_back(dx);
+	result.push_back(dy);
+	result.push_back(da);
+	return result;
 }
 
-void histICPmatrices() {
+void buildCyclic() {
 
-	vector<int> availableOverlapIDs;
+	TString misalignedMatrices = "misalignMatrices-SensorsOnly-100u.root";
+	TString idealMatrices = "idealMatrices.root";
+	std::string path =
+	    "/home/arbeit/RedPro3TB/simulationData/2018-08-22-himster2-misalign-100u/LMDmatrices-shouldWork/";
 
-	PndLmdGeometryHelper &helper = PndLmdGeometryHelper::getInstance();
-	availableOverlapIDs = helper.getAvailableOverlapIDs();
+	matricesMisaligned = readRootMatrices(misalignedMatrices);
+	matricesIdeal = readRootMatrices(idealMatrices);
 
-	string path = "/home/arbeit/RedPro3TB/simulationData/newGeometry-aligned/LMDmatrices/m";
+	std::map<int, TGeoHMatrix> matricesByHand;
+	std::map<int, TGeoHMatrix> matricesByGeoManager;
+
+	bool compareWithIdeal = false;
 	string ext = "cm.mat";
-	string filename;
 
+	if(compareWithIdeal){
+		cout << "getting matrices by hand | ICP-like matrices from gGeoManager\n";
+	}
+	else{
+		cout << "getting matrices by hand | real ICP matrices\n";
+	}
+
+
+	for (int iHalf = 0; iHalf < 2; iHalf++) {
+		for (int iPlane = 0; iPlane < 4; iPlane++) {
+			for (int iModule = 0; iModule < 5; iModule++) {
+
+				// the order in the vector is not defined, use getSmallOverlapInfo() for that
+				std::vector<PndLmdOverlapInfo> overlaps = helper->getOverlapInfos(iHalf, iPlane, iModule);
+
+				// load all 9 overlap matrices
+				TGeoHMatrix mat0;
+				TGeoHMatrix mat1;
+				TGeoHMatrix mat2;
+				TGeoHMatrix mat3;
+				TGeoHMatrix mat4;
+				TGeoHMatrix mat5;
+				TGeoHMatrix mat6;
+				TGeoHMatrix mat7;
+				TGeoHMatrix mat8;
+
+				if (compareWithIdeal) {
+					mat0 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 0));
+					mat1 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 1));
+					mat2 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 2));
+					mat3 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 3));
+					mat4 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 4));
+					mat5 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 5));
+					mat6 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 6));
+					mat7 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 7));
+					mat8 = getMisalignedOverlapFromGeoManager(getSmallOverlapInfo(overlaps, 8));
+				}
+				else {
+					string icp0 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 0).overlapID) + ext;
+					mat0 = getMisalignedOverlapFromICP( getSmallOverlapInfo(overlaps, 0), icp0);
+					string icp1 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 1).overlapID) + ext;
+					mat1 = getMisalignedOverlapFromICP( getSmallOverlapInfo(overlaps, 1), icp1);
+					string icp2 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 2).overlapID) + ext;
+					mat2 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 2), icp2);
+					string icp3 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 3).overlapID) + ext;
+					mat3 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 3), icp3);
+					string icp4 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 4).overlapID) + ext;
+					mat4 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 4), icp4);
+					string icp5 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 5).overlapID) + ext;
+					mat5 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 5), icp5);
+					string icp6 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 6).overlapID) + ext;
+					mat6 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 6), icp6);
+					string icp7 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 7).overlapID) + ext;
+					mat7 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 7), icp7);
+					string icp8 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 8).overlapID) + ext;
+					mat8 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 8), icp8);
+				}
+
+				// get 0->1 and 5->6
+				TGeoHMatrix sen0to1 = getMatrixSensorToSensor(0, 1);
+				TGeoHMatrix sen5to6 = getMatrixSensorToSensor(5, 6);
+
+				TGeoHMatrix sen1to2 = mat4 * mat5.Inverse();
+				TGeoHMatrix sen1to3 = mat4 * mat1.Inverse();
+				TGeoHMatrix sen1to4a = mat4 * mat5.Inverse() * mat6 * mat2.Inverse();
+				TGeoHMatrix sen1to4b = mat4 * mat1.Inverse() * mat7 * mat8.Inverse();
+
+				TGeoHMatrix sen1to5 = mat0;		// well, kind of...
+				TGeoHMatrix sen1to6 = mat4 * mat1.Inverse() * mat3;
+				TGeoHMatrix sen1to7 = mat4 * mat1.Inverse() * mat7;
+				TGeoHMatrix sen1to8 = mat4;
+				TGeoHMatrix sen1to9a = mat4 * mat5.Inverse() * mat6;
+				TGeoHMatrix sen1to9b = mat4 * mat1.Inverse() * mat7 * mat8.Inverse() * mat2;
+
+				int matrixId = 1000 * iHalf + 100 * iPlane + 10 * iModule;
+
+				matricesByHand[matrixId + 2] = sen1to2;
+				matricesByHand[matrixId + 3] = sen1to3;
+				matricesByHand[matrixId + 4] = sen1to4a;
+				matricesByHand[matrixId + 5] = sen1to5;		// this is not yet correct
+				matricesByHand[matrixId + 6] = sen1to6;
+				matricesByHand[matrixId + 7] = sen1to7;
+				matricesByHand[matrixId + 8] = sen1to8;
+				matricesByHand[matrixId + 9] = sen1to9a;
+			}
+		}
+	}
+
+	applyMisalignmentToGGeoManager();
+	cout << "getting matrices by geoManager after misalignment\n";
+	for (int iHalf = 0; iHalf < 2; iHalf++) {
+		for (int iPlane = 0; iPlane < 4; iPlane++) {
+			for (int iModule = 0; iModule < 5; iModule++) {
+
+				// the order in the vector is not defined, use getSmallOverlapInfo() for that
+				std::vector<PndLmdOverlapInfo> overlaps = helper->getOverlapInfos(iHalf, iPlane, iModule);
+				// get everything from gGeoManager
+				int matrixId = 1000 * iHalf + 100 * iPlane + 10 * iModule;
+
+				PndLmdOverlapInfo info0 = getSmallOverlapInfo(overlaps, 0);
+				PndLmdOverlapInfo info1 = getSmallOverlapInfo(overlaps, 1);
+				PndLmdOverlapInfo info2 = getSmallOverlapInfo(overlaps, 2);
+				PndLmdOverlapInfo info3 = getSmallOverlapInfo(overlaps, 3);
+				PndLmdOverlapInfo info4 = getSmallOverlapInfo(overlaps, 4);
+				PndLmdOverlapInfo info5 = getSmallOverlapInfo(overlaps, 5);
+				PndLmdOverlapInfo info6 = getSmallOverlapInfo(overlaps, 6);
+				PndLmdOverlapInfo info7 = getSmallOverlapInfo(overlaps, 7);
+				PndLmdOverlapInfo info8 = getSmallOverlapInfo(overlaps, 8);
+
+				// get sensors 1 and 2 from the overlapInfos
+				int sensor0 = info0.id1;
+				int sensor1 = info4.id1;
+				int sensor2 = info5.id1;
+				int sensor3 = info1.id1;
+				int sensor4 = info2.id1;
+				int sensor5 = info0.id2;
+				int sensor6 = info3.id2;
+				int sensor7 = info7.id2;
+				int sensor8 = info4.id2;
+				int sensor9 = info6.id2;
+
+				TGeoHMatrix sen1to2 = getMatrixSensorToSensor(sensor1, sensor2);
+				TGeoHMatrix sen1to3 = getMatrixSensorToSensor(sensor1, sensor3);
+				TGeoHMatrix sen1to4a = getMatrixSensorToSensor(sensor1, sensor4);
+				TGeoHMatrix sen1to5 = getMatrixSensorToSensor(sensor0, sensor5);
+				TGeoHMatrix sen1to6 = getMatrixSensorToSensor(sensor1, sensor6);
+				TGeoHMatrix sen1to7 = getMatrixSensorToSensor(sensor1, sensor7);
+				TGeoHMatrix sen1to8 = getMatrixSensorToSensor(sensor1, sensor8);
+				TGeoHMatrix sen1to9a = getMatrixSensorToSensor(sensor1, sensor9);
+
+				matricesByGeoManager[matrixId + 2] = sen1to2;
+				matricesByGeoManager[matrixId + 3] = sen1to3;
+				matricesByGeoManager[matrixId + 4] = sen1to4a;
+				matricesByGeoManager[matrixId + 5] = sen1to5;		// this is not yet correct
+				matricesByGeoManager[matrixId + 6] = sen1to6;
+				matricesByGeoManager[matrixId + 7] = sen1to7;
+				matricesByGeoManager[matrixId + 8] = sen1to8;
+				matricesByGeoManager[matrixId + 9] = sen1to9a;
+			}
+		}
+	}
+
+	cout << "making histograms\n";
 	double dalpha, dx, dy, dxTarget, dyTarget, daTarget, dxICP, dyICP, daICP;
 	TH1D histA("h1", "h1", 30, -1, -1);
 	TH1D histX("h2", "h2", 30, -1, -1);
 	TH1D histY("h3", "h3", 30, -1, -1);
 
-	for (auto &id : availableOverlapIDs) {
-
-		// make file name string
-		filename = path + to_string(id) + ext;
-
-		// read matrix
-		TGeoHMatrix matrix = readMatrixFromDisk(filename);
-
-		// calc shift and rot
-		const double *translation = matrix.GetTranslation();
-		const double *rotation = matrix.GetRotationMatrix();
-
-		double dx = translation[0] * 1e4;
-		double dy = translation[1] * 1e4;
-		double da = rotation[1] * 1e6;
+	for (auto &i : matricesByHand) {
+		int key = i.first;
+		auto thisDiff = getMatrixDiff(matricesByHand[key], matricesByGeoManager[key]);
 
 		// hist das shizzle
-		histA.Fill(da);
-		histX.Fill(dx);
-		histY.Fill(dy);
-
+		histA.Fill(thisDiff[2] * 1e3);
+		histX.Fill(thisDiff[0] * 1e4);
+		histY.Fill(thisDiff[1] * 1e4);
 	}
 
 	//name histograms, clean up later
-	histA.GetXaxis()->SetTitle("d#alpha [#murad]");
-	histX.GetXaxis()->SetTitle("d#x [#mum]");
-	histY.GetXaxis()->SetTitle("d#y [#mum]");
+	histA.GetXaxis()->SetTitle("d#alpha [#mrad]");
+	histX.GetXaxis()->SetTitle("dx [#mum]");
+	histY.GetXaxis()->SetTitle("dy [#mum]");
 	histA.GetYaxis()->SetTitle("Entries");
 	histX.GetYaxis()->SetTitle("Entries");
 	histY.GetYaxis()->SetTitle("Entries");
-	histA.SetTitle("d#alpha");
-	histX.SetTitle("dx");
-	histY.SetTitle("dy");
+	histA.SetTitle("d#alpha-combined");
+	histX.SetTitle("dx-combined");
+	histY.SetTitle("dy-combined");
 
 	TCanvas canvas("c1", "c1", 800, 600);
 	canvas.cd();
 	histA.Draw();
-	canvas.Print("dAlpha.pdf");
+	canvas.Print("dAlpha-combined.pdf");
 
 	histX.Draw();
-	canvas.Print("dx.pdf");
+	canvas.Print("dx-combined.pdf");
 
 	histY.Draw();
-	canvas.Print("dy.pdf");
-
-}
-
-void histDairXYZdistances() {
-
-	double distz, distx, disty;
-	TH1D histZ("h1", "h1", 30, -1, -1);
-	TH1D histX("h2", "h2", 30, -1, -1);
-	TH1D histY("h3", "h3", 30, -1, -1);
-
-	vector<string> fileNames;
-
-	//fileNames.push_back("/home/arbeit/RedPro3TB/simulationData/2018-04-19-slight-misalignment/Lumi_Pairs_1000000.root");
-	fileNames.push_back(
-	    "/home/arbeit/RedPro3TB/simulationData/newGeometry-aligned/LMDPairs/Lumi_Pairs_1000000.root");
-	//fileNames.push_back("/home/arbeit/RedPro3TB/simulationData/2018-05-07-misalign-100u/LMDPairs/Lumi_Pairs_1000000.root");
-
-	TChain* chainPairs = new TChain("pndsim");
-	for (size_t i = 0; i < fileNames.size(); i++) {
-		//cout << files[i] << endl;
-		if (fileNames[i].find("Lumi_Pairs") != std::string::npos) {
-			chainPairs->Add(fileNames[i].c_str());
-		}
-	}
-
-	//pairs of sensors in LMD coordinates
-	TClonesArray* hitPairs = new TClonesArray("PndLmdHitPair");
-	chainPairs->SetBranchAddress("PndLmdHitPair", &hitPairs);
-	int nEntries = chainPairs->GetEntries();
-	cout << "HitPairs no of entries: " << nEntries << "\n";
-
-	cout << "Sorting Pairs to Manager...\n";
-	int totalPairs = 0;
-	for (int i_event = 0; i_event < nEntries; i_event++) {
-
-		chainPairs->GetEntry(i_event);
-		int nPairs = hitPairs->GetEntries();
-
-		//loop over hitPairs per Event
-		for (int i_Pair = 0; i_Pair < nPairs; i_Pair++) {
-			PndLmdHitPair *currentPair = (PndLmdHitPair*) (hitPairs->At(i_Pair));
-
-			distx = currentPair->getHit1().x() - currentPair->getHit2().x();
-			disty = currentPair->getHit1().y() - currentPair->getHit2().y();
-			distz = currentPair->getHit1().z() - currentPair->getHit2().z();
-
-			histX.Fill(distx * 1e4);
-			histY.Fill(disty * 1e4);
-			histZ.Fill(distz * 1e4);
-
-		}
-	}
-
-	//name histograms, clean up later
-	histZ.GetXaxis()->SetTitle("dz [#mum]");
-	histX.GetXaxis()->SetTitle("dx [#mum]");
-	histY.GetXaxis()->SetTitle("dy [#mum]");
-	histZ.GetYaxis()->SetTitle("Entries");
-	histX.GetYaxis()->SetTitle("Entries");
-	histY.GetYaxis()->SetTitle("Entries");
-	histZ.SetTitle("dz");
-	histX.SetTitle("dx");
-	histY.SetTitle("dy");
-
-	TCanvas canvas("c1", "c1", 800, 600);
-	canvas.cd();
-	histZ.Draw();
-	canvas.Print("distZ.pdf");
-
-	histX.Draw();
-	canvas.Print("distX.pdf");
-
-	histY.Draw();
-	canvas.Print("distY.pdf");
+	canvas.Print("dy-combined.pdf");
 
 }
 
@@ -818,11 +514,13 @@ int testAlignMatrices() {
 	//histICPmatrices();
 	//histDairXYZdistances();
 
-	//testCyclic();
 	buildCyclic();
 
-	cleanup();
+	// compareMatrices(matrices, "/LMDMatrices/");
+	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
+	gGeoManager->GetListOfVolumes()->Delete();
+	gGeoManager->GetListOfShapes()->Delete();
+	delete gGeoManager;
 
 	return 0;
 }
-
