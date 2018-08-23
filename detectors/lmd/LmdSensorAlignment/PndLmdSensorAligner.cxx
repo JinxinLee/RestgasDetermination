@@ -789,9 +789,16 @@ Matrix PndLmdSensorAligner::transformToSensorOne() {
 
 	Matrix toLMD = Matrix::eye(4);
 
+	// maybe this helps with thread safety
+	superManager->geometryHelperMutex.lock();
+
 	PndLmdGeometryHelper *helper = &PndLmdGeometryHelper::getInstance();
 	int id1 = helper->getSensorOneFromOverlapID(overlapID);
 	TGeoHMatrix matrix = helper->getMatrixPndGlobalToSensor(id1);
+
+	// maybe this helps with thread safety
+	superManager->geometryHelperMutex.unlock();
+
 	toLMD = superManager->castTGeoHMatrixToMatrix(matrix);
 
 	// it appears we have to make an actrive trafo from a passive one
@@ -808,9 +815,15 @@ Matrix PndLmdSensorAligner::transformToLmdLocal() {
 
 	Matrix toLMD = Matrix::eye(4);
 
+	// maybe this helps with thread safety
+	superManager->geometryHelperMutex.lock();
+
 	PndLmdGeometryHelper *helper = &PndLmdGeometryHelper::getInstance();
 	TGeoHMatrix matrix = helper->getMatrixPndGlobalToLmdLocal();
 	toLMD = superManager->castTGeoHMatrixToMatrix(matrix);
+
+	// maybe this helps with thread safety
+	superManager->geometryHelperMutex.unlock();
 
 	// it appears we have to make an actrive trafo from a passive one
 	toLMD.inv();

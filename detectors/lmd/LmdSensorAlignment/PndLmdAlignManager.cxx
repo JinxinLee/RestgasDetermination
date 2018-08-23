@@ -729,6 +729,7 @@ void PndLmdAlignManager::waitForCompletion(PndLmdThreadPool &threadPool) {
 
 	//wait for all threads to complete
 	//alignerThreadGroup.join_all();
+	flush(cout);
 	threadPool.wait();
 
 	cout << "done!\n";
@@ -793,8 +794,6 @@ bool PndLmdAlignManager::writePairsToBinaryFiles() {
 
 bool PndLmdAlignManager::readPairsFromBinaryFilesAndAlign() {
 
-	PndLmdThreadPool threadPool(1);
-
 	bool success = true;
 
 	if (binaryPairFileDirectory == "") {
@@ -809,28 +808,33 @@ bool PndLmdAlignManager::readPairsFromBinaryFilesAndAlign() {
 
 	cout << "reading all pairs from binary files and starting aligners...\n";
 
+	// use single thread as long as gGeoManger / GeometryHelper are not thread safe!
+	bool mt = true;
+	PndLmdThreadPool threadPool(maxThreads);
+
 	for (auto &id : overlapIDs) {
 
-		// single threaded, low memory consumption version
-		loadBar(cur++, tot, 1000, 60);
-		PndLmdSensorAligner &thisAligner = aligners[id];
-		if (thisAligner.readPairsFromBinary(binaryPairFileDirectory)) {
-			runSensorAligner(thisAligner);
-		}
-
-		/*
-		loadBar(cur++, tot, 1000, 60);
-		PndLmdSensorAligner &thisAligner = aligners[id];
-
-		if (thisAligner.readPairsFromBinary(binaryPairFileDirectory)) {
-			alignersFull[id] = true;
-			threadPool.enqueue(
-			    boost::bind(&PndLmdAlignManager::runSensorAligner, this, boost::ref(thisAligner)));
+		if (!mt) {
+			// single threaded, low memory consumption version
+			loadBar(cur++, tot, 1000, 60);
+			PndLmdSensorAligner &thisAligner = aligners[id];
+			if (thisAligner.readPairsFromBinary(binaryPairFileDirectory)) {
+				runSensorAligner(thisAligner);
+			}
 		}
 		else {
-			success = false;
+			loadBar(cur++, tot, 1000, 60);
+			PndLmdSensorAligner &thisAligner = aligners[id];
+
+			if (thisAligner.readPairsFromBinary(binaryPairFileDirectory)) {
+				alignersFull[id] = true;
+				threadPool.enqueue(
+				    boost::bind(&PndLmdAlignManager::runSensorAligner, this, boost::ref(thisAligner)));
+			}
+			else {
+				success = false;
+			}
 		}
-		*/
 	}
 
 	// write matrices to disk etc

@@ -40,6 +40,7 @@ private:
 
 	//loadBarMultiThreaded
 	std::mutex MTLBmutex;
+	std::mutex geometryHelperMutex;
 
 	int _verboseLevel;
 	unsigned int maxThreads;
