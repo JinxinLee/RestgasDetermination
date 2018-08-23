@@ -41,6 +41,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 
 	//FIXME: don't hard code starting event!
 	cout << "populating gGeoManager with geometry data...\n";
+
 	initMiniAna(pairFilePath);
 
 	// don't forget trailing slashes!!
@@ -70,6 +71,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
 	if (!binaryPairsPresent) {
 		cout << "None found, reading pair root files...\n";
+
 		manager.addFilesFromDirectory(pairFilePath.Data(), readNoOfFiles);
 		manager.setMatrixOutDir(LMDmatrixDir.Data());
 		manager.readFilesAndAlign();

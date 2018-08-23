@@ -793,10 +793,9 @@ bool PndLmdAlignManager::writePairsToBinaryFiles() {
 
 bool PndLmdAlignManager::readPairsFromBinaryFilesAndAlign() {
 
-	PndLmdThreadPool threadPool(maxThreads);
+	PndLmdThreadPool threadPool(1);
 
 	bool success = true;
-	bool thisAlignerReady;
 
 	if (binaryPairFileDirectory == "") {
 		cout << "error: binary pair file directory not set.\n";
@@ -812,25 +811,26 @@ bool PndLmdAlignManager::readPairsFromBinaryFilesAndAlign() {
 
 	for (auto &id : overlapIDs) {
 
+		// single threaded, low memory consumption version
+		loadBar(cur++, tot, 1000, 60);
+		PndLmdSensorAligner &thisAligner = aligners[id];
+		if (thisAligner.readPairsFromBinary(binaryPairFileDirectory)) {
+			runSensorAligner(thisAligner);
+		}
+
+		/*
 		loadBar(cur++, tot, 1000, 60);
 		PndLmdSensorAligner &thisAligner = aligners[id];
 
-		// reset for next aligner
-		thisAlignerReady = false;
-
 		if (thisAligner.readPairsFromBinary(binaryPairFileDirectory)) {
-			thisAlignerReady = true;
+			alignersFull[id] = true;
+			threadPool.enqueue(
+			    boost::bind(&PndLmdAlignManager::runSensorAligner, this, boost::ref(thisAligner)));
 		}
 		else {
 			success = false;
 		}
-
-		if (thisAlignerReady) {
-			alignersFull[id] = true;
-			//alignerThreadGroup.create_thread(
-			threadPool.enqueue(
-			    boost::bind(&PndLmdAlignManager::runSensorAligner, this, boost::ref(thisAligner)));
-		}
+		*/
 	}
 
 	// write matrices to disk etc

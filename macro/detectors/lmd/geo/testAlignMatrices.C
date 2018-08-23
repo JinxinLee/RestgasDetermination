@@ -303,7 +303,7 @@ void buildCyclic() {
 	TString misalignedMatrices = "misalignMatrices-SensorsOnly-100u.root";
 	TString idealMatrices = "idealMatrices.root";
 	std::string path =
-	    "/home/arbeit/RedPro3TB/simulationData/2018-08-22-himster2-misalign-100u/LMDmatrices-shouldWork/";
+	    "/home/arbeit/RedPro3TB/simulationData/2018-08-22-himster2-misalign-100u/LMDmatrices-6e5/";
 
 	matricesMisaligned = readRootMatrices(misalignedMatrices);
 	matricesIdeal = readRootMatrices(idealMatrices);
