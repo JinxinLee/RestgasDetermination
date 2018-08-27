@@ -269,8 +269,7 @@ TGeoHMatrix getMisalignedOverlapFromICP(PndLmdOverlapInfo &info, std::string ICP
 	return sen0to1ICPcorr * sen0to1;
 }
 
-PndLmdOverlapInfo& getSmallOverlapInfo(std::vector<PndLmdOverlapInfo> &infos,
-    int smallOverlap) {
+PndLmdOverlapInfo& getSmallOverlapInfo(std::vector<PndLmdOverlapInfo> &infos, int smallOverlap) {
 	//PndLmdOverlapInfo result;
 	for (auto &info : infos) {
 		int smallOverlapHere = info.overlapID % 10;
@@ -303,7 +302,9 @@ void buildCyclic() {
 	TString misalignedMatrices = "misalignMatrices-SensorsOnly-100u.root";
 	TString idealMatrices = "idealMatrices.root";
 	std::string path =
-	    "/home/arbeit/RedPro3TB/simulationData/2018-08-22-himster2-misalign-100u/LMDmatrices-6e5/";
+	    "/home/arbeit/RedPro3TB/simulationData/2018-08-22-himster2-misalign-100u/LMDmatrices-double/";
+	//std::string path =
+	//    "/home/arbeit/RedPro3TB/simulationData/2018-08-22-himster2-misalign-100u/LMDmatrices-6e5/";
 
 	matricesMisaligned = readRootMatrices(misalignedMatrices);
 	matricesIdeal = readRootMatrices(idealMatrices);
@@ -314,13 +315,12 @@ void buildCyclic() {
 	bool compareWithIdeal = false;
 	string ext = "cm.mat";
 
-	if(compareWithIdeal){
+	if (compareWithIdeal) {
 		cout << "getting matrices by hand | ICP-like matrices from gGeoManager\n";
 	}
-	else{
+	else {
 		cout << "getting matrices by hand | real ICP matrices\n";
 	}
-
 
 	for (int iHalf = 0; iHalf < 2; iHalf++) {
 		for (int iPlane = 0; iPlane < 4; iPlane++) {
@@ -353,9 +353,9 @@ void buildCyclic() {
 				}
 				else {
 					string icp0 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 0).overlapID) + ext;
-					mat0 = getMisalignedOverlapFromICP( getSmallOverlapInfo(overlaps, 0), icp0);
+					mat0 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 0), icp0);
 					string icp1 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 1).overlapID) + ext;
-					mat1 = getMisalignedOverlapFromICP( getSmallOverlapInfo(overlaps, 1), icp1);
+					mat1 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 1), icp1);
 					string icp2 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 2).overlapID) + ext;
 					mat2 = getMisalignedOverlapFromICP(getSmallOverlapInfo(overlaps, 2), icp2);
 					string icp3 = path + "/m" + std::to_string(getSmallOverlapInfo(overlaps, 3).overlapID) + ext;
