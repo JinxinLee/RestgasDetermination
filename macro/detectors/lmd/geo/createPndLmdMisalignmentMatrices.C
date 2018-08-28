@@ -46,9 +46,10 @@ TGeoHMatrix createRandomMatrix(double angleSigma, double shiftSigma) {
 	return result;
 }
 
-int createPndLmdMisalignmentMatrices(bool debug = false) {
+int createPndLmdMisalignmentMatrices() {
 
-	string misMatricesFilePath = "misalignMatrices-SensorsOnly.root";
+	string misMatFileName = "misalignMatrices-SensorsOnly-";
+	string ext = ".root";
 
 	cout << "creating dummy geometry...\n";
 
@@ -82,42 +83,36 @@ int createPndLmdMisalignmentMatrices(bool debug = false) {
 	// after init, the geometry can't be changed anymore, but that's okay.
 	// we only want to create a matrix file that can be used in a later step.
 
-	cout << "PndLmd: creating misalignment matrices.\n";
+
 
 	PndLmdGeometryHelper &helper = PndLmdGeometryHelper::getInstance();
 	vector < string > paths = helper.getAllAlignPaths(true, false, false, false, false);
 
 	cout << "got paths.\n";
 
-	std::map < std::string, TGeoHMatrix > matrices;
+	std::map<std::string, TGeoHMatrix> matrices;
 
-	// for testing if ONE matrix works
-	if (debug) {
+	double misAlignParam;
 
-		misMatricesFilePath = "misalignMatrices-Sensor-0.root";
+	cout << "enter misalign parameter in um (example: 100 for 100um)\n";
+	cout << "don't go higher than 500u. Please enter now:\nmisalign: ";
 
-		// Misalign geometry
-		std::string examplePath = "/cave_1/lmd_root_0/half_0/plane_0/module_0/sensor_0/";
+	cin >> misAlignParam;
 
-		TGeoHMatrix misalignTestMat;
-		double translation[3] = { 0.5, 0.5, 0.0 };
-		misalignTestMat.SetTranslation(translation);
-		matrices[examplePath] = misalignTestMat;
+	cout << "using shift: " << misAlignParam << "um and rot: " << misAlignParam/40 << "mrad \n";
+	cout << "PndLmd: creating misalignment matrices.\n";
 
-	} else {
+	for (auto &i : paths) {
 
-		for (auto &i : paths) {
-			// TODO: cerate sigma parameters another way
+		double shift = misAlignParam * 1e-4;	//convert to cm for root
+		// use small angle approximation sin x = x
+		double rot = TMath::RadToDeg() * (shift / 4);  // see report
 
-			double shift = 1000e-4;				// this is 1 mm!
-			double rot = TMath::RadToDeg() * 1000e-3;	// this is... large
-
-			TGeoHMatrix tempMat = createRandomMatrix(rot, shift);
-			matrices[i] = tempMat;
-		}
+		TGeoHMatrix tempMat = createRandomMatrix(rot, shift);
+		matrices[i] = tempMat;
 	}
 
-	if (true) {
+	if (false) {
 		// checking for good measure
 		for (auto &i : matrices) {
 			cout << "\n---\n" << i.first << "\n";
@@ -125,7 +120,9 @@ int createPndLmdMisalignmentMatrices(bool debug = false) {
 		}
 	}
 
-	TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "NEW");
+	string paramStr = std::to_string(int(misAlignParam));
+
+	TFile *misalignmentMatrixRootfile = new TFile((misMatFileName + paramStr + ext).c_str(), "NEW");
 	if (misalignmentMatrixRootfile->IsOpen()) {
 		printf("File opened successfully\n");
 
@@ -134,8 +131,9 @@ int createPndLmdMisalignmentMatrices(bool debug = false) {
 		misalignmentMatrixRootfile->Close();
 
 		cout << "All matrices written to file!\n";
-	} else {
-		cerr << "WARNING! Could not write to " << misMatricesFilePath << "\n";
+	}
+	else {
+		cerr << "WARNING! Could not write to " << misMatFileName << "\n";
 	}
 	return 0;
 }
