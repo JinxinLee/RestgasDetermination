@@ -81,7 +81,7 @@ std::vector<PndSdsPixel> PndSdsCalcPixelDif::GetPixels(Double_t inx, Double_t in
 	    ((unsigned int) std::fabs(max_x / fPixelSizeX)) - ((unsigned int) std::fabs(min_x / fPixelSizeX))
 	        + 1);
 	unsigned int rows(
-	    ((unsigned int) std::fabs(max_y / fPixelSizeX)) - ((unsigned int) std::fabs(min_y / fPixelSizeY))
+	    ((unsigned int) std::fabs(max_y / fPixelSizeY)) - ((unsigned int) std::fabs(min_y / fPixelSizeY))
 	        + 1);
 	// we gain a lot of speed by using a fixed vector
 	// and using a fixed mapping between row+col and vector index

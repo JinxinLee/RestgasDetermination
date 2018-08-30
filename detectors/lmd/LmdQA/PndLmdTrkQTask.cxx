@@ -147,9 +147,7 @@ InitStatus PndLmdTrkQTask::Init() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndLmdTrkQTask::Exec(Option_t*) {
-
 	fTrackQ->Delete();
-	// fDetName->Delete();
 
 	Double_t glXrecLMD, glYrecLMD, glZrecLMD, glThetarecLMD, glPhirecLMD;
 	Double_t glXrec, glYrec, glZrec, glThetarec, glPhirec, glMomrec;
@@ -986,6 +984,13 @@ void PndLmdTrkQTask::Exec(Option_t*) {
 			}
 		}
 	}
+
+  fMCHits->Delete();
+  fMCTracks->Delete();
+  fRecHits->Delete();
+  fRecCandTracks->Delete();
+  fRecTracks->Delete();
+  fRecBPTracks->Delete();
 
 	if (fVerbose > 2)
 		cout << "PndLmdTrkQTask::Exec END!" << endl;
