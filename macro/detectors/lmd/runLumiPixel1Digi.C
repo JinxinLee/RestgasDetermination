@@ -1,5 +1,5 @@
 int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString storePath = "tmpOutput",
-		std::string misalignment_matrices_path = "", const int verboseLevel = 0, const int pitch = 1) {
+		std::string misalignment_matrices_path = "", bool use_point_transform_misalignment = false, const int verboseLevel = 0, const int pitch = 1) {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
 	timer.Start();
@@ -53,12 +53,9 @@ int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString 
 	// =========================================================================
 	PndSdsGeoPar* geoPar = (PndSdsGeoPar*) (rtdb->getContainer("PndSdsGeoPar"));
 
-	//we need to Init so the gGeoManager gets populated!
-	fRun->Init();
-
 	// MialignmentHandler sits here
 
-	if (misalignment_matrices_path != "") {
+	if (misalignment_matrices_path != "" && !use_point_transform_misalignment) {
 		//load matrices
 		TFile *misalignmentMatrixRootfile = new TFile(misalignment_matrices_path.c_str(), "READ");
 
@@ -70,9 +67,8 @@ int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString 
 
 			cout << matrices->size() << " matrices successfully read from file.\n";
 
-			//iterate over matrices
-			fRun->SetAlignmentMatrices(*matrices);
-			fRun->AlignGeometry();
+			//this call has to be made before fRun->Init();
+			fRun->AddAlignmentMatrices(*matrices);
 		}
 		else {
 			cout << "file could not be read\n";
@@ -80,6 +76,9 @@ int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString 
 		}
 		cout << "starting digi macro\n";
 	}
+
+	//we need to Init so the gGeoManager gets populated!
+	fRun->Init();
 
 	// -----   Intialise and run   --------------------------------------------
 	//fRun->Init();

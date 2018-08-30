@@ -1,5 +1,7 @@
 int runLumiPixel2Reco(const int nEvents = 10, const int startEvent = 0,
-		TString storePath = "tmpOutput", string alignment_matrices_path = "", const int verboseLevel = 0) {
+		TString storePath = "tmpOutput", std::string alignment_matrices_path = "",
+		std::string misalignment_matrices_path = "", bool use_point_transform_misalignment = false,
+		const int verboseLevel = 0) {
 	// ========================================================================
 	TString DigiFile = storePath + "/Lumi_digi_"; //"/Lumi_digi_noise_";//"/Lumi_digi_";
 	DigiFile += startEvent;
@@ -74,8 +76,23 @@ int runLumiPixel2Reco(const int nEvents = 10, const int startEvent = 0,
 	// =====                 End of HitProducers                           =====
 	// =========================================================================
 
-	// -----   Intialise and run   --------------------------------------------
-	fRun->Init();
+	// set misalignement matrices to perform point transformations
+		if (misalignment_matrices_path != "" && use_point_transform_misalignment) {
+			// check if file exists, if true, try to read it
+			TFile *misalignmentMatrixRootfile = new TFile(misalignment_matrices_path.c_str(), "READ");
+			if (misalignmentMatrixRootfile->IsOpen()) {
+				std::map < std::string, TGeoHMatrix > *matrices;
+
+				gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
+				misalignmentMatrixRootfile->Close();
+
+				cout << matrices->size() << " matrices successfully read from file.";
+
+				//this call has to be made before fRun->Init();
+				fRun->AddAlignmentMatrices(*matrices, use_point_transform_misalignment);
+				cout << "matrices set!\n";
+			}
+		}
 
 	if (alignment_matrices_path != "") {
 		//load matrices
@@ -89,15 +106,17 @@ int runLumiPixel2Reco(const int nEvents = 10, const int startEvent = 0,
 
 			cout << matrices->size() << " matrices successfully read from file.\n";
 
-			//iterate over matrices
-			fRun->SetAlignmentMatrices(*matrices);
-			fRun->AlignGeometry();
+			//this call has to be made before fRun->Init();
+			fRun->AddAlignmentMatrices(*matrices);
 		}
 		else {
 			cout << "file could not be read\n";
 			return 1;
 		}
 	}
+
+	// -----   Intialise and run   --------------------------------------------
+	fRun->Init();
 
 	fRun->Run(0, nEvents);
 	// ------------------------------------------------------------------------

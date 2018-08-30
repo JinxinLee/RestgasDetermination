@@ -9,6 +9,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 		const double beam_grad_sigma_X = 0.0, const double beam_grad_sigma_Y = 0.0, // beam gradiant parameters
 		const TString lmd_geometry_filename = "Luminosity-Detector.root",
 		std::string misalignment_matrices_path = "",
+		bool use_point_transform_misalignment = false,
 		const int verboseLevel = 3) {
 	// gRandom->SetSeed(seed);
 	Int_t mode = 1;
@@ -158,7 +159,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 
 
 	// set misalignement matricies
-	if (misalignment_matrices_path != "") {
+	if (misalignment_matrices_path != "" && !use_point_transform_misalignment) {
 		// check if file exists, if true, try to read it
 		TFile *misalignmentMatrixRootfile = new TFile(misalignment_matrices_path.c_str(), "READ");
 		if (misalignmentMatrixRootfile->IsOpen()) {
@@ -169,7 +170,8 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 
 			cout << matrices->size() << " matrices successfully read from file.";
 
-			fRun->SetAlignmentMatrices(*matrices);
+			//this call has to be made before fRun->Init();
+			fRun->AddAlignmentMatrices(*matrices);
 			cout << "matrices set!\n";
 		}
 	}
