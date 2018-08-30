@@ -85,6 +85,8 @@ Bool_t PndFixStepParticleGun::ReadEvent(FairPrimaryGenerator* primGen)
   // if SetCosTheta() function is used, the distribution will be uniform in
   // cos(theta)
 
+  if (fDoit == false) return kTRUE;
+
   Double32_t pabs=0, phi, pt=0, theta=0, eta, y, mt, px, py, pz=0;
 
   // Generate particles
