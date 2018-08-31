@@ -49,13 +49,11 @@ void initDummySimulation() {
 	fRun->Init();
 }
 
-void applyMisalignmentToGGeoManager() {
+void applyMisalignmentToGGeoManager(TString filename) {
 	bool misaligned = true;
 	if (misaligned) {
 		//load matrices
-		// FIXME: set path correctly!
-		std::string misMatricesFilePath = "misalignMatrices-SensorsOnly-100u.root";
-		TFile *misalignmentMatrixRootfile = new TFile(misMatricesFilePath.c_str(), "READ");
+		TFile *misalignmentMatrixRootfile = new TFile(filename, "READ");
 
 		if (misalignmentMatrixRootfile->IsOpen()) {
 			std::map<std::string, TGeoHMatrix> *matrices;
@@ -95,8 +93,6 @@ void applyMisalignmentToGGeoManager() {
 //this function is ugly and stiched together into a barely functioning blob of ugly.
 //I know. I'm going to fix this (probably, some time in the future)
 TGeoHMatrix readMatrixFromDisk(std::string filename) {
-
-	//read to vector< vector<double > >
 
 	int lines = 0;
 	stringstream *valueStream = new stringstream();
@@ -297,15 +293,50 @@ std::vector<double> getMatrixDiff(TGeoHMatrix &mat1, TGeoHMatrix &mat2) {
 	return result;
 }
 
-void buildCyclic() {
+void buildCyclic(int alignParam) {
 
-	TString misalignedMatrices = "misalignMatrices-SensorsOnly-50u.root";
 	TString idealMatrices = "idealMatrices.root";
-	//std::string path =
-	//    "/home/arbeit/RedPro3TB/simulationData/2018-08-22-himster2-misalign-100u/LMDmatrices-double/";
-	//std::string path =
-	//    "/home/arbeit/RedPro3TB/simulationData/2018-08-22-himster2-misalign-100u/LMDmatrices-6e5/";
-	std::string path = "/home/arbeit/RedPro3TB/simulationData/2018-08-himster2-misalign-50u/LMDmatrices/";
+
+	TString misalignedMatrices = "";
+	std::string pathPrefix = "/home/arbeit/RedPro3TB/simulationData/";
+	std::string path;
+	std::string pdfPath;
+
+
+	switch(alignParam){
+	case 0:
+		break;
+	case 10:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-10.root";
+		path = "2018-08-himster2-misalign-10u/LMDmatrices/";
+		pdfPath = "misalign-10u/";
+		break;
+	case 50:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-50.root";
+		path = "2018-08-himster2-misalign-50u/LMDmatrices/";
+		pdfPath = "misalign-50u/";
+		break;
+	case 100:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-100.root";
+		path = "2018-08-himster2-misalign-100u/LMDmatrices/";
+		pdfPath = "misalign-100u/";
+		break;
+	case 150:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-150.root";
+		path = "2018-08-himster2-misalign-150u/LMDmatrices/";
+		pdfPath = "misalign-150u/";
+		break;
+	case 200:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-200.root";
+		path = "2018-08-himster2-misalign-200u/LMDmatrices/";
+		pdfPath = "misalign-200u/";
+		break;
+	case 250:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-250.root";
+		path = "2018-08-himster2-misalign-250u/LMDmatrices/";
+		pdfPath = "misalign-250u/";
+		break;
+	}
 
 	matricesMisaligned = readRootMatrices(misalignedMatrices);
 	matricesIdeal = readRootMatrices(idealMatrices);
@@ -322,6 +353,10 @@ void buildCyclic() {
 	else {
 		cout << "getting matrices by hand | real ICP matrices\n";
 	}
+
+	path = pathPrefix + path;
+
+	gSystem->Exec(("mkdir "+pdfPath).c_str());
 
 	for (int iHalf = 0; iHalf < 2; iHalf++) {
 		for (int iPlane = 0; iPlane < 4; iPlane++) {
@@ -403,7 +438,7 @@ void buildCyclic() {
 		}
 	}
 
-	applyMisalignmentToGGeoManager();
+	applyMisalignmentToGGeoManager(misalignedMatrices);
 	cout << "getting matrices by geoManager after misalignment\n";
 	for (int iHalf = 0; iHalf < 2; iHalf++) {
 		for (int iPlane = 0; iPlane < 4; iPlane++) {
@@ -487,13 +522,13 @@ void buildCyclic() {
 	TCanvas canvas("c1", "c1", 800, 600);
 	canvas.cd();
 	histA.Draw();
-	canvas.Print("dAlpha-combined.pdf");
+	canvas.Print((pdfPath + "dAlpha-combined.pdf").c_str());
 
 	histX.Draw();
-	canvas.Print("dx-combined.pdf");
+	canvas.Print((pdfPath + "dx-combined.pdf").c_str());
 
 	histY.Draw();
-	canvas.Print("dy-combined.pdf");
+	canvas.Print((pdfPath + "dy-combined.pdf").c_str());
 
 }
 
@@ -515,7 +550,13 @@ int testAlignMatrices() {
 	//histICPmatrices();
 	//histDairXYZdistances();
 
-	buildCyclic();
+	buildCyclic(10);
+	buildCyclic(50);
+	buildCyclic(100);
+	buildCyclic(150);
+	buildCyclic(200);
+	buildCyclic(250);
+
 
 	// compareMatrices(matrices, "/LMDMatrices/");
 	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6

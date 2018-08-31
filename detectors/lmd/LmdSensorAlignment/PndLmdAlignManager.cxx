@@ -201,7 +201,7 @@ void PndLmdAlignManager::runSensorAligner(PndLmdSensorAligner &aligner) {
 
 	// apply dynamic cut. this changes the amount of pairs the aligner has,
 	// so don't re-save the pairs after that!
-	aligner.applyDynamicCut();
+	//aligner.applyDynamicCut();
 
 	//calculate the matrix
 	aligner.calculateMatrix();

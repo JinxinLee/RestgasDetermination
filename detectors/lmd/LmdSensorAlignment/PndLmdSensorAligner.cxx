@@ -123,7 +123,7 @@ void PndLmdSensorAligner::applyDynamicCut() {
 	std::sort(simplePairs.begin(), simplePairs.end(),
 	    [](const std::vector< double >& a, const std::vector< double >& b) {return a[6] < b[6];});
 
-	int quantileMargin = simplePairs.size() * 0.10;  // shave 10% from front and back
+	int quantileMargin = simplePairs.size() * 0.05;  // shave 5% from front and back
 
 	vector<vector<double> >::const_iterator first = simplePairs.begin() + quantileMargin;
 	vector<vector<double> >::const_iterator last = simplePairs.end() - quantileMargin;
