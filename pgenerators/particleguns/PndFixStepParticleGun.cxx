@@ -20,7 +20,7 @@ PndFixStepParticleGun::PndFixStepParticleGun() :
   fX1(0),fY1(0),fX2(0),fY2(0),
   fEtaRangeIsSet(0),fYRangeIsSet(0),fThetaRangeIsSet(0),
   fCosThetaIsSet(0),fPtRangeIsSet(0),fPRangeIsSet(0),
-  fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(0), fDoit(kTRUE)
+  fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(0), fDoit(kTRUE), fFirstRun(kTRUE)
 {
 	fPt.SetStart(0); fPt.SetStop(0); fPt.SetStep(0);
 	fPhi.SetStart(0);fPhi.SetStop(0); fPhi.SetStep(0);
@@ -37,7 +37,7 @@ PndFixStepParticleGun::PndFixStepParticleGun(Int_t pdgid, Int_t mult) :
   fX1(0),fY1(0),fX2(0),fY2(0),
   fEtaRangeIsSet(0),fYRangeIsSet(0),fThetaRangeIsSet(0),
   fCosThetaIsSet(0),fPtRangeIsSet(0),fPRangeIsSet(0),
-  fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(1), fDoit(kTRUE)
+  fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(1), fDoit(kTRUE), fFirstRun(kTRUE)
 {
   // Constructor. Set default kinematics limits
 	fPt.SetStart(0); fPt.SetStop(0); fPt.SetStep(0);
@@ -85,8 +85,6 @@ Bool_t PndFixStepParticleGun::ReadEvent(FairPrimaryGenerator* primGen)
   // if SetCosTheta() function is used, the distribution will be uniform in
   // cos(theta)
 
-  if (fDoit == false) return kTRUE;
-
   Double32_t pabs=0, phi, pt=0, theta=0, eta, y, mt, px, py, pz=0;
 
   // Generate particles
@@ -109,6 +107,8 @@ Bool_t PndFixStepParticleGun::ReadEvent(FairPrimaryGenerator* primGen)
 	  innerVal = &fPt;
   else if (fPRangeIsSet)
 	  innerVal = &fP;
+
+  if (IsEndOfRanges(outerVal, midVal, innerVal) == true) return kTRUE;
 
   CalcActValues(outerVal, midVal, innerVal);
  // std::cout << "outerVal, midVal, innerVal: " << outerVal->fActualValue << " " << midVal->fActualValue << " " << innerVal->fActualValue << std::endl;
@@ -155,8 +155,8 @@ Bool_t PndFixStepParticleGun::ReadEvent(FairPrimaryGenerator* primGen)
     }
 */
     if (fDebug)
-      printf("FlatGen: kf=%d, p=(%.2f, %.2f, %.2f) GeV, x=(%.1f, %.1f, %.1f) cm\n",
-	     fPDGType, px, py, pz, fX, fY, fZ);
+      printf("FlatGen: kf=%d, p=(%.2f, %.2f, %.2f) GeV, x=(%.1f, %.1f, %.1f) cm, Theta=%.1f phi=%.1f\n",
+	     fPDGType, px, py, pz, fX, fY, fZ, theta*TMath::RadToDeg(), phi*TMath::RadToDeg());
 
     primGen->AddTrack(fPDGType, px, py, pz, fX, fY, fZ);
  // }
@@ -174,7 +174,12 @@ void PndFixStepParticleGun::CalcActValues(PndRangeValues* val1, PndRangeValues* 
 		val3 = new PndRangeValues();
 
 	if (fDoit){
-		val3->fActualValue += val3->fStep;
+	    if (fFirstRun == kTRUE){
+	        fFirstRun = kFALSE;
+	    }
+	    else {
+	        val3->fActualValue += val3->fStep;
+	    }
 		if (val3->fActualValue > val3->fStop && fDoit){
 			val3->fActualValue = val3->fStart;
 			val2->fActualValue += val2->fStep;
@@ -190,6 +195,19 @@ void PndFixStepParticleGun::CalcActValues(PndRangeValues* val1, PndRangeValues* 
 	if (fDoit) fEvent++;
 	else
 		std::cout << "End of range reached at EventNr: " << fEvent << std::endl;
+}
+
+bool PndFixStepParticleGun::IsEndOfRanges(PndRangeValues* val1, PndRangeValues* val2, PndRangeValues* val3){
+    if ((val1 == 0 || (val1->fActualValue + val1->fStep) > val1->fStop) &&
+        (val2 == 0 || (val2->fActualValue + val2->fStep) > val2->fStop) &&
+        (val3 == 0 || (val3->fActualValue + val3->fStep) > val3->fStop))
+        return true;
+    else
+        return false;
+}
+
+int PndFixStepParticleGun::GetNEvents(){
+    return fPt.GetNSteps() * fPhi.GetNSteps() * fEta.GetNSteps() * fRapidity.GetNSteps() * fP.GetNSteps() * fTheta.GetNSteps() * fCosTheta.GetNSteps();
 }
 
 ClassImp(PndFixStepParticleGun)

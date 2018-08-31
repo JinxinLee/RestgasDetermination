@@ -31,6 +31,13 @@ public :
 	void SetStep(Double32_t val){fStep = val;};
 	void SetActualValue(Double32_t val){fActualValue = val;};
 
+	int GetNSteps(){
+	    if (fStep != 0)
+	        return ((fStop - fStart) / fStep) + 1;
+	    else
+	        return 1;
+	}
+
 	virtual Double32_t GetStep(){return fStep;}
 
 	ClassDef(PndRangeValues,1);
@@ -87,6 +94,8 @@ public:
 
   void SetDebug(Bool_t debug=0) {fDebug = debug;}
 
+  int GetNEvents();
+
   /** Initializer **/
   Bool_t Init();
 
@@ -128,7 +137,9 @@ private:
   Bool_t     fBoxVtxIsSet;         // True if box vertex is set
   Bool_t     fDebug;               // Debug switch
   Bool_t	 fDoit;					// Stop generating particles at the end of the range
+  Bool_t     fFirstRun;            // Used to indicate the first run. Otherwise the first event would be skipped
   void CalcActValues(PndRangeValues* val1, PndRangeValues* val2, PndRangeValues* val3);
+  bool IsEndOfRanges(PndRangeValues* val1, PndRangeValues* val2, PndRangeValues* val3);
 
   ClassDef(PndFixStepParticleGun,1);
 
