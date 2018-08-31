@@ -235,6 +235,7 @@ class PndMasterRunSim : public FairRunSim
    * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256
    */
   void SetOptions(TString par) { fOptions = par; fOptions.ToLower();}
+  TString GetOptions() { return fOptions;}
 
   /**
    * @brief Setter of the number of events

@@ -28,6 +28,7 @@
 #include "PndFileNameCreator.h"
 
 #include "FairFileSource.h"
+#include "FairFileHeader.h"
 #include "FairParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
 #include "FairRuntimeDb.h"
@@ -727,8 +728,28 @@ void PndMasterRunSim::Finish()
 {
   fRtdb->saveOutput();
 
+  cout<<"PndMasterRunAna::Finish(): Tasks that ran just now:"<<endl;
+  TFile* outfile=fRootManager->GetOutFile();
+  bool wasopen=outfile->IsOpen ();
+  if (!wasopen)
+  {
+    cout<<"file is "<< ((wasopen) ? "" : "not " ) <<"open" <<endl;
+    outfile=new TFile(outfile->GetName(),"UPDATE");
+  }
+  outfile->cd();
+
   // write the summary of event filter to output root file
-  ((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile();
+  ((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
+
+  FairFileHeader* outheader=(FairFileHeader*)outfile->Get("FileHeader");
+  cout<<"Task tha ran just now:"<<endl;
+  for(const auto&& os : *(outheader->GetListOfTasks()) ) cout<<" - "<<((TObjString*)os)->GetString().Data()<<endl;
+
+  TObjString outoptions(fOptions);
+  outoptions.Write("PndOptions",kOverwrite);
+
+  outfile->Write();
+  if(!wasopen) outfile->Close();
 
   cout << endl;
   if (gROOT->GetVersionInt() >= 60602) {

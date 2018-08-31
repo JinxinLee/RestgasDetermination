@@ -10,6 +10,7 @@
 #include "PndEventCounterTask.h"
 
 #include "FairFileSource.h"
+#include "FairFileHeader.h"
 #include "FairParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
 #include "FairRuntimeDb.h"
@@ -27,19 +28,19 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
   FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(),
-  fOptions(), fEventCounterRate(100), fNoGeane(kTRUE), fTimer(),
-  fGenerateRunInfo(kFALSE), fUseFairLinks(kTRUE)
+  fOptions(), fEventCounterRate(100), fNoGeane(kTRUE),
+  fGenerateRunInfo(kFALSE), fUseFairLinks(kTRUE), fTimer()
 {
-  fTimer.Start();
+	fTimer.Start();
 }
 // -----   Default destructor   -------------------------------------------
 PndMasterRunAna::~PndMasterRunAna()
 {
-  if (gROOT->GetVersionInt() >= 60602 && gGeoManager!=NULL) {
-    gGeoManager->GetListOfVolumes()->Delete();
-    gGeoManager->GetListOfShapes()->Delete();
-    delete gGeoManager;
-  }
+	if (gROOT->GetVersionInt() >= 60602 && gGeoManager!=NULL) {
+		gGeoManager->GetListOfVolumes()->Delete();
+		gGeoManager->GetListOfShapes()->Delete();
+		delete gGeoManager;
+	}
 }
 
 // -----   Setup   ---------------------------------------------------------
@@ -69,7 +70,7 @@ Bool_t PndMasterRunAna::Setup(TString outprefix)
 	  fFriendFiles[0] = creator.GetCustomFileName(fFriendFiles[0].Data());
   }
 
-  for (int files = 1; files < fFriendFiles.size(); files++) {
+  for (unsigned int files = 1; files < fFriendFiles.size(); files++) {
 	  fileSource->AddFriend(creator.GetCustomFileName(fFriendFiles[files].Data()));
 	  fFriendFiles[files] = creator.GetCustomFileName(fFriendFiles[files].Data());
   }
@@ -107,69 +108,90 @@ Bool_t PndMasterRunAna::Setup(TString outprefix)
 // -----   AddDigiTasks   ---------------------------------------------------
 void PndMasterRunAna::AddDigiTasks(Bool_t pers)
 {
-  PndMasterDigiTask *digi = new PndMasterDigiTask(fOptions);
-  if (!pers) digi->SetPersistency(kFALSE);
-  digi->SetPersistency(pers);
-  AddTask(digi);
+	PndMasterDigiTask *digi = new PndMasterDigiTask(fOptions);
+	if (!pers) digi->SetPersistency(kFALSE);
+	digi->SetPersistency(pers);
+	AddTask(digi);
 }
 
 // -----   AddDigiTasks   ---------------------------------------------------
 void PndMasterRunAna::AddDigiOnlyTasks(Bool_t pers)
 {
-  PndMasterDigiOnlyTask *digi = new PndMasterDigiOnlyTask(fOptions);
-  if (!pers) digi->SetPersistency(kFALSE);
-  digi->SetPersistency(pers);
-  AddTask(digi);
+	PndMasterDigiOnlyTask *digi = new PndMasterDigiOnlyTask(fOptions);
+	if (!pers) digi->SetPersistency(kFALSE);
+	digi->SetPersistency(pers);
+	AddTask(digi);
 }
 
 // -----   AddRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddRecoTasks(Bool_t pers)
 {
-  // -----   Geane   ---------------------------------------
-  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
-  PndMasterRecoTask *reco = new PndMasterRecoTask(fOptions);
-  if (!pers) reco->SetPersistency(kFALSE);
-  reco->SetPersistency(pers);
-  AddTask(reco);
+	// -----   Geane   ---------------------------------------
+	if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
+	PndMasterRecoTask *reco = new PndMasterRecoTask(fOptions);
+	if (!pers) reco->SetPersistency(kFALSE);
+	reco->SetPersistency(pers);
+	AddTask(reco);
 }
 
 // -----   AddLocalRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddLocalRecoTasks(Bool_t pers)
 {
-  // -----   Geane   ---------------------------------------
-  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
-  PndMasterLocalRecoTask *reco = new PndMasterLocalRecoTask(fOptions);
-  if (!pers) reco->SetPersistency(kFALSE);
-  reco->SetPersistency(pers);
-  AddTask(reco);
+	// -----   Geane   ---------------------------------------
+	if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
+	PndMasterLocalRecoTask *reco = new PndMasterLocalRecoTask(fOptions);
+	if (!pers) reco->SetPersistency(kFALSE);
+	reco->SetPersistency(pers);
+	AddTask(reco);
 }
-
 
 // -----   AddRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddRecoIdealTasks(Bool_t pers)
 {
-  // -----   Geane   ---------------------------------------
-  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
-  PndMasterRecoIdealTask *recoIdeal = new PndMasterRecoIdealTask(fOptions);
-  if (!pers) recoIdeal->SetPersistency(kFALSE);
-  recoIdeal->SetPersistency(pers);
-  AddTask(recoIdeal);
+	// -----   Geane   ---------------------------------------
+	if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
+	PndMasterRecoIdealTask *recoIdeal = new PndMasterRecoIdealTask(fOptions);
+	if (!pers) recoIdeal->SetPersistency(kFALSE);
+	recoIdeal->SetPersistency(pers);
+	AddTask(recoIdeal);
 }
 
 // -----   AddPidTasks   ----------------------------------------------------
 void PndMasterRunAna::AddPidTasks(Bool_t pers)
 {
-  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
-  PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
-  if (!pers) pid->SetPersistency(kFALSE);
-  pid->SetPersistency(pers);
-  AddTask(pid);
+		if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
+		PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
+		if (!pers) pid->SetPersistency(kFALSE);
+		pid->SetPersistency(pers);
+		AddTask(pid);
 }
 
 // -----   Finish   ---------------------------------------------------------
 void PndMasterRunAna::Finish()
 {
   cout << endl;
+
+  cout<<"PndMasterRunAna::Finish(): Tasks that ran just now:"<<endl;
+  TFile* outfile=fRootManager->GetOutFile();
+  bool wasopen=outfile->IsOpen ();
+  if (!wasopen)
+  {
+    cout<<"file is "<< ((wasopen) ? "" : "not " ) <<"open" <<endl;
+    outfile=new TFile(outfile->GetName(),"UPDATE");
+  }
+  outfile->cd();
+
+  FairFileHeader* outheader=(FairFileHeader*)outfile->Get("FileHeader");
+  cout<<"Task tha ran just now:"<<endl;
+  for(const auto&& os : *(outheader->GetListOfTasks()) ) cout<<" - "<<((TObjString*)os)->GetString().Data()<<endl;
+
+  TObjString outoptions(fOptions);
+  outoptions.Write("PndOptions",kOverwrite);
+
+  outfile->Write();
+  if(!wasopen) outfile->Close();
+
+  //safety delete for newer ROOT
   if (gROOT->GetVersionInt() >= 60602) {
     gGeoManager->GetListOfVolumes()->Delete();
     gGeoManager->GetListOfShapes()->Delete();
