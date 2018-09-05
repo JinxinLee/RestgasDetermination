@@ -390,7 +390,7 @@ void PndMasterRunSim::AddSimTasks()
 // -----   SetGenerator   --------------------------------------------------
 void PndMasterRunSim::SetGenerator()
 {
-  if (fOptions.Contains("PndFiltPrim"))
+  if (fOptions.Contains("pndfiltprim"))
   	fGen = new PndFilteredPrimaryGenerator();
   else
   	fGen = new FairFilteredPrimaryGenerator();
@@ -739,7 +739,10 @@ void PndMasterRunSim::Finish()
   outfile->cd();
 
   // write the summary of event filter to output root file
-  ((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
+  if (!strcmp(fGen->ClassName(),"PndFilteredPrimaryGenerator"))
+  	((PndFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
+  else
+  	((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
 
   FairFileHeader* outheader=(FairFileHeader*)outfile->Get("FileHeader");
   cout<<"Task tha ran just now:"<<endl;

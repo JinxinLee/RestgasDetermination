@@ -60,7 +60,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 
 	//-----General settings-----------------------------------------------
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
-	TString splitpars = BaseDir+"/fsim/splitpars.dat";
+	TString splitpars = BaseDir+"/fastsim/splitpars.dat";
 	gRandom->SetSeed();
 
 	//-----User Settings:-------------------------------------------------
@@ -86,11 +86,23 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	// -------------------------------
 	// Create and Set Event Generator
 	// -------------------------------
-	FairFilteredPrimaryGenerator* primGen = new FairFilteredPrimaryGenerator();
+	PndFilteredPrimaryGenerator* primGen = new PndFilteredPrimaryGenerator();
+	primGen->SetEventPrintFrequency(100);
 	if (!usePndEventFilter) primGen->SetVerbose(0);
 	fRun->SetGenerator(primGen);
 	fRun->SetName("TGeant3");
 
+	//-----------------------------
+	// set PANDA event filters
+	//-----------------------------
+
+	if (usePndEventFilter)
+	{
+		// *** Example Configuration of Event Filter
+		cout <<"Using PndEventFilter"<<endl;
+		primGen->SetVerbose(1);
+		primGen->AddFilter("(t+-;4..) && M(e+ e-; m[3.1,0.6])");  //require 4 tracks and at least one e+e- candidate in mass window [2.8,3.4]
+	}
 
 	// ------------------------------------------------------
 	// Determine event generator according to inputGen
@@ -217,29 +229,6 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	// increasing verbosity increases the amount of console output (mainly for debugging)
 	fastSim->SetVerbosity(0);
 
-
-	//-----------------------------
-	// set PANDA event filters
-	//-----------------------------
-
-	if (usePndEventFilter)
-	{
-		// *** Example Configuration of Event Filter
-		cout <<"Using FairEventFilter"<<endl;
-		primGen->SetFilterMaxTries(100000);
-
-		// require 4 charged tracks
-		FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
-		chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
-		primGen->AndFilter(chrgFilter);
-
-		// require 1 ee combination in the mass range 2.8 < m(ee) < 3.3 GeV
-		PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
-		eeInv->SetPdgCodesToCombine( 11, -11);
-		eeInv->SetMinMaxInvMass( 2.8, 3.3 );
-		eeInv->SetMinMaxCounts(1,10000);
- 		primGen->AndFilter(eeInv);  //add filter to fFilterList
-	}
 
 	// enable the merging of neutrals if they have similar direction
 	//-----------------------------
