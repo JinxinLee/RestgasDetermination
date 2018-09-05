@@ -37,7 +37,7 @@ struct PndFTSEfficiencies: public TEfficiencies
     AddCounter("total"         ,"Allset    efficiency");
     AddCounter("rest"          ,"Rest      efficiency");
   }
-  virtual ~PndFTSEfficiencies();
+  virtual ~PndFTSEfficiencies(){};
   virtual void AddCounter(string shortname, string name){
     TEfficiencies::AddCounter(shortname, name);
     ratio_killed.AddCounter();

@@ -118,7 +118,7 @@ struct TEfficiencies
   TEfficiencies():ratio_ghosts(0),ratio_clones(0),ghosts(0),clones(0),nEvents(0){
     // you should add counter with shortname="total" !!
   };
-  virtual ~TEfficiencies();
+  virtual ~TEfficiencies(){};
 
   virtual void AddCounter(string shortname, string name);
 

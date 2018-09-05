@@ -37,7 +37,7 @@ struct PndCAEfficiencies: public TEfficiencies
     AddCounter("total"         ,"Allset    efficiency");
     AddCounter("rest"          ,"Rest      efficiency");
   }
-  virtual ~PndCAEfficiencies();
+  virtual ~PndCAEfficiencies(){};
 
   virtual void AddCounter(string shortname, string name){
     TEfficiencies::AddCounter(shortname, name);
