@@ -128,7 +128,7 @@ void PndRecoMultiKalmanTask2::Exec(Option_t*)
 
 			TClonesArray& trkRef = *fFitTrackArrayElectron;
 			Int_t size = trkRef.GetEntriesFast();
-			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
 					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
 					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
 					fitTrack->GetChi2(), fitTrack->GetNDF(),
@@ -142,7 +142,7 @@ void PndRecoMultiKalmanTask2::Exec(Option_t*)
 
 			TClonesArray& trkRef = *fFitTrackArrayMuon;
 			Int_t size = trkRef.GetEntriesFast();
-			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
 					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
 					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
 					fitTrack->GetChi2(), fitTrack->GetNDF(),
@@ -156,7 +156,7 @@ void PndRecoMultiKalmanTask2::Exec(Option_t*)
 
 			TClonesArray& trkRef = *fFitTrackArrayPion;
 			Int_t size = trkRef.GetEntriesFast();
-			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
 					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
 					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
 					fitTrack->GetChi2(), fitTrack->GetNDF(),
@@ -170,7 +170,7 @@ void PndRecoMultiKalmanTask2::Exec(Option_t*)
 
 			TClonesArray& trkRef = *fFitTrackArrayKaon;
 			Int_t size = trkRef.GetEntriesFast();
-			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
 					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
 					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
 					fitTrack->GetChi2(), fitTrack->GetNDF(),
@@ -184,7 +184,7 @@ void PndRecoMultiKalmanTask2::Exec(Option_t*)
 
 			TClonesArray& trkRef = *fFitTrackArrayProton;
 			Int_t size = trkRef.GetEntriesFast();
-			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
 					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
 					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
 					fitTrack->GetChi2(), fitTrack->GetNDF(),

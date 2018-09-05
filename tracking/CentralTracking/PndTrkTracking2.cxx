@@ -586,7 +586,7 @@ gGeoManager->SetTopVisible();
     return kFATAL;
  }
 //  -----   maps of STT tubes
- // CHECK added 
+ // CHECK added
  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
  fSttTubeArray = mapper->FillTubeArray();
  //----------------------------------------------------  end map
@@ -1131,7 +1131,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 				(MCposition.Y()-fYMvdPixel[i])*(MCposition.Y()-fYMvdPixel[i])+
 				(MCposition.Z()- fZMvdPixel[i])*(MCposition.Z() - fZMvdPixel[i]);
 			if( Distance<dis){
-				fMCtrack_of_Pixel[i] =pMvdMCPoint->GetTrackID(); 
+				fMCtrack_of_Pixel[i] =pMvdMCPoint->GetTrackID();
 				dis=Distance;
 			}
 	}	// end of for(j=0;j<nMvdMCPoint;j++)
@@ -1166,7 +1166,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 				(MCposition.Y()-fYMvdStrip[i])*(MCposition.Y()-fYMvdStrip[i])+
 				(MCposition.Z()- fZMvdStrip[i])*(MCposition.Z() - fZMvdStrip[i]);
 			if( Distance<dis){
-				fMCtrack_of_Strip[i] =pMvdMCPoint->GetTrackID(); 
+				fMCtrack_of_Strip[i] =pMvdMCPoint->GetTrackID();
 				dis=Distance;
 			}
 	}	// end of for(j=0;j<nMvdMCPoint;j++)
@@ -1232,7 +1232,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 	cout<<"from PndTrkTracking2  :  total # Hits in STT  : "<<nSttHit<<endl;
  }
 
- nSttParHit=0; 
+ nSttParHit=0;
  nSttSkewHit=0;
 
  for( i= 0; i< nSttHit; i++){
@@ -1290,7 +1290,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 
 //   reordering the list of parallel hits ( fListSttParHits) by decreasing spatial radius;
 //   first the outermost then the innermost. This is necessary because later the search
-//   must starts from the outer hits. 
+//   must starts from the outer hits.
 
  Initial_SttParHits_DecreasingR_Ordering( info, fListSttParHits,nSttParHit );
 
@@ -1550,8 +1550,8 @@ if(istampa>=2){
 // r_stt_inner_par_max ==> radius of the circumscribed circumference to the
 					//; outer hexagon defining THE INNER axial Stt straw region;
  InOut.r_stt_inner_par_max = APOTEMAMAXINNERPARSTRAW *2./sqrt(3.) ;
- InOut.StrawCode = fStrawCode; // Short_t array NUMBER_STRAWS large; 
- InOut.StrawCode2 = fStrawCode2; // Short_t array NUMBER_STRAWS large; 
+ InOut.StrawCode = fStrawCode; // Short_t array NUMBER_STRAWS large;
+ InOut.StrawCode2 = fStrawCode2; // Short_t array NUMBER_STRAWS large;
  InOut.SttStrawOn = SttStrawOn;  //  tSttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
 				// i-th Tube ID; tSttStrawOn[i] == -1 --> i-th Stt straw NOT hit;
  InOut.TubeID = fTubeID;  // list of Tube ID; fTubeID[i] is Tube Id of i-th Stt hit;
@@ -1892,8 +1892,8 @@ int iconta=0;
 	  nhitsinfit = nXYZhits + fnSttSkewHitsinTrack[ncand];
 
 	// the following is a protection against declaration of 0 dimension array;
-	int dime ;
-	if(nhitsinfit>0) dime = nhitsinfit ; else dime=1;
+	//int dime ; //[R.K. 9/2018] unused
+	//if(nhitsinfit>0) dime = nhitsinfit ; else dime=1; //[R.K. 9/2018] unused
 
 if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 //---------------------   here calculate the S and Z values of Mvd Pixels, Mvd Strips,
@@ -2243,7 +2243,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			fZMvdPixel,
 			fZMvdStrip,
 			fnMvdPixelHitsinTrack[ncand],
-			&fListMvdPixelHitsinTrack[ncand][0],	
+			&fListMvdPixelHitsinTrack[ncand][0],
 			fnMvdStripHitsinTrack[ncand],
 			&fListMvdStripHitsinTrack[ncand][0],
 			0.1,	// uncertainty allowed in the X and Y position of the crossing point of the found
@@ -2863,7 +2863,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //----------begin of function PndTrkTracking2::AssociateSkewHitsToXYTrack
 
 Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
-	bool *InclusionListSkew,
+	bool */*InclusionListSkew*/, //[R.K. 9/2018] unused
 	Short_t NSkewhits,
 	Short_t *infoskew,  // from skew numbering to original Stt hit numbering;
 	Double_t Oxx,
@@ -2875,7 +2875,7 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 	Double_t *WDZ,
 	Double_t Fi_low_limit,
 	Double_t Fi_up_limit,
-	Short_t  Charge,
+	Short_t  /*Charge*/, //[R.K. 9/2018] unused
 	Short_t SkewList[][2], // output,list of selected skew hits (original numbering)
 	Double_t *S,       //  output,  S coordinate of selected Skew hit
 	Double_t *Z,       //  output,  Z coordinate of selected Skew hit
@@ -2998,8 +2998,8 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 
  Short_t i,
 	itrack,
-	ihit,
-	nadd;
+	ihit/*,
+	nadd*/; //[R.K. 9/2018] unused
 
  Double_t angle,
 	deltaZ,
@@ -3022,7 +3022,7 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 //	way in one shot I collect also the previously non collected hits and I remove the
 //	spurious hits.
 
-	nadd=0;
+	//nadd=0;
 	for(i=0; i<nSttParHit; i++){
 		ihit = fListSttParHits[i];
 
@@ -3089,7 +3089,7 @@ Short_t PndTrkTracking2::CompareTracks(
 		Short_t second_track
 					)
 {
-	Short_t	
+	Short_t
 		i,
 		j,
 		nCommon = 0;
@@ -3246,8 +3246,8 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		 chosenS2,
 		 ddd,
 		 dista,
-		 dista1,
-		 dista0,
+		 //dista1, //[R.K. 9/2018] unused
+		 //dista0, //[R.K. 9/2018] unused
 		 Drift,
 		 error,
 		 Fi,
@@ -3373,7 +3373,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 				ErrorchosenSkew[ fListSttSkewHitsinTrack[ncand][j] ]=error;
 				auxnSttSkew++;
 			  }
-			} else {  // continuation of  if( already[ ListSkewHitsinTrack[j] ] 
+			} else {  // continuation of  if( already[ ListSkewHitsinTrack[j] ]
 
 
 			  already[ fListSttSkewHitsinTrack[ncand][j] ] = true;
@@ -3427,8 +3427,8 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 				} else {
 					inclusion[i]=false;
 				}
-				dista0 = Pix_distance[i];
- 				dista1 =Pix_distance[j];
+				//dista0 = Pix_distance[i]; //[R.K. 9/2018] unused
+ 				//dista1 =Pix_distance[j]; //[R.K. 9/2018] unused
 			}
 		}   // end of for(i=0;i<auxnMvdPixel;i++)
 	}	// end of  for(i=0;i<auxnMvdPixel;i++)
@@ -3462,8 +3462,8 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 				} else {
 					inclusion2[i]=false;
 				}
-				dista0 = Strip_distance[i];
- 				dista1 = Strip_distance[j];
+				//dista0 = Strip_distance[i]; //[R.K. 9/2018] unused
+ 				//dista1 = Strip_distance[j]; //[R.K. 9/2018] unused
 			}
 		}   // end of for(i=0;i<auxnMvdStrip;i++)
 	}	// end of  for(i=0;i<auxnMvdStrip;i++)
@@ -3560,7 +3560,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 	auxnMvdStrip=0;
 	auxnSttSkew=0;
 
-	Double_t	Pix_distance[fnMvdPixelHitsinTrack[ncand]];
+	//Double_t	Pix_distance[fnMvdPixelHitsinTrack[ncand]]; //[R.K. 9/2018] unused
 
 
 	for(i=0;i< fnMvdPixelHitsinTrack[ncand] ;i++){
@@ -3579,7 +3579,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 			SchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]= chosenS;
 			ZchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]=Z;
 			ErrorchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]=ERRORPIXEL;
-			Pix_distance[auxnMvdPixel] = dista;
+			//Pix_distance[auxnMvdPixel] = dista; //[R.K. 9/2018] unused
 			auxnMvdPixel++;
 			if(istampa>=2){ cout<<", chosen. "<<endl;}
 		} else {
@@ -3588,7 +3588,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 	}	// end of  for(i=0;i<*nPixelHitsinTrack;i++)
 
 
-	Double_t	Strip_distance[fnMvdStripHitsinTrack[ncand]];
+	//Double_t	Strip_distance[fnMvdStripHitsinTrack[ncand]]; //[R.K. 9/2018] unused
 	for(j=0;j<fnMvdStripHitsinTrack[ncand];j++){
 		i=j+fnMvdPixelHitsinTrack[ncand] ;
 		k = fListMvdStripHitsinTrack[ncand][j];
@@ -3604,7 +3604,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 			SchosenStrip[fListMvdStripHitsinTrack[ncand][j]]= chosenS ;
 			ZchosenStrip[fListMvdStripHitsinTrack[ncand][j]]=Z;
 			ErrorchosenStrip[fListMvdStripHitsinTrack[ncand][j]]=ERRORSTRIP;
-			Strip_distance[auxnMvdStrip] = dista;
+			//Strip_distance[auxnMvdStrip] = dista; //[R.K. 9/2018] unused
 			auxnMvdStrip++;
 			if(istampa>=2){ cout<<", chosen. "<<endl;}
 		} else {
@@ -3665,7 +3665,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 				ErrorchosenSkew[ fListSttSkewHitsinTrack[ncand][j] ]=error;
 				auxnSttSkew++;
 			  }
-			} else {  // continuation of  if( already[ ListSkewHitsinTrack[j] ] 
+			} else {  // continuation of  if( already[ ListSkewHitsinTrack[j] ]
 
 
 			  already[ fListSttSkewHitsinTrack[ncand][j] ] = true;
@@ -3727,7 +3727,7 @@ void PndTrkTracking2::FindCharge(
 		nright;
 
 	Double_t cross,
-		 disq,
+		 //disq, //[R.K. 9/2018] unused
 		 minl,
 		 minr;
 
@@ -3735,7 +3735,7 @@ void PndTrkTracking2::FindCharge(
 	// this methods works with the hypothesis that this track comes
 	//  from (0,0)
 
-	for(ihit=0, nleft=0, nright=0, minr = 9999999., minl = 9999999.; ihit<nParallelHits; ihit++){ 
+	for(ihit=0, nleft=0, nright=0, minr = 9999999., minl = 9999999.; ihit<nParallelHits; ihit++){
 	// find the Z component of the cross product between the vector from (0,0) to center of
 	// circular trajectory [namely, (oX,oY) ]  and the Position vector of the center of the
 	// parallel Hits [namely, (x,y)].
@@ -3747,7 +3747,7 @@ void PndTrkTracking2::FindCharge(
 	// to the hit following the smaller path) otherwise it stays 'on the right'.
 
 		if (cross>0.) {
-			disq =	X[ihit]*X[ihit]+Y[ihit]*Y[ihit];
+			//disq =	X[ihit]*X[ihit]+Y[ihit]*Y[ihit]; //[R.K. 9/2018] unused
 			nleft++;
 		} else {
 			nright++;
@@ -3801,7 +3801,7 @@ void PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane(
 //----------end of function PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane
 
 //---------- begin of function PndTrkTracking2::GetVolumeCharacteristics
-void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatrix *gmat,
+void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatrix */*gmat*/, //[R.K. 9/2018] unused
 		Double_t GlobalScal[3],  Double_t GlobalTrans[3],  Double_t  GlobalRot[9]  )
 {
 
@@ -3828,7 +3828,7 @@ void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatri
 		if( strstr(tgeovol->GetName(),"Active") == NULL
 				||
 	(strstr(tgeovol->GetName(),"Pixel") == NULL && strstr(tgeovol->GetName(),"Strip") == NULL )
-			) return;	// condition failed; 
+			) return;	// condition failed;
 
 
  cout<<"-----------------------------------------------\n";
@@ -3879,17 +3879,17 @@ cout<<"-------------------------------\n\n";
 			TGeoNode * geonode = (TGeoNode *) tobjnodes->At(ino);
 			// in the following   vol  is the TGeoVolume corresponding to the geonode node;
 			TGeoVolume * vol = geonode->GetVolume();
-			TGeoShape * shape = vol->GetShape();
+			//TGeoShape * shape = vol->GetShape(); //[R.K. 9/2018] unused
 
 //cout<<"------------------------------------------- inizio stampa relativa al volume "<<vol->GetName()<<endl;
-			if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
-				TGeoBBox *p =(TGeoBBox *) shape;
-				const Double_t *Or;
-				Or = p->GetOrigin();
+			//if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
+				//TGeoBBox *p =(TGeoBBox *) shape;
+				//const Double_t *Or;
+				//Or = p->GetOrigin();
 //				cout<<"questo e' una box con OriginX "<<Or[0]<<",OriginY "<<Or[1]
 //				<<",OriginZ "<<Or[2]<<" e Semilato X (= DX) = "<<p->GetDX()
 //				<<", DY "<<p->GetDY()<< ", DZ "<<p->GetDZ()<<endl;
-			}
+			//}
 
 //cout<<"---------- inizio stampa local matrix del volume "<<endl;
 TGeoMatrix * lmatrix =  geonode->GetMatrix();
@@ -3948,7 +3948,7 @@ cout<<"-------------------fine\n";
 		//--------------------------------------------------
 
 		// the following is a way to obtain the transformation matrix from MARS to this node;
-			// mother volume of the volume   vol; 
+			// mother volume of the volume   vol;
 			TGeoVolume * mother = geonode->GetMotherVolume();
 			// the function  FindMatrixOfDaughterVolume(vol) fills the TGeoManager::fHMatrix
 			// with the matrix transforming from MARS to the vol  volume;
@@ -4022,7 +4022,7 @@ void PndTrkTracking2::InfoXYZParal(
      Posiz[0] = -999999999.;
      return;
    }
-   
+
 
 
 
@@ -4152,8 +4152,8 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	Oxx,
 	Oyy,
 	Ptras,
-	Pxini,
-	Pyini,
+	//Pxini, //[R.K. 9/2018] unused
+	//Pyini, //[R.K. 9/2018] unused
 	Pzini,
 	px,
 	py,
@@ -4182,8 +4182,8 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	dis=sqrt( Oxx*Oxx+Oyy*Oyy );
 	if( dis < 1.e-20)  continue;
 	Ptras = fR[ncand]*0.003*fBFIELD;
-	Pxini = -Charge[ncand]*Ptras*Oyy/dis;
-	Pyini = Charge[ncand]*Ptras*Oxx/dis;
+	//Pxini = -Charge[ncand]*Ptras*Oyy/dis; //[R.K. 9/2018] unused
+	//Pyini = Charge[ncand]*Ptras*Oxx/dis; //[R.K. 9/2018] unused
 
 //   starting point not necessarily at x=0., y=0.
 
@@ -4542,7 +4542,7 @@ void PndTrkTracking2::LoadSZetc_forSZfit(
 void PndTrkTracking2::MakeInclusionListStt(
 	Int_t nSttHit,
 	Short_t * TubeID,
-	Double_t info[][7]
+	Double_t /*info*/[][7] //[R.K. 9/2018] unused
 	)
 {
 
@@ -4597,7 +4597,7 @@ void PndTrkTracking2::MakeInclusionListStt(
 void PndTrkTracking2::MatchMvdHitsToSttTracks(
 	Vec <bool>& keepit,
 	Double_t delta,
-	Double_t highqualitycut,
+	Double_t /*highqualitycut*/, //[R.K. 9/2018] unused
 	Short_t nSttTrackCand,
 	Double_t *FI0,
 	Double_t *Fifirst,
@@ -4719,7 +4719,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracks(
 void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 	Vec <bool>& keepit,
 	Vec <bool>& Mvdhits,
-	Double_t delta,
+	Double_t /*delta*/, //[R.K. 9/2018] unused
 	Double_t highqualitycut,
 	Short_t nSttTrackCand,
 	Double_t *FI0,
@@ -4732,15 +4732,15 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
 	)
 {
-	bool
-	     downstream;
+	//bool
+	     //downstream; //[R.K. 9/2018] unused
 
 	Short_t j,
 		itrack,
 		ipix,
 		istr,
 		ndownstream,
-		ntot,
+		//ntot, //[R.K. 9/2018] unused
 		naddpix,
 		naddstr,
 		List[MAXMVDPIXELHITS+MAXMVDSTRIPHITS];
@@ -4754,7 +4754,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
   for(itrack=0; itrack<nSttTrackCand; itrack++){
 	if( ! keepit[itrack] ) continue;
 //	if( ! Mvdhits[itrack] ) continue;
-	ntot=nPixelHitsinTrack[itrack]+nStripHitsinTrack[itrack];
+	//ntot=nPixelHitsinTrack[itrack]+nStripHitsinTrack[itrack]; //[R.K. 9/2018] unused
 	if( Fifirst[itrack] < -99998. ){  // case with Fifirst[i]=-99999.; in this
 					// case the circle is contained
 					// in the Mvd region.
@@ -4788,8 +4788,8 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 			ndownstream++ ;
 		}
 	}
-	if(ndownstream>ntot-ndownstream) downstream=true;
-	else downstream=false;
+	//if(ndownstream>ntot-ndownstream) downstream=true; //[R.K. 9/2018] unused
+	//else downstream=false; //[R.K. 9/2018] unused
 
 //  loop over the Mvd Pixel and try to attach new Pixels to each candidate track
 
@@ -4836,7 +4836,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 			// protection against strange tracks (and also from
 			// out-of-bound indexing of arrays);
 			naddpix=MAXMVDPIXELHITSINTRACK;
-		}  // 
+		}  //
 		for(j=0;j<naddpix;j++){
 			ListPixelHitsinTrack[itrack][j]=List[j];
 		}
@@ -4886,7 +4886,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 			// protection against strange tracks (and also from
 			// out-of-bound indexing of arrays);
 			naddstr=MAXMVDSTRIPHITSINTRACK;
-		}  // 
+		}  //
 		for(j=0;j<naddstr;j++){
 			ListStripHitsinTrack[itrack][j]=List[j];
 		}
@@ -5864,7 +5864,7 @@ void   PndTrkTracking2::OrderingUsingConformal(
 
 
 
-      Short_t	i,j, 
+      Short_t	i,j,
 		tmp[nHits];
       Double_t	aaa,
 		bbb,
@@ -5964,7 +5964,7 @@ void   PndTrkTracking2::OrderingUsingConformal(
 
 
 
- return; 
+ return;
 
 
 }
@@ -6109,8 +6109,8 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 					);
 
 
-	//  existatus > 0, Type= true --> fit ok, it is a Circle in XY; 
-	//  existatus > 0, Type= false --> fit ok, it is a Straigh Line in XY; 
+	//  existatus > 0, Type= true --> fit ok, it is a Circle in XY;
+	//  existatus > 0, Type= false --> fit ok, it is a Straigh Line in XY;
 	//  existatus < 0, fit failed;  Type was set to false in this case;
 	if( exitstatus > 0 && Type)	*status=true;
 	return;

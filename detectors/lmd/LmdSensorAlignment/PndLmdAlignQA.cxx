@@ -59,15 +59,15 @@ void PndLmdAlignQA::calculateOverlapingAreas() {
 	cout << "------------  DONE --------------\n";
 
 	vector<int> overlapIDs = helper->getAvailableOverlapIDs();
-	int id1, id2;
+	int id1=0, id2=0; //[R.K. 9/2018] id1 & id2 were not initialised
 	double areaPercent = 0;
 
 	//get id1 and id2 from them and calc
-	for (auto i = 0; i < overlapIDs.size(); i++) {
+	for (unsigned int i = 0; i < overlapIDs.size(); i++) {
 		//id1 = helper->getID1fromOverlapID(overlapIDs[i]);
 		//id2 = helper->getID2fromOverlapID(overlapIDs[i]);
 
-		areaPercent = calculateOverlappingArea(id1, id2, false);
+		areaPercent = calculateOverlappingArea(id1, id2, false); //[R.K. 9/2018] id1 & id2 were not initialised
 		cout << "\\AtoB{" << id1 << "}{" << id2 << "} & " << areaPercent << "\n";
 	}
 	exit(0);
@@ -378,7 +378,7 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters) {
 	createHist(data, parameters);
 }
 
-void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
+void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool /*aligned*/) { //[R.K. 9/2018] unused
 
 	int sensorID1 = sensor1, sensorID2 = sensor2;
 //
@@ -420,10 +420,10 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 			valid++;
 
 			//four possible neighbors
-			double colTest2Floor = floor(colTest2);
-			double colTest2Ceil = ceil(colTest2);
-			double rowTest2Floor = floor(rowTest2);
-			double rowTest2Ceil = ceil(rowTest2);
+			//double colTest2Floor = floor(colTest2); //[R.K. 9/2018] unused
+			//double colTest2Ceil = ceil(colTest2); //[R.K. 9/2018] unused
+			//double rowTest2Floor = floor(rowTest2); //[R.K. 9/2018] unused
+			//double rowTest2Ceil = ceil(rowTest2); //[R.K. 9/2018] unused
 
 			//make all possible hit2's:
 			vector<Matrix> hit2Candidates;
@@ -439,7 +439,7 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 
 			//cout << "=== start ===\n";
 			for (size_t i = 0; i < hit2Candidates.size(); i++) {
-				double distance;
+				double distance=0; //[R.K. 9/2018] was not initialised
 				//hit2Candidates[i] = PXtoCM * Matrix::inv(matSensorOneToSensorTwo) * hit2Candidates[i];
 				//distance = (hit1 - hit2Candidates[i]).l2norm() * 1e4;		//convert to microns
 
@@ -449,7 +449,7 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 				//else{
 				//fill already
 				//cout << "distance: " << distance << "\n";
-				hist.Fill(distance);
+				hist.Fill(distance); //[R.K. 9/2018] distance was not initialised
 				//}
 			}
 		}
@@ -476,9 +476,9 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 	canvas.Print(filename.str().c_str());
 }
 
-double PndLmdAlignQA::calculateOverlappingArea(int sensor1, int sensor2, bool aligned) {
+double PndLmdAlignQA::calculateOverlappingArea(int /*sensor1*/, int /*sensor2*/, bool /*aligned*/) { //[R.K. 9/2018] unused
 
-	int sensorID1 = sensor1, sensorID2 = sensor2;
+	//int sensorID1 = sensor1, sensorID2 = sensor2; //[R.K. 9/2018] unused
 
 //	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
 //	Matrix CMtoPX = Matrix::inv(PXtoCM);
@@ -1029,9 +1029,9 @@ void PndLmdAlignQA::histogramPairDistances() {
 	for (auto &aligner : manager.aligners) {
 		PndLmdSensorAligner &thisAligner = aligner.second;
 		int overlapId = thisAligner.overlapID;
-		int noOfPairs = thisAligner.numberOfPairs;
+		int numberOfPairs = thisAligner.numberOfPairs; //[R.K. 9/2018] shadowed a member
 
-		for (int i = 0; i < noOfPairs; i++) {
+		for (int i = 0; i < numberOfPairs; i++) {
 			x1 = thisAligner.simpleSensorOneX[i];
 			y1 = thisAligner.simpleSensorOneY[i];
 			x2 = thisAligner.simpleSensorTwoX[i];

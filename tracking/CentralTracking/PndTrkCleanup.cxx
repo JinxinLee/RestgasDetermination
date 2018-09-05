@@ -83,7 +83,7 @@ if(istampa>1) {cout<<"in BadTrack_ParStt : Xingresso "<<Xcross[0]<<", Yingresso 
 			continue;
 			}
 		ninside++;
-		Distance[ihit]= 
+		Distance[ihit]=
 			(info[ListHits[ihit]][0]-Xprevious)*
 			(info[ListHits[ihit]][0]-Xprevious)+
 			(info[ListHits[ihit]][1]-Yprevious)*
@@ -184,7 +184,7 @@ bool PndTrkCleanup::GoodTrack(
 		Short_t ListParContiguous[][6],	// input
 		Double_t *xTube,		// input
 		Double_t *yTube,		// input
-		Double_t *zTube,		// input
+		Double_t */*zTube*/,		// input //[R.K. 9/2018] unused
 		Double_t *xxyyTube,		// input
 
 		Short_t & holes			// input and output
@@ -203,10 +203,10 @@ bool PndTrkCleanup::GoodTrack(
    //farthest_hit_is_boundary --> if this flag is true the hit of the track furthest from the origin is
 			// at the boundary of the sector;
 
-   // nHits == # hits in this track under scrutiny;	
+   // nHits == # hits in this track under scrutiny;
    // info == some information on the hits;
-   // ListHits == list hits in this track under scrutiny;	
-   // TubeID == hit number;	
+   // ListHits == list hits in this track under scrutiny;
+   // TubeID == hit number;
 
 
    bool		boundary,
@@ -267,7 +267,7 @@ bool PndTrkCleanup::GoodTrack(
 				holes++;
 				yes=true;
 				break;
-			}    
+			}
 	 	}  // end of for(i=0;i<nHits-1;i++)
 		if(!yes)  return false;	// none of the neighbouring Straws is at the boundary;
 
@@ -297,7 +297,7 @@ bool PndTrkCleanup::GoodTrack(
 	// in this case all hits of the track are internal in this sector --> calculate the contiguity level
 	// of the two hits under scrutiny;
 
-		// next-to-contiguos hits;		
+		// next-to-contiguos hits;
 		if( dist2 < 16.*STRAWRADIUS*STRAWRADIUS * 1.1) {
 			// increase   holes  by 1 and then check if  holes>MAX_NOT_CONNECTED discard the track;
 			holes++;
@@ -386,7 +386,7 @@ bool PndTrkCleanup::GoodTrack(
 		Double_t Zintersect,	// input, Z position of the point of crossing as calculated from the track trajectory;
 
 		Short_t nPixelHitsinTrack,  // number of Mvd Pixel hits in this track;
-		Short_t * ListMvdPixelHitsinTrack, // ... and their list;	
+		Short_t * ListMvdPixelHitsinTrack, // ... and their list;
 		Double_t* XMvdPixel,  // list of the X positions of ALL Mvd hits of the event;
 		Double_t* YMvdPixel,  // list of the Y positions of ALL Mvd hits of the event;
 		Double_t* ZMvdPixel,  // list of the Z positions of ALL Mvd hits of the event;
@@ -406,13 +406,13 @@ bool PndTrkCleanup::GoodTrack(
 			Yimprecision=1. ,
 			Zimprecision=1.5 ;
 
-	
+
 		for(j=0;j<nPixelHitsinTrack;j++){
 
 
 			if(
-			      fabs(XMvdPixel[ ListMvdPixelHitsinTrack[j] ]-Xintersect) < Ximprecision 
-			   && fabs(YMvdPixel[ ListMvdPixelHitsinTrack[j] ]-Yintersect) < Yimprecision 
+			      fabs(XMvdPixel[ ListMvdPixelHitsinTrack[j] ]-Xintersect) < Ximprecision
+			   && fabs(YMvdPixel[ ListMvdPixelHitsinTrack[j] ]-Yintersect) < Yimprecision
 			   && fabs(ZMvdPixel[ ListMvdPixelHitsinTrack[j] ] - Zintersect) < Zimprecision
 			) return true;
 		}	// end of for(j=0;j<nPixelHitsinTrack;j++)
@@ -420,8 +420,8 @@ bool PndTrkCleanup::GoodTrack(
 		for(j=0;j<nStripHitsinTrack;j++){
 
 			if(
-			      fabs(XMvdStrip[ ListMvdStripHitsinTrack[j] ]-Xintersect) < Ximprecision 
-			   && fabs(YMvdStrip[ ListMvdStripHitsinTrack[j] ]-Yintersect) < Yimprecision 
+			      fabs(XMvdStrip[ ListMvdStripHitsinTrack[j] ]-Xintersect) < Ximprecision
+			   && fabs(YMvdStrip[ ListMvdStripHitsinTrack[j] ]-Yintersect) < Yimprecision
 			   && fabs(ZMvdStrip[ ListMvdStripHitsinTrack[j] ] - Zintersect) < Zimprecision
 			) return true;
 		}	// end of for(j=0;j<nStripHitsinTrack;j++)
@@ -442,7 +442,7 @@ bool PndTrkCleanup::GoodTrack(
 bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 		Double_t ZLayerBegin,	// Z of the beginning of the layer (end of layer = + 0.02);
 		Short_t nPixelHitsinTrack,  // number of Mvd Pixel hits in this track;
-		Short_t * ListMvdPixelHitsinTrack, // ... and their list;	
+		Short_t * ListMvdPixelHitsinTrack, // ... and their list;
 		Double_t * XMvdPixel,
 		Double_t * YMvdPixel,
 		Double_t * ZMvdPixel,
@@ -939,7 +939,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 	Double_t* ZMvdPixel,  // list of the Z positions of ALL Mvd hits of the event;
 	Double_t* ZMvdStrip,  // list of the Z positions of ALL Mvd hits of the event;
 	Short_t nPixelHitsinTrack,  // number of Mvd Pixel hits in this track;
-	Short_t * ListMvdPixelHitsinTrack,	
+	Short_t * ListMvdPixelHitsinTrack,
 	Short_t nStripHitsinTrack,  // number of Mvd Strip hits in this track;
 	Short_t * ListMvdStripHitsinTrack,
 	Double_t extra_distance,
@@ -1021,7 +1021,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 
 
 	// yes_hit = true --> at least one Mvd hit from this barrel; yes_hit = false --> no Mvd hits from this barrel;
-	
+
 		yes_hit = Track_Crosses_MvdBarrelFullAzimuthalCoverage(
 					Ox,		// track trajectory center;
 					Oy,		// track trajectory center;
@@ -1053,7 +1053,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 				Zintersect[0],
 
 				nPixelHitsinTrack,
-				ListMvdPixelHitsinTrack,	
+				ListMvdPixelHitsinTrack,
 				ZMvdPixel,  // list of the X positions of ALL Mvd hits of the event;
 				YMvdPixel,  // list of the Y positions of ALL Mvd hits of the event;
 				ZMvdPixel,  // list of the Z positions of ALL Mvd hits of the event;
@@ -1148,7 +1148,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 					Zintersect[j],
 
 					nPixelHitsinTrack,
-					ListMvdPixelHitsinTrack,	
+					ListMvdPixelHitsinTrack,
 					XMvdPixel,  // list of the X positions of ALL Mvd hits of the event;
 					YMvdPixel,  // list of the Y positions of ALL Mvd hits of the event;
 					ZMvdPixel,  // list of the Z positions of ALL Mvd hits of the event;
@@ -1169,7 +1169,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 		}	// end of if(yes_hit){
 
 	}  // end of  for(i=0;i<MVD_BARREL_LAYERS_PARTIAL_AZIMUTH;i++)
-	
+
 
 
 	// check on the Barrel Mvd sector; allow only for one hit mismatch;
@@ -1242,7 +1242,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 	for(i=0;i<MVD_DISK_LAYERS;i++){
 
 		// calculate the intersections on the Mvd Disks;
-		phase = fi0 + kappa *  MVD_DISK_Z[i];	
+		phase = fi0 + kappa *  MVD_DISK_Z[i];
 		X_disk = Ox + R* cos(phase) ;
 		//Xup = X_disk + extra_distance; //[R.K.02/2017] Unused variable?
 		//Xlow = X_disk - extra_distance; //[R.K.02/2017] Unused variable?
@@ -1310,7 +1310,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 		}  // end of if (type_of_intersection_in_disk[i]==1)
 
 	};  // end of  for(i=0;i<MVD_DISKS_LAYERS;i++)
-	
+
 
 
 	return true;
@@ -1598,7 +1598,7 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 			if( fi>FiLimitAdmissible+epsilonTheta) continue;
 		} else {
 			fi += 2.*PI;
-			if( fi >FiLimitAdmissible+epsilonTheta ) continue; 
+			if( fi >FiLimitAdmissible+epsilonTheta ) continue;
 		}  // end of  if( fi > FI0)
 	  } else {  // continuation of  if(Charge <0)
 		if( fi > FI0){
@@ -1620,7 +1620,7 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 		// if the remaining hits is 0, don't discard track yet : maybe that
 		// its particular trajectory is such that it doesn't cross any axial
 		// straws (this doesn't prevent the Pattern Recognition - which requires
-		// at least 
+		// at least
 		nInnerHits=0;
 		nInnerHitsRight=0;
 		nInnerHitsLeft=0;
@@ -2286,7 +2286,7 @@ bool PndTrkCleanup::SttSkewCleanup(
 	Short_t nHits,
 	Double_t Oxx,
 	Double_t Oyy,
-	Double_t Rr,	
+	Double_t Rr,
 	Double_t RStrawDetMax,
 	Double_t *S,
 	Double_t Start[3],
@@ -2366,7 +2366,7 @@ if(istampa>1)cout<<"\thit // n. "<<Listofhits[i]<<", fi "<<fi<<endl;
 			if( fi>FiLimitAdmissible+epsilonTheta) continue;
 		} else {
 			fi += 2.*PI;
-			if( fi > FiLimitAdmissible+epsilonTheta ) continue; 
+			if( fi > FiLimitAdmissible+epsilonTheta ) continue;
 		}  // end of  if( fi > FI0)
 	  } else {  // continuation of  if(Charge <0)
 		if( fi > FI0){
@@ -2749,10 +2749,10 @@ if(istampa>=2)cout<<"in SttSkewCleanup, reject this track because ibad = "<< iba
 
 bool PndTrkCleanup::TrackCleanup(
 	Double_t ApotemaMaxInnerPar,
-	Double_t ApotemaMaxSkew,
+	Double_t /*ApotemaMaxSkew*/, //[R.K. 9/2018] unused
 	Double_t ApotemaMinOuterPar,
-	Double_t ApotemaMinSkew,
-	Double_t *auxS,
+	Double_t /*ApotemaMinSkew*/, //[R.K. 9/2018] unused
+	Double_t */*auxS*/, //[R.K. 9/2018] unused
 	Short_t  Charge,
 	Double_t FI0,
 	Double_t GAP,
@@ -2761,10 +2761,10 @@ bool PndTrkCleanup::TrackCleanup(
 	int	IVOLTE,
 	Double_t KAPPA,
 	Short_t *ListHitsPar,
-	Short_t *ListHitsSkew,
-	int	MAXSTTHITS,
+	Short_t */*ListHitsSkew*/, //[R.K. 9/2018] unused
+	int	/*MAXSTTHITS*/, //[R.K. 9/2018] unused
 	Short_t nHitsPar,  // n. hits parall Stt
-	Short_t nHitsSkew,  // n. hits parall Stt
+	Short_t /*nHitsSkew*/,  // n. hits parall Stt //[R.K. 9/2018] unused
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
@@ -2858,7 +2858,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 				info,
 				istampa,
 				IVOLTE,
-				ListHitsPar, // input only for now. 
+				ListHitsPar, // input only for now.
 				nHitsPar, // it doesn't get modify for now.
 				Oxx,
 				Oyy,
@@ -2900,7 +2900,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 		Double_t fi0, 		// FI0 of the Helix of the particle trajectory;
 		Double_t kappa,		// KAPPA of the Helix of the particle trajectory;
 		Double_t charge,	// charge of the particle;
-		
+
 		const Double_t Zlow,	// Z low limit of this barrel;
 		const Double_t Zup,	// Z upper limit of this barrel;
 		Double_t RBarrel,	// R of this barrel at whicazch the intersection of the particle
@@ -2970,7 +2970,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 		// trajectory; such an error is called extra_distance_Z (in cm);
 
 		// condition by which the trajectory surely had to cross the barrel layer;
-		if( Zintersect<= Zup - extra_distance_Z && 
+		if( Zintersect<= Zup - extra_distance_Z &&
 		    Zintersect>= Zlow + extra_distance_Z
 		 ){	// case in which there should be Mvd hits;
 			return true;
@@ -3002,7 +3002,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 		Double_t fi0, 		// FI0 of the Helix of the particle trajectory;
 		Double_t kappa,		// KAPPA of the Helix of the particle trajectory;
 		Double_t charge,	// charge of the particle;
-		
+
 		const Double_t Zlow,		// Z low limit of this barrel;
 		const Double_t Zup,		// Z upper limit of this barrel;
 
@@ -3087,7 +3087,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 		// trajectory; such an error is called extra_distance_Z (in cm);
 
 		// condition by which the trajectory surely had to cross the barrel layer;
-		if( Zintersect[0]<= Zup - extra_distance_Z && 
+		if( Zintersect[0]<= Zup - extra_distance_Z &&
 		    Zintersect[0]>= Zlow + extra_distance_Z
 		 ){	// case in which there should be Mvd hits;
 			// loop to check that the track doesn't fall in the gap region;
@@ -3172,7 +3172,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 		// trajectory; such an error is called extra_distance_Z (in cm);
 
 		// condition by which the trajectory surely had to cross the barrel layer;
-		if( Zintersect[1]<= Zup - extra_distance_Z && 
+		if( Zintersect[1]<= Zup - extra_distance_Z &&
 		    Zintersect[1]>= Zlow + extra_distance_Z
 		 ){	// case in which there should be Mvd hits;
 			// loop to check that the track doesn't fall in the gap region; fi must be between 0. and 2Pi;
@@ -3267,57 +3267,57 @@ bool PndTrkCleanup::Track_Crosses_MvdMiniDisk_withMargin(
 	} else if( ZLayerBegin ==  2.41) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk2_41to2_43withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  3.97) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk3_97to3_99withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  4.41) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk4_41to4_43withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  6.97) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk6_97to6_99withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  7.41) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk7_41to7_43withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  9.97) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk9_97to9_99withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  10.41) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk10_41to10_43withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  14.77) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk14_77to14_79withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  15.21) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk15_21to15_23withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  21.77) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk21_77to21_79withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else if( ZLayerBegin ==  22.21) {
 
 			if(GeometryCalculator->IsInMvdMiniDisk22_21to22_23withMargin(X,Y,xmargin,ymargin)
-			) return true ; else return false; 
+			) return true ; else return false;
 
 	} else {
 		cout<<"PndTrkCleanup.cxx::Track_Crosses_MvdMiniDisk_withMargin WARNING, this Mvd MiniDisk apparently"<<
@@ -3355,7 +3355,7 @@ bool PndTrkCleanup::XYCleanup(
 	Short_t Charge,
 	Short_t *ListHits,
 	Short_t nHits,
-	Double_t R_STT_INNER_PAR_MAX,
+	Double_t /*R_STT_INNER_PAR_MAX*/, //[R.K. 9/2018] unused
 	Short_t nScitilHitsInTrack,	// input, # of SciTil hits in the current track;
 	Short_t* ListSciTilHitsinTrack,	// input, list of SciTil hits in the current track;
 	Double_t posizSciTil[][3]	// input, info on all the SciTil position;
@@ -3448,7 +3448,7 @@ bool PndTrkCleanup::XYCleanup(
 		2,	// # of Intersections between track and Circle;
 		Xcross,	// input and output; these are the intersections;
 		Ycross,	// input and output; these are the intersections;
-		FiOrderedList	// output  			
+		FiOrderedList	// output
    					);
 
 	// the intersection point must be close enough to at least 1 SciTil hit;
@@ -3578,7 +3578,7 @@ if(istampa>0){ cout<<"from XYCleanup,after ListAxialSectorsCrossedbyTrack_and_Hi
 	farthest_hit_is_boundary=true;
    }	// end of  for(i=nArcs_populated;i>0; i--)
 
- // ----------------------------------------------------------------------- 
+ // -----------------------------------------------------------------------
 
 
 

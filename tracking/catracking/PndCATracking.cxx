@@ -92,7 +92,7 @@ InitStatus PndCATracking::Init()
 
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
-  
+
   if(ioman==0)
   {
     Error("PndCATracking::Init","RootManager not instantiated!");
@@ -187,7 +187,7 @@ InitStatus PndCATracking::Init()
 
   //--------------------------------  output TClonesArrays ------------------------
 
-  
+
   // Create and register output array for PndTrack of Stt+Mvd combined
 
   fSttMvdPndTrackArray = new TClonesArray("PndTrack");
@@ -204,7 +204,7 @@ void PndCATracking::SetParContainers() {
   rtdb->getContainer("PndGeoSttPar");
   rtdb->getContainer("PndGeoFtsPar");
 
-  // for MVD geometry extraction 
+  // for MVD geometry extraction
   fGeoH = PndGeoHandling::Instance();
   fGeoH->SetParContainers();
 }
@@ -281,7 +281,7 @@ void PndCATracking::Exec(Option_t*)
   static int iEvent = -1;
   iEvent++;
 
-  string filePrefix = "./CATrackerData"; 
+  string filePrefix = "./CATrackerData";
   TString fadata_name = "CATrackerData/event";
   filePrefix += "/";
   static TFile* perfHistoFile = 0;
@@ -297,7 +297,7 @@ void PndCATracking::Exec(Option_t*)
       perfHistoFile = new TFile( (filePrefix + "CATrackerPerformance.root").data(), "RECREATE" );
       if( !perfHistoFile->IsOpen() ){
 	gSystem->Exec( "mkdir ./CATrackerData");
-	perfHistoFile = new TFile( (filePrefix + "CATrackerPerformance.root").data(), "RECREATE" ); 
+	perfHistoFile = new TFile( (filePrefix + "CATrackerPerformance.root").data(), "RECREATE" );
       }
     }
     outH.open ( fadata_name + "_hits.data", std::fstream::out);
@@ -404,7 +404,7 @@ void PndCATracking::Exec(Option_t*)
   //Save STT hits
 
   Int_t sttLinkType = FairRootManager::Instance()->GetBranchId("STTPoint");
-  
+
   std::map<Int_t,Int_t> tubeMap;
   std::map<Int_t,Int_t>::iterator mapIt;
 
@@ -420,7 +420,7 @@ void PndCATracking::Exec(Option_t*)
       mapIt->second++;
       if( mapIt->second >3 ) continue; //SG!!!
     }
-    
+
     PndSttTube *tube = (PndSttTube *) fTubeArray->At(tubeID);
     TVector3 wire_direction = tube->GetWireDirection();
 
@@ -552,7 +552,7 @@ void PndCATracking::Exec(Option_t*)
     {
       PndSdsMCPoint* point = MCTrackSortedArray[iTr].MvdArray[iPStt];
       int trackID = point->GetTrackID();
-  
+
       Double_t q = 1;
       {  // get charge
         if ( trackID < fMCTrackArray->GetEntriesFast() ) {
@@ -608,7 +608,7 @@ void PndCATracking::Exec(Option_t*)
     {
       PndSttPoint* point = MCTrackSortedArray[iTr].SttArray[iPStt];
       int trackID = point->GetTrackID();
-  
+
       Double_t q = 1;
       {  // get charge
         if ( trackID < fMCTrackArray->GetEntriesFast() ) {
@@ -639,7 +639,7 @@ void PndCATracking::Exec(Option_t*)
         if ( y < 0 && x >= 0 ) A = pi2 + A;
         if ( y < 0 && x < 0 ) A = 3*pi2 - A;
         if ( y >= 0 && x < 0 ) A = 3*pi2 + A;
-  
+
         A = floor(A/pi/2*6)*pi/3;
         // turn by -(A+3.1415/6)
         A = -(A+pi/6);
@@ -686,7 +686,7 @@ void PndCATracking::Exec(Option_t*)
 
     const PndMCTrack* mcTr = (PndMCTrack*) fMCTrackArray->At(iTr);
 
-    if( fDoPerformance ){    
+    if( fDoPerformance ){
       if ( !mcTr ) {
 	outMCT << -1 << " " << -1 << endl;
 	outMCT << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << endl;
@@ -725,7 +725,7 @@ void PndCATracking::Exec(Option_t*)
   }
 
   if(MCTrackSortedArray) delete[] MCTrackSortedArray;
-  
+
   if( fDoPerformance ){
     outH.close();
     outHL.close();
@@ -733,24 +733,24 @@ void PndCATracking::Exec(Option_t*)
     outMCP.close();
   }
 
-  // tracking 
+  // tracking
 
-  
+
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
-  PndCAPerformance *perf = &PndCAPerformance::Instance();
-#endif  
-    
+  /*PndCAPerformance *  */perf = &PndCAPerformance::Instance(); //[R.K. 9/2018] unshadow
+#endif
+
   PndCAGBTracker *tracker = 0;
   const PndCAGBTracker *trackerConst = 0;
-  
+
   tracker = new PndCAGBTracker;
-    
-  
+
+
   /*if ( !tracker->ReadSettingsFromFile(filePrefix) ) {
     cout << "ERROR: Settings file can't be opened!" << endl;
     }*/
-  
- std::string str = 
+
+ std::string str =
 "30 \
 -20 \
 0 2 0.0048 1.6 0 2 2 \
@@ -792,13 +792,13 @@ void PndCATracking::Exec(Option_t*)
  tracker->GetParametersNonConst().SetBz(Bz);
 
   trackerConst = tracker;
- 
+
   do{
     int kEvents = iEvent;
     char buf[6];
     sprintf( buf, "%d", kEvents );
     const string fileName = filePrefix + "event" + string(buf) + "_";
-    
+
     // std::cout << "CA tracker: Loading Event " << kEvents << "..." << std::endl;
     tracker->SetHits( vHits );
     /*
@@ -808,7 +808,7 @@ void PndCATracking::Exec(Option_t*)
     }
     */
     //std::cout << "Event " << kEvents << " CPU reconstruction..." << std::endl;
-    
+
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
     // cout<<"Filename "<<fileName<<endl;
     if ( fDoPerformance && perf ) {
@@ -818,16 +818,16 @@ void PndCATracking::Exec(Option_t*)
       if (!perf->ReadDataFromFiles(fileName)) {
 	cout << "Monte-Carlo Data for Event " << kEvents << " can't be read." << std::endl;
 	break;
-      }    
-    
-      perf->CombineHits(); 
+      }
+
+      perf->CombineHits();
     }
 #endif
 
     // cout<<"Run trackfinder .. "<<endl;
 
     tracker->FindTracks();
-    
+
     // Write output
     {
       int nOutTracks=0;
@@ -837,20 +837,20 @@ void PndCATracking::Exec(Option_t*)
 	PndTrackCand outCand;
 	for( int ih=0; ih<tr.NHits(); ih++ ){
 	  int hitIndex = tracker->TrackHit( tr.FirstHitRef() + ih );
-	  const PndCAGBHit &hit = tracker->Hit( hitIndex );	  	  
+	  const PndCAGBHit &hit = tracker->Hit( hitIndex );
 	  if( hit.PndDetID()==24 ) cout<<hit.PndDetID()<<" "<<hit.PndHitID()<<endl;
 	  outCand.AddHit( hit.PndDetID(), hit.PndHitID(), hit.IRow() );
 	}
 	outCand.setMcTrackId(-1);
-	//float x,y,z,px,py,pz,cov[21];	
-	//tr.Param().GetXYZPxPyPz( x,y,z,px,py,pz,cov);	
-	
+	//float x,y,z,px,py,pz,cov[21];
+	//tr.Param().GetXYZPxPyPz( x,y,z,px,py,pz,cov);
+
         FairTrackParP paramFirst;
         FairTrackParP paramLast;
 
 	CATrackParToFairTrackParP( &paramFirst, &tr.InnerParam() );
 	CATrackParToFairTrackParP( &paramLast, &tr.OuterParam() );
-	
+
 	//PndTrack tmp(paramFirst,paramLast,outCand);
 	//tmp.Print();
         PndTrack *outTrack = new((*fSttMvdPndTrackArray)[nOutTracks]) PndTrack(paramFirst,paramLast,outCand);
@@ -859,7 +859,7 @@ void PndCATracking::Exec(Option_t*)
 	nOutTracks++;
       }
     }
-     
+
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
     if ( fDoPerformance && perf ) {
       cout<<"Run performance.. "<<endl;
@@ -877,7 +877,7 @@ void PndCATracking::Exec(Option_t*)
     if (fVerbose>0){
 
       const bool ifAvarageTime = 1;
-      if (!ifAvarageTime){        
+      if (!ifAvarageTime){
 	std::cout << "Reconstruction Time"
 		  << " Real = " << std::setw( 10 ) << (trackerConst->SliceTrackerTime() + trackerConst->StatTime( 9 )) * 1.e3 << " ms,"
 		  << " CPU = " << std::setw( 10 ) << (trackerConst->SliceTrackerCpuTime() + trackerConst->StatTime( 10 )) * 1.e3 << " ms"
@@ -889,20 +889,20 @@ void PndCATracking::Exec(Option_t*)
 	static double *statTime = new double[NTimers];
 	static double statTime_SliceTrackerTime = 0;
 	static double statTime_SliceTrackerCpuTime = 0;
-	
+
 	if (!statIEvent){
 	  for (int i = 0; i < NTimers; i++){
 	    statTime[i] = 0;
 	  }
 	}
-      
+
 	statIEvent++;
 	for (int i = 0; i < NTimers; i++){
 	  statTime[i] += trackerConst->StatTime( i );
 	}
 	statTime_SliceTrackerTime += trackerConst->SliceTrackerTime();
-	statTime_SliceTrackerCpuTime += trackerConst->SliceTrackerCpuTime();      
-      
+	statTime_SliceTrackerCpuTime += trackerConst->SliceTrackerCpuTime();
+
 	std::cout << "Reconstruction Time"
 		  << " Real = " << std::setw( 10 ) << 1./statIEvent*(statTime_SliceTrackerTime+statTime[ 9 ]) * 1.e3 << " ms,"
 		  << " CPU = " << std::setw( 10 ) << 1./statIEvent*(statTime_SliceTrackerCpuTime+statTime[ 10 ]) * 1.e3 << " ms,"
@@ -911,7 +911,7 @@ void PndCATracking::Exec(Option_t*)
     } // fVerbose>0
 
   } while(0);
-            
+
   delete tracker;
 }
 
@@ -930,8 +930,8 @@ void PndCATracking::Finish()
 
 
 void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
-				    std::fstream &outH, std::fstream &outHL, std::fstream &outMCT, std::fstream &outMCP, int &iHit, map<int, unsigned int> &nHitsInMCTrack, bool isPixel)
-{  
+				    std::fstream &outH, std::fstream &outHL, std::fstream &/*outMCT*/, std::fstream &/*outMCP*/, int &iHit, map<int, unsigned int> &nHitsInMCTrack, bool isPixel) //[R.K. 9/2018] unused
+{
   TClonesArray *mvdHitsArray;
   if(isPixel) mvdHitsArray = fMvdPixelHitsArray;
   else mvdHitsArray = fMvdStripHitsArray;
@@ -960,7 +960,7 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
     //cout<<x<<" "<<y<<" "<<z<<endl;
     Double_t r = TMath::Sqrt(x*x + y*y);
     int iSta = -1;
-    /*    
+    /*
      Double_t *mTrans = transMat->GetTranslation();
      cout<<"sensor "<<sensorID<<", pixel "<<isPixel<<endl;
      cout<<"trans "<<mTrans[0]<<" "<<mTrans[1]<<" "<<mTrans[2]<<endl;
@@ -975,7 +975,7 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
 
     // get station angle A and station index iSta
 
-    if( fabs(mmm[6]) < 0.999 && fabs(mmm[7]) < 0.999 ) continue; 
+    if( fabs(mmm[6]) < 0.999 && fabs(mmm[7]) < 0.999 ) continue;
     if( fabs(mmm[6]) < 0.999 && fabs(mmm[7]) < 0.999 ){ // forward detector, perpendicular to beam axis Z
       //cout<<"forward detector!!??"<<endl;
       //Double_t sinA = mmm[2];
@@ -1006,13 +1006,13 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
 	  Double_t sinA = mmm[2];
 	  A = TMath::ASin(sinA)+TMath::Pi();
 	}
-      }      
+      }
       if( (r>0.) && (r<3.5) ) iSta = 0;//2;
       if( (r>3.5) && (r<7.5) ) iSta = 1;//3;
       if( (r>7.5) && (r<11.0) ) iSta = 2;//4;
       if( (r>11.0) && (r<15.0) ) iSta = 3;//5;
     }
-    
+
     TMatrixT<Double_t> RM(3,3,mmm);
     TMatrixT<Double_t> CR = currenthit->GetCov(); // rotated CovMatrix
 
@@ -1089,12 +1089,12 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
     h.SetTubeHalfLength( 0. );
 
     vHits.push_back(h);
-  
+
     int trackIDs[3] = {-1, -1, -1};
     if(trackID.size() > 0) trackIDs[0] = trackID[0];
     if(trackID.size() > 1) trackIDs[1] = trackID[1];
     if(trackID.size() > 2) trackIDs[2] = trackID[2];
-  
+
     if( fDoPerformance ){
       outH << h;
       outHL << trackIDs[0] << " " << trackIDs[1] << " " << trackIDs[2] << endl;
@@ -1111,7 +1111,7 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
     outH << iSta << " " << iHit << " " << A << endl;
     */
     iHit++;
- 
+
     if ( nHitsInMCTrack.find(trackIDs[0]) != nHitsInMCTrack.end() ) {
       nHitsInMCTrack[trackIDs[0]]++;
     } else {

@@ -20,7 +20,7 @@
 using namespace std;
 
 // -------------   Default constructor  ----------------------------------
-PndFieldMap::PndFieldMap() 
+PndFieldMap::PndFieldMap()
   : FairField(),
 	fFileName(""),
     fScale(1.0),
@@ -30,7 +30,7 @@ PndFieldMap::PndFieldMap()
 	fYmin(0), fYmax(0), fYstep(0),
     fZmin(0), fZmax(0), fZstep(0),
     fNx(0),fNy(0),fNz(0),
-    fBx(NULL), fBy(NULL), fBz(NULL)   
+    fBx(NULL), fBy(NULL), fBz(NULL)
 {
   SetName("");
   fType = 1;
@@ -50,7 +50,7 @@ PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
     fYmin(0), fYmax(0), fYstep(0),
     fZmin(0), fZmax(0), fZstep(0),
     fNx(0),fNy(0),fNz(0),
-    fBx(NULL), fBy(NULL), fBz(NULL)   
+    fBx(NULL), fBy(NULL), fBz(NULL)
 {
   SetName(mapName);
   TString dir = getenv("VMCWORKDIR");
@@ -64,7 +64,7 @@ PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
 
 
 // ------------   Constructor from PndFieldPar   --------------------------
-PndFieldMap::PndFieldMap(PndFieldPar* fieldPar) 
+PndFieldMap::PndFieldMap(PndFieldPar* fieldPar)
   : FairField(),
 	fFileName(TString("")),
     fScale(1.0),
@@ -74,11 +74,11 @@ PndFieldMap::PndFieldMap(PndFieldPar* fieldPar)
     fYmin(0), fYmax(0), fYstep(0),
     fZmin(0), fZmax(0), fZstep(0),
     fNx(0),fNy(0),fNz(0),
-    fBx(NULL), fBy(NULL), fBz(NULL)   
+    fBx(NULL), fBy(NULL), fBz(NULL)
 {
   fType = 1;
   if ( ! fieldPar ) {
-    gLogger->Error(MESSAGE_ORIGIN, "PndConstField::PndConstField: empty parameter container!");
+    LOG(ERROR) << "PndConstField::PndConstField: empty parameter container!"  ;
     SetName("");
 	fType     = -1;
   }
@@ -107,7 +107,7 @@ PndFieldMap::PndFieldMap(const  PndFieldMap& L)
     fYmin(L.fYmin), fYmax(L.fYmax), fYstep(L.fYstep),
     fZmin(L.fZmin), fZmax(L.fZmax), fZstep(L.fZstep),
     fNx(L.fNx),fNy(L.fNy),fNz(L.fNz),
-    fBx(L.fBx), fBy(L.fBy), fBz(L.fBz)   
+    fBx(L.fBx), fBy(L.fBy), fBz(L.fBz)
 {
   fType = L.fType;
   for (Int_t ii=0; ii<2; ii++)
@@ -122,7 +122,7 @@ PndFieldMap::PndFieldMap(const  PndFieldMap& L)
 	      }
 	}
     }
-  
+
 }
 // ------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ PndFieldMap::PndFieldMap(const  PndFieldMap& L)
 
 // ------------   Destructor   --------------------------------------------
 PndFieldMap::~PndFieldMap() {
-	
+
 	//printf("PndFieldMap::~PndFieldMap() \n");
   if ( fBx ) delete fBx;
   if ( fBy ) delete fBy;
@@ -145,7 +145,7 @@ void PndFieldMap::Init() {
   if      (fFileName.EndsWith(".root")) ReadRootFile(fFileName, fName);
   else if (fFileName.EndsWith(".dat"))  ReadAsciiFile(fFileName);
   else {
-    gLogger->Error(MESSAGE_ORIGIN,"-E- PndFieldMap::Init: No proper file name defined! (%s) ");
+    LOG(ERROR) << "-E- PndFieldMap::Init: No proper file name defined!  "<<fFileName.Data()  ;
     Fatal("Init", "No proper file name");
   }
 }
@@ -269,7 +269,7 @@ Bool_t PndFieldMap::IsInside(Double_t x, Double_t y, Double_t z,
     dx = dy = dz = 0.;
     return kFALSE;
   }
- 
+
   // --- Determine grid cell
   ix = Int_t( xl / fXstep );
   iy = Int_t( yl / fYstep );
@@ -292,10 +292,10 @@ Bool_t PndFieldMap::IsInside(Double_t x, Double_t y, Double_t z,
 void PndFieldMap::WriteAsciiFile(const char* fileName) {
 
   // Open file
-  gLogger->Info(MESSAGE_ORIGIN, "PndFieldMap: Writing field map to ASCII file %s ",fileName);
+  LOG(INFO) <<"PndFieldMap: Writing field map to ASCII file " <<fileName  ;
   ofstream mapFile(fileName);
   if ( ! mapFile.is_open() ) {
-    gLogger->Error(MESSAGE_ORIGIN, "PndFieldMap:ReadAsciiFile: Could not open file! ");
+    LOG(ERROR) << "PndFieldMap:ReadAsciiFile: Could not open file! "  ;
     return;
   }
 
@@ -315,10 +315,10 @@ void PndFieldMap::WriteAsciiFile(const char* fileName) {
   mapFile << fZmin << " " << fZmax << " " << fNz << endl;
 
   // Write field values
-  Double_t factor = funit * fScale;  // Takes out scaling 
+  Double_t factor = funit * fScale;  // Takes out scaling
   cout << right;
   Int_t nTot = fNx * fNy * fNz;
-  cout << "-I- PndFieldMap: " << fNx*fNy*fNz << " entries to write... " 
+  cout << "-I- PndFieldMap: " << fNx*fNy*fNz << " entries to write... "
        << setw(3) << 0 << " % ";
   Int_t index=0;
   div_t modul;
@@ -335,15 +335,15 @@ void PndFieldMap::WriteAsciiFile(const char* fileName) {
 	      cout << "\b\b\b\b\b\b" << setw(3) << perc << " % " << flush;
 	    }
 	  }
-	mapFile << fBx->At(index)/factor << " " << fBy->At(index)/factor 
+	mapFile << fBx->At(index)/factor << " " << fBy->At(index)/factor
 		<< " " << fBz->At(index)/factor << endl;
       } // z-Loop
     }   // y-Loop
   }     // x-Loop
   cout << "   " << index+1 << " written" << endl;
-  mapFile.close();		
+  mapFile.close();
 
-}	
+}
 // ------------------------------------------------------------------------
 
 
@@ -388,11 +388,11 @@ void PndFieldMap::Print() {
   cout << "----  Field type     : " << type << endl;
   cout << "----" << endl;
   cout << "----  Field map grid : " << endl;
-  cout << "----  x = " << setw(4) << fXmin << " to " << setw(4) << fXmax 
+  cout << "----  x = " << setw(4) << fXmin << " to " << setw(4) << fXmax
        << " cm, " << fNx << " grid points, dx = " << fXstep << " cm" << endl;
-  cout << "----  y = " << setw(4) << fYmin << " to " << setw(4) << fYmax 
+  cout << "----  y = " << setw(4) << fYmin << " to " << setw(4) << fYmax
        << " cm, " << fNy << " grid points, dy = " << fYstep << " cm" << endl;
-  cout << "----  z = " << setw(4) << fZmin << " to " << setw(4) << fZmax 
+  cout << "----  z = " << setw(4) << fZmin << " to " << setw(4) << fZmax
        << " cm, " << fNz << " grid points, dz = " << fZstep << " cm" << endl;
   cout << endl;
   cout << "----  Field centre position: ( " << setw(6) << fPosX << ", "
@@ -406,7 +406,7 @@ void PndFieldMap::Print() {
        << by << ", " << setw(6) << bz << ") kG" << endl;
  cout << "======================================================" << endl;
 }
-// ------------------------------------------------------------------------  
+// ------------------------------------------------------------------------
 
 
 
@@ -423,7 +423,7 @@ void PndFieldMap::Reset() {
   if ( fBy ) { delete fBy; fBy = NULL; }
   if ( fBz ) { delete fBz; fBz = NULL; }
 }
-// ------------------------------------------------------------------------  
+// ------------------------------------------------------------------------
 
 
 
@@ -432,7 +432,7 @@ void PndFieldMap::ReadAsciiFile(const char* fileName) {
 
   Double_t bx=0., by=0., bz=0.;
   // Open file
-  cout << "-I- PndFieldMap: Reading field map from ASCII file " 
+  cout << "-I- PndFieldMap: Reading field map from ASCII file "
        << fileName << endl;
   ifstream mapFile(fileName);
   if ( ! mapFile.is_open() ) {
@@ -452,7 +452,7 @@ void PndFieldMap::ReadAsciiFile(const char* fileName) {
   if ( fType != iType ) {
     cout << "-E- PndFieldMap::ReadAsciiFile: Incompatible map types!"
 	 << endl;
-    cout << "    Field map is of type " << fType 
+    cout << "    Field map is of type " << fType
 	 << " but map on file is of type " << iType << endl;
     Fatal("ReadAsciiFile","Incompatible map types");
   }
@@ -470,14 +470,14 @@ void PndFieldMap::ReadAsciiFile(const char* fileName) {
 
 
   // Read grid parameters
- 
+
   mapFile >>fXmin >> fXmax >> fNx;
   mapFile >>fYmin >> fYmax >> fNy;
   mapFile >>fZmin >> fZmax >> fNz;
   fXstep = ( fXmax - fXmin ) / Double_t( fNx - 1 );
   fYstep = ( fYmax - fYmin ) / Double_t( fNy - 1 );
   fZstep = ( fZmax - fZmin ) / Double_t( fNz - 1 );
-  
+
   // Create field arrays
   fBx = new TArrayF(fNx * fNy * fNz);
   fBy = new TArrayF(fNx * fNy * fNz);
@@ -487,7 +487,7 @@ void PndFieldMap::ReadAsciiFile(const char* fileName) {
   Double_t factor = fScale * funit;   // Factor 1/1000 for G -> kG
   cout << right;
   Int_t nTot = fNx * fNy * fNz;
-  cout << "-I- PndFieldMap: " << nTot << " entries to read... " 
+  cout << "-I- PndFieldMap: " << nTot << " entries to read... "
        << setw(3) << 0 << " % ";
   Int_t index = 0;
   div_t modul;
@@ -533,17 +533,17 @@ void PndFieldMap::ReadAsciiFile(const char* fileName) {
 
 
 // -------------   Read field map from ROOT file (private)  ---------------
-void PndFieldMap::ReadRootFile(const char* fileName, 
+void PndFieldMap::ReadRootFile(const char* fileName,
 			       const char* mapName) {
 
   // Store gFile pointer
   TFile* oldFile = gFile;
 
   // Open root file
-  gLogger->Info(MESSAGE_ORIGIN, "PndFieldMap: Reading field map from ROOT file  %s ",fileName); 
-  TFile* file = new TFile(fileName, "READ");		
+  LOG(INFO) <<"PndFieldMap: Reading field map from ROOT file  "<<fileName  ;
+  TFile* file = new TFile(fileName, "READ");
   if (file->IsZombie()) {
-    gLogger->Error(MESSAGE_ORIGIN, "-E- PndFieldMap::ReadRootfile: Cannot read from file! ");
+    LOG(ERROR) << "-E- PndFieldMap::ReadRootfile: Cannot read from file! "  ;
     Fatal("ReadRootFile","Cannot read from file");
   }
 
@@ -551,7 +551,7 @@ void PndFieldMap::ReadRootFile(const char* fileName,
   PndFieldMapData* data = NULL;
   file->GetObject(mapName, data);
   if ( ! data ) {
-     gLogger->Error(MESSAGE_ORIGIN,"PndFieldMap::ReadRootFile: data object %s not found in file! ", fileName);
+     LOG(ERROR)<<"PndFieldMap::ReadRootFile: data object %s not found in file! "<< fileName  ;
      exit(-1);
   }
 
@@ -561,7 +561,7 @@ void PndFieldMap::ReadRootFile(const char* fileName,
   // Close the root file and delete the data object
   file->Close();
   delete data;
-  delete file;	
+  delete file;
   if ( oldFile ) oldFile->cd();
 
 }
@@ -574,11 +574,11 @@ void PndFieldMap::SetField(const PndFieldMapData* data) {
 
   // Check compatibility
   if ( data->GetType() != fType ) {
-    gLogger->Error(MESSAGE_ORIGIN,"PndFieldMap::SetField: Incompatible map types Field map is of type %s \n but map on file is of type %s ",fType,data->GetType());
+    LOG(ERROR)<<"PndFieldMap::SetField: Incompatible map types Field map is of type "<<fType<<" \n but map on file is of type "<<data->GetType()  ;
     Fatal("SetField","Incompatible map types");
   }
-  
-  
+
+
   fXmin = data->GetXmin();
   fYmin = data->GetYmin();
   fZmin = data->GetZmin();
@@ -613,7 +613,7 @@ void PndFieldMap::SetField(const PndFieldMapData* data) {
   }
 
 }
-// ------------------------------------------------------------------------  
+// ------------------------------------------------------------------------
 
 
 

@@ -35,13 +35,13 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   PndPidCandidate();
   PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4, TMatrixD &cov7 );
   PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4);
-	
+
   ~PndPidCandidate();
 
   // ************************
   // ACCESSOR METHODS
   // ************************
-	
+
   // ************************
   // basic properties:
   // ************************
@@ -51,33 +51,33 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   TVector3  GetMomentum() const { return TVector3(fXmomentum, fYmomentum, fZmomentum); }
   Double_t  GetEnergy()   const { return fEnergy; }
   TLorentzVector GetLorentzVector() const{return TLorentzVector(fXmomentum,fYmomentum,fZmomentum,fEnergy);}
-	
+
   TVector3  GetFirstHit() const{return TVector3(fFirstHitX,fFirstHitX,fFirstHitX);}
   TVector3  GetLastHit() const{return TVector3(fLastHitX,fLastHitY,fLastHitZ);}
-	
+
   const Float_t* GetErrorP7() const{return fErrP7;}
   const Float_t* GetParams() const{return fParams;}
   const Float_t* GetCov() const{return fCov;}
   TMatrixD& Cov7() const;
   TMatrixD& P4Cov() const ;
   Int_t     GetMcIndex() const{return fMcIndex;}
-  Int_t     GetTrackIndex() const{return fTrackIndex;}	
+  Int_t     GetTrackIndex() const{return fTrackIndex;}
   Int_t     GetTrackBranch() const{return fTrackBranch;}
 
   // ************************
   // detector specific stuff
   // ************************
-	
+
   // MVD
   Float_t		GetMvdDEDX()     const { return fMvdDEDX; }
   Int_t		        GetMvdHits()     const { return fMvdHits; }
   //const Int_t* GetMvdHitIndexArray()  {return fMvdHitIndexArray.GetArray();}
-	
+
   // STT
   Float_t		GetSttMeanDEDX() const { return fSttMeanDEDX; }
   Int_t		        GetSttHits()     const { return fSttHits; }
   //const Int_t* GetSttHitIndexArray()  {return fSttHitIndexArray.GetArray();}
-	
+
   // GEM
   Int_t                 GetGemHits()     const { return fGemHits; }
 
@@ -87,8 +87,8 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   Float_t		GetTofTrackLength() const { return fTofTrackLength; }
   Float_t		GetTofQuality()     const { return fTofQuality; }
   Int_t                 GetTofIndex()       const { return fTofIndex; }
-  Float_t               GetTofBeta()        const { return (fTofStopTime>0.&&fTofTrackLength>0.) ? fTofTrackLength/(30. * fTofStopTime) : -1.; } 
- 
+  Float_t               GetTofBeta()        const { return (fTofStopTime>0.&&fTofTrackLength>0.) ? fTofTrackLength/(30. * fTofStopTime) : -1.; }
+
   // Barrel DIRC
   Float_t		GetDrcThetaC()          const { return fDrcThetaC;}
   Float_t		GetDrcThetaCErr()       const { return fDrcThetaCErr;}
@@ -125,11 +125,11 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   Double_t GetEmcClusterE1()  const { return fEmcE1;  }
   Double_t GetEmcClusterE9()  const { return fEmcE9;  }
   Double_t GetEmcClusterE25() const { return fEmcE25; }
-  
+
   // MUO
   Int_t		GetMuoNumberOfLayers()const {return fMuoNumberOfLayers;}
   Float_t		GetMuoProbability() const{return fMuoProbability;}
-  Float_t		GetMuoQuality()   const{return fMuoQuality;} 
+  Float_t		GetMuoQuality()   const{return fMuoQuality;}
   Float_t		GetMuoIron()      const{return fMuoIron;}
   Float_t		GetMuoMomentumIn()const{return fMuoMomentumIn;}
   Int_t                 GetMuoModule()    const { return fMuoModule; }
@@ -137,19 +137,19 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   Int_t                 GetMuoIndex()     const { return fMuoIndex; }
 
   // Tracking
- 
+
   Int_t    	GetDegreesOfFreedom() const{return fDegreesOfFreedom;}
   Int_t    	GetFitStatus() const{return fFitStatus;}
   Float_t  	GetChiSquared() const{return fChiSquared;}
-  
+
   // ************************
   // MODIFIER METHODS
   // ************************
-	
+
   void Lock() {fLocked=true;}
   void Unlock() {fLocked=false;}
   bool IsLocked() {return fLocked;}
-	
+
   // ************************
   // basic properties:
   // ************************
@@ -159,29 +159,29 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   void	SetMomentum(TVector3 &mom) { fXmomentum=mom.X(); fYmomentum=mom.Y(); fZmomentum=mom.Z(); }
   void	SetEnergy(Double_t en)     { fEnergy=(Float_t) en;}
   void	SetLorentzVector(TLorentzVector &p4);
-    
+
   void	SetFirstHit(TVector3 &pos) { fFirstHitX=pos.X(); fFirstHitY=pos.Y(); fFirstHitZ=pos.Z(); }
   void	SetLastHit(TVector3 &pos)  { fLastHitX =pos.X(); fLastHitY =pos.Y(); fLastHitZ=pos.Z();  }
-    
+
   void	SetCov7(const TMatrixD &cov7 );
   void	SetP4Cov(const TMatrixD &covP4 );
   void	SetMcIndex(int idx) {fMcIndex=idx; }
-  void  SetTrackIndex(int idx) {fTrackIndex=idx; } 
-  void  SetTrackBranch(int idx) {fTrackBranch=idx; }	
+  void  SetTrackIndex(int idx) {fTrackIndex=idx; }
+  void  SetTrackBranch(int idx) {fTrackBranch=idx; }
 
   void  SetHelixParams(Double_t *par) {if (par!=0) for (int i=0; i<5;i++) fParams[i] = (Float_t)par[i];}
   void  SetHelixCov(Double_t* cov){if (cov!=0) for (int i=0; i<15;i++) fCov[i] = (Float_t)cov[i];}
 
-  
+
   // ************************
   // detector specific stuff
   // ************************
-	
+
   // MVD
   void 	SetMvdDEDX(Double_t val)    { fMvdDEDX = (Float_t) val; }
   void	SetMvdHits(Int_t val)       { fMvdHits = val; }
   //void	SetMvdHitIndexArray(Int_t n, Int_t* arr)  { fMvdHits=n; fMvdHitIndexArray.Set(n,arr);}
-	
+
   // STT
   void	SetSttMeanDEDX(Double_t val)  { fSttMeanDEDX = (Float_t) val; }
   void	SetSttHits(Int_t val)         { fSttHits = val; }
@@ -194,7 +194,7 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   void  SetTofTrackLength(Double_t val) { fTofTrackLength = val; }
   void  SetTofQuality(Double_t val)     { fTofQuality = val; }
   void	SetTofIndex(Int_t val)          { fTofIndex = val;}
- 	
+
   // Barrel DIRC
   void	SetDrcThetaC(Double_t val)       { fDrcThetaC= (Float_t) val;}
   void	SetDrcThetaCErr(Double_t val)    { fDrcThetaCErr=(Float_t) val;}
@@ -215,7 +215,7 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   void	SetRichQuality(Double_t val)      { fRichQuality=(Float_t) val;}
   void	SetRichNumberOfPhotons(Int_t val) { fRichNumberOfPhotons= val;}
   void  SetRichIndex(Int_t val)           { fRichIndex = val; }
-  
+
   // EMC
   void	SetEmcRawEnergy(Double_t val)     { fEmcRawEnergy=(Float_t) val;}
   void	SetEmcCalEnergy(Double_t val)     { fEmcCalEnergy=(Float_t) val;}
@@ -238,9 +238,9 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   void	SetMuoNumberOfLayers(Int_t val) { fMuoNumberOfLayers= val;}
   void	SetMuoProbability(Double_t val) { fMuoProbability=(Float_t) val;}
   void	SetMuoQuality(Double_t val)     { fMuoQuality=(Float_t) val;}
-  void	SetMuoIron(Double_t val)        { fMuoIron=(Float_t) val;} 
+  void	SetMuoIron(Double_t val)        { fMuoIron=(Float_t) val;}
   void	SetMuoMomentumIn(Double_t val)  { fMuoMomentumIn=(Float_t) val;}
-  void  SetMuoModule(Int_t val)         { fMuoModule = val; } 
+  void  SetMuoModule(Int_t val)         { fMuoModule = val; }
   void  SetMuoHits(Int_t val)           { fMuoHits = val; }
   void  SetMuoIndex(Int_t val)          { fMuoIndex = val; }
 
@@ -248,12 +248,12 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   void   	SetDegreesOfFreedom(Int_t val) { fDegreesOfFreedom=val;}
   void    SetFitStatus(Int_t val) { fFitStatus= val;}
   void  	SetChiSquared(Double_t val) { fChiSquared=(Float_t) val;}
-	  
+
   void SetDefault();
  protected:
   // Candidate lock
   Bool_t	fLocked;
-	
+
   // the basic params
   Char_t  fCharge;		// The electrical charge
   Float_t fXposition,		// The origin in x
@@ -264,34 +264,34 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
     fYmomentum,		// The momentum in y
     fZmomentum,		// The momentum in z
     fEnergy;		// The total energy
-		
+
   Float_t fFirstHitX,
     fFirstHitY,
     fFirstHitZ;
-			
+
   Float_t fLastHitX,
     fLastHitY,
     fLastHitZ;
-			
+
   Int_t		fMcIndex;    // MC truth index
   Int_t         fTrackIndex; // PndTrack index
   Int_t         fTrackBranch;// index of PndTrack TClonesArray
   Float_t	fErrP7[28];  // The symmetric 7*7 error matrix
   Float_t	fParams[5];  // The helix fit parameters
   Float_t	fCov[15];    // The helix error matrix
-		
+
   // detector quantities
   // MVD
   Float_t 	fMvdDEDX;
   Int_t   	fMvdHits;
   //TArrayI		fMvdHitIndexArray;
-	
+
   // STT
   Float_t 	fSttMeanDEDX;
   Int_t   	fSttHits;
   //TArrayI		fSttHitIndexArray;
-	
-  //GEM 
+
+  //GEM
   Int_t         fGemHits;
 
   // TOF
@@ -300,7 +300,7 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   Float_t       fTofTrackLength;
   Float_t       fTofQuality;
   Int_t         fTofIndex;
-	
+
   // Barrel DIRC
   Float_t 	fDrcThetaC;
   Float_t 	fDrcThetaCErr;
@@ -314,31 +314,30 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   Float_t       fDiscQuality;
   Int_t		fDiscNumberOfPhotons;
   Int_t         fDiscIndex;
-  
+
   // RICH
   Float_t 	fRichThetaC;
   Float_t 	fRichThetaCErr;
   Float_t       fRichQuality;
   Int_t		fRichNumberOfPhotons;
   Int_t         fRichIndex;
-  
+
   // EMC
-  Float_t 	fEmcRawEnergy;
-  Float_t 	fEmcCalEnergy;
-  Float_t       fEmcQuality;
-  Float_t   fEmcTimeStamp;			///< TimeStamp at the cluster or bump position no track length correction done at this stage
-  Int_t		fEmcNumberOfCrystals;
-  Int_t		fEmcNumberOfBumps;
-  Int_t         fEmcModule;
-  Int_t         fEmcIndex;
-  
-  Double_t      fEmcZ20;
-  Double_t      fEmcZ53;
-  Double_t      fEmcLat;
-  Double_t      fEmcE1;
-  Double_t      fEmcE9;
-  Double_t      fEmcE25;
-  
+  Float_t  fEmcRawEnergy;
+  Float_t  fEmcCalEnergy;
+  Float_t  fEmcQuality;
+  Int_t		 fEmcNumberOfCrystals;
+  Int_t		 fEmcNumberOfBumps;
+  Int_t    fEmcModule;
+  Int_t    fEmcIndex;
+  Double_t fEmcZ20;
+  Double_t fEmcZ53;
+  Double_t fEmcLat;
+  Double_t fEmcE1;
+  Double_t fEmcE9;
+  Double_t fEmcE25;
+  Float_t  fEmcTimeStamp;			///< TimeStamp at the cluster or bump position no track length correction done at this stage
+
   // MUO
   Int_t		fMuoNumberOfLayers;
   Float_t 	fMuoProbability;
@@ -348,17 +347,17 @@ class PndPidCandidate : public PndRecoCandidate  //FairMultiLinkedData
   Int_t         fMuoModule;
   Int_t         fMuoHits;
   Int_t         fMuoIndex;
-  
+
   // Tracking
   Int_t	        fDegreesOfFreedom;
   Int_t	        fFitStatus;
   Float_t 	fChiSquared;
-  
+
 
   ClassDef(PndPidCandidate,5) // Abstract base class for MicroDST candidates
     };
 
 //std::ostream&  operator << (std::ostream& o, const VAbsMicroCandidate&);
 
-#endif                                           
+#endif
 

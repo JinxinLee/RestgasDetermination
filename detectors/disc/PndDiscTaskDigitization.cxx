@@ -82,15 +82,15 @@ InitStatus PndDiscTaskDigitization::Init()
     FairRootManager* io_manager = FairRootManager::Instance();
     if(!io_manager)
     {
-        FairLogger::GetLogger()->Fatal(MESSAGE_ORIGIN, "FairRootManager instance is NULL !!!");
+        LOG(FATAL) << "FairRootManager instance is NULL !!!";
         return kFATAL;
     }
-  
+
     // Get sensor hits from input tree:
     tclarr_mc_points = (TClonesArray*) io_manager->GetObject(branch_name_mc_point);
     if(!tclarr_mc_points)
     {
-        FairLogger::GetLogger()->Error(MESSAGE_ORIGIN, "Branch %s is not accessible through FairRootManager.");
+        LOG(ERROR) << "Branch "<< branch_name_mc_point.Data() <<" is not accessible through FairRootManager.";
         return kERROR;
     }
     mc_point_branch_id = io_manager->GetBranchId(branch_name_mc_point);
@@ -99,8 +99,8 @@ InitStatus PndDiscTaskDigitization::Init()
     //writeout_buffer = new DiscDIRC_WriteoutBuffer(branch_name_digits, folder_name_digits, is_persistent);
     //writeout_buffer->SetVerbose(1);
     //writeout_buffer = (DiscDIRC_WriteoutBuffer*)io_manager->RegisterWriteoutBuffer(branch_name_digits, writeout_buffer);
-    
-    // Set buffering mode:   
+
+    // Set buffering mode:
     //writeout_buffer->ActivateBuffering(is_time_based);
 
     // MCTruth output if particle types are set
@@ -110,7 +110,7 @@ InitStatus PndDiscTaskDigitization::Init()
         tclarr_particle_tracks_in = (TClonesArray*) io_manager->GetObject("DiscParticleMCPoint");
         if(!tclarr_particle_tracks_in)
         {
-            fLogger->Error(MESSAGE_ORIGIN, "GetObject(\"DiscParticleMCPoint\") returned NULL");
+            LOG(ERROR) << "GetObject(\"DiscParticleMCPoint\") returned NULL";
             return kERROR;
         }
 
@@ -351,7 +351,7 @@ void PndDiscTaskDigitization::Exec(Option_t*)
 
         if(gGeoManager == NULL)
         {
-            FairLogger::GetLogger()->Fatal(MESSAGE_ORIGIN, "gGeoManager is NULL - cannot retrieve geo information !!!");
+            LOG(FATAL) << "gGeoManager is NULL - cannot retrieve geo information !!!";
         }
 
         PndDiscDigitizedHit * digit = new PndDiscDigitizedHit(FairLink(input_file_id, event_header->GetMCEntryNumber(), mc_point_branch_id, i),
@@ -360,9 +360,9 @@ void PndDiscTaskDigitization::Exec(Option_t*)
 
         // buffer is responsible to delete digit:
         //writeout_buffer->FillNewData(digit, absolute_time, absolute_time+dead_time);
-        
+
         digit = new((*array)[array->GetEntriesFast()]) PndDiscDigitizedHit(*digit);
-        digit->Print(); 
+        digit->Print();
     }
 
     if( (!is_run_mixed || input_file_id > 0) && particle_types.size() > 0)
