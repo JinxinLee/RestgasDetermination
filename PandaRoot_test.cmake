@@ -6,7 +6,8 @@ Set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 Set(CTEST_PROJECT_NAME "PandaRoot")
 Set(EXTRA_FLAGS $ENV{EXTRA_FLAGS})
 
-Set(CTEST_UPDATE_COMMAND "git")
+Find_Program(CTEST_GIT_COMMAND NAMES git)
+Set(CTEST_UPDATE_COMMAND "${CTEST_GIT_COMMAND}")
 
 If($ENV{ctest_model} MATCHES Continuous)
   Set(CTEST_SVN_UPDATE_OPTIONS "$ENV{REVISION}")
@@ -35,16 +36,16 @@ If($ENV{ctest_model} MATCHES Nightly OR $ENV{ctest_model} MATCHES Profile)
   # get the information about conflicting or localy modified files
   # from svn, extract the relavant information about the file name
   # and put the result in the output variable
-  Execute_Process(COMMAND git status -s  
+  Execute_Process(COMMAND git status -s
                   COMMAND grep ^[CM]
-                  COMMAND cut -c4- 
+                  COMMAND cut -c4-
                   OUTPUT_VARIABLE FILELIST
                   )
 
   # create out of the output a cmake list. This step is done to convert the
   # stream into seperated filenames.
   # The trick is to exchange an "\n" by an ";" which is the separartor in
-  # a list created by cmake 
+  # a list created by cmake
   String(REGEX REPLACE "\n" ";" _result "${FILELIST}")
 
   ForEach(_file ${_result})
@@ -68,8 +69,6 @@ EndIf()
 Ctest_Configure(BUILD "${CTEST_BINARY_DIRECTORY}")
 Ctest_Build(BUILD "${CTEST_BINARY_DIRECTORY}")
 
-# introducing a second call of the build process because vc causes a crash if it is build only once
-Ctest_Build(BUILD "${CTEST_BINARY_DIRECTORY}")
 String(TOUPPER $ENV{ctest_model} MODEL)
 If(NOT ${MODEL} MATCHES CONTINUOUS)
   Ctest_Test(BUILD "${CTEST_BINARY_DIRECTORY}" PARALLEL_LEVEL $ENV{number_of_processors})
