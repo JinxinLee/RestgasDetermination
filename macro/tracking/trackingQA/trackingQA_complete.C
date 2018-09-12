@@ -8,7 +8,7 @@ int trackingQA_complete(TString prefix, TString branch, Int_t nEvents=0)
   TString  input          = "";
   TString  output         = "trackingQA_";
   output.Append(branch);
-  TString  friend1        = "catracking";
+  TString  friend1        = "standard";
   TString  friend2        = "digi";
   TString  friend3        = "sim";
   TString  friend4        = "idealbarreltracking";
