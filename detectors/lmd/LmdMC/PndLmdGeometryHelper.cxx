@@ -109,18 +109,20 @@ std::vector<PndLmdOverlapInfo> PndLmdGeometryHelper::getOverlapInfos(int iHalf, 
 					if (iModule != hitLoc.module) continue;
 				}
 
+				PndLmdOverlapInfo temp;
+
 				std::string path1(geo_handling->GetPath(int(iSensor)));
 				gGeoManager->cd(path1.c_str());
-				gGeoManager->CdUp();		//exclude toActiveRect
+				temp.mat1 = gGeoManager->GetCurrentMatrix();
+				gGeoManager->CdUp();		//exclude toActiveRect from path
 				path1 = (gGeoManager->GetPath());
 				std::string path2(geo_handling->GetPath(int(jSensor)));
 				gGeoManager->cd(path2.c_str());
-				gGeoManager->CdUp();		//exclude toActiveRect
+				temp.mat2 = gGeoManager->GetCurrentMatrix();
+				gGeoManager->CdUp();		//exclude toActiveRect from path
 				path2 = (gGeoManager->GetPath());
 
 				auto overlapID = getOverlapIdFromSensorIDs(iSensor, jSensor);
-
-				PndLmdOverlapInfo temp;
 				temp.path1 = path1;
 				temp.path2 = path2;
 				temp.overlapID = overlapID;

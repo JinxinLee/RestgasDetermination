@@ -81,8 +81,8 @@ bool PndLmdSensorAligner::zeroValCheck() {
 
 	// 3 dimension and 2 arrays = 6
 	double zeroFactor = zeroVals / ((double) nPairs * 6.0);
-	if (zeroFactor > 0.1 && zeroFactor < 0.3) {
-		cout << "WARNING. More than 10 % of your entries is zero. That must be a mistake. \n";
+	if (zeroFactor > 0.15 && zeroFactor <= 0.3) {
+		cout << "WARNING. More than 15 % of your entries is zero. That must be a mistake. \n";
 		cout << "Also, the kdtree creation could crash. Keep an eye out for that...\n";
 		cout << "Zero factor: " << zeroFactor << "\n";
 		cout << "model x vals invalid: " << modxinv / (double) nPairs << "\n";
@@ -111,7 +111,7 @@ bool PndLmdSensorAligner::zeroValCheck() {
 	return true;
 }
 
-void PndLmdSensorAligner::applyDynamicCut() {
+void PndLmdSensorAligner::applyDynamicCut(double percent) {
 
 	if (simplePairs[0].size() < 7) {
 		cerr << "WARNING. Can't apply dynamic cut because distance information is not stored.\n";
@@ -120,10 +120,15 @@ void PndLmdSensorAligner::applyDynamicCut() {
 	}
 
 	//sort pairs by distance, which is the 7th entry of the inner vector
-	std::sort(simplePairs.begin(), simplePairs.end(),
-	    [](const std::vector< double >& a, const std::vector< double >& b) {return a[6] < b[6];});
+  //std::sort(simplePairs.begin(), simplePairs.end(),
+  //  [](const std::vector< double >& a, const std::vector< double >& b) {return a[6] < b[6];});
 
-	int quantileMargin = simplePairs.size() * 0.05;  // shave 5% from front and back
+	//  sort by xy-distance, ignore z distance
+	std::sort(simplePairs.begin(), simplePairs.end(),
+			[](const std::vector< double >& a, const std::vector< double >& b) {return
+					(a[0]*a[0] + a[1]*a[1]) < (b[0]*b[0] + b[1]*b[1]) ;});
+
+	int quantileMargin = simplePairs.size() * (percent/100);  // cut from front and back
 
 	vector<vector<double> >::const_iterator first = simplePairs.begin() + quantileMargin;
 	vector<vector<double> >::const_iterator last = simplePairs.end() - quantileMargin;
@@ -132,7 +137,7 @@ void PndLmdSensorAligner::applyDynamicCut() {
 	//overwrite simple pairs vector with new, reduced vector
 	simplePairs = newSimplePairs;
 
-	//remove bias from sorting
+	//remove possible bias from sorting
 	std::random_shuffle(simplePairs.begin(), simplePairs.end());
 }
 
@@ -171,13 +176,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	//check for zero values, largely not needed anymore, but keep it for now
 	zeroValCheck();
-
-	//transform pairs to local module frame of reference
-	bool transformToSensorBool = true;
-	Matrix toSensor;
-	if (transformToSensorBool && inCentimeters) {
-		toSensor = transformToSensorOne();
-	}
 
 	double* Model = new double[dim * nPairs];
 	double* Template = new double[dim * nPairs];
@@ -789,14 +787,14 @@ Matrix PndLmdSensorAligner::transformToSensorOne() {
 
 	Matrix toLMD = Matrix::eye(4);
 
-	// maybe this helps with thread safety
+	// maybe this helps with thread safety | should be in geometryHelper now!
 	superManager->geometryHelperMutex.lock();
 
 	PndLmdGeometryHelper *helper = &PndLmdGeometryHelper::getInstance();
 	int id1 = helper->getSensorOneFromOverlapID(overlapID);
 	TGeoHMatrix matrix = helper->getMatrixPndGlobalToSensor(id1);
 
-	// maybe this helps with thread safety
+	// maybe this helps with thread safety | should be in geometryHelper now!
 	superManager->geometryHelperMutex.unlock();
 
 	toLMD = superManager->castTGeoHMatrixToMatrix(matrix);

@@ -30,6 +30,7 @@ class PndLmdSensorAligner {
 private:
 
 	friend class PndLmdAlignQA;
+	friend class PndLmdAlignManager;
 
 	bool forceInstant, debug;
 	unsigned int maxNoOfPairs, numberOfPairs, lastNoOfPairs, dim;
@@ -40,9 +41,6 @@ private:
 	std::vector<std::vector<double> > simplePairs;
 
 	bool inCentimeters, success, zIsTimestamp;
-
-	Matrix transformToLmdLocal();
-	Matrix transformToSensorOne();
 
 	void printPairSpread(int what = 0);
 	void transformPair(Matrix &trafoMatrix, std::vector<double> &pair);
@@ -81,6 +79,9 @@ public:
 		}
 	}
 
+	Matrix transformToLmdLocal();
+	Matrix transformToSensorOne();
+
 	bool check();
 
 	void clearPairs();
@@ -108,7 +109,7 @@ public:
 		}
 	}
 
-	void applyDynamicCut();
+	void applyDynamicCut(double percent=5.0);
 
 	void calculateMatrix();
 

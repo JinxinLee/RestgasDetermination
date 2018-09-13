@@ -83,8 +83,6 @@ int createPndLmdMisalignmentMatrices() {
 	// after init, the geometry can't be changed anymore, but that's okay.
 	// we only want to create a matrix file that can be used in a later step.
 
-
-
 	PndLmdGeometryHelper &helper = PndLmdGeometryHelper::getInstance();
 	vector < string > paths = helper.getAllAlignPaths(true, false, false, false, false);
 

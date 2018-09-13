@@ -36,8 +36,8 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 	// -----   Timer   --------------------------------------------------------
 
 	//load neccessary libraries
-	gSystem->Load("libLmd");
-	gSystem->Load("libLmdSensorAligner");
+	//gSystem->Load("libLmd");
+	//gSystem->Load("libLmdSensorAligner");
 
 	//FIXME: don't hard code starting event!
 	cout << "populating gGeoManager with geometry data...\n";
@@ -100,7 +100,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath = "tmpOutput", TString binar
 	 */
 
 
-	cleanup();
+	//cleanup();
 	return 0;
 }
 

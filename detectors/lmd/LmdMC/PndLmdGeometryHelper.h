@@ -44,6 +44,9 @@ struct PndLmdOverlapInfo {
 	int id1;
 	int id2;
 
+	TGeoHMatrix mat1;
+	TGeoHMatrix mat2;
+
 	// two dummy HitLocationInfo objects for the sensors
 	PndLmdHitLocationInfo hit1;
 	PndLmdHitLocationInfo hit2;
@@ -54,6 +57,8 @@ struct PndLmdOverlapInfo {
 		stream << "id 1: " << overlap_info.id1 << "\n";
 		stream << "id 2: " << overlap_info.id2 << "\n";
 		stream << "overlapID: " << overlap_info.overlapID << "\n";
+		stream << "matrix 1: " << "\n";
+		stream << "matrix 2: " << "\n";
 		return stream;
 	}
 };

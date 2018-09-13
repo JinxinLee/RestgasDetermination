@@ -15,12 +15,15 @@
 #include <sstream>
 #include <PndLmdHitPair.h>
 
+#include "json.hpp"
+
 std::map<std::string, TGeoHMatrix> *matricesMisaligned;
 std::map<std::string, TGeoHMatrix> *matricesIdeal;
 PndLmdGeometryHelper *helper;
 
 using std::cout;
 using std::string;
+using json = nlohmann::json;
 
 void initDummySimulation() {
 	cout << "creating dummy simulation to populate gGeoManager...\n";
@@ -177,9 +180,6 @@ TGeoHMatrix readMatrixFromDisk(std::string filename) {
 	result.SetDy(trans[1]);
 	result.SetDz(trans[2]);
 
-	//cout << "matrix " << filename << "\n";
-	//result.Print();
-
 	return result;
 }
 
@@ -299,41 +299,43 @@ void buildCyclic(int alignParam) {
 
 	TString misalignedMatrices = "";
 	std::string pathPrefix = "/home/arbeit/RedPro3TB/simulationData/";
+	//std::string pathPost = "LMDmatrices-python-cut-0-2D/";
+	std::string pathPost = "LMDmatrices-cut0-new/";
+	//std::string pathPost = "LMDmatrices-python-cut-0-2D/";
 	std::string path;
 	std::string pdfPath;
 
-
-	switch(alignParam){
+	switch (alignParam) {
 	case 0:
 		break;
 	case 10:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-10.root";
-		path = "2018-08-himster2-misalign-10u/LMDmatrices/";
+		path = "2018-08-himster2-misalign-10u/";
 		pdfPath = "misalign-10u/";
 		break;
 	case 50:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-50.root";
-		path = "2018-08-himster2-misalign-50u/LMDmatrices/";
+		path = "2018-08-himster2-misalign-50u/";
 		pdfPath = "misalign-50u/";
 		break;
 	case 100:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-100.root";
-		path = "2018-08-himster2-misalign-100u/LMDmatrices/";
+		path = "2018-08-himster2-misalign-100u/";
 		pdfPath = "misalign-100u/";
 		break;
 	case 150:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-150.root";
-		path = "2018-08-himster2-misalign-150u/LMDmatrices/";
+		path = "2018-08-himster2-misalign-150u/";
 		pdfPath = "misalign-150u/";
 		break;
 	case 200:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-200.root";
-		path = "2018-08-himster2-misalign-200u/LMDmatrices/";
+		path = "2018-08-himster2-misalign-200u/";
 		pdfPath = "misalign-200u/";
 		break;
 	case 250:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-250.root";
-		path = "2018-08-himster2-misalign-250u/LMDmatrices/";
+		path = "2018-08-himster2-misalign-250u/";
 		pdfPath = "misalign-250u/";
 		break;
 	}
@@ -354,9 +356,9 @@ void buildCyclic(int alignParam) {
 		cout << "getting matrices by hand | real ICP matrices\n";
 	}
 
-	path = pathPrefix + path;
+	path = pathPrefix + path + pathPost;
 
-	gSystem->Exec(("mkdir "+pdfPath).c_str());
+	gSystem->Exec(("mkdir -p " + pdfPath).c_str());
 
 	for (int iHalf = 0; iHalf < 2; iHalf++) {
 		for (int iPlane = 0; iPlane < 4; iPlane++) {
@@ -502,6 +504,10 @@ void buildCyclic(int alignParam) {
 		int key = i.first;
 		auto thisDiff = getMatrixDiff(matricesByHand[key], matricesByGeoManager[key]);
 
+		if (thisDiff[1] * 1e4 > 40.0) {
+			cout << "Alarm! " << i.first << "\n";
+		}
+
 		// hist das shizzle
 		histA.Fill(thisDiff[2] * 1e3);
 		histX.Fill(thisDiff[0] * 1e4);
@@ -532,6 +538,152 @@ void buildCyclic(int alignParam) {
 
 }
 
+void saveMatricesToJson() {
+	auto overlaps = helper->getOverlapInfos();
+
+	cout << "got " << overlaps.size() << " overlaps\n";
+
+	json j;
+
+	for (auto &overlap : overlaps) {
+		//cout << overlap << "\n";
+
+		double *mat1 = new double[16];
+		overlap.mat1.GetHomogenousMatrix(mat1);
+		double *mat2 = new double[16];
+		overlap.mat1.GetHomogenousMatrix(mat2);
+
+		j[std::to_string(overlap.overlapID)]["overlapID"] = overlap.overlapID;
+		j[std::to_string(overlap.overlapID)]["id1"] = overlap.id1;
+		j[std::to_string(overlap.overlapID)]["id2"] = overlap.id2;
+		j[std::to_string(overlap.overlapID)]["matrix1"] = {
+			mat1[0], mat1[1], mat1[2], mat1[12],
+			mat1[4], mat1[5], mat1[6], mat1[13],
+			mat1[8], mat1[9], mat1[10], mat1[14],
+			mat1[3], mat1[7], mat1[11], mat1[15]
+		};
+		j[std::to_string(overlap.overlapID)]["matrix2"] = {
+			mat2[0], mat2[1], mat2[2], mat2[12],
+			mat2[4], mat2[5], mat2[6], mat2[13],
+			mat2[8], mat2[9], mat2[10], mat2[14],
+			mat2[3], mat2[7], mat2[11], mat2[15]
+		};
+	}
+
+	cout << "got " << j.size() << " json objects\n";
+
+	std::ofstream o("matricesIdeal.json");
+	o << std::setw(2) << j << std::endl;
+
+}
+
+void compareICPmatrices(int alignParam) {
+
+	TString idealMatrices = "idealMatrices.root";
+
+	TString misalignedMatrices = "";
+	std::string pathMisalign;
+	std::string pathPrefix = "/home/arbeit/RedPro3TB/simulationData/";
+	std::string pathPost = "LMDmatrices-python-cut-0-3D/";
+	std::string pdfPath;
+	std::string ext = "cm.mat";
+
+	switch (alignParam) {
+	case 0:
+		break;
+	case 10:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-10.root";
+		pathMisalign = "2018-08-himster2-misalign-10u/";
+		pdfPath = "misalign-10u/singleMatrices/";
+		break;
+	case 50:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-50.root";
+		pathMisalign = "2018-08-himster2-misalign-50u/";
+		pdfPath = "misalign-50u/singleMatrices/";
+		break;
+	case 100:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-100.root";
+		pathMisalign = "2018-08-himster2-misalign-100u/";
+		pdfPath = "misalign-100u/singleMatrices/";
+		break;
+	case 150:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-150.root";
+		pathMisalign = "2018-08-himster2-misalign-150u/";
+		pdfPath = "misalign-150u/singleMatrices/";
+		break;
+	case 200:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-200.root";
+		pathMisalign = "2018-08-himster2-misalign-200u/";
+		pdfPath = "misalign-200u/singleMatrices/";
+		break;
+	case 250:
+		misalignedMatrices = "misalignMatrices-SensorsOnly-250.root";
+		pathMisalign = "2018-08-himster2-misalign-250u/";
+		pdfPath = "misalign-250u/singleMatrices/";
+		break;
+	}
+
+	matricesMisaligned = readRootMatrices(misalignedMatrices);
+	matricesIdeal = readRootMatrices(idealMatrices);
+
+	applyMisalignmentToGGeoManager(misalignedMatrices);
+
+	std::string path = pathPrefix + pathMisalign + pathPost;
+	gSystem->Exec(("mkdir -p " + pdfPath).c_str());
+
+	cout << "making histograms\n";
+	double dalpha, dx, dy, dxTarget, dyTarget, daTarget, dxICP, dyICP, daICP;
+	TH1D histA("h1", "h1", 30, -1, -1);
+	TH1D histX("h2", "h2", 30, -1, -1);
+	TH1D histY("h3", "h3", 30, -1, -1);
+
+	auto overlaps = helper->getOverlapInfos();
+	for (auto &overlap : overlaps) {
+
+		std::string filename;
+
+		filename = path + "/m" + std::to_string(overlap.overlapID) + ext;
+
+		auto matIdeal = getOverlapMatrixLikeICP(overlap);
+		auto matICP = readMatrixFromDisk(filename);
+		auto thisDiff = getMatrixDiff(matIdeal, matICP);
+
+		if (thisDiff[1] * 1e4 > 40.0) {
+			cout << "Alarm! " << overlap.overlapID << "\n";
+		}
+
+		// hist das shizzle
+		histA.Fill(thisDiff[2] * 1e3);
+		histX.Fill(thisDiff[0] * 1e4);
+		histY.Fill(thisDiff[1] * 1e4);
+
+		//cout << "overlap: " << overlap.overlapID << "\n";
+	}
+
+	//name histograms, clean up later
+	histA.GetXaxis()->SetTitle("d#alpha [#mrad]");
+	histX.GetXaxis()->SetTitle("dx [#mum]");
+	histY.GetXaxis()->SetTitle("dy [#mum]");
+	histA.GetYaxis()->SetTitle("Entries");
+	histX.GetYaxis()->SetTitle("Entries");
+	histY.GetYaxis()->SetTitle("Entries");
+	histA.SetTitle("ICP vs ideal, d#alpha");
+	histX.SetTitle("ICP vs ideal, px");
+	histY.SetTitle("ICP vs ideal, py");
+
+	TCanvas canvas("c1", "c1", 800, 600);
+	canvas.cd();
+	histA.Draw();
+	canvas.Print((pdfPath + "dAlpha.pdf").c_str());
+
+	histX.Draw();
+	canvas.Print((pdfPath + "dx.pdf").c_str());
+
+	histY.Draw();
+	canvas.Print((pdfPath + "dy.pdf").c_str());
+
+}
+
 int testAlignMatrices() {
 
 	/*
@@ -550,13 +702,23 @@ int testAlignMatrices() {
 	//histICPmatrices();
 	//histDairXYZdistances();
 
-	buildCyclic(10);
-	buildCyclic(50);
+	// TODO: abstract path, cut and 2d/3d to function parameters
+
+//	compareICPmatrices(10);
+//	compareICPmatrices(50);
+//	compareICPmatrices(100);
+//	compareICPmatrices(150);
+//	compareICPmatrices(200);
+//	compareICPmatrices(250);
+//
+// 	buildCyclic(10);
+//	buildCyclic(50);
 	buildCyclic(100);
 	buildCyclic(150);
 	buildCyclic(200);
-	buildCyclic(250);
+//	buildCyclic(250);
 
+//	saveMatricesToJson();
 
 	// compareMatrices(matrices, "/LMDMatrices/");
 	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6

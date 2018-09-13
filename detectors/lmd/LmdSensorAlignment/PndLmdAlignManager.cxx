@@ -187,6 +187,7 @@ void PndLmdAlignManager::readFilesAndAlign() {
 	delete hitPairs;
 }
 
+//run a single SensorAligner, is thread safe
 void PndLmdAlignManager::runSensorAligner(PndLmdSensorAligner &aligner) {
 
 	//perform first checks
@@ -198,6 +199,9 @@ void PndLmdAlignManager::runSensorAligner(PndLmdSensorAligner &aligner) {
 	if (!checkForBinaryFiles()) {
 		aligner.writePairsToBinary(binaryPairFileDirectory);
 	}
+
+	// this must be done before dynamic cut!
+	aligner.transformToSensorOne();
 
 	// apply dynamic cut. this changes the amount of pairs the aligner has,
 	// so don't re-save the pairs after that!
