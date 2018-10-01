@@ -265,8 +265,8 @@ InitStatus PndEmcWaveformToDigi::Init()
 	theAlg3->setBaselineInterval(0,0);
 	fpsaAlgorithm_pmt = theAlg3;
 
-	Int_t iMapperVersion;
-	PndEmcMapper::Init(iMapperVersion=1);
+	//Int_t iMapperVersion;
+	//PndEmcMapper::Init(iMapperVersion=1);
 	PndEmcStructure::Instance();
 
 	fFunctor = new StopTime();
