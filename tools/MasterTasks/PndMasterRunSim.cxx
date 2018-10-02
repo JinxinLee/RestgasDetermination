@@ -38,6 +38,7 @@
 #include "FairPrimaryGenerator.h"
 #include "FairFilteredPrimaryGenerator.h"
 #include "PndFilteredPrimaryGenerator.h"
+#include "FairGenerator.h"
 #include "FairBoxGenerator.h"
 #include "FairLogger.h"
 
@@ -466,6 +467,18 @@ void PndMasterRunSim::SetGenerator()
     }
 
 }
+
+void PndMasterRunSim::AddGenerator(FairGenerator *aGen)
+{
+  if(NULL==fGen){
+    if (fOptions.Contains("pndfiltprim"))
+  	  fGen = new PndFilteredPrimaryGenerator();
+    else
+  	  fGen = new FairFilteredPrimaryGenerator();
+  }
+  fGen->AddGenerator(aGen);
+}
+
 
 void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
 {

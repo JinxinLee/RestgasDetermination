@@ -21,6 +21,7 @@
 
 class FairFilteredPrimaryGenerator;
 class PndFilteredPrimaryGenerator;
+class FairGenerator;
 class FairBoxGenerator;
 class PndBoxGenerator;
 
@@ -107,6 +108,13 @@ class PndMasterRunSim : public FairRunSim
    * function must be used.
    */
   void SetGenerator();
+
+  /**
+   * @brief Add a generator to existing setup
+   * @details # Adds a generator to the existing one. BOTH generators will be active
+   * and produce their particle content in each even simultaneously.
+   */
+  void AddGenerator(FairGenerator *aGen);
 
   /**
    * @brief Set the event generator for FairBoxGenerator
