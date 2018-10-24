@@ -93,6 +93,48 @@ void applyMisalignmentToGGeoManager(TString filename) {
 	}
 }
 
+void unApplyMisalignmentToGGeoManager(TString filename) {
+	bool misaligned = true;
+	if (misaligned) {
+		//load matrices
+		TFile *misalignmentMatrixRootfile = new TFile(filename, "READ");
+
+		if (misalignmentMatrixRootfile->IsOpen()) {
+			std::map<std::string, TGeoHMatrix> *matrices;
+
+			gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
+			misalignmentMatrixRootfile->Close();
+
+			std::cout << "resetting geometry!.\n";
+
+			//iterate over matrices
+			for (auto const& entry : *matrices) {
+				TString volPath = entry.first;
+
+				gGeoManager->cd(volPath);
+
+				TGeoNode* currentNode = gGeoManager->GetCurrentNode();
+				TGeoMatrix* matrixToNode = currentNode->GetMatrix();
+
+				// invert again!
+				TGeoHMatrix inverseMisalign = entry.second.Inverse();
+
+				TGeoHMatrix misalignedMatrixToNode = *matrixToNode * inverseMisalign;
+
+				//this is just for clarity, can probably be removed
+				TGeoHMatrix* newMatrixToNode = new TGeoHMatrix(misalignedMatrixToNode);  // new matrix, representing real position
+
+				TGeoPhysicalNode* physicalNode = gGeoManager->MakePhysicalNode(volPath);
+
+				physicalNode->Align(newMatrixToNode);
+			}
+		}
+		else {
+			std::cout << "file could not be read\n";
+		}
+	}
+}
+
 //this function is ugly and stiched together into a barely functioning blob of ugly.
 //I know. I'm going to fix this (probably, some time in the future)
 TGeoHMatrix readMatrixFromDisk(std::string filename) {
@@ -293,50 +335,51 @@ std::vector<double> getMatrixDiff(TGeoHMatrix &mat1, TGeoHMatrix &mat2) {
 	return result;
 }
 
-void buildCyclic(int alignParam) {
+void buildCyclic(int alignParam, string cut) {
 
 	TString idealMatrices = "idealMatrices.root";
 
 	TString misalignedMatrices = "";
 	std::string pathPrefix = "/home/arbeit/RedPro3TB/simulationData/";
-	//std::string pathPost = "LMDmatrices-python-cut-0-2D/";
-	std::string pathPost = "LMDmatrices-cut0-new/";
-	//std::string pathPost = "LMDmatrices-python-cut-0-2D/";
+	//std::string pathPost = "LMDmatrices-cut" + cut + "/";
+	std::string pathPost = "LMDmatrices-python-cut-" + cut + "-2D/";
 	std::string path;
 	std::string pdfPath;
 
 	switch (alignParam) {
 	case 0:
+		path = "2018-08-himster2-aligned/";
+		pdfPath = "aligned/cut-" + cut + "/";
 		break;
 	case 10:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-10.root";
 		path = "2018-08-himster2-misalign-10u/";
-		pdfPath = "misalign-10u/";
+		pdfPath = "misalign-10u/cut-" + cut + "/";
 		break;
 	case 50:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-50.root";
 		path = "2018-08-himster2-misalign-50u/";
-		pdfPath = "misalign-50u/";
+		pdfPath = "misalign-50u/cut-" + cut + "/";
 		break;
 	case 100:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-100.root";
 		path = "2018-08-himster2-misalign-100u/";
-		pdfPath = "misalign-100u/";
+		pdfPath = "misalign-100u/cut-" + cut + "/";
 		break;
 	case 150:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-150.root";
 		path = "2018-08-himster2-misalign-150u/";
-		pdfPath = "misalign-150u/";
+		pdfPath = "misalign-150u/cut-" + cut + "/";
 		break;
 	case 200:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-200.root";
 		path = "2018-08-himster2-misalign-200u/";
-		pdfPath = "misalign-200u/";
+		pdfPath = "misalign-200u/cut-" + cut + "/";
 		break;
 	case 250:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-250.root";
 		path = "2018-08-himster2-misalign-250u/";
-		pdfPath = "misalign-250u/";
+		pdfPath = "misalign-250u/cut-" + cut + "/";
 		break;
 	}
 
@@ -440,7 +483,10 @@ void buildCyclic(int alignParam) {
 		}
 	}
 
-	applyMisalignmentToGGeoManager(misalignedMatrices);
+	if (alignParam > 0) {
+		applyMisalignmentToGGeoManager(misalignedMatrices);
+	}
+
 	cout << "getting matrices by geoManager after misalignment\n";
 	for (int iHalf = 0; iHalf < 2; iHalf++) {
 		for (int iPlane = 0; iPlane < 4; iPlane++) {
@@ -494,19 +540,20 @@ void buildCyclic(int alignParam) {
 		}
 	}
 
+	//reset geometry for next run!
+	if (alignParam > 0) {
+		unApplyMisalignmentToGGeoManager(misalignedMatrices);
+	}
+
 	cout << "making histograms\n";
 	double dalpha, dx, dy, dxTarget, dyTarget, daTarget, dxICP, dyICP, daICP;
-	TH1D histA("h1", "h1", 30, -1, -1);
-	TH1D histX("h2", "h2", 30, -1, -1);
-	TH1D histY("h3", "h3", 30, -1, -1);
+	TH1D histA("h1", "h1", 25, -1, -1);
+	TH1D histX("h2", "h2", 25, -1, -1);
+	TH1D histY("h3", "h3", 25, -1, -1);
 
 	for (auto &i : matricesByHand) {
 		int key = i.first;
 		auto thisDiff = getMatrixDiff(matricesByHand[key], matricesByGeoManager[key]);
-
-		if (thisDiff[1] * 1e4 > 40.0) {
-			cout << "Alarm! " << i.first << "\n";
-		}
 
 		// hist das shizzle
 		histA.Fill(thisDiff[2] * 1e3);
@@ -551,7 +598,7 @@ void saveMatricesToJson() {
 		double *mat1 = new double[16];
 		overlap.mat1.GetHomogenousMatrix(mat1);
 		double *mat2 = new double[16];
-		overlap.mat1.GetHomogenousMatrix(mat2);
+		overlap.mat2.GetHomogenousMatrix(mat2);
 
 		j[std::to_string(overlap.overlapID)]["overlapID"] = overlap.overlapID;
 		j[std::to_string(overlap.overlapID)]["id1"] = overlap.id1;
@@ -577,65 +624,152 @@ void saveMatricesToJson() {
 
 }
 
-void compareICPmatrices(int alignParam) {
+// compares ICP matrices found with geometry shiftes vs
+// ICP matrices found with data shifted
+void compareShiftDataShiftGeo() {
+
+	std::string shiftDataPath = "/home/arbeit/RedPro3TB/simulationData/2018-10-himster2-misalignData-100u/";
+	std::string shiftGeoPath = "/home/arbeit/RedPro3TB/simulationData/2018-08-himster2-misalign-100u/";
+	std::string pathPre = "LMDmatrices-python-cut-";
+	std::string pathPost = "-2D";
+	std::string ext = "cm.mat";
+	std::string cutPath = "";
+	std::string filename;
+	std::string pdfPathPre = "ShiftGeovsShiftData/";
+	std::string pdfPath;
+
+	// for now, this is only for 100u as the Himster2 is down
+
+	// do for all cuts
+	std::vector<string> cuts { "0", "0.5", "1", "3", "5" };
+
+	for (auto &cut : cuts) {
+
+		TH1D histA("h1", "h1", 25, -1, -1);
+		TH1D histX("h2", "h2", 25, -1, -1);
+		TH1D histY("h3", "h3", 25, -1, -1);
+
+		// prepare cut path and pdf path, make pdf path
+		cutPath = pathPre + cut + pathPost;
+		pdfPath = pdfPathPre + "cut-" + cut + "/";
+		gSystem->Exec(("mkdir -p " + pdfPath).c_str());
+
+		// for all overlaps
+		auto overlaps = helper->getOverlapInfos();
+		for (auto &overlap : overlaps) {
+
+			// read shifted Geo
+			filename = shiftGeoPath + cutPath + "/m" + std::to_string(overlap.overlapID) + ext;
+			auto matShiftGeo = readMatrixFromDisk(filename);
+
+			// read shifted data
+			filename = shiftDataPath + cutPath + "/m" + std::to_string(overlap.overlapID) + ext;
+			auto matShiftData = readMatrixFromDisk(filename);
+
+			//matShiftData = TGeoHMatrix(); // just testing if we're really comparing the correct matrices
+
+			// compare
+			auto thisDiff = getMatrixDiff(matShiftGeo, matShiftData);
+
+			// hist das shizzle
+			histA.Fill(thisDiff[2] * 1e3);
+			histX.Fill(thisDiff[0] * 1e4);
+			histY.Fill(thisDiff[1] * 1e4);
+
+		}
+
+		//name histograms, clean up later
+		histA.GetXaxis()->SetTitle("d#alpha [#mrad]");
+		histX.GetXaxis()->SetTitle("dx [#mum]");
+		histY.GetXaxis()->SetTitle("dy [#mum]");
+		histA.GetYaxis()->SetTitle("Entries");
+		histX.GetYaxis()->SetTitle("Entries");
+		histY.GetYaxis()->SetTitle("Entries");
+		histA.SetTitle("ICP | shift Geo vs Shift Data, d#alpha");
+		histX.SetTitle("ICP | shift Geo vs Shift Data, px");
+		histY.SetTitle("ICP | shift Geo vs Shift Data, py");
+
+		TCanvas canvas("c1", "c1", 800, 600);
+		canvas.cd();
+		histA.Draw();
+		canvas.Print((pdfPath + "dAlpha.pdf").c_str());
+
+		histX.Draw();
+		canvas.Print((pdfPath + "dx.pdf").c_str());
+
+		histY.Draw();
+		canvas.Print((pdfPath + "dy.pdf").c_str());
+
+	}
+}
+
+void compareICPmatrices(int alignParam, string cut) {
 
 	TString idealMatrices = "idealMatrices.root";
 
 	TString misalignedMatrices = "";
 	std::string pathMisalign;
 	std::string pathPrefix = "/home/arbeit/RedPro3TB/simulationData/";
-	std::string pathPost = "LMDmatrices-python-cut-0-3D/";
+	//std::string pathPost = "LMDmatrices-cut" + cut + "/";
+	std::string pathPost = "LMDmatrices-python-cut-" + cut + "-2D/";
 	std::string pdfPath;
 	std::string ext = "cm.mat";
 
+	std::string fullPath = "/home/roman/temp/himster2misaligned-move-data/Pairs/LMDmatrices/";
+
 	switch (alignParam) {
 	case 0:
+		pathMisalign = "2018-08-himster2-aligned/";
+		pdfPath = "aligned/cut-" + cut + "/singleMatrices/";
 		break;
 	case 10:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-10.root";
 		pathMisalign = "2018-08-himster2-misalign-10u/";
-		pdfPath = "misalign-10u/singleMatrices/";
+		pdfPath = "misalign-10u/cut-" + cut + "/singleMatrices/";
 		break;
 	case 50:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-50.root";
 		pathMisalign = "2018-08-himster2-misalign-50u/";
-		pdfPath = "misalign-50u/singleMatrices/";
+		pdfPath = "misalign-50u/cut-" + cut + "/singleMatrices/";
 		break;
 	case 100:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-100.root";
 		pathMisalign = "2018-08-himster2-misalign-100u/";
-		pdfPath = "misalign-100u/singleMatrices/";
+		pdfPath = "misalign-100u/cut-" + cut + "/singleMatrices/";
 		break;
 	case 150:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-150.root";
 		pathMisalign = "2018-08-himster2-misalign-150u/";
-		pdfPath = "misalign-150u/singleMatrices/";
+		pdfPath = "misalign-150u/cut-" + cut + "/singleMatrices/";
 		break;
 	case 200:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-200.root";
 		pathMisalign = "2018-08-himster2-misalign-200u/";
-		pdfPath = "misalign-200u/singleMatrices/";
+		pathMisalign = "";
+		pdfPath = "misalign-200u/cut-" + cut + "/singleMatrices/";
 		break;
 	case 250:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-250.root";
 		pathMisalign = "2018-08-himster2-misalign-250u/";
-		pdfPath = "misalign-250u/singleMatrices/";
+		pdfPath = "misalign-250u/cut-" + cut + "/singleMatrices/";
 		break;
 	}
 
-	matricesMisaligned = readRootMatrices(misalignedMatrices);
-	matricesIdeal = readRootMatrices(idealMatrices);
+	// DON'T DO THIS, the function getOverlapLikeICP already considers misalignment
+	if (alignParam != 0) {
+		matricesMisaligned = readRootMatrices(misalignedMatrices);
+	}
 
-	applyMisalignmentToGGeoManager(misalignedMatrices);
+	matricesIdeal = readRootMatrices(idealMatrices);
 
 	std::string path = pathPrefix + pathMisalign + pathPost;
 	gSystem->Exec(("mkdir -p " + pdfPath).c_str());
 
 	cout << "making histograms\n";
 	double dalpha, dx, dy, dxTarget, dyTarget, daTarget, dxICP, dyICP, daICP;
-	TH1D histA("h1", "h1", 30, -1, -1);
-	TH1D histX("h2", "h2", 30, -1, -1);
-	TH1D histY("h3", "h3", 30, -1, -1);
+	TH1D histA("h1", "h1", 25, -1, -1);
+	TH1D histX("h2", "h2", 25, -1, -1);
+	TH1D histY("h3", "h3", 25, -1, -1);
 
 	auto overlaps = helper->getOverlapInfos();
 	for (auto &overlap : overlaps) {
@@ -644,7 +778,15 @@ void compareICPmatrices(int alignParam) {
 
 		filename = path + "/m" + std::to_string(overlap.overlapID) + ext;
 
-		auto matIdeal = getOverlapMatrixLikeICP(overlap);
+		TGeoHMatrix matIdeal;
+
+		if (alignParam != 0) {
+			matIdeal = getOverlapMatrixLikeICP(overlap);
+		}
+		else {
+			//should be identity matrix already
+		}
+
 		auto matICP = readMatrixFromDisk(filename);
 		auto thisDiff = getMatrixDiff(matIdeal, matICP);
 
@@ -656,8 +798,6 @@ void compareICPmatrices(int alignParam) {
 		histA.Fill(thisDiff[2] * 1e3);
 		histX.Fill(thisDiff[0] * 1e4);
 		histY.Fill(thisDiff[1] * 1e4);
-
-		//cout << "overlap: " << overlap.overlapID << "\n";
 	}
 
 	//name histograms, clean up later
@@ -684,6 +824,16 @@ void compareICPmatrices(int alignParam) {
 
 }
 
+void checkPairOrientation(){
+
+
+	// read pair file
+
+	// check is sensor orientation is correct
+
+	// check if dx-dy is weird
+}
+
 int testAlignMatrices() {
 
 	/*
@@ -704,21 +854,31 @@ int testAlignMatrices() {
 
 	// TODO: abstract path, cut and 2d/3d to function parameters
 
-//	compareICPmatrices(10);
-//	compareICPmatrices(50);
-//	compareICPmatrices(100);
-//	compareICPmatrices(150);
-//	compareICPmatrices(200);
-//	compareICPmatrices(250);
-//
-// 	buildCyclic(10);
-//	buildCyclic(50);
-	buildCyclic(100);
-	buildCyclic(150);
-	buildCyclic(200);
-//	buildCyclic(250);
+	//compareShiftDataShiftGeo();
 
-//	saveMatricesToJson();
+	//compareICPmatrices(100, "0");
+
+	std::vector<string> cuts { "0", "0.5", "1", "3", "5" };
+
+	for (auto &cut : cuts) {
+
+//		compareICPmatrices(0, cut);
+//		compareICPmatrices(10, cut);
+//		compareICPmatrices(50, cut);
+//		compareICPmatrices(100, cut);
+//		compareICPmatrices(150, cut);
+//		compareICPmatrices(200, cut);
+//
+//		buildCyclic(0, cut);
+//		buildCyclic(10, cut);
+//		buildCyclic(50, cut);
+//		buildCyclic(100, cut);
+//		buildCyclic(150, cut);
+//		buildCyclic(200, cut);
+
+	}
+
+	saveMatricesToJson();
 
 	// compareMatrices(matrices, "/LMDMatrices/");
 	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6

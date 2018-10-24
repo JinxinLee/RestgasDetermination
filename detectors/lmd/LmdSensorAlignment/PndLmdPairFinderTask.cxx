@@ -23,13 +23,12 @@
 #include <TCanvas.h>
 #include <TH1D.h>
 
-#include <algorithm>
+//#include <algorithm>
 #include <sstream>
 #include <vector>
 
 using std::cout;
 using std::cerr;
-using std::swap;
 
 ClassImp(PndLmdPairFinderTask);
 
@@ -197,14 +196,13 @@ void PndLmdPairFinderTask::Exec(Option_t*) {
 			}
 
 			//from here on, the hits are sorted so hitOne is ALWAYS upstream
-
 			const TVector3 vecOneGlobal = hitOne->GetPosition();
 			const TVector3 vecTwoGlobal = hitTwo->GetPosition();
 
 			//make PndLmdHitPair and check for data sanity, then store to vector
 			PndLmdHitPair pairCanditate(vecOneGlobal, vecTwoGlobal, id1, id2);
 
-			//is the candidate even on an overlapping area? this swaps hits if necessary
+			//is the candidate even on an overlapping area?
 			if (!candHitsOverlappingArea(pairCanditate)) {
 				noOverlap++;
 				continue;

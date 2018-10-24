@@ -1,5 +1,5 @@
 int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString storePath = "tmpOutput",
-		std::string misalignment_matrices_path = "", bool use_point_transform_misalignment = false, const int verboseLevel = 0, const int pitch = 1) {
+		std::string misalignment_matrices_path = "geo/misalignMatrices-SensorsOnly-100.root", bool use_point_transform_misalignment = false, const int verboseLevel = 0, const int pitch = 1) {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
 	timer.Start();
@@ -57,6 +57,7 @@ int runLumiPixel1Digi(const int nEvents = 10, const int startEvent = 0, TString 
 
 	if (misalignment_matrices_path != "" && !use_point_transform_misalignment) {
 		//load matrices
+		cout << "reading misalignMatrices from: " << misalignment_matrices_path << "\n";
 		TFile *misalignmentMatrixRootfile = new TFile(misalignment_matrices_path.c_str(), "READ");
 
 		if (misalignmentMatrixRootfile->IsOpen()) {

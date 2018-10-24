@@ -1,8 +1,9 @@
 #include "PndLmdGeometryHelper.h"
 #include "PndGeoHandling.h"
 
-#include <regex>
+#include <algorithm>
 #include <iostream>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -53,6 +54,10 @@ PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo
 			hit_info.module_side = 1;
 			sensor_id = sensor_id % (sensors_per_module_side - 1);
 		}
+
+		cout << "GeometryHelper::translatePathToInfo:\n";
+		cout << "path: " << volume_path <<"\n";
+		cout << "info: \n" << hit_info << "\n";
 
 		// now we have to make sure the TGeoManager builds the matrix cache
 		// correctly the only way we found (analogous to PndGeoHandling) is to
@@ -255,10 +260,6 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 	fhalf = infoOne.detector_half;
 	bhalf = infoTwo.detector_half;
 
-	if (bhalf != fhalf) {
-		return -1;
-	}
-
 	fside = infoOne.module_side;
 	bside = infoTwo.module_side;
 
@@ -271,13 +272,12 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 	fsensor = infoOne.module_sensor_id;
 	bsensor = infoTwo.module_sensor_id;
 
-	if (fside == bside) {
+	if (bhalf != fhalf) {
 		return -1;
 	}
 
-	// sort so that id1 is always upstream
-	if (fside > bside) {
-		std::swap(fside, bside);
+	if (fside == bside) {
+		return -1;
 	}
 
 	if (bplane != fplane) {
@@ -285,6 +285,15 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 	}
 	if (bmodule != fmodule) {
 		return -1;
+	}
+
+	// check if the ids are sorted
+	if(fside > bside){
+		cout << "PndLmdGeometryHelper::WARNING: pair with ids (" << id1 << ", " << id2 << ") is not sorted.\n";
+		cout << "this shouldn't happen here anymore!\n";
+
+		// the last checks only involve fsensor and bsensor
+		std::swap(fsensor, bsensor);
 	}
 
 	// 0to5
