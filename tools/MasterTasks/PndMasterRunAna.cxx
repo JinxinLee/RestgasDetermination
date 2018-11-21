@@ -31,16 +31,16 @@ PndMasterRunAna::PndMasterRunAna() :
   fOptions(), fEventCounterRate(100), fNoGeane(kTRUE),
   fGenerateRunInfo(kFALSE), fUseFairLinks(kTRUE), fTimer()
 {
-	fTimer.Start();
+  fTimer.Start();
 }
 // -----   Default destructor   -------------------------------------------
 PndMasterRunAna::~PndMasterRunAna()
 {
-	if (gROOT->GetVersionInt() >= 60602 && gGeoManager!=NULL) {
-		gGeoManager->GetListOfVolumes()->Delete();
-		gGeoManager->GetListOfShapes()->Delete();
-		delete gGeoManager;
-	}
+  if (gROOT->GetVersionInt() >= 60602 && gGeoManager!=NULL) {
+    gGeoManager->GetListOfVolumes()->Delete();
+    gGeoManager->GetListOfShapes()->Delete();
+    delete gGeoManager;
+  }
 }
 
 // -----   Setup   ---------------------------------------------------------
@@ -62,17 +62,17 @@ Bool_t PndMasterRunAna::Setup(TString outprefix)
 
   FairFileSource *fileSource;
   if (fFriendFiles.size() == 0) {
-	  fileSource = new FairFileSource(creator.GetSimFileName().data());
-	  fFriendFiles.push_back(creator.GetSimFileName().data());
+    fileSource = new FairFileSource(creator.GetSimFileName().data());
+    fFriendFiles.push_back(creator.GetSimFileName().data());
   }
   else {
-	  fileSource = new FairFileSource(creator.GetCustomFileName(fFriendFiles[0].Data()));
-	  fFriendFiles[0] = creator.GetCustomFileName(fFriendFiles[0].Data());
+    fileSource = new FairFileSource(creator.GetCustomFileName(fFriendFiles[0].Data()));
+    fFriendFiles[0] = creator.GetCustomFileName(fFriendFiles[0].Data());
   }
 
   for (unsigned int files = 1; files < fFriendFiles.size(); files++) {
-	  fileSource->AddFriend(creator.GetCustomFileName(fFriendFiles[files].Data()));
-	  fFriendFiles[files] = creator.GetCustomFileName(fFriendFiles[files].Data());
+    fileSource->AddFriend(creator.GetCustomFileName(fFriendFiles[files].Data()));
+    fFriendFiles[files] = creator.GetCustomFileName(fFriendFiles[files].Data());
   }
 
   SetSource(fileSource);
@@ -108,62 +108,74 @@ Bool_t PndMasterRunAna::Setup(TString outprefix)
 // -----   AddDigiTasks   ---------------------------------------------------
 void PndMasterRunAna::AddDigiTasks(Bool_t pers)
 {
-	PndMasterDigiTask *digi = new PndMasterDigiTask(fOptions);
-	if (!pers) digi->SetPersistency(kFALSE);
-	digi->SetPersistency(pers);
-	AddTask(digi);
+  PndMasterDigiTask *digi = new PndMasterDigiTask(fOptions);
+  if (!pers) digi->SetPersistency(kFALSE);
+  digi->SetPersistency(pers);
+  AddTask(digi);
 }
 
 // -----   AddDigiTasks   ---------------------------------------------------
 void PndMasterRunAna::AddDigiOnlyTasks(Bool_t pers)
 {
-	PndMasterDigiOnlyTask *digi = new PndMasterDigiOnlyTask(fOptions);
-	if (!pers) digi->SetPersistency(kFALSE);
-	digi->SetPersistency(pers);
-	AddTask(digi);
+  PndMasterDigiOnlyTask *digi = new PndMasterDigiOnlyTask(fOptions);
+  if (!pers) digi->SetPersistency(kFALSE);
+  digi->SetPersistency(pers);
+  AddTask(digi);
 }
 
 // -----   AddRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddRecoTasks(Bool_t pers)
 {
-	// -----   Geane   ---------------------------------------
-	if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
-	PndMasterRecoTask *reco = new PndMasterRecoTask(fOptions);
-	if (!pers) reco->SetPersistency(kFALSE);
-	reco->SetPersistency(pers);
-	AddTask(reco);
+  // -----   Geane   ---------------------------------------
+  if(fNoGeane) {
+    AddTask(new FairGeane());
+    fNoGeane=false;
+  }
+  PndMasterRecoTask *reco = new PndMasterRecoTask(fOptions);
+  if (!pers) reco->SetPersistency(kFALSE);
+  reco->SetPersistency(pers);
+  AddTask(reco);
 }
 
 // -----   AddLocalRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddLocalRecoTasks(Bool_t pers)
 {
-	// -----   Geane   ---------------------------------------
-	if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
-	PndMasterLocalRecoTask *reco = new PndMasterLocalRecoTask(fOptions);
-	if (!pers) reco->SetPersistency(kFALSE);
-	reco->SetPersistency(pers);
-	AddTask(reco);
+  // -----   Geane   ---------------------------------------
+  if(fNoGeane) {
+    AddTask(new FairGeane());
+    fNoGeane=false;
+  }
+  PndMasterLocalRecoTask *reco = new PndMasterLocalRecoTask(fOptions);
+  if (!pers) reco->SetPersistency(kFALSE);
+  reco->SetPersistency(pers);
+  AddTask(reco);
 }
 
 // -----   AddRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddRecoIdealTasks(Bool_t pers)
 {
-	// -----   Geane   ---------------------------------------
-	if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
-	PndMasterRecoIdealTask *recoIdeal = new PndMasterRecoIdealTask(fOptions);
-	if (!pers) recoIdeal->SetPersistency(kFALSE);
-	recoIdeal->SetPersistency(pers);
-	AddTask(recoIdeal);
+  // -----   Geane   ---------------------------------------
+  if(fNoGeane) {
+    AddTask(new FairGeane());
+    fNoGeane=false;
+  }
+  PndMasterRecoIdealTask *recoIdeal = new PndMasterRecoIdealTask(fOptions);
+  if (!pers) recoIdeal->SetPersistency(kFALSE);
+  recoIdeal->SetPersistency(pers);
+  AddTask(recoIdeal);
 }
 
 // -----   AddPidTasks   ----------------------------------------------------
 void PndMasterRunAna::AddPidTasks(Bool_t pers)
 {
-		if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
-		PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
-		if (!pers) pid->SetPersistency(kFALSE);
-		pid->SetPersistency(pers);
-		AddTask(pid);
+  if(fNoGeane) {
+    AddTask(new FairGeane());
+    fNoGeane=false;
+  }
+  PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
+  if (!pers) pid->SetPersistency(kFALSE);
+  pid->SetPersistency(pers);
+  AddTask(pid);
 }
 
 // -----   Finish   ---------------------------------------------------------
@@ -182,7 +194,6 @@ void PndMasterRunAna::Finish()
   outfile->cd();
 
   FairFileHeader* outheader=(FairFileHeader*)outfile->Get("FileHeader");
-  cout<<"Task tha ran just now:"<<endl;
   for(const auto&& os : *(outheader->GetListOfTasks()) ) cout<<" - "<<((TObjString*)os)->GetString().Data()<<endl;
 
   TObjString outoptions(fOptions);
@@ -217,8 +228,8 @@ void PndMasterRunAna::Finish()
 
   cout << endl;
   cout << "Output file is\t\t"    << fOutFile << endl;
-  for (auto files : fFriendFiles){
-	  cout << "Friend file is\t\t" << files << endl;
+  for (auto files : fFriendFiles) {
+    cout << "Friend file is\t\t" << files << endl;
   }
 
 
