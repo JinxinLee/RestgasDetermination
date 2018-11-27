@@ -128,9 +128,9 @@ void PndLmdSensorAligner::applyDynamicCut(double percent) {
 			[](const std::vector< double >& a, const std::vector< double >& b) {return
 					(a[0]*a[0] + a[1]*a[1]) < (b[0]*b[0] + b[1]*b[1]) ;});
 
-	int quantileMargin = simplePairs.size() * (percent/100);  // cut from front and back
+	int quantileMargin = simplePairs.size() * (percent/100);  // cut from back
 
-	vector<vector<double> >::const_iterator first = simplePairs.begin() + quantileMargin;
+	vector<vector<double> >::const_iterator first = simplePairs.begin();// + quantileMargin;	// KEEP smallest distances
 	vector<vector<double> >::const_iterator last = simplePairs.end() - quantileMargin;
 	vector<vector<double> > newSimplePairs(first, last);		// this creates a copy
 

@@ -8,6 +8,9 @@
 #include <TFile.h>
 #include <TChain.h>
 #include <TClonesArray.h>
+
+#include <FairRunSim.h>
+
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -619,17 +622,36 @@ void saveMatricesToJson() {
 
 	cout << "got " << j.size() << " json objects\n";
 
-	std::ofstream o("matricesIdeal.json");
+	std::ofstream o("detectorMatricesIdeal.json");
 	o << std::setw(2) << j << std::endl;
 
+}
+
+void saveDetMatricesToJson() {
+
+	// what do I want to save?
+
+	/*
+	panda -> lmd
+	lmd -> top half
+	lmd -> bottom half
+	halfes -> planes
+
+	*/
+	cout << setprecision(16)
+	gGeoManager->cd("/cave_1/lmd_root_0/");
+	auto mat = gGeoManager->GetCurrentMatrix();
+	mat->Print();
+
+	return;
 }
 
 // compares ICP matrices found with geometry shiftes vs
 // ICP matrices found with data shifted
 void compareShiftDataShiftGeo() {
 
-	std::string shiftDataPath = "/home/arbeit/RedPro3TB/simulationData/2018-10-himster2-misalignData-100u/";
-	std::string shiftGeoPath = "/home/arbeit/RedPro3TB/simulationData/2018-08-himster2-misalign-100u/";
+	std::string shiftDataPath = "/home/arbeit/RedPro3TB/simulationData/2018-10-himster2-misalignData-200u/";
+	std::string shiftGeoPath = "/home/arbeit/RedPro3TB/simulationData/2018-08-himster2-misalign-200u/";
 	std::string pathPre = "LMDmatrices-python-cut-";
 	std::string pathPost = "-2D";
 	std::string ext = "cm.mat";
@@ -641,7 +663,8 @@ void compareShiftDataShiftGeo() {
 	// for now, this is only for 100u as the Himster2 is down
 
 	// do for all cuts
-	std::vector<string> cuts { "0", "0.5", "1", "3", "5" };
+	//std::vector<string> cuts { "0", "0.5", "1", "3", "5" };
+	std::vector<string> cuts { "0"};
 
 	for (auto &cut : cuts) {
 
@@ -745,7 +768,6 @@ void compareICPmatrices(int alignParam, string cut) {
 	case 200:
 		misalignedMatrices = "misalignMatrices-SensorsOnly-200.root";
 		pathMisalign = "2018-08-himster2-misalign-200u/";
-		pathMisalign = "";
 		pdfPath = "misalign-200u/cut-" + cut + "/singleMatrices/";
 		break;
 	case 250:
@@ -855,12 +877,15 @@ int testAlignMatrices() {
 	// TODO: abstract path, cut and 2d/3d to function parameters
 
 	//compareShiftDataShiftGeo();
+	//return 0;
 
 	//compareICPmatrices(100, "0");
 
-	std::vector<string> cuts { "0", "0.5", "1", "3", "5" };
+	//std::vector<string> cuts { "0", "0.5", "1", "3", "5" };
+//	std::vector<string> cuts { "0"};
 
-	for (auto &cut : cuts) {
+
+//	for (auto &cut : cuts) {
 
 //		compareICPmatrices(0, cut);
 //		compareICPmatrices(10, cut);
@@ -876,9 +901,10 @@ int testAlignMatrices() {
 //		buildCyclic(150, cut);
 //		buildCyclic(200, cut);
 
-	}
+//	}
 
 	saveMatricesToJson();
+	saveDetMatricesToJson();
 
 	// compareMatrices(matrices, "/LMDMatrices/");
 	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6

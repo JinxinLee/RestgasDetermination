@@ -422,11 +422,7 @@ bool PndLmdAlignManager::mkdir(std::string path) {
 }
 
 bool PndLmdAlignManager::exists(std::string path) {
-	boost::filesystem::path bpath(path);
-	if (boost::filesystem::exists(bpath)) {
-		return true;
-	}
-	return false;
+	return boost::filesystem::exists(boost::filesystem::path(path));
 }
 
 vector<string> PndLmdAlignManager::findRegex(std::string source, std::string regex) {
