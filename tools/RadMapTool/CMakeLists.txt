@@ -93,12 +93,15 @@ GENERATE_LIBRARY()
 
 set(MYG4LIBS G4materials G4particles G4processes G4clhep G4global G4geometry G4physicslists G4track EG )
 set(MYPNDLIBS FtfEvtGen DpmEvtGen RadMapTool Base ParBase  Field  Emc Stt Mdt Gem Dsk Drc Fts Sds Lmd Mvd SciT Ftof Rich Gen PGen generalTools PndData Passive)
+#set(MYPNDLIBS RadMapTool Base ParBase  Field  Emc Stt Mdt Gem Dsk Drc Fts Sds Lmd Mvd SciT Ftof Rich Gen PGen generalTools PndData Passive)
 
 add_executable(RadMapToolSim_exe sim_radmap.C)
 add_executable(RadMapToolPlot_exe plot_radmap.C)
 
-target_link_libraries(RadMapToolSim_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect FtfGenDirect DecayTreeFitter)
-target_link_libraries(RadMapToolPlot_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect FtfGenDirect DecayTreeFitter)
+#target_link_libraries(RadMapToolSim_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect FtfGenDirect DecayTreeFitter)
+target_link_libraries(RadMapToolSim_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} FtfGenDirect)
+#target_link_libraries(RadMapToolPlot_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect FtfGenDirect DecayTreeFitter)
+target_link_libraries(RadMapToolPlot_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS})
 
 set_target_properties(RadMapToolSim_exe PROPERTIES OUTPUT_NAME sim_radmap)
 set_target_properties(RadMapToolPlot_exe PROPERTIES OUTPUT_NAME plot_radmap)

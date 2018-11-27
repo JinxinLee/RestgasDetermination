@@ -66,7 +66,12 @@ Ctest_Start($ENV{ctest_model})
 If(NOT $ENV{ctest_model} MATCHES Experimental AND NOT $ENV{ctest_model} MATCHES Continuous)
   Ctest_Update(SOURCE "${CTEST_SOURCE_DIRECTORY}")
 EndIf()
-Ctest_Configure(BUILD "${CTEST_BINARY_DIRECTORY}")
+
+# If("arch" = "darwin") # SYTAX ?? 
+  Ctest_Configure(BUILD "${CTEST_BINARY_DIRECTORY}" OPTIONS "-DUSE_DIFFERENT_COMPILER=TRUE")
+#Else()
+#  Ctest_Configure(BUILD "${CTEST_BINARY_DIRECTORY}")
+#EndIf()
 Ctest_Build(BUILD "${CTEST_BINARY_DIRECTORY}")
 
 String(TOUPPER $ENV{ctest_model} MODEL)
