@@ -63,7 +63,7 @@ Configure_File(${CTEST_SOURCE_DIRECTORY}/CTestCustom.cmake
 Ctest_Read_Custom_Files("${CTEST_BINARY_DIRECTORY}")
 
 Ctest_Start($ENV{ctest_model})
-If(NOT $ENV{ctest_model} MATCHES Experimental)
+If(NOT $ENV{ctest_model} MATCHES Experimental AND NOT $ENV{ctest_model} MATCHES Continuous)
   Ctest_Update(SOURCE "${CTEST_SOURCE_DIRECTORY}")
 EndIf()
 Ctest_Configure(BUILD "${CTEST_BINARY_DIRECTORY}")

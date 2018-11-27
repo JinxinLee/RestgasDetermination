@@ -1,13 +1,16 @@
 stages:
- - configure
- - test
+ - CDASH
 
 cache:
   untracked: true
 
-configure:current:
-  stage: configure
-  script: source generateDartConfig.sh
+before_script:
+  - source generateDartConfig.sh
+
+# Templates for various FAIR versions
+# If a machine has all tags it can run
+.current:
+  stage: CDASH
   variables:
     FAIRSOFT_VERSION: may16p1
     FAIRROOT_VERSION: v-17.10b
@@ -15,58 +18,89 @@ configure:current:
     - may16p1
     - v-17.10
 
-configure:future:
-  stage: configure
-  script: source generateDartConfig.sh
+.future:
+  stage: CDASH
   variables:
-    FAIRSOFT_VERSION: dev
-    FAIRROOT_VERSION: dev
+    FAIRSOFT_VERSION: may18
+    FAIRROOT_VERSION: v18.0.4
   tags:
-   - FairSoft_dev
-   - FairRoot_dev
+   - may18
+   - v18.0.4
 
-cdash:current:full:
-  stage: test
-  script: source Dart.sh Experimental Dart.cfg
+# Experimental build, including tests, mostly upon finished merge
+current:full:
+  extends: .current
+  script:
+    - source Dart.sh Experimental Dart.cfg
   only:
-  - branches@PandaRootGroup/PandaRoot
-  dependencies:
-   - configure:current
-  
-  tags:
-   - may16p1
-   - v-17.10
+    - branches@PandaRootGroup/PandaRoot
 
-cdash:future:full:
-  stage: test
-  script: source Dart.sh Experimental Dart.cfg
+future:full:
+  extends: .future
+  script:
+    - source Dart.sh Experimental Dart.cfg
   only:
-  - branches@PandaRootGroup/PandaRoot
-  dependencies:
-    - configure:future
-  tags:
-    - FairSoft_dev
-    - FairRoot_dev
+    - branches@PandaRootGroup/PandaRoot
 
-cdash:current:continuous:
-  stage: test
-  script: source Dart.sh Continuous Dart.cfg
+# Continuous build for all pushes of users
+current:continuous:
+  extends: .current
+  script:
+    - source Dart.sh Continuous Dart.cfg
   except:
-  - branches@PandaRootGroup/PandaRoot
-  dependencies:  
-   - configure:current
-  
-  tags:
-   - may16p1
-   - v-17.10
+    - branches@PandaRootGroup/PandaRoot
+    - schedules
 
-cdash:future:continuous:
-  stage: test
-  script: source Dart.sh Continuous Dart.cfg
+future:continuous:
+  extends: .future
+  script:
+    - source Dart.sh Continuous Dart.cfg
   except:
-  - branches@PandaRootGroup/PandaRoot
-  dependencies:
-    - configure:future
-  tags:
-    - FairSoft_dev
-    - FairRoot_dev
+    - branches@PandaRootGroup/PandaRoot
+    - schedules
+
+# Nightly builds & tests, available from gitlab schedule
+current:nightly:
+  extends: .current
+  script:
+    - source Dart.sh Nightly Dart.cfg
+  only:
+    # refs: is needed here to work with varables
+    refs:
+      - branches@PandaRootGroup/PandaRoot
+    variables:
+      - $MODEL == "NIGHTLY"
+
+future:nightly:
+  extends: .future
+  script:
+    - source Dart.sh Nightly Dart.cfg
+  only:
+    # refs: is needed here to work with varables
+    refs:
+      - branches@PandaRootGroup/PandaRoot
+    variables:
+      - $MODEL == "NIGHTLY"
+
+# Profile builds, tests & profilinge, available from gitlab schedule
+current:profile:
+  extends: .current
+  script:
+    - source Dart.sh Profile Dart.cfg
+  only:
+    # refs: is needed here to work with varables
+    refs:
+      - branches@PandaRootGroup/PandaRoot
+    variables:
+      - $MODEL == "PROFILE"
+
+future:profile:
+  extends: .future
+  script:
+    - source Dart.sh Profile Dart.cfg
+  only:
+    # refs: is needed here to work with varables
+    refs:
+      - branches@PandaRootGroup/PandaRoot
+    variables:
+      - $MODEL == "PROFILE"
