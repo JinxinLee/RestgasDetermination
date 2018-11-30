@@ -34,6 +34,8 @@ current:full:
     - source Dart.sh Experimental Dart.cfg
   only:
     - branches@PandaRootGroup/PandaRoot
+  except:
+    - schedules
 
 future:full:
   extends: .future
@@ -41,6 +43,8 @@ future:full:
     - source Dart.sh Experimental Dart.cfg
   only:
     - branches@PandaRootGroup/PandaRoot
+  except:
+    - schedules
 
 # Continuous build for all pushes of users
 current:continuous:
