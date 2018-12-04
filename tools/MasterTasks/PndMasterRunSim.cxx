@@ -26,6 +26,7 @@
 #include "PndMasterSimTask.h"
 #include "PndEventCounterTask.h"
 #include "PndFileNameCreator.h"
+#include "PndFilteredPrimaryGenerator.h"
 
 #include "FairFileSource.h"
 #include "FairFileHeader.h"
@@ -37,9 +38,7 @@
 #include "FairDetector.h"
 #include "FairPrimaryGenerator.h"
 #include "FairFilteredPrimaryGenerator.h"
-#include "PndFilteredPrimaryGenerator.h"
 #include "FairGenerator.h"
-#include "FairBoxGenerator.h"
 #include "FairLogger.h"
 
 #include "TLorentzVector.h"
@@ -468,18 +467,6 @@ void PndMasterRunSim::SetGenerator()
 
 }
 
-void PndMasterRunSim::AddGenerator(FairGenerator *aGen)
-{
-  if(NULL==fGen){
-    if (fOptions.Contains("pndfiltprim"))
-  	  fGen = new PndFilteredPrimaryGenerator();
-    else
-  	  fGen = new FairFilteredPrimaryGenerator();
-  }
-  fGen->AddGenerator(aGen);
-}
-
-
 void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
 {
   // use BOX generator; defaults
@@ -640,7 +627,7 @@ void PndMasterRunSim::UseLepLepGenerator(TString leplepConfig)
 }
 
 // -----   SetGenerator   --------------------------------------------------
-void PndMasterRunSim::SetGenerator(FairBoxGenerator *boxGen)
+void PndMasterRunSim::SetGenerator(FairGenerator *boxGen)
  {
   LOG(INFO) << "Using FairBoxGenerator generator" << FairLogger::endl;
   if (fOptions.Contains("PndFiltPrim"))

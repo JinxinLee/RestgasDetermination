@@ -16,6 +16,7 @@
 #include "PndSttTube.h"
 #include "PndGeoSttPar.h"
 #include "PndSttGeometryMap.h"
+#include "PndGeoHandling.h"
 
 #include "FairGeoNode.h"
 #include "FairGeoTransform.h"
@@ -48,7 +49,7 @@ PndSttMapCreator::PndSttMapCreator() :  fGeoType(-1), fSttParameters(new PndGeoS
 PndSttMapCreator::PndSttMapCreator(Int_t geoType) : fGeoType(geoType), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), copy_map(), fSttTube(0), fMap(0) {
   //copy_map.clear();
 
-  if(fGeoType != 1) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK
+  if(fGeoType > 2) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK
  
   if(!gGeoManager) cout << "-E- PndSttMapCreator: no geo manager " << endl; // CHECK
   // set general par
@@ -64,7 +65,7 @@ PndSttMapCreator::PndSttMapCreator(PndGeoSttPar *sttPar): fGeoType(-1), fSttPara
   // choose geometry type
   fGeoType = sttPar->GetGeometryType(); // classic, optimized, average, detailed, CAD
 
-  if(fGeoType != 1) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK
+  if(fGeoType > 2) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK
   // set general par
   SetGeneralParameters();
 }
@@ -77,6 +78,9 @@ void PndSttMapCreator::SetGeneralParameters() {   //  CHECK whether it depends o
   if(fGeoType == 1) {
     fTubeInRad = 0.5; // tube inner radius cm
     fTubeOutRad = 0.001; // tube outer radius cm CHECK why not: fTubeInRad + 0.001
+  } else if (fGeoType == 2) {
+       fTubeInRad = 0.5;
+       fTubeOutRad = 0.001;       // copy of values from fGeoType 1. I have no clue why fTubeOutRad is 0.001 but it is used nowhere
   }
   else {
     fTubeInRad = -1;
@@ -123,6 +127,8 @@ PndSttTube * PndSttMapCreator::GetTubeFromParametersToFill(PndSttTubeParameters 
 // fill the tube map at the beginning of the run
 TClonesArray * PndSttMapCreator::FillTubeArray() {
   if(fGeoType == 1) return FillTubeArrayGeoType1();
+  else if (fGeoType == 2) return FillTubeArrayGeoType2();
+
   return NULL;
 }
 
@@ -134,6 +140,8 @@ Int_t PndSttMapCreator::FillSttTubeParameters(PndGeoSttPar *par, TList* volList 
 
 PndSttTubeParameters *PndSttMapCreator::CreateTubeParameters(FairGeoNode *pnode) {
   if(fGeoType == 1) return CreateTubeParametersGeoType1(pnode);
+  else if (fGeoType == 2) return CreateTubeParametersGeoType2(pnode);
+
   return NULL;
 }
 // ------------------- simulation ----------------------------------------------------
@@ -417,4 +425,110 @@ TString PndSttMapCreator::GetPathFromTubeIDGeoType1(Int_t tubeid,  Bool_t isCopy
   return tmpstring;
 }
 
-ClassImp(PndSttMapCreator)
+PndSttTubeParameters* PndSttMapCreator::CreateTubeParametersGeoType2(FairGeoNode *pnode)
+{
+    TString nodename = pnode->getName();
+    Int_t tubeID = PndGeoHandling::Instance()->GetShortID(nodename);
+
+    FairGeoTransform  *lab = pnode->getLabTransform();
+    FairGeoVector     tra = lab->getTransVector();
+    FairGeoRotation   rot = lab->getRotMatrix();
+    TGeoVolume* rootvol = pnode->getRootVolume();
+    TGeoTube *gtube = (TGeoTube*) rootvol->GetShape();
+    Double_t halflength = gtube->GetDz(); // in cm
+
+    PndSttTubeParameters *parms = new PndSttTubeParameters(tubeID, halflength);
+    return parms;
+}
+
+Int_t PndSttMapCreator::GetTubeIDFromNameGeoType2(TString name)
+{
+}
+
+Int_t PndSttMapCreator::FillSttTubeParametersType2(PndGeoSttPar *par) {
+
+  fSttParameters = par;
+
+  fSttParameters->SetGeometryType(fGeoType);
+  fSttParameters->SetTubeInRad(fTubeInRad);
+  fSttParameters->SetTubeOutRad(fTubeOutRad);
+//
+//
+//  // store geo parameter
+  TObjArray *sensorNames = PndGeoHandling::Instance()->GetSensorNames();
+  TIter iter = sensorNames->MakeIterator();
+
+  TObjArray *pararray = fSttParameters->GetTubeParameters();
+//  std::cout << "SensorNames.GetEntries() " << sensorNames->GetEntries() << std::endl;
+  int tubecounter = 0;
+  TObjString* sensorName;
+  while( (sensorName = (TObjString*)iter.Next()) ) {
+      TString stringName = sensorName->GetString();
+      if (stringName.Contains("ArCO2Sensitive")){
+          gGeoManager->cd(stringName.Data());
+          TGeoNode* node = gGeoManager->GetCurrentNode();
+          TGeoTube* tube = (TGeoTube*)node->GetVolume()->GetShape();
+          PndSttTubeParameters *parms = new PndSttTubeParameters(PndGeoHandling::Instance()->GetShortID(stringName), tube->GetDZ());
+//          std::cout << "-I- PndSttMapCreator::FillSttTubeParameeresType2 " << stringName.Data() << " ID: " << PndGeoHandling::Instance()->GetShortID(stringName) << " z/2 " << tube->GetDZ() << std::endl;
+          pararray->AddLast(parms);
+          tubecounter++;
+      }
+    }
+
+    return tubecounter;
+}
+
+TClonesArray* PndSttMapCreator::FillTubeArrayGeoType2() {
+  TObjArray *pararray = fSttParameters->GetTubeParameters();
+
+  fTubeArray = new TClonesArray("PndSttTube");
+  //fTubeArray->Delete();
+
+  for(int i = 1; i < pararray->GetEntries(); i++) {
+    PndSttTubeParameters *parms = (PndSttTubeParameters*) pararray->At(i);
+    int tubeID = parms->GetTubeID();
+
+    fSttTube = GetTubeFromParametersToFillGeoType2(parms);
+    if(!fSttTube) continue;
+    // correspondance position in TCA <-> tubeID
+    new((*fTubeArray)[tubeID]) PndSttTube(*fSttTube);
+
+    delete (fSttTube);
+  }
+
+  fMap = new PndSttGeometryMap(fTubeArray, fGeoType);
+  fMap->FillGeometryParameters();
+  return fTubeArray;
+}
+
+PndSttTube * PndSttMapCreator::GetTubeFromParametersToFillGeoType2(PndSttTubeParameters *parms) {
+
+  Int_t tubeid = parms->GetTubeID();
+  if(tubeid == -1) {
+    cout << "PndSttMapCreator::GetTubeFromParametersToFillGeoType2 (tubeid): tube " << tubeid << " not found (nor as a copy)" << endl;
+    return NULL;
+  }
+  TVector3 local(0.,0.,0.);
+  TVector3 localToMaster = PndGeoHandling::Instance()->LocalToMasterShortId(local, tubeid);
+  TGeoHMatrix* mat = PndGeoHandling::Instance()->GetMatrixShortId(tubeid);
+  Double_t const *rotation = mat->GetRotationMatrix();
+
+    double r[3][3];
+    int irot = 0, i = 0, j = 0;
+    for(i = 0; i < 3; i++) {
+      for(j = 0; j < 3; j++) {
+        r[i][j] = rotation[irot];
+        irot++;
+      }
+    }
+
+  return new PndSttTube(parms,
+            localToMaster.X(), localToMaster.Y(),localToMaster.Z(),
+            r[0][0],r[0][1],r[0][2],
+            r[1][0],r[1][1],r[1][2],
+            r[2][0],r[2][1],r[2][2],
+            fSttParameters->GetTubeInRad(), fSttParameters->GetTubeOutRad());
+
+}
+
+ClassImp(PndSttMapCreator);

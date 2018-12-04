@@ -22,7 +22,9 @@
 class FairFilteredPrimaryGenerator;
 class PndFilteredPrimaryGenerator;
 class FairGenerator;
+
 class FairBoxGenerator;
+
 class PndBoxGenerator;
 
 
@@ -123,7 +125,7 @@ class PndMasterRunSim : public FairRunSim
    * FairBoxGenerator object with all the settings, and pass it as argument to the
    * function.
    */
-  void SetGenerator(FairBoxGenerator *boxGen);
+  void SetGenerator(FairGenerator *boxGen);
 
   /**
    * @brief Set the event generator for PndBoxGenerator

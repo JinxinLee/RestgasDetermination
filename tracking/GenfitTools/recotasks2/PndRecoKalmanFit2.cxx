@@ -88,10 +88,11 @@ Bool_t PndRecoKalmanFit2::Init()
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   PndGeoSttPar *sttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
   TClonesArray *tubeArray = NULL;
-  if(sttParameters->GetGeometryType() != -1) {
+  if(sttParameters->GetGeometryType() == 1) {
     PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
     tubeArray = mapper->FillTubeArray();
   }
+
   // FTS map loading
   PndGeoFtsPar *ftsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
   TClonesArray *ftsTubeArray = NULL;
@@ -276,6 +277,10 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG) {
 //			fPro0->SetPrintErrors(kFALSE);
 //		FairTrackParH *fRes = new FairTrackParH();
 		fPro0.PropagateToLength(-fPropagateDistance);
+		std::cout << "PndRekoKalmanFit2::Fit helix: ";
+		helix.GetMomentum().Print();
+		helix.GetPosition().Print();
+		std::cout << std::endl;
 		Bool_t rc = fPro0.Propagate(&helix, &fRes, PDGCode);
 		if (rc) {
 			StartPos.SetXYZ(fRes.GetX(), fRes.GetY(), fRes.GetZ());

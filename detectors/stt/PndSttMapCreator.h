@@ -25,7 +25,8 @@ class PndSttMapCreator : public TObject
   // TO BE IMPLEMENTED WITH GEO TYPE n
   PndSttTubeParameters *CreateTubeParameters(FairGeoNode *pnode);
   Int_t FillSttTubeParameters(PndGeoSttPar *par, TList* volList);
-  
+  Int_t FillSttTubeParametersType2(PndGeoSttPar *par);
+
   TClonesArray* FillTubeArray();
   Int_t GetTubeIDFromName(TString name);
   PndSttTube * GetTubeFromParametersToFill(PndSttTubeParameters *parms);
@@ -57,6 +58,16 @@ class PndSttMapCreator : public TObject
   TString GetPathFromTubeIDGeoType1(Int_t tubeid, Bool_t isCopy);
   Int_t GetTubeIDFromPathGeoType1(TString path);
   PndSttTube * GetTubeFromTubeIDGeoType1(Int_t tubeid);
+
+  // GEO TYPE 2             This should not be done like this. There should be individual creators with common interface TS
+  PndSttTubeParameters *CreateTubeParametersGeoType2(FairGeoNode *pnode);
+  TClonesArray* FillTubeArrayGeoType2();
+  TString GetNameFromPathGeoType2(TString path);
+  Int_t GetTubeIDFromNameGeoType2(TString name);
+  PndSttTube * GetTubeFromParametersToFillGeoType2(PndSttTubeParameters *parms);
+  TString GetPathFromTubeIDGeoType2(Int_t tubeid, Bool_t isCopy);
+  Int_t GetTubeIDFromPathGeoType2(TString path);
+  PndSttTube * GetTubeFromTubeIDGeoType2(Int_t tubeid);
 
  protected:
   TClonesArray *fTubeArray; //!

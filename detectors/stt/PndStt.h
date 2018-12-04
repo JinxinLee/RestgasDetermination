@@ -50,6 +50,7 @@ class PndStt : public FairDetector
   /** Destructor **/
   virtual ~PndStt();
 
+  virtual void Initialize();
 
   /** Virtual method ProcessHits
    **
@@ -110,6 +111,11 @@ class PndStt : public FairDetector
    ** Constructs the STT geometry
    **/
   virtual void ConstructGeometry();
+  void SetDefaultSensorNames();
+
+ protected:
+  std::vector<std::string> fListOfSensitives;
+  bool CheckIfSensitive(std::string name);
 
 
   
@@ -119,13 +125,10 @@ class PndStt : public FairDetector
       active volume. **/
   Int_t          fTrackID;           //!  track index
   Int_t          fVolumeID;          //!  volume id
-  TLorentzVector fPos;               //!  wire position in global frame
-  TLorentzVector fPosIn;             //!  entry position in global frame
-  TLorentzVector fPosOut;            //!  exit position in global frame
-  TLorentzVector fPosInLocal;        //!  entry position in straw frame
-  TLorentzVector fPosOutLocal;       //!  exit position in straw frame
-  TLorentzVector fMomIn;             //!  momentum
-  TLorentzVector fMomOut;            //!  momentum
+  TVector3       fPosInLocal;        //!  entry position in straw frame
+  TVector3       fPosOutLocal;       //!  exit position in straw frame
+  TVector3       fMomIn;             //!  momentum
+  TVector3       fMomOut;            //!  momentum
   Double_t     fTime;              //!  time
   Double_t     fLength;            //!  length
   Double_t     fELoss;             //!  energy loss
@@ -134,9 +137,9 @@ class PndStt : public FairDetector
   
   Int_t fPosIndex;                   //!
   TClonesArray* fSttCollection;      //! Hit collection
-  TLorentzVector fpostot;   // global frame hit position (in)// da cancellare
-  TLorentzVector fpostotin;   // global frame hit position (in)// da cancellare
-  TLorentzVector fpostotout;   // global frame hit position (in)// da cancellare
+  TVector3 fpostot;   // global frame hit position (in)// da cancellare
+  TVector3 fpostotin;   // global frame hit position (in)// da cancellare
+  TVector3 fpostotout;   // global frame hit position (in)// da cancellare
 
   TObjArray *fPassNodes; //!
 
@@ -182,18 +185,15 @@ class PndStt : public FairDetector
 
 inline void PndStt::ResetParameters() {
   fTrackID = fVolumeID = 0;
-  fPos.SetXYZM(0.0, 0.0, 0.0, 0.0);
-  fPosInLocal.SetXYZM(0.0, 0.0, 0.0, 0.0);
-  fPosOutLocal.SetXYZM(0.0, 0.0, 0.0, 0.0);
-  fMomIn.SetXYZM(0.0, 0.0, 0.0, 0.0);
-  fMomOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
+  fPosInLocal.SetXYZ(0.0, 0.0, 0.0);
+  fPosOutLocal.SetXYZ(0.0, 0.0, 0.0);
+  fMomIn.SetXYZ(0.0, 0.0, 0.0);
+  fMomOut.SetXYZ(0.0, 0.0, 0.0);
   fTime = fLength = fELoss = 0;
   fPosIndex = 0;
-  fpostot.SetXYZM(0.0, 0.0, 0.0, 0.0); // da cancellare
-  fpostotin.SetXYZM(0.0, 0.0, 0.0, 0.0); // da cancellare
-  fpostotout.SetXYZM(0.0, 0.0, 0.0, 0.0); // da cancellare
-  fPosIn.SetXYZM(0.0, 0.0, 0.0, 0.0);
-  fPosOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
+  fpostot.SetXYZ(0.0, 0.0, 0.0); // da cancellare
+  fpostotin.SetXYZ(0.0, 0.0, 0.0); // da cancellare
+  fpostotout.SetXYZ(0.0, 0.0, 0.0); // da cancellare
   fMass = 0;
 }
 

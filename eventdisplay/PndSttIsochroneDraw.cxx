@@ -25,6 +25,7 @@
 #include "PndSttTube.h"
 #include "PndSttSingleStraw.h"
 #include "PndSttPoint.h"
+#include "PndSttTubeMap.h"
 #include "FairRuntimeDb.h"
 #include "FairEventHeader.h"
 #include <string>
@@ -70,8 +71,11 @@ InitStatus PndSttIsochroneDraw::Init()
 		fEventManager = FairEventManager::Instance();
 		if (fVerbose > 2)
 			cout << "PndSttIsochroneDraw::Init() get instance of FairEventManager "	<< endl;
-		PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-		fSttTubeArray = mapper->FillTubeArray();
+
+		if (fSttParameters->GetGeometryType() == 1) {
+            PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+            fSttTubeArray = mapper->FillTubeArray();
+		}
 
    }
    fStartFunctor = new StopTime();
@@ -144,121 +148,130 @@ void PndSttIsochroneDraw::Exec(Option_t*)
 						<< std::endl;
 				continue;
 			}
-			if (myHit->GetTubeID() < fSttTubeArray->GetEntriesFast()) {
-				PndSttTube* myTube = (PndSttTube*) fSttTubeArray->At(
-						myHit->GetTubeID());
 
-				if (0 == myTube) {
-					std::cout << "-E- PndSttIsochroneDraw Tube does not exist! "
-							<< myHit->GetTubeID() << std::endl;
-					continue;
-				}
+            PndSttTube* myTube = nullptr;
+            if (fSttParameters->GetGeometryType() == 1){
+                myTube = (PndSttTube*) fSttTubeArray->At(myHit->GetTubeID());
+            } else if (fSttParameters->GetGeometryType() == 2){
+                myTube = PndSttTubeMap::Instance()->GetTube(myHit->GetTubeID());
+            }
+
+            if (nullptr == myTube) {
+                std::cout << "-E- PndSttIsochroneDraw Tube does not exist! "
+                        << myHit->GetTubeID() << std::endl;
+                continue;
+            }
 
 //				std::cout << "Tube: " << myTube->GetHalfLength() << std::endl;
 
-				Double_t tubeLengthHalf = myTube->GetHalfLength();
-				Double_t radius = 0;
-				Double_t radiusError = 0;
-				if (fUseIsochroneTime == kTRUE) {
-					PndSttSingleStraw straw;
-					Double_t driftTime = myHit->GetTimeStamp() - eventTime;
-					FairMultiLinkedData_Interface* linkData = (FairMultiLinkedData_Interface*)myHit; //fInputData->At(i);
+            Double_t tubeLengthHalf = myTube->GetHalfLength();
+            Double_t radius = 0;
+            Double_t radiusError = 0;
+            if (fUseIsochroneTime == kTRUE) {
+                PndSttSingleStraw straw;
+                Double_t driftTime = myHit->GetTimeStamp() - eventTime;
+                FairMultiLinkedData_Interface* linkData = (FairMultiLinkedData_Interface*)myHit; //fInputData->At(i);
 
-					//fCrawler->Init();
-					//fCrawler->SetStoreIntermediate(kFALSE);
-					std::cout << "StartLink: " << *linkData << std::endl;
-					FairMultiLinkedData result = linkData->GetLinksWithType(FairRootManager::Instance()->GetBranchId("STTPoint"));
-							//fCrawler->GetInfo(FairMultiLinkedData(*linkData), "STTPoint");
+                //fCrawler->Init();
+                //fCrawler->SetStoreIntermediate(kFALSE);
+                std::cout << "StartLink: " << *linkData << std::endl;
+                FairMultiLinkedData result = linkData->GetLinksWithType(FairRootManager::Instance()->GetBranchId("STTPoint"));
+                        //fCrawler->GetInfo(FairMultiLinkedData(*linkData), "STTPoint");
 
-					std::cout << "Links: " << result << std::endl;
-					if (result.GetNLinks() == 1 && result.GetLink(0).GetType() == FairRootManager::Instance()->GetBranchId("STTPoint")){
-						PndSttPoint* mcPoint = (PndSttPoint*)FairRootManager::Instance()->GetCloneOfLinkData(result.GetLink(0));
-						FairLink evtHeaderLink(-1, result.GetLink(0).GetEntry(), "EventHeader.", -1);
-						FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetCloneOfLinkData(evtHeaderLink);
-						if (evtHeader != 0)
-							std::cout << "MCTime: " << evtHeader->GetEventTime() << std::endl;
-						std::cout << "MCRadius: " << mcPoint->GetTrueDistance() << std::endl;// << " MCTime: " << evtHeader->GetEventTime() << std::endl;
-						delete mcPoint;
-						delete evtHeader;
-					}
-					std::cout << "-I- PndSttIsochroneDraw Pulse: " << myHit->GetPulse() << " TimeStamp: " << myHit->GetTimeStamp() << " EventTime " << eventTime << " DriftTime: " << driftTime << std::endl;
-					std::cout << "-I- PndSttIsochroneDraw Radius: " << myHit->GetIsochrone() << " RecoRadius: " << straw.TimnsToDiscm(driftTime) << std::endl;
+                std::cout << "Links: " << result << std::endl;
+                if (result.GetNLinks() == 1 && result.GetLink(0).GetType() == FairRootManager::Instance()->GetBranchId("STTPoint")){
+                    PndSttPoint* mcPoint = (PndSttPoint*)FairRootManager::Instance()->GetCloneOfLinkData(result.GetLink(0));
+                    FairLink evtHeaderLink(-1, result.GetLink(0).GetEntry(), "EventHeader.", -1);
+                    FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetCloneOfLinkData(evtHeaderLink);
+                    if (evtHeader != 0)
+                        std::cout << "MCTime: " << evtHeader->GetEventTime() << std::endl;
+                    std::cout << "MCRadius: " << mcPoint->GetTrueDistance() << std::endl;// << " MCTime: " << evtHeader->GetEventTime() << std::endl;
+                    delete mcPoint;
+                    delete evtHeader;
+                }
+                std::cout << "-I- PndSttIsochroneDraw Pulse: " << myHit->GetPulse() << " TimeStamp: " << myHit->GetTimeStamp() << " EventTime " << eventTime << " DriftTime: " << driftTime << std::endl;
+                std::cout << "-I- PndSttIsochroneDraw Radius: " << myHit->GetIsochrone() << " RecoRadius: " << straw.TimnsToDiscm(driftTime) << std::endl;
 
-					if (driftTime > 0) {
-						radius = straw.TimnsToDiscm(driftTime);
-					} else {
-						std::cout << "-I- PndSttIsochrone Drift time <= 0: " << driftTime << std::endl;
-						continue;
-					}
-					if (radius > myTube->GetRadIn()) {
-						std::cout << "-I- PndSttIsochrone Isochrone with " << radius << " larger than tube radius of " << myTube->GetRadIn() << std::endl;
-						continue;
-					}
-					radiusError = myHit->GetIsochroneError();
-				} else {
-					radius = myHit->GetIsochrone();
-					radiusError = myHit->GetIsochroneError();
-				}
+                if (driftTime > 0) {
+                    radius = straw.TimnsToDiscm(driftTime);
+                } else {
+                    std::cout << "-I- PndSttIsochrone Drift time <= 0: " << driftTime << std::endl;
+                    continue;
+                }
+                if (radius > myTube->GetRadIn()) {
+                    std::cout << "-I- PndSttIsochrone Isochrone with " << radius << " larger than tube radius of " << myTube->GetRadIn() << std::endl;
+                    continue;
+                }
+                radiusError = myHit->GetIsochroneError();
+            } else {
+                radius = myHit->GetIsochrone();
+                radiusError = myHit->GetIsochroneError();
+            }
 //				std::cout << "RadiusError " << radiusError << std::endl;
 
-				TEveGeoShape* myEveShape;
-				myEveShape = new TEveGeoShape("SttTube");
-				radiusError = 0.05;
-				myEveShape->SetShape(
-						new TGeoTube(radius - radiusError, radius + radiusError,
-								tubeLengthHalf));
+            TEveGeoShape* myEveShape;
+            myEveShape = new TEveGeoShape("SttTube");
+            radiusError = 0.05;
+            myEveShape->SetShape(
+                    new TGeoTube(radius - radiusError, radius + radiusError,
+                            tubeLengthHalf));
 //				std::cout << "Wire direction: " << myTube->GetWireDirection().X() << " "  << myTube->GetWireDirection().Y() << " "  << myTube->GetWireDirection().Z() << std::endl;
-				if (myTube->GetWireDirection().Pt() > 0) {
-					myEveShape->SetMainColor(kYellow);
-					myEveShape->SetMainTransparency(80);
-				} else {
-					myEveShape->SetMainColor(kCyan);
-				}
-				TMatrixT<double> myRotMat = myTube->GetRotationMatrix();
-				Double_t rotArray[9];
-				rotArray[0] = myRotMat(0, 0);
-				rotArray[1] = myRotMat(0, 1);
-				rotArray[2] = myRotMat(0, 2);
-				rotArray[3] = myRotMat(1, 0);
-				rotArray[4] = myRotMat(1, 1);
-				rotArray[5] = myRotMat(1, 2);
-				rotArray[6] = myRotMat(2, 0);
-				rotArray[7] = myRotMat(2, 1);
-				rotArray[8] = myRotMat(2, 2);
+            if (myTube->GetWireDirection().Pt() > 0) {
+                myEveShape->SetMainColor(kYellow);
+                myEveShape->SetMainTransparency(80);
+            } else {
+                myEveShape->SetMainColor(kCyan);
+            }
+            TMatrixT<double> myRotMat = myTube->GetRotationMatrix();
+            Double_t rotArray[9];
+            rotArray[0] = myRotMat(0, 0);
+            rotArray[1] = myRotMat(0, 1);
+            rotArray[2] = myRotMat(0, 2);
+            rotArray[3] = myRotMat(1, 0);
+            rotArray[4] = myRotMat(1, 1);
+            rotArray[5] = myRotMat(1, 2);
+            rotArray[6] = myRotMat(2, 0);
+            rotArray[7] = myRotMat(2, 1);
+            rotArray[8] = myRotMat(2, 2);
 
-				if (fVerbose > 1) {
-					std::cout << "RotMat NElements: "
-							<< myRotMat.GetNoElements() << std::endl;
+            if (fVerbose > 1) {
+                std::cout << "RotMat NElements: "
+                        << myRotMat.GetNoElements() << std::endl;
 
-					std::cout << myRotMat(0, 0) << " ";
-					std::cout << myRotMat(0, 1) << " ";
-					std::cout << myRotMat(0, 2) << std::endl;
-					std::cout << myRotMat(1, 0) << " ";
-					std::cout << myRotMat(1, 1) << " ";
-					std::cout << myRotMat(1, 2) << std::endl;
-					std::cout << myRotMat(2, 0) << " ";
-					std::cout << myRotMat(2, 1) << " ";
-					std::cout << myRotMat(2, 2) << std::endl;
-				}
+                std::cout << myRotMat(0, 0) << " ";
+                std::cout << myRotMat(0, 1) << " ";
+                std::cout << myRotMat(0, 2) << std::endl;
+                std::cout << myRotMat(1, 0) << " ";
+                std::cout << myRotMat(1, 1) << " ";
+                std::cout << myRotMat(1, 2) << std::endl;
+                std::cout << myRotMat(2, 0) << " ";
+                std::cout << myRotMat(2, 1) << " ";
+                std::cout << myRotMat(2, 2) << std::endl;
+            }
 
-				TGeoHMatrix geoTrans;
-				geoTrans.SetRotation(rotArray);
-				Double_t trans[3];
-				trans[0] = myTube->GetPosition().X();
-				trans[1] = myTube->GetPosition().Y();
-				trans[2] = myTube->GetPosition().Z();
-				geoTrans.SetTranslation(trans);
+            TGeoHMatrix geoTrans;
+            geoTrans.SetRotation(rotArray);
+            Double_t trans[3];
+            trans[0] = myTube->GetPosition().X();
+            trans[1] = myTube->GetPosition().Y();
+            trans[2] = myTube->GetPosition().Z();
+            if (fSttParameters->GetGeometryType() == 2)
+                trans[2] += tubeLengthHalf + 0.35;                             //< Todo: The origin of the tube is at the beginning of the tube and not at the center. Skewed straws still do not work.
+            geoTrans.SetTranslation(trans);
 
-				myEveShape->SetTransMatrix(geoTrans);
-				if (radius > 0) {
-					if (myTube->GetWireDirection().Pt() > 0) {
-						fListOfTiltedIsochrones->AddElement(myEveShape);
-					}
-					else {
-						fListOfParallelIsochrones->AddElement(myEveShape);
-					}
-				}
-			}
+            if (fVerbose > 1) {
+                std::cout << "Translation: " << trans[0] << "/" << trans[1] << "/" << trans[2] << std::endl;
+            }
+
+            myEveShape->SetTransMatrix(geoTrans);
+            if (radius > 0) {
+                if (myTube->GetWireDirection().Pt() > 0) {
+                    fListOfTiltedIsochrones->AddElement(myEveShape);
+                }
+                else {
+                    fListOfParallelIsochrones->AddElement(myEveShape);
+                }
+            }
 		}
 		gEve->Redraw3D(kFALSE);
 //		if (fListOfIsochrones) fListOfIsochrones->Delete();

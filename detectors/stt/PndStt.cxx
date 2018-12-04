@@ -10,6 +10,7 @@
 #include "PndDetectorList.h"
 #include "PndStack.h"
 #include "PndSttMapCreator.h"
+#include "PndGeoHandling.h"
 
 #include "FairRun.h"
 #include "FairGeoInterface.h"
@@ -43,9 +44,9 @@ using std::string;
 
 // -----   Default constructor   -------------------------------------------
 PndStt::PndStt()
-: fTrackID(0), fVolumeID(0), fPos(0,0,0,0), fPosIn(0,0,0,0), fPosOut(0,0,0,0), fPosInLocal(0,0,0,0), fPosOutLocal(0,0,0,0),
-    fMomIn(0,0,0,0), fMomOut(0,0,0,0), fTime(0), fLength(0), fELoss(0), fMass(0), fIsInitialized(kFALSE), fPosIndex(0),
-    fSttCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(new TObjArray()), fGeoType(0), fInFlag(0)
+: fTrackID(0), fVolumeID(0), fPosInLocal(0,0,0), fPosOutLocal(0,0,0),
+    fMomIn(0,0,0), fMomOut(0,0,0), fTime(0), fLength(0), fELoss(0), fMass(0), fIsInitialized(kFALSE), fPosIndex(0),
+    fSttCollection(0), fpostot(0,0,0), fpostotin(0,0,0), fpostotout(0,0,0), fPassNodes(new TObjArray()), fGeoType(0), fInFlag(0)
 {
     fSttCollection = new TClonesArray("PndSttPoint");
     fVerboseLevel = 0;
@@ -57,9 +58,9 @@ PndStt::PndStt()
 // -----   Standard constructor   ------------------------------------------
 PndStt::PndStt(const char* name, Bool_t active)
   : FairDetector(name, active),
-    fTrackID(0), fVolumeID(0), fPos(0,0,0,0), fPosIn(0,0,0,0), fPosOut(0,0,0,0), fPosInLocal(0,0,0,0), fPosOutLocal(0,0,0,0),
-    fMomIn(0,0,0,0), fMomOut(0,0,0,0), fTime(0), fLength(0), fELoss(0), fMass(0), fIsInitialized(kFALSE), fPosIndex(0),
-    fSttCollection(0), fpostot(0,0,0,0), fpostotin(0,0,0,0), fpostotout(0,0,0,0), fPassNodes(new TObjArray()), fGeoType(0), fInFlag(0)
+    fTrackID(0), fVolumeID(0), fPosInLocal(0,0,0), fPosOutLocal(0,0,0),
+    fMomIn(0,0,0), fMomOut(0,0,0), fTime(0), fLength(0), fELoss(0), fMass(0), fIsInitialized(kFALSE), fPosIndex(0),
+    fSttCollection(0), fpostot(0,0,0), fpostotin(0,0,0), fpostotout(0,0,0), fPassNodes(new TObjArray()), fGeoType(0), fInFlag(0)
 {
     fSttCollection = new TClonesArray("PndSttPoint");
     fVerboseLevel = 0;
@@ -81,6 +82,17 @@ PndStt::~PndStt()
 // -------------------------------------------------------------------------
 
 
+
+void PndStt::Initialize()
+{
+    std::cout << "-I- Initializing PndStt()" << std::endl;
+
+    FairDetector::Initialize();
+    if(0==gGeoManager){
+        std::cout << " -E- No gGeoManager in PndStt::Initialize()! aborting" << std::endl;
+        abort();
+    }
+}
 
 // -----   Private method GetSquaredDistanceFromWire -----------------------
 float PndStt::GetSquaredDistanceFromWire()
@@ -144,99 +156,99 @@ string PndStt::GetStringPart(string &aSrc, Int_t part, char aDelim)
 }
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t  PndStt::ProcessHits(FairVolume* vol)
+Bool_t PndStt::ProcessHits(FairVolume* vol)
 {
-  //new>>>>>>>>>>>>>>>>>>
+    //new>>>>>>>>>>>>>>>>>>
 
-  TString vol_name(gMC->CurrentVolName()); 
-  TGeoHMatrix M;
-  gMC->GetTransformation(gMC->CurrentVolPath(),M);
-  TString name(gMC->CurrentVolName());
-  //Bool_t skew = kFALSE; //[R.K. 01/2017] Unused variable.
-  //if(name.Contains("skew")) skew = kTRUE; //[R.K. 01/2017] Unused variable.
-  //new>>>>>>>>>>>>>>>>>>
-  
-  TGeoMedium *medium = (TGeoMedium*) vol->getGeoNode()->getRootVolume()->GetMedium();
-  Double_t epsil = medium->GetParam(6);
+    TString vol_name(gMC->CurrentVolName());
+    TGeoHMatrix M;
+    gMC->GetTransformation(gMC->CurrentVolPath(), M);
+    TString name(gMC->CurrentVolName());
+    //Bool_t skew = kFALSE; //[R.K. 01/2017] Unused variable.
+    //if(name.Contains("skew")) skew = kTRUE; //[R.K. 01/2017] Unused variable.
+    //new>>>>>>>>>>>>>>>>>>
 
-  if (gMC->TrackCharge() != 0.)
+//  TGeoMedium *medium = (TGeoMedium*) vol->getGeoNode()->getRootVolume()->GetMedium();
+//  Double_t epsil = medium->GetParam(6);
+
+    Double_t globalPos[3] = { 0., 0., 0.};
+    Double_t localPos[3] = { 0., 0., 0. };
+    TLorentzVector mom;
+
+    if (gMC->TrackCharge() != 0.)
     {
-      
-      if ( gMC->IsTrackEntering() &&
-	   fabs(sqrt(GetSquaredDistanceFromWire()) - (innerStrawDiameter / 2.)) < epsil)
-	{
-	  fInFlag = kTRUE;
-	    // Set parameters at entrance of volume. Reset ELoss.
-	    fELoss  = 0.;
-	    fTime   = gMC->TrackTime() * 1.0e09;
-	    fLength = gMC->TrackLength();
-	    gMC->TrackPosition(fPos);
-	    gMC->TrackMomentum(fMomIn);
-	    gMC->TrackPosition(fpostotin); // CHECK delete this?
-	    Double_t globalPos[3] = {0., 0., 0.};
-	    Double_t localPos[3] = {0., 0., 0.}; 
-	    
-	    globalPos[0] = fPos.X();
-	    globalPos[1] = fPos.Y();
-	    globalPos[2] = fPos.Z();
-	    
-	    gMC->Gmtod(globalPos, localPos, 1);
-	    fPosInLocal.SetXYZM(localPos[0], localPos[1], localPos[2], 0.0);
-	}
+        if ( gMC->IsTrackEntering()) //not sure why this was here:  && fabs(sqrt(GetSquaredDistanceFromWire()) - (innerStrawDiameter / 2.)) < epsil)
+        {
+            fInFlag = kTRUE;
+            // Set parameters at entrance of volume. Reset ELoss.
+            fELoss = 0.;
+            fTime = gMC->TrackTime() * 1.0e09;
+            fLength = gMC->TrackLength();
+            gMC->TrackPosition(globalPos[0], globalPos[1], globalPos[2]);
+            gMC->TrackMomentum(mom);
 
-      
-      // Sum energy loss for all steps in the active volume
-      fELoss += gMC->Edep();
-      
-      // Create PndSttPoint at exit of active volume -- but not into the wire -- with eloss in the tube (to make it work with TGeant4)
-      if (gMC->IsTrackExiting() && 
-	  fInFlag == kTRUE && fabs(sqrt(GetSquaredDistanceFromWire()) - (innerStrawDiameter / 2.)) < epsil
-	  && fELoss != 0)
-	{
-	  fInFlag = kFALSE;
-	  fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	  fVolumeID = kSTT;                // vol->getMCid();
-	  fMass = gMC->TrackMass();        // mass (GeV)
-	  gMC->TrackPosition(fPosOut);
-	  gMC->TrackMomentum(fMomOut);
-	  gMC->TrackPosition(fpostotout);  // CHECK (delete this?)
-	  Double_t globalPos[3] = {0., 0., 0.}; 
-	  Double_t localPos[3] = {0., 0., 0.}; 
-	  
-	  gMC->Gdtom(localPos, globalPos, 1);
-	  
-	  fPos.SetXYZM(globalPos[0], globalPos[1], globalPos[2], 0.0);
-	  
-	  globalPos[0] = fPosOut.X();
-	  globalPos[1] = fPosOut.Y();
-	  globalPos[2] = fPosOut.Z();
-	  
-	  gMC->Gmtod(globalPos, localPos, 1);
-	  fPosOutLocal.SetXYZM(localPos[0], localPos[1], localPos[2], 0.0);
-	  
-	  fpostot.SetXYZM((fpostotin.X() +  fpostotout.X())/2., (fpostotin.Y() + fpostotout.Y())/2., (fpostotin.Z() + fpostotout.Z())/2.,0.0);  // CHECK (delete this?)
+            fpostotin.SetXYZ(globalPos[0], globalPos[1], globalPos[2]);
+            fMomIn.SetXYZ(mom.X(), mom.Y(), mom.Z());
 
-	  // CHECK -----------------------------------------------------------
-	  PndSttMapCreator mapper(fGeoType);
-	  Int_t tubeID = mapper.GetTubeIDFromPath(gMC->CurrentVolPath());
-	  // -----------------------------------------------------------------
+            gMC->Gmtod(globalPos, localPos, 1);
+            fPosInLocal.SetXYZ(localPos[0], localPos[1], localPos[2]);
+        }
 
-	  AddHit(fTrackID, fVolumeID, tubeID,
-	       TVector3(fpostot.X(), fpostot.Y(), fpostot.Z()),
-	       TVector3(fPosInLocal.X(),   fPosInLocal.Y(),   fPosInLocal.Z()),
-	       TVector3(fPosOutLocal.X(),  fPosOutLocal.Y(),  fPosOutLocal.Z()),
-	       TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-	       TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-	       fTime, fLength, fELoss, fMass); 
-	    
-	  // Increment number of stt points for TParticle
-	  PndStack* stack = (PndStack*) gMC->GetStack();
-          stack->AddPoint(kSTT);
-	  ResetParameters();
-	}
+        // Sum energy loss for all steps in the active volume
+        fELoss += gMC->Edep();
+
+        // Create PndSttPoint at exit of active volume -- but not into the wire -- with eloss in the tube (to make it work with TGeant4)
+        if ( (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared())
+                && fInFlag == kTRUE                        // not sure why this was here: fabs(sqrt(GetSquaredDistanceFromWire()) - (innerStrawDiameter / 2.)) < epsil
+                && fELoss != 0)
+        {
+            fInFlag = kFALSE;
+            fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
+            fVolumeID = kSTT;                // vol->getMCid();
+            fMass = gMC->TrackMass();        // mass (GeV)
+            gMC->TrackPosition(globalPos[0], globalPos[1], globalPos[2]);
+            gMC->TrackMomentum(mom);
+
+            fpostotout.SetXYZ(globalPos[0], globalPos[1], globalPos[2]);
+            fMomOut.SetXYZ(mom.X(), mom.Y(), mom.Z());
+
+            gMC->Gmtod(globalPos, localPos, 1);
+            fPosOutLocal.SetXYZ(localPos[0], localPos[1], localPos[2]);
+
+
+            fpostot.SetXYZ((fpostotin.X() + fpostotout.X()) / 2., (fpostotin.Y() + fpostotout.Y()) / 2.,
+                    (fpostotin.Z() + fpostotout.Z()) / 2.);  // CHECK (delete this?)
+
+            Int_t tubeID = -1;
+
+            // CHECK -----------------------------------------------------------
+            if (fGeoType == 1){
+                PndSttMapCreator mapper(fGeoType);
+                tubeID = mapper.GetTubeIDFromPath(gMC->CurrentVolPath());
+            } else if (fGeoType == 2) {
+                tubeID = PndGeoHandling::Instance()->GetShortID(gMC->CurrentVolPath());
+            }
+            // -----------------------------------------------------------------
+
+//            std::cout << "SttPoint: " << gMC->CurrentVolPath()  << std::endl;
+//            std::cout << "PosIn: " << fpostotin.X() << "/" << fpostotin.Y() << "/" << fpostotin.Z() << std::endl;
+//            std::cout << "PosOut: " << fpostotout.X() << "/" << fpostotout.Y() << "/" << fpostotout.Z() << std::endl;
+//            std::cout << "PosToT: " << fpostot.X() << "/" << fpostot.Y() << "/" << fpostot.Z() << std::endl;
+//            std::cout << "PosInLoc: " << fPosInLocal.X() << "/" << fPosInLocal.Y() << "/" << fPosInLocal.Z() << std::endl;
+//            std::cout << "PosOutLoc: " << fPosOutLocal.X() << "/" << fPosOutLocal.Y() << "/" << fPosOutLocal.Z() << std::endl;
+
+            AddHit(fTrackID, fVolumeID, tubeID, fpostot,
+                    fPosInLocal, fPosOutLocal, fMomIn, fMomOut,
+                    fTime, fLength, fELoss, fMass);
+
+            // Increment number of stt points for TParticle
+            PndStack* stack = (PndStack*) gMC->GetStack();
+            stack->AddPoint(kSTT);
+            ResetParameters();
+        }
     }
- 
-  return kTRUE;
+
+    return kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -332,35 +344,74 @@ void PndStt::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
 
 
 // -----   Public method ConstructGeometry   -------------------------------
-void PndStt::ConstructGeometry() 
+void PndStt::ConstructGeometry()
 {
-  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
-  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  PndGeoStt*       Geo  = new  PndGeoStt();
-  Geo->setGeomFile(GetGeometryFileName());
-  geoFace->addGeoModule(Geo);
+    TString fileName = GetGeometryFileName();
+    if (fileName.EndsWith(".root"))
+    {
+        fGeoType = 2;
+    } else if (fileName.Contains("straws_skewed_blocks_35cm_pipe.geo"))
+    {
+        fGeoType = 1;
+    } else
+    {
+        cout << "-E- STT: this geometry is not supported now" << endl;
+        return;
+    }
 
-  Bool_t rc = geoFace->readSet(Geo);
-  if (rc) Geo->create(geoLoad->getGeoBuilder());
+    FairRun *fRun = FairRun::Instance();
+    FairRuntimeDb *rtdb = FairRun::Instance()->GetRuntimeDb();
+    PndGeoSttPar* par = (PndGeoSttPar*) (rtdb->getContainer("PndGeoSttPar"));
+    PndSttMapCreator mapper(fGeoType);
+    int tubecounter = 0;
 
-  // store geo parameter with PndSttMapCreator
-  TList* volList = Geo->getListOfVolumes();
-  FairRun *fRun = FairRun::Instance();
-  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
-  PndGeoSttPar* par=(PndGeoSttPar*)(rtdb->getContainer("PndGeoSttPar"));
-  TListIter iter(volList);
-  // CHECK 
-  if(GetGeometryFileName().Contains("straws_skewed_blocks_35cm_pipe.geo")) fGeoType = 1; 
-  else cout << "-E- STT: this geometry is not supported now" << endl;
+    if (fGeoType == 2)
+    {
+        // Set what is sensitive before creating geometry
+        if (fListOfSensitives.size() == 0) SetDefaultSensorNames();
+        ConstructRootGeometry();
+        PndGeoHandling::Instance()->CreateUniqueSensorId("", fListOfSensitives);
+        // if(fVerboseLevel>0)
+        PndGeoHandling::Instance()->PrintSensorNames();
+        //      std::cout << "Inside fGeoType 2" << std::endl;
+        tubecounter = mapper.FillSttTubeParametersType2(par);
 
-  PndSttMapCreator mapper(fGeoType);
-  int tubecounter =  mapper.FillSttTubeParameters(par, volList);
-  cout << "-I- STT total number of tubes: " << tubecounter << endl;
-  par->setChanged();
-  par->setInputVersion(fRun->GetRunId(),1);
-  
-  ProcessNodes ( volList );
-  
+    } else if (fGeoType == 1)
+    {
+
+        FairGeoLoader* geoLoad = FairGeoLoader::Instance();
+        FairGeoInterface* geoFace = geoLoad->getGeoInterface();
+        PndGeoStt* Geo = new PndGeoStt();
+        Geo->setGeomFile(GetGeometryFileName());
+        geoFace->addGeoModule(Geo);
+
+        Bool_t rc = geoFace->readSet(Geo);
+        if (rc) Geo->create(geoLoad->getGeoBuilder());
+
+        // store geo parameter with PndSttMapCreator
+        TList* volList = Geo->getListOfVolumes();
+        FairRun *fRun = FairRun::Instance();
+        FairRuntimeDb *rtdb = FairRun::Instance()->GetRuntimeDb();
+        PndGeoSttPar* par = (PndGeoSttPar*) (rtdb->getContainer("PndGeoSttPar"));
+        TListIter iter(volList);
+        // CHECK
+        if (GetGeometryFileName().Contains("straws_skewed_blocks_35cm_pipe.geo"))
+            fGeoType = 1;
+        else
+            cout << "-E- STT: this geometry is not supported now" << endl;
+
+        PndSttMapCreator mapper(fGeoType);
+        int tubecounter = mapper.FillSttTubeParameters(par, volList);
+        cout << "-I- STT total number of tubes: " << tubecounter << endl;
+        par->setChanged();
+        par->setInputVersion(fRun->GetRunId(), 1);
+
+        ProcessNodes(volList);
+    }
+    cout << "-I- PndStt::ConstructGeometry : STT total number of tubes: " << tubecounter << endl;
+    par->setChanged();
+    par->setInputVersion(fRun->GetRunId(), 1);
+
 }
 // -------------------------------------------------------------------------
 
@@ -386,6 +437,24 @@ PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, Int_t tubeID,
   return pointnew; 
 }
 // -------------------------------------------------------------------------
+bool PndStt::CheckIfSensitive(std::string name)
+{
+  for (UInt_t i = 0; i < fListOfSensitives.size(); i++){
+    if (name.find(fListOfSensitives[i]) != std::string::npos)
+      return true;
+  }
+  return false;
+}
+void PndStt::SetDefaultSensorNames(){
+  fListOfSensitives.push_back("ArCO2Sensitive");//Root_Test.root
+
+  if (fVerboseLevel>0) {
+    std::cout<<"- I - PndSTTDetector: fListOfSensitives contains:";
+    for(UInt_t k=0;k<fListOfSensitives.size();k++)
+      std::cout<<"\n\t"<<fListOfSensitives[k];
+    std::cout<<std::endl;
+  }
+}
 
  
 
