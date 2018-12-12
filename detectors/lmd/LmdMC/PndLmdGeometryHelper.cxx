@@ -55,10 +55,6 @@ PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo
 			sensor_id = sensor_id % (sensors_per_module_side - 1);
 		}
 
-//		cout << "GeometryHelper::translatePathToInfo:\n";
-//		cout << "path: " << volume_path <<"\n";
-//		cout << "info: \n" << hit_info << "\n";
-
 		// now we have to make sure the TGeoManager builds the matrix cache
 		// correctly the only way we found (analogous to PndGeoHandling) is to
 		// dive down to this node from the top, then the matrix multiplications
