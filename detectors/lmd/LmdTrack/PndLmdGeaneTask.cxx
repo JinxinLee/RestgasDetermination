@@ -136,7 +136,7 @@ void PndLmdGeaneTask::Exec(Option_t*) {
 
     TVector3 PosRecLMD(fFittedTrkP.GetX(), fFittedTrkP.GetY(),
                        fFittedTrkP.GetZ());
-    if (fFittedTrkP.GetZ() > 1130)
+    if (fFittedTrkP.GetZ() > 1130 || fFittedTrkP.GetZ() < 1000 )
       continue;  // TEST: skip trks from 2nd plane. TODO: check are they fine???
     TVector3 MomRecLMD(fFittedTrkP.GetPx(), fFittedTrkP.GetPy(),
                        fFittedTrkP.GetPz());
