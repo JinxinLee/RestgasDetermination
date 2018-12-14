@@ -16,7 +16,7 @@
 
 #include "RhoSelector/RhoSimpleElectronSelector.h"
 #include "RhoBase/RhoCandidate.h"
-#include "PndRecoCandidate.h"
+#include "PndPidCandidate.h"
 
 
 
@@ -61,7 +61,7 @@ Bool_t RhoSimpleElectronSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t RhoSimpleElectronSelector::Accept ( PndRecoCandidate*  )
+Bool_t RhoSimpleElectronSelector::Accept ( PndPidCandidate*  )
 {
   return kFALSE;
 }

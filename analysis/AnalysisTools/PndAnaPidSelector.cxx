@@ -16,7 +16,7 @@
 #include "PndAnaPidSelector.h"
 
 #include "RhoBase/RhoCandidate.h"
-#include "PndRecoCandidate.h"
+#include "PndPidCandidate.h"
 
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
@@ -245,7 +245,7 @@ Bool_t PndAnaPidSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t PndAnaPidSelector::Accept ( PndRecoCandidate*  )
+Bool_t PndAnaPidSelector::Accept ( PndPidCandidate*  )
 {
   Warning ( "PndAnaPidSelector::Accept(VAbsMicroCandidate&)","No implementation for this. Please use PndAnaPidSelector::Accept(RhoCandidate&)" );
   return kFALSE;

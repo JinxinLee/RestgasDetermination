@@ -18,7 +18,7 @@
 #include "RhoBase/RhoParticleSelectorBase.h"
 
 class RhoCandidate;
-class PndRecoCandidate;
+class PndPidCandidate;
 
 //----------------------------------------------------------------
 
@@ -33,7 +33,7 @@ class RhoChargedParticleSelector : public RhoParticleSelectorBase
 
     //operations
     virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( PndRecoCandidate& b );
+    virtual Bool_t Accept ( PndPidCandidate& b );
 
     ClassDef ( RhoChargedParticleSelector,1 )  // Charged particle selector
 };

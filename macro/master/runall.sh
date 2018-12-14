@@ -1,4 +1,4 @@
-root -l -b -q sim_complete.C
+root -l -b -q sim_complete.C\($1\)
 root -l -b -q digi_complete.C
 root -l -b -q reco_complete.C
 root -l -b -q pid_complete.C

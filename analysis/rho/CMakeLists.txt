@@ -5,14 +5,14 @@ add_subdirectory(DecayTreeFitter)
 add_subdirectory(RhoFitter)
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
-  ${SYSTEM_INCLUDE_DIRECTORIES} 
-  ${BASE_INCLUDE_DIRECTORIES} 
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES}
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/field 
-  ${CMAKE_SOURCE_DIR}/pnddata # put PndRecoCandidate to fairbase at some point
-  ${CMAKE_SOURCE_DIR}/pnddata/PidData # CAUTION we have a PANDA specific access: RhoGoodPhotonSelector auses PndPidCandidate
+  ${CMAKE_SOURCE_DIR}/field
+  ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoMath
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoFitter
@@ -30,14 +30,14 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
-set(SRCS 
-RhoConstraints/RhoMassConstraint.cxx 
-RhoConstraints/RhoPointingConstraint.cxx 
-RhoConstraints/RhoBeamConstraint.cxx 
-RhoBase/RhoEventSelectorBase.cxx 
+set(SRCS
+RhoConstraints/RhoMassConstraint.cxx
+RhoConstraints/RhoPointingConstraint.cxx
+RhoConstraints/RhoBeamConstraint.cxx
+RhoBase/RhoEventSelectorBase.cxx
 RhoTools/RhoCalculationTools.cxx
 RhoMath/RhoDoubleErr.cxx
 RhoMath/RhoError.cxx
@@ -81,7 +81,7 @@ RhoTools/RhoTotalMomentum.cxx
 RhoHistogram/RhoColumn.cxx
 RhoHistogram/RhoTuple.cxx
 
-RhoBase/RhoConstraint.cxx 
+RhoBase/RhoConstraint.cxx
 
 #RhoFitter/Rho4CFitter.cxx
 #RhoFitter/RhoDecayTreeFitter.cxx

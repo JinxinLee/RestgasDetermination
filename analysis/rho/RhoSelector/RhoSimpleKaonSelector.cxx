@@ -16,7 +16,7 @@
 
 #include "RhoSelector/RhoSimpleKaonSelector.h"
 #include "RhoBase/RhoCandidate.h"
-#include "PndRecoCandidate.h"
+#include "PndPidCandidate.h"
 
 
 
@@ -59,7 +59,7 @@ Bool_t RhoSimpleKaonSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t RhoSimpleKaonSelector::Accept ( PndRecoCandidate*  )
+Bool_t RhoSimpleKaonSelector::Accept ( PndPidCandidate*  )
 {
   return kFALSE;
 }

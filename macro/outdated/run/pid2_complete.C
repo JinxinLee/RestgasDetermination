@@ -5,23 +5,23 @@ int pid2_complete()
 
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
-  
+
 	// Number of events to process
   Int_t nEvents = 0;  // if 0 all the vents will be processed
-  
+
   // Parameter file
   TString parFile = "simparams.root"; // at the moment you do not need it
-  
+
   // Digitisation file (ascii)
   TString digiFile = "all.par";
-  
+
   // Output file
   TString outFile = "pid_complete.root";
-  
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
     // ------------------------------------------------------------------------
-  
+
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile("sim_complete.root");
@@ -36,14 +36,14 @@ int pid2_complete()
   TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
   emcDigiFile += "/macro/params/";
   emcDigiFile += digiFile;
-  
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
-  
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(emcDigiFile.Data(),"in");
-        
+
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
 
@@ -51,9 +51,9 @@ int pid2_complete()
 
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  corr->SetInputBranch("SttMvdGemGenTrack");
+  corr->SetBarrelTrackBranch("SttMvdGemGenTrack");
 //  corr->SetInputIDBranch("SttMvdGemGenTrackID");
-  corr->SetInputBranch2("FtsRealGenTrack");
+  corr->SetForwardTrackBranch("FtsRealGenTrack");
 //  corr->SetInputIDBranch2("FtsRealGenTrackID");
   //corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
@@ -62,7 +62,7 @@ int pid2_complete()
 
   PndMcCloner *clone = new PndMcCloner();
   fRun->AddTask(clone);
- 
+
   PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
   fRun->AddTask(assMC);
 

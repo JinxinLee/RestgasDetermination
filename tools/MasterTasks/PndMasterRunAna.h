@@ -131,6 +131,7 @@ class PndMasterRunAna : public FairRunAna
    */
   void SetOptions(TString par) { fOptions = par; fOptions.ToLower();}
   TString GetOptions() { return fOptions;}
+  void PrintListOftTasks();
 
   /**
    * @brief Setter of the event counter rate

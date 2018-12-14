@@ -6,6 +6,7 @@
 #include "PndMasterLocalRecoTask.h"
 #include "PndMasterRecoIdealTask.h"
 #include "PndMasterPidTask.h"
+#include "PndMasterMultiPidTask.h"
 #include "PndFileNameCreator.h"
 #include "PndEventCounterTask.h"
 
@@ -172,10 +173,32 @@ void PndMasterRunAna::AddPidTasks(Bool_t pers)
     AddTask(new FairGeane());
     fNoGeane=false;
   }
-  PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
-  if (!pers) pid->SetPersistency(kFALSE);
-  pid->SetPersistency(pers);
-  AddTask(pid);
+  if (fOptions.Contains("multikalman"))
+  {
+    PndMasterMultiPidTask *pid = new PndMasterMultiPidTask(fOptions);
+    if (!pers) pid->SetPersistency(kFALSE);
+    pid->SetPersistency(pers);
+    AddTask(pid);
+  } else {
+    PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
+    if (!pers) pid->SetPersistency(kFALSE);
+    pid->SetPersistency(pers);
+    AddTask(pid);
+  }
+}
+
+void PndMasterRunAna::PrintListOftTasks()
+{
+  cout<<"Tasks that ran just now:"<<endl;
+  TFile* outfile=fRootManager->GetOutFile();
+  bool wasopen=outfile->IsOpen ();
+  if (!wasopen)
+  {
+    cout<<"file is "<< ((wasopen) ? "" : "not " ) <<"open" <<endl;
+    outfile=new TFile(outfile->GetName(),"UPDATE");
+  }
+  FairFileHeader* outheader=(FairFileHeader*)outfile->Get("FileHeader");
+  for(const auto&& os : *(outheader->GetListOfTasks()) ) cout<<" - "<<((TObjString*)os)->GetString().Data()<<endl;
 }
 
 // -----   Finish   ---------------------------------------------------------
@@ -183,7 +206,6 @@ void PndMasterRunAna::Finish()
 {
   cout << endl;
 
-  cout<<"PndMasterRunAna::Finish(): Tasks that ran just now:"<<endl;
   TFile* outfile=fRootManager->GetOutFile();
   bool wasopen=outfile->IsOpen ();
   if (!wasopen)
@@ -193,8 +215,8 @@ void PndMasterRunAna::Finish()
   }
   outfile->cd();
 
-  FairFileHeader* outheader=(FairFileHeader*)outfile->Get("FileHeader");
-  for(const auto&& os : *(outheader->GetListOfTasks()) ) cout<<" - "<<((TObjString*)os)->GetString().Data()<<endl;
+  cout<<"PndMasterRunAna::Finish():";
+  PrintListOftTasks();
 
   TObjString outoptions(fOptions);
   outoptions.Write("PndOptions",kOverwrite);
@@ -248,3 +270,4 @@ void PndMasterRunAna::Finish()
 /** @cond CLASSIMP */
 ClassImp(PndMasterRunAna);
 /** @endcond */
+

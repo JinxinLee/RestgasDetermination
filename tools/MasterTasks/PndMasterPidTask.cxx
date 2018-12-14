@@ -38,7 +38,7 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   this->Add(corr = new PndPidCorrelator()); // 1
   pid.kPndPidCorrelator = GetListOfTasks()->GetSize()-1;
   TString barrelbranchname="SttMvdGemGenTrack";
-  if (fOptions.Contains("nogem")||fOptions.Contains("gem0")){
+  if (fOptions.Contains("nogem")||fOptions.Contains("gem0")) {
     barrelbranchname="SttMvdGenTrack";
   }
   if (fOptions.Contains("filtered")) barrelbranchname+="_filtered";
@@ -49,9 +49,9 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   if (fOptions.Contains("fakeonline")) fwdbranchname+="_fakeonline";
   corr->SetForwardTrackBranch(fwdbranchname);
 
-  corr->SetDebugMode(kTRUE);
-  //corr->SetFast(kTRUE);
-  //corr->SetBackPropagate(kFALSE);
+  if (fOptions.Contains("piddebug")) corr->SetDebugMode(kTRUE);
+  if (fOptions.Contains("pidfast")) corr->SetFast(kTRUE);
+  if (fOptions.Contains("pidnoswim")) corr->SetBackPropagate(kFALSE);
 
   // -----   Bremsstrahlung Correction ----------------------
   this->Add(new PndPidBremCorrector()); // 2
@@ -77,11 +77,11 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   this->Add(new PndPidDrcAssociatorTask()); // 7
   pid.kPndPidDrcAssociatorTask = GetListOfTasks()->GetSize()-1;
 
-  if ( (!fOptions.Contains("nogem")) && (!fOptions.Contains("gem0")) )
-    {
-      this->Add(new PndPidDiscAssociatorTask()); // 8
-      pid.kPndPidDiscAssociatorTask = GetListOfTasks()->GetSize()-1;
-    }
+  if ( !fOptions.Contains("day1") && !fOptions.Contains("phase1") )
+  {
+    this->Add(new PndPidDiscAssociatorTask()); // 8
+    pid.kPndPidDiscAssociatorTask = GetListOfTasks()->GetSize()-1;
+  }
 
   this->Add(new PndPidSttAssociatorTask()); // 9
   pid.kPndPidSttAssociatorTask = GetListOfTasks()->GetSize()-1;
@@ -96,12 +96,13 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   pid.kPndPidFtofAssociatorTask = GetListOfTasks()->GetSize()-1;
 
   if ( !fOptions.Contains("day1") && !fOptions.Contains("phase1") )
-    {
-      this->Add(new PndPidRichAssociatorTask()); // 13
-      pid.kPndPidRichAssociatorTask = GetListOfTasks()->GetSize()-1;
-    }
+  {
+    this->Add(new PndPidRichAssociatorTask()); // 13
+    pid.kPndPidRichAssociatorTask = GetListOfTasks()->GetSize()-1;
+  }
 
   SetVerbose(0);
+
 }
 // -------------------------------------------------------------------------
 
@@ -123,3 +124,4 @@ PndMasterPidTask::~PndMasterPidTask()
 /** @cond CLASSIMP */
 ClassImp(PndMasterPidTask);
 /** @endcond */
+

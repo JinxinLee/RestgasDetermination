@@ -8,9 +8,9 @@ class RhoTuple;
 // **** some auxilliary functions in auxtut.C ****
 // - FairRunAna* initrun(TString prefix, TString outfile, int min=-1, int max=-1) --> Init FairRunAna
 // - plotmyhistos()               --> Plots all histograms in current TDirectory on a autosized canvas
-// - writemyhistos()              --> Writes all histos in current TFile 
+// - writemyhistos()              --> Writes all histos in current TFile
 // - fillM(RhoCandList l, TH1* h) --> Fill mass histogram h with masses of candidates in l
-// - RemoveGeoManager()           --> Temporary fix for error on macro exit   
+// - RemoveGeoManager()           --> Temporary fix for error on macro exit
 // **** some auxilliary functions in auxtut.C ****
 #include "auxtut.C"
 
@@ -19,24 +19,24 @@ void tut_ana_ntp_qa(int nevts = 0, TString prefix = "signal")
  	// *** some variables
 	int i=0,j=0, k=0, l=0;
 	gStyle->SetOptFit(1011);
-	
-	// *** Initialize FairRunAna with defaults	
-	TString OutFile="out_dummy.root";  
+
+	// *** Initialize FairRunAna with defaults
+	TString OutFile="out_dummy.root";
 	FairRunAna* fRun = initrun(prefix, OutFile);
 	fRun->Init();
-	
+
 	// *** create an output file for all histograms
 	TFile *out = TFile::Open(prefix+"_ana_ntp.root","RECREATE");
-	
+
 	// *** create ntuples for J/psi and psi(2S)
 	RhoTuple *njpsi = new RhoTuple("njpsi","J/psi Analysis");
 	RhoTuple *npsip = new RhoTuple("npsip","psi' Analysis");
-	
+
 	// *** create some columns which might not be filled sometimes
 	njpsi->Column("tjpsim",		0.0f, -999.9f);
 	njpsi->Column("tjpsip",		0.0f, -999.9f);
 	njpsi->Column("tjpsitht",	0.0f, -999.9f);
-	
+
 	npsip->Column("tpsim",		0.0f, -999.9f);
 	npsip->Column("tpsip",		0.0f, -999.9f);
 	npsip->Column("tpsitht",	0.0f, -999.9f);
@@ -44,95 +44,95 @@ void tut_ana_ntp_qa(int nevts = 0, TString prefix = "signal")
 	//
 	// Now the analysis stuff comes...
 	//
-	
+
 	// *** the data reader object
 	PndAnalysis* theAnalysis = new PndAnalysis();
 	if (nevts==0) nevts= theAnalysis->GetEntries();
-		
+
 	// *** RhoCandLists for the analysis
 	RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s;
-	
+
 	// *** Mass selector for the jpsi cands
 	double m0_jpsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
 	RhoMassParticleSelector *jpsiMassSel=new RhoMassParticleSelector("jpsi",m0_jpsi,1.0);
-	
+
 	// *** Pid Selection Algorithms
 	TString pidSelection = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts";
-	
+
 	// *** the lorentz vector of the initial psi(2S)
 	TLorentzVector ini(0, 0, 6.231552, 7.240065);
-	
+
 	// *** the QA tool for easy ntuple output
 	PndRhoTupleQA qa(theAnalysis,ini.P());
 
-	
+
 	// ***
 	// the event loop
 	// ***
 	while (theAnalysis->GetEvent() && i++<nevts)
 	{
 		if ((i%100)==0) cout<<"evt " << i << endl;
-				
-		// *** Select with no PID info ('All'); type and mass are set 		
+
+		// *** Select with no PID info ('All'); type and mass are set
 		theAnalysis->FillList(muplus,  "MuonAllPlus",	pidSelection);
 		theAnalysis->FillList(muminus, "MuonAllMinus",	pidSelection);
 		theAnalysis->FillList(piplus,  "PionAllPlus",	pidSelection);
 		theAnalysis->FillList(piminus, "PionAllMinus",	pidSelection);
-		
+
 		// *** combinatorics for J/psi -> mu+ mu-
 		jpsi.Combine(muplus, muminus);
 		jpsi.SetType(443);
-		
+
 		// *** some mass pre selection
 		//jpsi.Select(jpsiMassSel);
-		
+
 		// ***
 		// *** do all kind of analysis and store in N-tuple
 		// ***
-		for (j=0;j<jpsi.GetLength();++j) 
+		for (j=0;j<jpsi.GetLength();++j)
 		{
 			// get daughters
 			RhoCandidate *mup = jpsi[j]->Daughter(0);
 			RhoCandidate *mum = jpsi[j]->Daughter(1);
 			PndPidCandidate *mup_rec = (PndPidCandidate*)mup->GetRecoCandidate();
 			PndPidCandidate *mum_rec = (PndPidCandidate*)mum->GetRecoCandidate();
-			
-			// get truth information 
+
+			// get truth information
 			bool mct = theAnalysis->McTruthMatch(jpsi[j]);
 			RhoCandidate *true_jpsi = jpsi[j]->GetMcTruth();
-			
+
 			// perform vertex fitter
 			RhoKinVtxFitter vtxfitter(jpsi[j]);	// instantiate a vertex fitter
 			vtxfitter.Fit();
-			
+
 			RhoCandidate *fitvtx_jpsi = jpsi[j]->GetFit();
 			double chi2_vtx = vtxfitter.GetChi2();	// access chi2 of fit
 			double prob_vtx = vtxfitter.GetProb();	// access probability of fit
 			TVector3 vtxpos(-999.,-999.,-999.);
 			if (fitvtx_jpsi) vtxpos = fitvtx_jpsi->Daughter(0)->Pos();
-			
+
 			// perform mass fit
 			RhoKinFitter mfitter(jpsi[j]);		// instantiate the RhoKinFitter in psi(2S)
 			mfitter.AddMassConstraint(m0_jpsi);	// add the mass constraint
 			mfitter.Fit();						// do fit
-			
+
 			RhoCandidate *fitmass_jpsi = jpsi[j]->GetFit();
 			double chi2_mass = mfitter.GetChi2();	// get chi2 of fit
 			double prob_mass = mfitter.GetProb();	// access probability of fit
-			
+
 			// *** now write ntuple information
-			
+
 			// *** general event info
 			njpsi->Column("ev",             (Float_t) i,                            -999.9f);
 			njpsi->Column("cand",           (Float_t) j,                            -999.9f);
-			
+
 			// *** basic J/psi info
-			njpsi->Column("jpsim",          (Float_t) jpsi[j]->M(),                 -999.9f); 
-			njpsi->Column("jpsip",          (Float_t) jpsi[j]->P(),                 -999.9f); 
-			njpsi->Column("jpsipt",         (Float_t) jpsi[j]->P3().Pt(),           -999.9f); 
-			njpsi->Column("jpsitht",        (Float_t) jpsi[j]->P3().Theta(),        -999.9f); 
+			njpsi->Column("jpsim",          (Float_t) jpsi[j]->M(),                 -999.9f);
+			njpsi->Column("jpsip",          (Float_t) jpsi[j]->P(),                 -999.9f);
+			njpsi->Column("jpsipt",         (Float_t) jpsi[j]->P3().Pt(),           -999.9f);
+			njpsi->Column("jpsitht",        (Float_t) jpsi[j]->P3().Theta(),        -999.9f);
 			njpsi->Column("jpsimissm",      (Float_t) (ini-(jpsi[j]->P4())).M(),    -999.9f);
-			
+
 			// *** MC truth info
 			njpsi->Column("mct",            (Float_t) mct,                           -999.9f);
 			if (true_jpsi)
@@ -143,73 +143,73 @@ void tut_ana_ntp_qa(int nevts = 0, TString prefix = "signal")
 			}
 
 			// *** fitting info
-			njpsi->Column("jpsimvtx",       (Float_t) fitvtx_jpsi->M(),              -999.9f); 
-			njpsi->Column("chi2vtx",        (Float_t) chi2_vtx,                      -999.9f); 
-			njpsi->Column("probvtx",        (Float_t) prob_vtx,                      -999.9f); 
+			njpsi->Column("jpsimvtx",       (Float_t) fitvtx_jpsi->M(),              -999.9f);
+			njpsi->Column("chi2vtx",        (Float_t) chi2_vtx,                      -999.9f);
+			njpsi->Column("probvtx",        (Float_t) prob_vtx,                      -999.9f);
 			njpsi->Column("vtxx",           (Float_t) vtxpos.X(),                    -999.9f);
 			njpsi->Column("vtxy",           (Float_t) vtxpos.Y(),                    -999.9f);
 			njpsi->Column("vtxz",           (Float_t) vtxpos.Z(),                    -999.9f);
-			
-			njpsi->Column("jpsimmass",      (Float_t) fitmass_jpsi->M(),             -999.9f); 
-			njpsi->Column("chi2mass",       (Float_t) chi2_mass,                     -999.9f); 
-			njpsi->Column("probmass",       (Float_t) prob_mass,                     -999.9f); 
-			
+
+			njpsi->Column("jpsimmass",      (Float_t) fitmass_jpsi->M(),             -999.9f);
+			njpsi->Column("chi2mass",       (Float_t) chi2_mass,                     -999.9f);
+			njpsi->Column("probmass",       (Float_t) prob_mass,                     -999.9f);
+
 			// *** kinematic info of daughters
 			njpsi->Column("mupp",           (Float_t) mup->P(),                      -999.9f);
 			njpsi->Column("muppt",          (Float_t) mup->P3().Pt(),                -999.9f);
 			njpsi->Column("muptht",         (Float_t) mup->P3().Theta(),             -999.9f);
-			
+
 			njpsi->Column("mump",           (Float_t) mum->P(),                      -999.9f);
 			njpsi->Column("mumpt",          (Float_t) mum->P3().Pt(),                -999.9f);
 			njpsi->Column("mumtht",         (Float_t) mum->P3().Theta(),             -999.9f);
-			
+
 			// *** PID info of daughters
 			njpsi->Column("muppid",         (Float_t) mup->GetPidInfo(1),            -999.9f);
 			njpsi->Column("mumpid",         (Float_t) mum->GetPidInfo(1),            -999.9f);
-			
+
 			// *** and finally FILL Ntuple
 			njpsi->DumpData();
-			
+
 		}
-		
+
 		// *** combinatorics for psi(2S) -> J/psi pi+ pi-
 		psi2s.Combine(jpsi, piplus, piminus);
 		psi2s.SetType(88888);
-		
-		for (j=0;j<psi2s.GetLength();++j) 
+
+		for (j=0;j<psi2s.GetLength();++j)
 		{
 			// get daughters
 			RhoCandidate *jp =  psi2s[j]->Daughter(0);
 			RhoCandidate *pip = psi2s[j]->Daughter(1);
 			RhoCandidate *pim = psi2s[j]->Daughter(2);
-			
+
 			PndPidCandidate *pip_rec = (PndPidCandidate*)pip->GetRecoCandidate();
 			PndPidCandidate *pim_rec = (PndPidCandidate*)pim->GetRecoCandidate();
-			
-			// get truth information 
+
+			// get truth information
 			bool mct = theAnalysis->McTruthMatch(psi2s[j]);
 			RhoCandidate *true_psi = psi2s[j]->GetMcTruth();
-			
+
 			// do 4C fit
 			RhoKinFitter fitter(psi2s[j]);	// instantiate the kin fitter in psi(2S)
 			fitter.Add4MomConstraint(ini);	// set 4 constraint
 			fitter.Fit();		            // do fit
 			RhoCandidate *fit4c_jpsi = psi2s[j]->Daughter(0)->GetFit();	// get fitted J/psi
-			
+
 			double chi2_4c = fitter.GetChi2();	// get chi2 of fit
 			double prob_4c = fitter.GetProb();	// access probability of fit
-			
+
 			// *** general event info
 			npsip->Column("ev",     (Float_t) i,                        -999.9f);
 			npsip->Column("cand",   (Float_t) j,                        -999.9f);
-			
+
 			// *** basic psi(2s) info
 			qa.qaCand("psi", psi2s[j], npsip);
-			
+
 			// *** basic J/psi info
 			qa.qaCand("jpsi"     , jp        , npsip);
 			qa.qaCand("jpsi4cfit", fit4c_jpsi, npsip);
-			
+
 			// *** MC truth info
 			npsip->Column("mct",    (Float_t) mct,                      -999.9f);
 			if (true_psi)
@@ -218,29 +218,29 @@ void tut_ana_ntp_qa(int nevts = 0, TString prefix = "signal")
 				npsip->Column("tpsip",  (Float_t) true_psi->M(),          -999.9f);
 				npsip->Column("tpsitht",(Float_t) true_psi->P3().Theta(), -999.9f);
 			}
-			
+
 			// *** kinematic info of daughters
 			qa.qaCand("pip",  pip,  npsip);
 			qa.qaCand("pim",  pip,  npsip);
-			
+
 			// *** PID info of daughters
 			qa.qaPid("pip",   pip,  npsip);
 			qa.qaPid("pim",   pip,  npsip);
 
 			// *** and finally FILL Ntuple
 			npsip->DumpData();
-		}		
-		
+		}
+
 	}
-	
+
 	// *** write out all the histos
 	out->cd();
 
 	njpsi->GetInternalTree()->Write();
 	npsip->GetInternalTree()->Write();
-		
+
 	out->Save();
-	
+
 	// *** temporaty fix to avoid error on macro exit
 	RemoveGeoManager();
 }

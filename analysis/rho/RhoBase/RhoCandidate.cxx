@@ -180,7 +180,7 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o ) : FairMultiLinkedData_Inter
 // This is the special constructor to bring a RhoCandidate into
 // life from the MicroCandidate
 
-RhoCandidate::RhoCandidate ( PndRecoCandidate& a, Int_t n) :
+RhoCandidate::RhoCandidate ( PndPidCandidate& a, Int_t n) :
   fFastMode ( kFALSE ),
   fLocked ( kFALSE ),
   fTheMother ( 0 ),
@@ -221,7 +221,7 @@ RhoCandidate::RhoCandidate ( PndRecoCandidate& a, Int_t n) :
 }
 
 
-RhoCandidate::RhoCandidate ( PndRecoCandidate& a, Int_t n, RhoVector3Err& vp, Bool_t fast ) :
+RhoCandidate::RhoCandidate ( PndPidCandidate& a, Int_t n, RhoVector3Err& vp, Bool_t fast ) :
   fFastMode ( fast ),
   fLocked ( kFALSE ),
   fTheMother ( 0 ),
@@ -815,12 +815,12 @@ RhoCandidate::SetType ( const TParticlePDG* pdt )
   fPdgCode = pdt->PdgCode();
 
   // by default :
-  //   if the proper lifetime multiplied by light velocity is less than a nanometer, 
+  //   if the proper lifetime multiplied by light velocity is less than a nanometer,
   //   the candidate is considered a resonance (a state that does not fly)
   fIsAResonance=kFALSE;
   if ( fPdtEntry->Width() >1E-15 /*Lifetime()<1e-08*/ ) { fIsAResonance=kTRUE; }
 
-  double pdgcharge=fPdtEntry->Charge(); 
+  double pdgcharge=fPdtEntry->Charge();
   if(fabs(pdgcharge)>2) pdgcharge/=3.;// TParticlePDG contains charge in units of |e|/3
   if ( !IsComposite() ) {
     SetMass(fPdtEntry->Mass());// the mass has changed since the type has changed
@@ -1156,7 +1156,7 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
   o << " pdg: " <<fPdgCode;
   o << " PID:";
   for ( int k=0; k<5; k++ ) { o << fPidLH[k] <<","; } // take the first 5 pid entries to check charged p,pi,e,mu,K
-  o << "  mc truth pointer: " << fMcTruth << " "; 
+  o << "  mc truth pointer: " << fMcTruth << " ";
 #ifdef _HavePrintLinkInfo
   FairMultiLinkedData_Interface::PrintLinkInfo(o);
 #else
@@ -1391,7 +1391,7 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCan
 
 RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5 )
 {
-  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() , 
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() ,
                      Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() );
   RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
   cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0],0 );
@@ -1414,7 +1414,7 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCan
 
 RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6 )
 {
-  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4()  , 
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4()  ,
                      Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge()  );
   RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
   cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0],0 );
@@ -1438,7 +1438,7 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCan
 
 RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7 )
 {
-  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() , 
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() ,
                      Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge() +c7->Charge() );
   RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
   cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0]|c7->fMarker[0],0 );
@@ -1463,7 +1463,7 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCan
 
 RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7, RhoCandidate* c8 )
 {
-  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() + c8->P4() , 
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() + c8->P4() ,
                      Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge() +c7->Charge() +c8->Charge() );
   RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
   cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0]|c7->fMarker[0]|c8->fMarker[0],0 );
@@ -1489,7 +1489,7 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCan
 
 RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7, RhoCandidate* c8, RhoCandidate* c9 )
 {
-  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() + c8->P4() + c9->P4() , 
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() + c8->P4() + c9->P4() ,
                      Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge() +c7->Charge() +c8->Charge() +c9->Charge() );
   RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
   cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0]|c7->fMarker[0]|c8->fMarker[0]|c9->fMarker[0],0 );
@@ -1517,7 +1517,7 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCan
 
 RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7, RhoCandidate* c8, RhoCandidate* c9, RhoCandidate* c10 )
 {
-  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() + c8->P4() + c9->P4() + c10->P4() , 
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() + c8->P4() + c9->P4() + c10->P4() ,
                      Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge() +c7->Charge() +c8->Charge() +c9->Charge() +c10->Charge() );
   RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
   cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0]|c7->fMarker[0]|c8->fMarker[0]|c9->fMarker[0]|c10->fMarker[0],0 );

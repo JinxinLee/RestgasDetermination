@@ -135,6 +135,8 @@ noise:Double_t 200
 QCloudSigma:Double_t 0.000581
 FECols:Int_t 110
 FERows:Int_t 116
+#MaxFEperCol:Int_t 1 # TODO Check for actual parameter setting
+#MaxFEperRow:Int_t 1 # TODO Check for actual parameter setting
 ClustRad:Double_t 1.8
 fe_BusClock:Double_t 155.52
 chargeconv_method:Int_t 1

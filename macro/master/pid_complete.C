@@ -9,9 +9,9 @@ int pid_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
   TString  output         = "pid";
   TString  friend1        = "digi";
   TString  friend2        = "reco";
-  TString  friend3        = "";
+  TString  friend3        = "sim";
   TString  friend4        = "";
-  
+
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
   fRun->SetInput(input);
@@ -21,11 +21,13 @@ int pid_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
   fRun->AddFriend(friend3);
   fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
+  fRun->SetOptions(fRun->GetOptions()+options);
   fRun->Setup(prefix);
-  
+
   // -----   Add tasks   ----------------------------------------------------
+  fRun->SetOptions("multikalman");
   fRun->AddPidTasks();
-  
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();

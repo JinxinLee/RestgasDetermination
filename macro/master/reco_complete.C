@@ -5,10 +5,11 @@ int reco_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
+  TString  options        = "multikalman"; //"genfit2"
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "reco";
-  TString  friend1        = "digi";
-  TString  friend2        = "";
+  TString  friend1        = "sim";
+  TString  friend2        = "digi";
   TString  friend3        = "";
   TString  friend4        = "";
 
@@ -21,11 +22,14 @@ int reco_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
   fRun->AddFriend(friend3);
   fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
+  fRun->SetOptions(fRun->GetOptions()+options);
   fRun->Setup(prefix);
-  
+
   // -----   Add tasks   ----------------------------------------------------
+//  fRun->SetOptions("multikalman;pion;proton");
+  fRun->SetOptions("multikalman");
   fRun->AddRecoTasks();
-  
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();

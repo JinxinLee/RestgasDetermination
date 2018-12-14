@@ -34,7 +34,7 @@ using std::cout;
 using std::endl;
 
 PndPidBremCorrector::PndPidBremCorrector():
-   fBumpArray(0), fClusterArray(0), fPhiBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fSepPhotonE(0.), fMergPhotonE(0.), fEmcPhiBumpList(), fPersistance(kTRUE)
+   fBumpArray(0), fClusterArray(0), fPhiBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fSepPhotonE(0.), fMergPhotonE(0.), fEmcPhiBumpList(),  fTrackBranchNamePidHypo(""), fPersistance(kTRUE)
 {
 
 }
@@ -76,7 +76,7 @@ InitStatus PndPidBremCorrector::Init() {
     return kERROR;
   }
 
- fChargedCandidateArray = dynamic_cast<TClonesArray *> (ioman->GetObject("PidChargedCand"));
+ fChargedCandidateArray = dynamic_cast<TClonesArray *> (ioman->GetObject("PidChargedCand"+fTrackBranchNamePidHypo));
   if ( ! fChargedCandidateArray ) {
     cout << "-W- PndEmcMakeBump::Init: "
 	 << "No PidChargedCand array!" << endl;
@@ -84,7 +84,7 @@ InitStatus PndPidBremCorrector::Init() {
   }
 
 
- fNeutralCandidateArray = dynamic_cast<TClonesArray *> (ioman->GetObject("PidNeutralCand"));
+ fNeutralCandidateArray = dynamic_cast<TClonesArray *> (ioman->GetObject("PidNeutralCand"+fTrackBranchNamePidHypo));
   if ( ! fNeutralCandidateArray ) {
     cout << "-W- PndEmcMakeBump::Init: "
 	 << "No PidNeutralCand array!" << endl;
@@ -93,7 +93,7 @@ InitStatus PndPidBremCorrector::Init() {
 
 
  fBremCorrected4MomArray = new TClonesArray("PndPidBremCorrected4Mom");
-  ioman->Register("BremCorrected4Mom","Pid",fBremCorrected4MomArray,fPersistance);
+  ioman->Register("BremCorrected4Mom"+fTrackBranchNamePidHypo,"Pid",fBremCorrected4MomArray,fPersistance);
 
   return kSUCCESS;
 

@@ -37,6 +37,7 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         # -- EvtGen source code, cannot be touched by us
         "pgenerators/EvtGen/EvtGen/R01-03-00/"
         "pgenerators/EvtGen/Photos/"
+        "pgenerators/DpmEvtGen/"
         "genfit/"
         "genfit2/"
         "Pythia"
@@ -44,6 +45,7 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         "/include/root/"
         "/include/boost/"
         "/include/Fair"
+        "[-Woverloaded-virtual]"
   )
 
 # -----------------------------------------------------------
@@ -58,6 +60,7 @@ Set (CTEST_CUSTOM_COVERAGE_EXCLUDE
      "pgenerators/EvtGen/"
      "genfit/"
      "genfit2/"
+     "external/"
     )
 
 # -----------------------------------------------------------

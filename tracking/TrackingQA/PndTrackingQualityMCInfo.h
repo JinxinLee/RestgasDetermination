@@ -87,11 +87,13 @@ class PndTrackingQualityMCInfo : public TObject
  protected:
 
   Int_t fNofMvdPixelPoints,  fNofMvdStripPoints,  fNofSttParalPoints, fNofSttSkewPoints, fNofGemPoints, fNofFtsPoints;
+
   Bool_t fReconstructabilityStatus;
   Int_t fMCTrackID;
   std::vector<int> fRecoTrackIDs;
   TVector3 fPosFirst, fMomFirst;
   TVector3 fPosLast, fMomLast;
+
   Int_t fCharge;	  //< Charge from MCTrack
   Bool_t fIsPrimary;
   TVector3 fVertex;	  //< Vertex position from MCTrack

@@ -15,7 +15,7 @@ class PndMcCloner : public FairTask
 
  public:
 
-  /** Default constructor **/  
+  /** Default constructor **/
   PndMcCloner();
 
 
@@ -31,10 +31,11 @@ class PndMcCloner : public FairTask
   virtual void Exec(Option_t*);
 
   void SetCleanMc(Bool_t opt = kTRUE) { fCleanMC = opt; };
+  void SetOutputBranch(TString branch)    { fTrackBranchNamePidHypo = branch; };
 
  protected:
 
-  void FindUsedMCIndices();  
+  void FindUsedMCIndices();
   void CloneMCTrack();
   void CloneAndCleanMCTrack();
   void CorrectMotherIndices();
@@ -49,12 +50,15 @@ class PndMcCloner : public FairTask
   /** Input array of PidNeutralCand **/
   TClonesArray* fPidNeutralArray;
 
+
   /** Output array of PndMCTrack **/
-  TClonesArray* fOutputArray;  
+  TClonesArray* fOutputArray;
 
   map<Int_t, Int_t> mapMCIndex; // Map <old mc index, new mc index>
-   
+
   Bool_t fCleanMC; // Flag to clean the MCTrack from unused indices
+
+  TString fTrackBranchNamePidHypo;
 
   ClassDef(PndMcCloner,2);
 

@@ -1,7 +1,7 @@
 // Macro for running Panda pid tasks
 // to run the macro:
 // root  pid_complete.C  or in root session root>.x  pid_complete.C
-int pid_complete(Int_t nEvents = 0)
+int pidideal_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -25,6 +25,7 @@ int pid_complete(Int_t nEvents = 0)
   fRun->Setup(prefix);
   
   // -----   Add tasks   ----------------------------------------------------
+  fRun->SetOptions("multikalman");
   fRun->AddPidTasks();
   
   // -----   Intialise and run   --------------------------------------------

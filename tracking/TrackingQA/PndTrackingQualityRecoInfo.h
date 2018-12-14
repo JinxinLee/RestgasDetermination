@@ -215,26 +215,28 @@ class PndTrackingQualityRecoInfo : public TObject
   Int_t fRecoTrackID;
   TVector3 fPosFirst, fMomFirst;
   TVector3 fPosLast, fMomLast;
+
   PndTrackingQualityMCInfo fMCTrackInfo;
   Int_t fFlag;
   Int_t fNofMCTracks;
-
   Int_t    fIdealTrackId;
+
   TVector3 fMCMomFirst;
   TVector3 fMCMomLast;
   TVector3 fMCVertex;
   TVector3 fMCMomentum;
   Int_t    fMCCharge;
   Int_t    fMCPdg;
+
   Bool_t   fIsPrimary;
   Int_t    fQuality;
   Int_t    fMCQuality;
-  Int_t fCharge;
-  Int_t  fMCTrackID;
-
-
+  Int_t    fCharge;
+  Int_t    fMCTrackID;
   // true = 0, clone = 1
   Bool_t fTrue;
+
+
   ClassDef(PndTrackingQualityRecoInfo,2);
 };
 

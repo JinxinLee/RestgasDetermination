@@ -13,6 +13,7 @@
 #pragma link C++ class PndEventCounterTask+;
 //#pragma link C++ class PndTrackArrayMerger+;
 #pragma link C++ class PndMcCloner+;
+#pragma link C++ class PndMcCloner2+;
 
 #endif
 

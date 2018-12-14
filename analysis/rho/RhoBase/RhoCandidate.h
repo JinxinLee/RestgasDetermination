@@ -24,7 +24,7 @@
 #include "TLorentzVector.h"
 #include "TObject.h"
 #include "RhoBase/RhoCandList.h"
-#include "PndRecoCandidate.h"
+#include "PidData/PndPidCandidate.h"
 #include "RhoMath/RhoLorentzVectorErr.h"
 #include "FairMultiLinkedData_Interface.h"
 
@@ -72,7 +72,7 @@ class RhoCandidate : public FairMultiLinkedData_Interface
 //    VAbsTruth* fTruth;            //!  Pointer to MCTruth info
 
     // Interface to objects storable in micro database
-    PndRecoCandidate* fMicroCand; // !Pointer to micro data
+    PndPidCandidate* fMicroCand; // !Pointer to micro data
 
     UInt_t fTrackNumber;  //! Micro association
     UInt_t fUid;  //! unique number
@@ -149,8 +149,8 @@ class RhoCandidate : public FairMultiLinkedData_Interface
     //RhoCandidate ( const RhoCandidate* );
 
     // Special constructor from MicroCandidate
-    RhoCandidate ( PndRecoCandidate& a, Int_t n);
-    RhoCandidate ( PndRecoCandidate& a, Int_t n, RhoVector3Err& vp, Bool_t fast= kFALSE );
+    RhoCandidate ( PndPidCandidate& a, Int_t n);
+    RhoCandidate ( PndPidCandidate& a, Int_t n, RhoVector3Err& vp, Bool_t fast= kFALSE );
 
 //     RhoCandidate ( TLorentzVector p4,
 //                    RhoError& p4Err,
@@ -248,7 +248,7 @@ class RhoCandidate : public FairMultiLinkedData_Interface
     void Set ( Double_t mass,const RhoVector3Err& posErr, const RhoVector3Err& p3Err, const TMatrixD& xpErr );
     void SetErr ( Float_t* err ) {if ( err!=0 ) for ( int i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = err[i]; }}
 
-    void SetRecoCandidate ( PndRecoCandidate& micro ) { fMicroCand = &micro; }
+    void SetRecoCandidate ( PndPidCandidate& micro ) { fMicroCand = &micro; }
     // Allow the candidate to fly or not to fly
     // This overrides the default which is to consider the
     // candidate a resonance (a non-flying state) if it
@@ -373,7 +373,7 @@ class RhoCandidate : public FairMultiLinkedData_Interface
     void SetFast ( Bool_t yesno ) { fFastMode = yesno; }
     Bool_t IsFast() const { return fFastMode; }
 
-    PndRecoCandidate* GetRecoCandidate() const { return fMicroCand; }
+    PndPidCandidate* GetRecoCandidate() const { return fMicroCand; }
 
     RhoCandidate* Combine ( RhoCandidate* c );
     //************** added Combine for more candidates K.Goetzen, 05/2008

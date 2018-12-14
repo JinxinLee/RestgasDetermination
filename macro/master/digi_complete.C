@@ -5,13 +5,14 @@ int digi_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  options        = "";
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  output         = "digi";
-  TString  friend1        = "";
+  TString  friend1        = "sim";
   TString  friend2        = "";
   TString  friend3        = "";
   TString  friend4        = "";
-  
+
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
   fRun->SetInput(input);
@@ -21,6 +22,7 @@ int digi_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
   fRun->AddFriend(friend3);
   fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
+  fRun->SetOptions(fRun->GetOptions()+options);
   fRun->Setup(prefix);
 
   // -----   Add tasks   ----------------------------------------------------

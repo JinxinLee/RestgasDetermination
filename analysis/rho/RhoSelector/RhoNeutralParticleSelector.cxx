@@ -16,7 +16,7 @@
 
 #include "RhoSelector/RhoNeutralParticleSelector.h"
 #include "RhoBase/RhoCandidate.h"
-#include "PndRecoCandidate.h"
+#include "PndPidCandidate.h"
 
 
 
@@ -42,7 +42,7 @@ Bool_t RhoNeutralParticleSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t RhoNeutralParticleSelector::Accept ( PndRecoCandidate* b )
+Bool_t RhoNeutralParticleSelector::Accept ( PndPidCandidate* b )
 {
   Bool_t decision = kFALSE;
   if ( b == 0 ) { return kFALSE; }

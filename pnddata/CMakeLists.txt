@@ -3,11 +3,11 @@
 # The extension is already found.  Any number of sources could be listed here.
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
-  ${SYSTEM_INCLUDE_DIRECTORIES} 
-  ${BASE_INCLUDE_DIRECTORIES} 
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES}
 )
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/pnddata 
+  ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/DrcData
   ${CMAKE_SOURCE_DIR}/pnddata/DskData
   ${CMAKE_SOURCE_DIR}/pnddata/DiscData
@@ -34,11 +34,11 @@ set(LINK_DIRECTORIES
 ${BASE_LINK_DIRECTORIES}
 ${FAIRROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-PndStack.cxx 
+PndStack.cxx
 PndMCTrack.cxx
 
 DskData/PndDskCerenkov.cxx
@@ -59,7 +59,7 @@ DiscData/PndDiscReconResult.cxx
 DiscData/PndDiscPID.cxx
 
 DrcData/PndDrcEVPoint.cxx
-DrcData/PndDrcPDPoint.cxx 
+DrcData/PndDrcPDPoint.cxx
 DrcData/PndDrcBarPoint.cxx
 DrcData/PndDrcHit.cxx
 DrcData/PndDrcPDHit.cxx
@@ -84,10 +84,10 @@ MdtData/PndMdtID.cxx
 
 SttData/PndSttGeomPoint.cxx
 SttData/PndSttHelixHit.cxx
-SttData/PndSttHit.cxx  
-SttData/PndSttSkewedHit.cxx  
-SttData/PndSttHitInfo.cxx  
-SttData/PndSttPoint.cxx  
+SttData/PndSttHit.cxx
+SttData/PndSttSkewedHit.cxx
+SttData/PndSttHitInfo.cxx
+SttData/PndSttPoint.cxx
 SttData/PndSttTrack.cxx
 
 FtsData/PndFtsPoint.cxx
@@ -125,7 +125,7 @@ RichData/PndRichDigi.cxx
 RichData/PndRichHit.cxx
 RichData/PndRichPDHit.cxx
 RichData/PndRichMirrorSegment.cxx
- 
+
 MvdData/PndMvdApvHit.cxx
 MvdData/PndMvdPidCand.cxx
 MvdData/PndMvdRadDamHit.cxx
@@ -144,115 +144,9 @@ PidData/PndPidCandidate.cxx
 PidData/PndPidProbability.cxx
 PidData/PndPidBremCorrected4Mom.cxx
 
-PndRecoCandidate.cxx
 PndPersistencyTask.cxx
 )
 
-set(HEADERS
-PndStack.h 
-PndMCTrack.h
-
-DskData/PndDskCerenkov.h
-DskData/PndDskParticle.h
-DskData/PndDskTrackPoint.h
-DskData/PndDskFLGHit.h
-
-DiscData/PndDiscDigitizedHit.h
-DiscData/PndDiscParticleMCPoint.h
-DiscData/PndDiscSensorMCPoint.h
-DiscData/PndDiscReconResult.h
-DiscData/PndDiscPID.h
-
-DrcData/PndDrcEVPoint.h 
-DrcData/PndDrcPDPoint.h 
-DrcData/PndDrcBarPoint.h
-DrcData/PndDrcHit.h
-DrcData/PndDrcPDHit.h
-DrcData/PndDrcDigi.h
-DrcData/PndDrcLutNode.h
-DrcData/PndDrcLutInfo.h
-DrcData/PndDrcTrackInfo.h
-DrcData/PndDrcPhotonInfo.h
-DrcData/PndDrcAmbiguityInfo.h
-
-GemData/PndGemMCPoint.h
-GemData/PndGemDigi.h
-GemData/PndGemCluster.h
-GemData/PndGemHit.h
-
-MdtData/PndMdtPoint.h
-MdtData/PndMdtDigi.h
-MdtData/PndMdtCluster.h
-MdtData/PndMdtHit.h
-MdtData/PndMdtTrk.h
-MdtData/PndMdtID.h
-
-SttData/PndSttGeomPoint.h
-SttData/PndSttHelixHit.h
-SttData/PndSttHit.h  
-SttData/PndSttSkewedHit.h  
-SttData/PndSttHitInfo.h  
-SttData/PndSttPoint.h  
-SttData/PndSttTrack.h
-
-FtsData/PndFtsPoint.h
-FtsData/PndFtsHit.h
-
-HypData/PndHypCluster.h
-HypData/PndHypDigi.h
-HypData/PndHypDigiStrip.h
-HypData/PndHypHit.h
-HypData/PndHypHitInfo.h
-HypData/PndHypPidCand.h
-HypData/PndHypPoint.h
-HypData/PndHypStrip.h
-
-SdsData/PndSdsMCPoint.h
-SdsData/PndSdsDigi.h
-SdsData/PndSdsPixel.h
-SdsData/PndSdsDigiPixel.h
-SdsData/PndSdsDigiTopix4.h
-SdsData/PndSdsDigiTopix4Header.h
-SdsData/PndSdsStrip.h
-SdsData/PndSdsDigiStrip.h
-SdsData/PndSdsCluster.h
-SdsData/PndSdsClusterPixel.h
-SdsData/PndSdsClusterStrip.h
-SdsData/PndSdsHit.h
-#SdsData/PndSdsHitInfo.h
-SdsData/PndSdsPidCand.h
-SdsData/PndSdsRadDamHit.h
-SdsData/PndSdsDigiPixelMCInfo.h
-
-RichData/PndRichPhoton.h
-RichData/PndRichPDPoint.h
-RichData/PndRichBarPoint.h
-RichData/PndRichDigi.h
-RichData/PndRichHit.h
-RichData/PndRichPDHit.h
-RichData/PndRichMirrorSegment.h
- 
-MvdData/PndMvdApvHit.h
-MvdData/PndMvdPidCand.h
-MvdData/PndMvdRadDamHit.h
-
-SciTData/PndSciTPoint.h
-SciTData/PndSciTHit.h
-
-TrackData/PndTrackCandHit.h
-TrackData/PndTrackCand.h
-TrackData/PndTrack.h
-TrackData/PndSimpleTrack.h
-TrackData/PndTrackID.h
-#TrackData/PndVertex.h
-
-PidData/PndPidCandidate.h
-PidData/PndPidProbability.h
-PidData/PndPidBremCorrected4Mom.h
-
-PndRecoCandidate.h
-PndPersistencyTask.h
-)
 
 set(LINKDEF  PndDataLinkDef.h)
 set(LIBRARY_NAME PndData)

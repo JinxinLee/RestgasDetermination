@@ -31,6 +31,7 @@ PndFileNameCreator.cxx
 PndStringSeparator.cxx
 PndGeoHandling.cxx
 PndMcCloner.cxx
+PndMcCloner2.cxx
 PndSensorNameContFact.cxx
 PndSensorNamePar.cxx
 PndBlackBoxTask.cxx

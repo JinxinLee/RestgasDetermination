@@ -59,8 +59,8 @@ int ana_complete(int nevts=0, TString  prefix = "evtcomplete")
   TString  parAsciiFile   = "all.par";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "ana";
-  TString  friend1        = "pid";
-  TString  friend2        = "";
+  TString  friend1        = "reco_single";
+  TString  friend2        = "pid_single";
   TString  friend3        = "";
   TString  friend4        = "";
   
@@ -302,59 +302,60 @@ int ana_complete(int nevts=0, TString  prefix = "evtcomplete")
 				hjpsim_mcf->Fill(jfit->M());
 			}
 		}		
-		
+//		cout<<"event "<<i<<" DONE"<<endl;
+
 		
 		// ***
 		// *** TRUE PID combinatorics
 		// ***
-		
+
 		// *** do MC truth match for PID type
 		SelectTruePid(theAnalysis, muplus);
 		SelectTruePid(theAnalysis, muminus);
 		SelectTruePid(theAnalysis, piplus);
 		SelectTruePid(theAnalysis, piminus);
-				
+
 		// *** all combinatorics again with true PID
 		jpsi.Combine(muplus, muminus);
 		for (j=0;j<jpsi.GetLength();++j) hjpsim_trpid->Fill( jpsi[j]->M() );
 		jpsi.Select(jpsiMassSel);
-		
+
 		psi2s.Combine(jpsi, piplus, piminus);
 		for (j=0;j<psi2s.GetLength();++j) hpsim_trpid->Fill( psi2s[j]->M() );
-		
+
 		
 		// ***
 		// *** LOOSE PID combinatorics
 		// ***
-		
+
 		// *** and again with PidAlgoMvd;PidAlgoStt;PidAlgoDrc and loose selection
 		theAnalysis->FillList(muplus,  "MuonLoosePlus",  "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
 		theAnalysis->FillList(muminus, "MuonLooseMinus", "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
 		theAnalysis->FillList(piplus,  "PionLoosePlus",  "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
 		theAnalysis->FillList(piminus, "PionLooseMinus", "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
-		
+
 		jpsi.Combine(muplus, muminus);
 		for (j=0;j<jpsi.GetLength();++j) hjpsim_lpid->Fill( jpsi[j]->M() );
 		jpsi.Select(jpsiMassSel);
-		
+
 		psi2s.Combine(jpsi, piplus, piminus);
 		for (j=0;j<psi2s.GetLength();++j) hpsim_lpid->Fill( psi2s[j]->M() );
-		
-		
+
+
 		// ***
 		// *** TIGHT PID combinatorics
 		// ***
-		
+
 		// *** and again with PidAlgoMvd;PidAlgoStt and tight selection
 		theAnalysis->FillList(muplus,  "MuonTightPlus",  "PidAlgoMdtHardCuts");
 		theAnalysis->FillList(muminus, "MuonTightMinus", "PidAlgoMdtHardCuts");
 		theAnalysis->FillList(piplus,  "PionLoosePlus",  "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
 		theAnalysis->FillList(piminus, "PionLooseMinus", "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
-		
+
 		jpsi.Combine(muplus, muminus);
 		for (j=0;j<jpsi.GetLength();++j) hjpsim_tpid->Fill( jpsi[j]->M() );
 		jpsi.Select(jpsiMassSel);
-		
+
 		psi2s.Combine(jpsi, piplus, piminus);
 		for (j=0;j<psi2s.GetLength();++j) hpsim_tpid->Fill( psi2s[j]->M() );
 		

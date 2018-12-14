@@ -7,8 +7,8 @@ int recoideal_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
   TString  parAsciiFile   = "all.par";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "recoideal";
-  TString  friend1        = "digi";
-  TString  friend2        = "";
+  TString  friend1        = "sim";
+  TString  friend2        = "digi";
   TString  friend3        = "";
   TString  friend4        = "";
 
@@ -24,6 +24,7 @@ int recoideal_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
   fRun->Setup(prefix);
   
   // -----   Add tasks   ----------------------------------------------------
+  fRun->SetOptions("multikalman");
   fRun->AddRecoIdealTasks();
   
   // -----   Intialise and run   --------------------------------------------

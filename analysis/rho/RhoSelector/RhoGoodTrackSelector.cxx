@@ -14,7 +14,7 @@
 #include "RhoSelector/RhoGoodTrackSelector.h"
 
 #include "RhoBase/RhoCandidate.h"
-#include "PndRecoCandidate.h"
+#include "PndPidCandidate.h"
 
 ClassImp( RhoGoodTrackSelector )
 
@@ -53,7 +53,7 @@ Bool_t RhoGoodTrackSelector::Accept ( RhoCandidate& b )
   return kTRUE;
 }
 
-Bool_t RhoGoodTrackSelector::Accept ( PndRecoCandidate& cand )
+Bool_t RhoGoodTrackSelector::Accept ( PndPidCandidate& cand )
 {
   // The GoodTrackSelector does a selection based on the
   // quality of a reconstructed charged track
@@ -86,7 +86,7 @@ Bool_t RhoGoodTrackSelector::Accept ( PndRecoCandidate& cand )
     if ( TMath::Prob(chiq,ndf) < fChisqProbMin ) { return kFALSE; }
   }
 
-  // Cut on primary vertex 
+  // Cut on primary vertex
   if (fCutVtx) {
     TVector3 v = cand.GetPosition();  // Get the starting point (spot corrected)
     if ( v.Perp() > fDocaMax ) { return kFALSE; }
