@@ -59,7 +59,7 @@ void PndLmdHybridHitProducer::SetParContainers()
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer("LMDPixelDigiPar"));
-  // fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSPixelTotDigiPar"));
+  fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer("LMDPixelTotDigiPar"));
   PndSdsHybridHitProducer::SetParContainers();
 }
 

@@ -32,7 +32,7 @@ PixelSorterNumberOfCells:Int_t 1000
 #################################################################
 # Digitization Parameters for SDS Pixel
 #################################################################
-[SDSPixelTotDigiPar]
+[LMDPixelTotDigiPar]
 charge_time:Double_t 100
 const_current:Double_t 60
 clock_frequency:Double_t 50
