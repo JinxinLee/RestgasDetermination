@@ -14,6 +14,7 @@
 #define PndMasterMultiPidTask_H
 
 #include "PndMasterTask.h"
+#include <array>
 
 class TClonesArray;
 

@@ -22,6 +22,7 @@
 #include "PndPidFtofAssociatorTask.h"
 #include "PndPidRichAssociatorTask.h"
 
+#include <array>
 /**
  * @brief Default Constructor
  * @details # Pid task list

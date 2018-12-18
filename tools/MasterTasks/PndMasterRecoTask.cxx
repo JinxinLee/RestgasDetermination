@@ -20,6 +20,8 @@
 //#include "PndFtsTrackerIdeal.h"
 #include "PndTrackSmearTask.h"
 
+#include <array>
+
 /**
  * @brief Default Constructor
  * @details # Reconstruction task list
