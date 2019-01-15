@@ -46,27 +46,6 @@ class PndMasterPidTask : public PndMasterTask
 
   private:
 
-    /**
-     * @brief struct of the task list
-     * @detail This struct avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndPidCorrelator" for the class PndPidCorrelator. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number.
-     */
-    struct pidTaskList
-    {
-      Short_t kPndPidCorrelator;
-      Short_t kPndPidBremCorrector;
-      Short_t kPndMcCloner;
-      Short_t kPndPidIdealAssociatorTask;
-      Short_t kPndPidMvdAssociatorTask;
-      Short_t kPndPidMdtHCAssociatorTask;
-      Short_t kPndPidDrcAssociatorTask;
-      Short_t kPndPidDiscAssociatorTask;
-      Short_t kPndPidSttAssociatorTask;
-      Short_t kPndPidEmcBayesAssociatorTask;
-      Short_t kPndPidSciTAssociatorTask;
-      Short_t kPndPidRichAssociatorTask;
-      Short_t kPndPidFtofAssociatorTask;
-    } pid;
-
     TString fOptions;          ///< Options parsed to the pid
 
     /** @cond CLASSIMP */
