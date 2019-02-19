@@ -47,6 +47,8 @@ class PndPidTestTask : public FairTask
 
 	void PrintConfusionMatrix(bool relative = false);
 
+	std::vector<std::vector <int> > GetConfusionMatrix() const {return fConfusionMatrix;}
+
  protected:
 	
 	
