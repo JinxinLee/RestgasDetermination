@@ -1,13 +1,12 @@
 #include "json.hpp"
-#include <boost/filesystem.hpp>
 
 using std::cout;
 using std::string;
 using json = nlohmann::json;
 
-std::map<std::string, TGeoHMatrix> *readRootMatrices(TString filename) {
+std::map<std::string, TGeoHMatrix> *readRootMatrices(std::string filename) {
 
-	TFile *misalignmentMatrixRootfile = new TFile(filename, "READ");
+	TFile *misalignmentMatrixRootfile = new TFile(filename.c_str(), "READ");
 	if (misalignmentMatrixRootfile->IsOpen()) {
 		std::map<std::string, TGeoHMatrix> *matrices;
 		gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
@@ -17,7 +16,7 @@ std::map<std::string, TGeoHMatrix> *readRootMatrices(TString filename) {
 	}
 	else {
 		cout << "file could not be read\n";
-		return NULL;
+		exit(1);
 	}
 }
 
@@ -46,17 +45,13 @@ void saveMatricesToJson(std::map<std::string, TGeoHMatrix> matrices, std::string
 	o << std::setw(2) << j << std::endl;
 }
 
-void convertRootMatricesToJSON(TString filename){
+void convertRootMatricesToJSON(std::string filename){
     
     // read root file, this will be a map<TString, TGeoHMatrix>
     std::map<std::string, TGeoHMatrix> rootMatrices = *(readRootMatrices(filename));
 
-    // extract filename from it without extension
-    boost::filesystem::path p(filename.c_str());
-    fileBasename = p.stem();
-    
     // save file to json
-    saveMatricesToJson(rootMatrices, "wrong.json");
+    saveMatricesToJson(rootMatrices, filename + ".json");
 }
 
 void convertRootMatricesToJSON(){
