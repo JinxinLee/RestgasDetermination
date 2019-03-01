@@ -95,7 +95,7 @@ SdsTools/PndSdsTotDigiPar.cxx
 set(LINKDEF  SdsLinkDef.h)
 set(LIBRARY_NAME Sds)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData generalTools)
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools MathMore)
 
 GENERATE_LIBRARY()
  
