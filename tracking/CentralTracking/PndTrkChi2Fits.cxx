@@ -116,15 +116,15 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 	Double_t *ErrorDriftRadiusconformal,
 	Double_t rotationangle,
 	Double_t trajectory_vertex[2],
-	Short_t NMAX,
+	Short_t /*NMAX*/, //[R.K. 9/2018] unused
 	Double_t *emme,
 	Double_t *qu,
 	Double_t *pAlfa, // this is input and output;
 	Double_t *pBeta, // this is input and output;
 	Double_t *pGamma, // this is input and output;
 	bool *Type,
-	int istampa,
-	int IVOLTE
+	int /*istampa*/, //[R.K. 9/2018] unused
+	int /*IVOLTE*/ //[R.K. 9/2018] unused
 	)
 {
 
@@ -191,7 +191,7 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 //--------------------
 
  // starts fitting procedure by finding the POCA first and then doing the Chi**2 minimization;
- // use the starting value of Alfa and Beta for finding the POCA 
+ // use the starting value of Alfa and Beta for finding the POCA
 
 
  mm = sqrt( Alfa*Alfa + Beta*Beta );
@@ -227,10 +227,10 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 	sigma2 = ErrorDriftRadiusconformal[i]*ErrorDriftRadiusconformal[i];
 	Su += ui/sigma2;
 	Sv += vi/sigma2;
-	
+
 	Suv += ui * vi/sigma2;
 	Suu += ui* ui/sigma2;
-	
+
 	S1 += 1./sigma2;
 
  }  // end of for(i=0; i<nHitsinTrack; i++)
@@ -307,7 +307,7 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 	Double_t FInot,
 	Short_t NMAX,
 	Double_t *emme,
-	int IVOLTE
+	int /*IVOLTE*/ //[R.K. 9/2018] unused
 	)
 {
 
@@ -509,7 +509,7 @@ return 1;
 	Double_t FInot,
 	Short_t NMAX,
 	Double_t *emme,
-	int IVOLTE
+	int /*IVOLTE*/ //[R.K. 9/2018] unused
 	)
 {
   bool

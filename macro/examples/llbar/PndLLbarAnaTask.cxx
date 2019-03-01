@@ -32,15 +32,15 @@
 #include "RhoKinVtxFitter.h"
 #include "RhoKinFitter.h"
 #include "RhoVtxPoca.h"
-		
-		
+
+
 using std::cout;
 using std::endl;
 
 
 // -----   Default constructor   -------------------------------------------
 PndLLbarAnaTask::PndLLbarAnaTask() :
-  FairTask("Panda LLbar Analysis Task") { 
+  FairTask("Panda LLbar Analysis Task") {
 }
 // -------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ PndLLbarAnaTask::~PndLLbarAnaTask() { }
 int PndLLbarAnaTask::SelectTruePid(PndAnalysis *ana, RhoCandList &l)
 {
 	int removed = 0;
-	
+
 	for (int ii=l.GetLength()-1;ii>=0;--ii)
 	{
 		if ( !(ana->McTruthMatch(l[ii])) )
@@ -63,15 +63,15 @@ int PndLLbarAnaTask::SelectTruePid(PndAnalysis *ana, RhoCandList &l)
 			removed++;
 		}
 	}
-	
+
 	return removed;
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndLLbarAnaTask::Init() 
-{		
+InitStatus PndLLbarAnaTask::Init()
+{
 	// initialize analysis object
 	theAnalysis = new PndAnalysis();
 
@@ -141,7 +141,7 @@ InitStatus PndLLbarAnaTask::Init()
 	hlam0bar_tm_R_vtx = new TH1F("hlam0bar_R_vtx","#tm Lambda_{0} bar R, with vertex fit",75,0,15);
 	hlam0bar_tm_Z_vtx = new TH1F("hlam0bar_Z_vtx","#tm Lambda_{0} bar Z, with vertex fit",180,-5,55);
 	hlam0bar_tm_cm_cosTheta_all = new TH1F("hlam0bar_tm_cm_cosTheta","tm #Lambda_{0} bar cos#theta in CM frame",100,-1.,1.);
-	
+
 	// *** --------------------- ***
 	// *** True MC 1D histograms ***
 	// *** --------------------- ***
@@ -192,8 +192,8 @@ InitStatus PndLLbarAnaTask::Init()
 }//End PndLLbarAnaTask::Init()
 
 // -------------------------------------------------------------------------
-	
-void PndLLbarAnaTask::SetParContainers() 
+
+void PndLLbarAnaTask::SetParContainers()
 {
   // Get run and runtime database
   FairRun* run = FairRun::Instance();
@@ -208,16 +208,16 @@ void PndLLbarAnaTask::Exec(Option_t*)
 {
 	// some variables
 	int i=0,j=0, k=0, l=0;
-	
+
 	// necessary to read the next event
 	theAnalysis->GetEvent();
-	
+
 	if (!(++nevts%100)) cout << "evt "<<nevts<<endl;
-	
+
 	// *** ---------------------------- ***
 	// *** Now the analysis stuff comes ***
 	// *** ---------------------------- ***
-		
+
 	// *** RhoCandLists for the analysis
 	RhoCandList p, pbar, piplus, piminus, lam0, lam0bar, truepiplus, truepiminus, truep, truepbar, lam0_tm, lam0bar_tm, ppbarsystem, mclist;
 
@@ -395,7 +395,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 	{
 		if((truepiplus[j]->GetMcTruth()->TheMother()->PdgCode())!=-3122) continue;	//Only Pi+ from Lambdabar
 		piplusfromlam = kTRUE;
-		PndRecoCandidate* recopiplus;	//Get Reco- and PID info
+		PndPidCandidate* recopiplus;	//Get Reco- and PID info
 		PndPidCandidate* pidpiplus;
 		TLorentzVector piplus4=truepiplus[j]->P4();	//Construct ROOT TLorentzVectors
 		TLorentzVector mctruthpiplus4=truepiplus[j]->GetMcTruth()->P4();
@@ -421,7 +421,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 	{
 		if((truepiminus[j]->GetMcTruth()->TheMother()->PdgCode())!=3122) continue;	//Only Pi- from Lambda
 		piminusfromlam = kTRUE;
-		PndRecoCandidate* recopiminus;
+		PndPidCandidate* recopiminus;
 		PndPidCandidate* pidpiminus;
 		TLorentzVector piminus4=truepiminus[j]->P4();
 		TLorentzVector mctruthpiminus4=truepiminus[j]->GetMcTruth()->P4();
@@ -448,7 +448,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 	{
 		if((truep[j]->GetMcTruth()->TheMother()->PdgCode())!=3122) continue;	//Only select P from Lambda
 		pfromlam = kTRUE;
-		PndRecoCandidate* recop;
+		PndPidCandidate* recop;
 		PndPidCandidate* pidp;
 		TLorentzVector p4=truep[j]->P4();
 		TLorentzVector mctruthp4=truep[j]->GetMcTruth()->P4();
@@ -475,7 +475,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 	{
 		if((truepbar[j]->GetMcTruth()->TheMother()->PdgCode())!=-3122) continue;	//Only Pbar from Lambdabar
 		pbarfromlam = kTRUE;
-		PndRecoCandidate* recopbar;
+		PndPidCandidate* recopbar;
 		PndPidCandidate* pidpbar;
 		TLorentzVector pbar4=truepbar[j]->P4();
 		TLorentzVector mctruthpbar4=truepbar[j]->GetMcTruth()->P4();
@@ -513,7 +513,7 @@ void PndLLbarAnaTask::Exec(Option_t*)
 
 
 void PndLLbarAnaTask::Finish()
-{	
+{
 
 	hprob_4c->Write();
 	hchi2_4c->Write();
@@ -565,7 +565,7 @@ void PndLLbarAnaTask::Finish()
 	hantiproton_tm_PvsTheta->Write();
 	hantiproton_tm_PvsDP->Write();
 	hantiproton_tm_ThetavsDTheta->Write();
-	
+
 	hlam0_tm_M_all->Write();
 	hlam0_tm_cosTheta_all->Write();
 	hlam0_tm_chi2_vtx->Write();
@@ -587,7 +587,7 @@ void PndLLbarAnaTask::Finish()
 	//2D histos
 
 	//True MC histos
-	
+
 	//Lambda
 	htruelam0_cm_cosTheta->Write();
 	//Lambdabar
@@ -600,7 +600,7 @@ void PndLLbarAnaTask::Finish()
 	htrueproton_cosTheta->Write();
 	//Antiproton
 	htrueantiproton_cosTheta->Write();
-		
+
 }	//End PndLLbarAnaTask::Finish()
 
 ClassImp(PndLLbarAnaTask)

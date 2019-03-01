@@ -52,13 +52,13 @@ class RhoGoodTrackSelector : public RhoParticleSelectorBase
       fZMax = zmax;
       fCutVtx=kTRUE;
     }
-  
+
   protected:
     //operations
     virtual void SetCriterion ( const char*  ) {}; // crit //[R.K.03/2017] unused variable(s)
     virtual Bool_t Accept ( RhoCandidate& b );
-    virtual Bool_t Accept ( PndRecoCandidate& b );
- 
+    virtual Bool_t Accept ( PndPidCandidate& b );
+
   private:
 //    Int_t fNHitsMin;  // Number of hits: total
 //    Int_t fNHitsMax;  // Number of hits: total

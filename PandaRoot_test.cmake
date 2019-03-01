@@ -6,7 +6,10 @@ Set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 Set(CTEST_PROJECT_NAME "PandaRoot")
 Set(EXTRA_FLAGS $ENV{EXTRA_FLAGS})
 
-Set(CTEST_UPDATE_COMMAND "git")
+Set(CTEST_USE_LAUNCHERS 1)
+
+Find_Program(CTEST_GIT_COMMAND NAMES git)
+Set(CTEST_UPDATE_COMMAND "${CTEST_GIT_COMMAND}")
 
 If($ENV{ctest_model} MATCHES Continuous)
   Set(CTEST_SVN_UPDATE_OPTIONS "$ENV{REVISION}")
@@ -27,24 +30,24 @@ If($ENV{ctest_model} MATCHES Nightly OR $ENV{ctest_model} MATCHES Profile)
   Set(ENV{ctest_model} Nightly)
 
   If(EXTRA_FLAGS)
-    Set(CTEST_CONFIGURE_COMMAND " \"${CMAKE_EXECUTABLE_NAME}\" \"-G${CTEST_CMAKE_GENERATOR}\" \"-DCMAKE_BUILD_TYPE=${_Model}\" \"${EXTRA_FLAGS}\" \"${CTEST_SOURCE_DIRECTORY}\" ")
+    Set(CTEST_CONFIGURE_COMMAND " \"${CMAKE_EXECUTABLE_NAME}\" \"-G${CTEST_CMAKE_GENERATOR}\" \"-DCMAKE_BUILD_TYPE=${_Model}\" \"-DCTEST_USE_LAUNCHERS=${CTEST_USE_LAUNCHERS}\" \"${EXTRA_FLAGS}\" \"${CTEST_SOURCE_DIRECTORY}\" ")
   Else()
-    Set(CTEST_CONFIGURE_COMMAND " \"${CMAKE_EXECUTABLE_NAME}\" \"-G${CTEST_CMAKE_GENERATOR}\" \"-DCMAKE_BUILD_TYPE=${_Model}\" \"${CTEST_SOURCE_DIRECTORY}\" ")
+    Set(CTEST_CONFIGURE_COMMAND " \"${CMAKE_EXECUTABLE_NAME}\" \"-G${CTEST_CMAKE_GENERATOR}\" \"-DCMAKE_BUILD_TYPE=${_Model}\" \"-DCTEST_USE_LAUNCHERS=${CTEST_USE_LAUNCHERS}\" \"${CTEST_SOURCE_DIRECTORY}\" ")
   EndIf()
 
   # get the information about conflicting or localy modified files
   # from svn, extract the relavant information about the file name
   # and put the result in the output variable
-  Execute_Process(COMMAND git status -s  
+  Execute_Process(COMMAND git status -s
                   COMMAND grep ^[CM]
-                  COMMAND cut -c4- 
+                  COMMAND cut -c4-
                   OUTPUT_VARIABLE FILELIST
                   )
 
   # create out of the output a cmake list. This step is done to convert the
   # stream into seperated filenames.
   # The trick is to exchange an "\n" by an ";" which is the separartor in
-  # a list created by cmake 
+  # a list created by cmake
   String(REGEX REPLACE "\n" ";" _result "${FILELIST}")
 
   ForEach(_file ${_result})
@@ -62,14 +65,17 @@ Configure_File(${CTEST_SOURCE_DIRECTORY}/CTestCustom.cmake
 Ctest_Read_Custom_Files("${CTEST_BINARY_DIRECTORY}")
 
 Ctest_Start($ENV{ctest_model})
-If(NOT $ENV{ctest_model} MATCHES Experimental)
+If(NOT $ENV{ctest_model} MATCHES Experimental AND NOT $ENV{ctest_model} MATCHES Continuous)
   Ctest_Update(SOURCE "${CTEST_SOURCE_DIRECTORY}")
 EndIf()
-Ctest_Configure(BUILD "${CTEST_BINARY_DIRECTORY}")
+
+# If("arch" = "darwin") # SYTAX ?? 
+  Ctest_Configure(BUILD "${CTEST_BINARY_DIRECTORY}" OPTIONS "-DUSE_DIFFERENT_COMPILER=TRUE")
+#Else()
+#  Ctest_Configure(BUILD "${CTEST_BINARY_DIRECTORY}")
+#EndIf()
 Ctest_Build(BUILD "${CTEST_BINARY_DIRECTORY}")
 
-# introducing a second call of the build process because vc causes a crash if it is build only once
-Ctest_Build(BUILD "${CTEST_BINARY_DIRECTORY}")
 String(TOUPPER $ENV{ctest_model} MODEL)
 If(NOT ${MODEL} MATCHES CONTINUOUS)
   Ctest_Test(BUILD "${CTEST_BINARY_DIRECTORY}" PARALLEL_LEVEL $ENV{number_of_processors})

@@ -37,7 +37,7 @@ Int_t PndEmcHighLowPSA::Process(const PndEmcWaveform* waveform) {
 	}
 
 	//active method
-	
+
 	Int_t activeWf = multiWf->GetActiveWaveform();
 
 	multiWf->SetActiveWaveform(fIdx_low);
@@ -73,7 +73,7 @@ Int_t PndEmcHighLowPSA::Process(const PndEmcWaveform* waveform) {
 			active_high = false;
 			if(!overflow) {
 				fHitsInFE.push_back(std::make_pair(fHighgainPSA, counter_high));
-				if(fVerbose>=2) { 
+				if(fVerbose>=2) {
 					std::cout << "I- PndEmcHighLowPSA: adding highgain hit: #:"<< counter_high << std::endl;
 				}
 			}
@@ -83,8 +83,11 @@ Int_t PndEmcHighLowPSA::Process(const PndEmcWaveform* waveform) {
 			if(!overflow) {
 				fHitsInFE.push_back(std::make_pair(fHighgainPSA, counter_high));
 				fHitsInFE.push_back(std::make_pair(fHighgainPSA, counter_high+1));
-				if(fVerbose>=2) { 
-					std::cout << "I- PndEmcHighLowPSA: adding highgain hits #:" << counter_high << "," << counter_high++ << std::endl; //FIXME Implicit operation is bad style!
+				if(fVerbose>=2) {
+					//std::cout << "I- PndEmcHighLowPSA: adding highgain hits #:" << counter_high << "," << counter_high++ << std::endl; //FIXME Implicit operation is bad style!
+					std::cout << "I- PndEmcHighLowPSA: adding highgain hits #:" << counter_high << ",";
+          counter_high++; // [R.K. 9/2018] made implicit operation explicit
+          std::cout << counter_high << std::endl;
 				}
 			}
 			counter_high+=2;
@@ -93,7 +96,7 @@ Int_t PndEmcHighLowPSA::Process(const PndEmcWaveform* waveform) {
 		}
 
 		if(active_high && ((*it_high) > fOverflowThreshold) && !overflow) {
-			if(fVerbose>=2) { 
+			if(fVerbose>=2) {
 				std::cout << "I- PndEmcHighLowPSA: overflow detected" << std::endl;
 			}
 			overflow = true;
@@ -117,7 +120,7 @@ Int_t PndEmcHighLowPSA::Process(const PndEmcWaveform* waveform) {
 
 		if((!active_high) && (!active_low)) {
 			if(overflow) {
-				if(fVerbose>=2) { 
+				if(fVerbose>=2) {
 					std::cout << "I- PndEmcHighLowPSA: adding lowgain hit(s) #:";
 					for(std::set<Int_t>::iterator it=hits_lowgain.begin(); it!=hits_lowgain.end(); ++it) {
 						std::cout << *it << ",";
@@ -162,5 +165,5 @@ Int_t PndEmcHighLowPSA::GetWaveformIdx(Int_t i) {
 
 	return -1;		//error
 }
-	
+
 

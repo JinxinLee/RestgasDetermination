@@ -22,18 +22,18 @@ class PndEmcBump;
 
 class PndPidBremCorrector: public FairTask
 {
-  
+
  public:
 
         PndPidBremCorrector();
-	
+
 	// Destructor
 	virtual ~PndPidBremCorrector();
-	
+
 	// Methods
 	/** Virtual method Init **/
 	virtual InitStatus Init();
-	
+
 	/** Virtual method Exec **/
 	virtual void Exec(Option_t* opt);
 
@@ -41,7 +41,8 @@ class PndPidBremCorrector: public FairTask
 
 
         virtual void FinishTask() {};
-        
+        void SetOutputBranch(TString branch)    { fTrackBranchNamePidHypo = branch; };
+
  private:
 
         PndPidBremCorrected4Mom* AddBremCorrected4Mom();
@@ -54,10 +55,10 @@ class PndPidBremCorrector: public FairTask
 	/** Input array of PndEmcClusters **/
 	TClonesArray* fBumpArray;
 	TClonesArray* fClusterArray;
-	
+
 
         TClonesArray* fPhiBumpArray;
-        
+
         TClonesArray* fChargedCandidateArray;
         TClonesArray* fNeutralCandidateArray;
 
@@ -70,15 +71,16 @@ class PndPidBremCorrector: public FairTask
 
         Double_t fSepPhotonE;
         Double_t fMergPhotonE;
-        
+
 	std::vector<PndEmcBump*> fEmcPhiBumpList;
+        TString fTrackBranchNamePidHypo;
 
 	Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
 	// Data members
 
         PndPidBremCorrector(const PndPidBremCorrector& L);
         PndPidBremCorrector& operator= (const PndPidBremCorrector&) {return *this;};
-	
+
 	ClassDef(PndPidBremCorrector,1);
 
 };

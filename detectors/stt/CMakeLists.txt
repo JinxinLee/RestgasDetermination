@@ -15,6 +15,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/field 
+  ${CMAKE_SOURCE_DIR}/tools
   ${CMAKE_SOURCE_DIR}/detectors/stt
 )
 
@@ -63,6 +64,17 @@ PndSttHitRingSorter.cxx
 PndSttHitSorterTask.cxx
 PndSttStrawMap.cxx
 PndSttFullTCAProducer.cxx
+
+PndSttTubeIdMap.cxx
+PndSttTubeIdMapCreatorAbs.cxx
+PndSttTubeIdMapCreatorRoot.cxx
+PndSttRootGeometryInitTask.cxx
+
+PndSttTubeCreator.cxx
+PndSttTubeMap.cxx
+PndSttTubeMapCreatorAbs.cxx
+PndSttTubeMapCreatorRoot.cxx
+PndSttNeighborhoodCreator.cxx
 )
 
 set(LINKDEF  SttLinkDef.h)

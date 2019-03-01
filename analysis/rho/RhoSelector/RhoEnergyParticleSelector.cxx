@@ -14,7 +14,7 @@
 
 #include "RhoSelector/RhoEnergyParticleSelector.h"
 #include "RhoBase/RhoCandidate.h"
-#include "PndRecoCandidate.h"
+#include "PndPidCandidate.h"
 
 
 
@@ -38,7 +38,7 @@ Bool_t RhoEnergyParticleSelector::Accept ( RhoCandidate* b )
   return ( fabs ( b->E()-fCentralValue ) <fWindow );
 }
 
-Bool_t RhoEnergyParticleSelector::Accept ( PndRecoCandidate* b )
+Bool_t RhoEnergyParticleSelector::Accept ( PndPidCandidate* b )
 {
   if ( b == 0 ) { return kFALSE; }
   return ( fabs ( b->GetEnergy()-fCentralValue ) <fWindow );

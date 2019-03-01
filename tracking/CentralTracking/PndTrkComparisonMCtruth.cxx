@@ -30,7 +30,7 @@ using namespace std;
 	Vec <Short_t> *ListSttParHitsinTrack,
 	Vec <Short_t> *ListMvdPixelHitsinTrack,
 	Vec <Short_t> *ListSciTilHitsinTrack,
-	Vec <Short_t> *ListSttSkewHitsinTrack,
+	Vec <Short_t> */*ListSttSkewHitsinTrack*/, //[R.K. 9/2018] unused
 	Vec <Short_t> *ListMvdStripHitsinTrack,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
@@ -40,7 +40,7 @@ using namespace std;
 	Vec <Short_t> *nSttParHitsinTrack,
 	int nMCTracks,
 	Vec <Short_t> *nMvdPixelHitsinTrack,
-	Short_t nSciTilHits,
+	Short_t /*nSciTilHits*/, //[R.K. 9/2018] unused
 	Vec <Short_t> *nSciTilHitsinTrack,
 	Vec <Short_t> *nSttSkewHitsinTrack,
 	Vec <Short_t> *nMvdStripHitsinTrack,
@@ -54,7 +54,7 @@ using namespace std;
 	Vec <Double_t> *Y2,
 	Vec <Double_t> *X3,
 	Vec <Double_t> *Y3,
-	int IVOLTE
+	int /*IVOLTE*/ //[R.K. 9/2018] unused
 
 						)
 {
@@ -63,7 +63,7 @@ using namespace std;
  int tmp_dim = MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK;
 
  int tmp_dim2;
- // protection in case nTracksFoundSoFar = 0; the dimension of vector must be 
+ // protection in case nTracksFoundSoFar = 0; the dimension of vector must be
  // >= 1;
  if(nTracksFoundSoFar>0) { tmp_dim2 = nTracksFoundSoFar;} else {tmp_dim2 = 1;}
 
@@ -1345,7 +1345,7 @@ ioData.nSciTilCommon[ii]+ioData.nMCSciTilAlone[ii],ioData.nSciTilCommon[ii],ioDa
      fmod(Fifi+ PI, 2.*PI),  //  FI0  da MC truth
      FI0[ ii ]
            );
-   
+
     fprintf(HANDLE,
 "       %%truePar %5.1f ;%%missPar %5.1f ;%%trueSkew  %5.1f ;%%missSkew  %5.1f ;%%trueStt %5.1f ;%%missStt %5.1f ;\n",
  	perc_trueSttPar*100.,perc_missSttPar*100.,perc_trueSttSkew*100.,
@@ -1618,7 +1618,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 	Vec <Short_t> *nMvdStripSpuriinTrack,
 	Vec <Short_t> *MvdStripSpuriList,
 	Vec <Short_t> *nMCMvdStripAlone,
-	Vec <Short_t> *MCMvdStripAloneList	
+	Vec <Short_t> *MCMvdStripAloneList
 				)
 {
 //  fine cambio_in_perl.
@@ -1742,7 +1742,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 //  inizio cambio_in_perl.
 
 void PndTrkComparisonMCtruth::MvdMatchtoMC(
-	Double_t ERRORSQPIXEL,
+	Double_t /*ERRORSQPIXEL*/, //[R.K. 9/2018] unused
 	Double_t ERRORSQSTRIP,
 	TClonesArray *fMvdMCPointArray,
 	Short_t nMvdMCPoint,
@@ -1759,7 +1759,7 @@ void PndTrkComparisonMCtruth::MvdMatchtoMC(
 	Vec <Double_t> *ZMvdPixel,
 	Vec <Double_t> *ZMvdStrip,
 	Vec <Int_t> *FromPixeltoMCTrack,
-	Vec <Int_t> *FromStriptoMCTrack	
+	Vec <Int_t> *FromStriptoMCTrack
 	)
 {
 //  fine cambio_in_perl.
@@ -1891,10 +1891,10 @@ cout<<"Evento n. "<<IVOLTE<<
 //----------begin of function PndTrkComparisonMCtruth::SciTilMatchtoMC
 //  inizio cambio_in_perl.
  void PndTrkComparisonMCtruth::SciTilMatchtoMC(
-	Double_t BFIELD,
-	Double_t CVEL,
-	Double_t DIMENSIONSCITIL,
-	TClonesArray *fMCTrackArray,
+	Double_t /*BFIELD*/, //[R.K. 9/2018] unused
+	Double_t /*CVEL*/, //[R.K. 9/2018] unused
+	Double_t /*DIMENSIONSCITIL*/, //[R.K. 9/2018] unused
+	TClonesArray */*fMCTrackArray*/, //[R.K. 9/2018] unused
 	Vec <int> *FromSciTiltoMCTrackList,
 	TClonesArray *fSciTHitArray,
 	Short_t fSciTilMaxNumber,
@@ -1904,9 +1904,9 @@ cout<<"Evento n. "<<IVOLTE<<
 	int nMCTracks,
 	Short_t nSciTilHits,
 	Short_t *OriginalSciTilList,
-	Vec <Double_t> *XSciTilCenter,
-	Vec <Double_t> *YSciTilCenter,
-	Vec <Double_t> *ZSciTilCenter
+	Vec <Double_t> */*XSciTilCenter*/, //[R.K. 9/2018] unused
+	Vec <Double_t> */*YSciTilCenter*/, //[R.K. 9/2018] unused
+	Vec <Double_t> */*ZSciTilCenter*/ //[R.K. 9/2018] unused
 
 		)
 {
@@ -1941,7 +1941,7 @@ cout<<"Evento n. "<<IVOLTE<<
 			// prima da uno hit della stessa SciTil;
 			bool accetto = true;
 			for(int kk=0;kk<nFromSciTiltoMCTrack->at(nsc);kk++){ // loop sulle tracce MC finora associate;
-			   if( point->GetTrackID() == 
+			   if( point->GetTrackID() ==
 				FromSciTiltoMCTrackList->at(nsc*nMCTracks+kk) ){
 				accetto=false;
 				break;
@@ -2091,8 +2091,8 @@ cout<<"Evento n. "<<IVOLTE<<
 //----------begin of function PndTrkComparisonMCtruth::StampaMCTracks
 //  inizio cambio_in_perl.
  void PndTrkComparisonMCtruth::stampaMCTracks(
-	Double_t BFIELD,
-	Double_t CVEL,
+	Double_t /*BFIELD*/, //[R.K. 9/2018] unused
+	Double_t /*CVEL*/, //[R.K. 9/2018] unused
 	TClonesArray* fMCTrackArray,
 	int nMCTracks
 						)
@@ -2104,17 +2104,17 @@ cout<<"Evento n. "<<IVOLTE<<
 			if ( !( fabs(pMC->GetStartVertex().X())<0.5 &&
 			     fabs(pMC->GetStartVertex().Y())<0.5 &&
 			     fabs(pMC->GetStartVertex().Z())<0.5 )) continue;
-			double carica;
-			int icode  = pMC->GetPdgCode() ;    //   PDG code of track
-			double Pxx = pMC->GetMomentum().X();
-			double Pyy = pMC->GetMomentum().Y();
-			double aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
-			double Rr =   aaa*1000./(BFIELD*CVEL);// R (cm) of Helix of track projected
+			//double carica; //[R.K. 9/2018] unused
+			//int icode  = pMC->GetPdgCode() ;    //   PDG code of track //[R.K. 9/2018] unused
+			//double Pxx = pMC->GetMomentum().X(); //[R.K. 9/2018] unused
+			//double Pyy = pMC->GetMomentum().Y(); //[R.K. 9/2018] unused
+			//double aaa = sqrt( Pxx*Pxx + Pyy*Pyy); //[R.K. 9/2018] unused
+			//double Rr =   aaa*1000./(BFIELD*CVEL);// R (cm) of Helix of track projected //[R.K. 9/2018] unused
 						//  in XY plane; B = 2 Tesla
-			TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-			TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
-			if (icode>1000000000) carica = 1.;
-			else  carica = fParticle->Charge()/3. ;    //   charge of track
+			//TDatabasePDG *fdbPDG= TDatabasePDG::Instance(); //[R.K. 9/2018] unused
+			//TParticlePDG *fParticle= fdbPDG->GetParticle(icode); //[R.K. 9/2018] unused
+			//if (icode>1000000000) carica = 1.; //[R.K. 9/2018] unused
+			//else  carica = fParticle->Charge()/3. ;    //   charge of track //[R.K. 9/2018] unused
 
 			//cout<<"\tTraccia n. "<<ic<<", Px "<<pMC->GetMomentum().X()
 			//<<", Py "<<pMC->GetMomentum().Y()
@@ -2138,9 +2138,9 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	Vec <bool> *InclusionListStt,
 	Vec <Double_t> *info,
 	Vec <bool> *keepit,
-	int MAXSTTHITS,
+	int /*MAXSTTHITS*/, //[R.K. 9/2018] unused
 	int MAXSTTHITSINTRACK,
-	int MAXTRACKSPEREVENT,
+	int /*MAXTRACKSPEREVENT*/, //[R.K. 9/2018] unused
 	Vec <Short_t> *ListSttParHitsinTrack,
 	Vec <Short_t> *ListSttSkewHitsinTrack,
 	Vec <Short_t> *MCParalAloneList,

@@ -15,7 +15,7 @@
 
 class RhoCandidate;
 class RhoCandList;
-class PndRecoCandidate;
+class PndPidCandidate;
 class TClonesArray;
 class PndPidProbability;
 class TString;
@@ -29,7 +29,7 @@ class PndAnaPidCombiner : public TNamed
     //Destructor
     ~PndAnaPidCombiner() {/*empty*/};
     //void AddTcaName(const TString& tcaname) {fPidArrays[tcaname]=0;};
-    void SetTcaNames(TString& names);
+    void SetTcaNames(TString& names, TString postfix="");
     void SetDefaults();
     void ClearNames() {fPidArrays.clear(); };
     void Init();

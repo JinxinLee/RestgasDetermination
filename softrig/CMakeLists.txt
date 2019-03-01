@@ -3,14 +3,14 @@
 # The extension is already found.  Any number of sources could be listed here.
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
-  ${SYSTEM_INCLUDE_DIRECTORIES} 
-  ${BASE_INCLUDE_DIRECTORIES} 
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES}
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/field 
-  ${CMAKE_SOURCE_DIR}/trackbase 
-  ${CMAKE_SOURCE_DIR}/pnddata # put PndRecoCandidate to fairbase at some point
+  ${CMAKE_SOURCE_DIR}/field
+  ${CMAKE_SOURCE_DIR}/trackbase
+  ${CMAKE_SOURCE_DIR}/pnddata # put PndPidCandidate to fairbase at some point
   ${CMAKE_SOURCE_DIR}/pnddata/PidData # CAUTION we have a PANDA specific access: RhoGoodPhotonSelector auses PndPidCandidate
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoMath
@@ -31,10 +31,10 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
-set(SRCS 
+set(SRCS
 PndSoftTriggerTask.cxx
 PndSoftTriggerLine.cxx
 PndOnlineFilterInfo.cxx

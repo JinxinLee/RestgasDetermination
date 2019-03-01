@@ -38,5 +38,15 @@
 #pragma link C++ class PndSttGeometryMap+;
 #pragma link C++ class PndSttFullTCAProducer+;
 
+#pragma link C++ class PndSttTubeIdMap+;
+#pragma link C++ class PndSttTubeIdMapCreatorAbs+;
+#pragma link C++ class PndSttTubeIdMapCreatorRoot+;
+
+#pragma link C++ class PndSttTubeCreator+;
+#pragma link C++ class PndSttTubeMap+;
+#pragma link C++ class PndSttTubeMapCreatorAbs+;
+#pragma link C++ class PndSttTubeMapCreatorRoot+;
+#pragma link C++ class PndSttNeighborhoodCreator+;
+#pragma link C++ class PndSttRootGeometryInitTask+;
 #endif
 

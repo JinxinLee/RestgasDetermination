@@ -9,7 +9,7 @@
 
   // Number of events to process
   Int_t nEvents = 0;
- 
+
   // ----  Load libraries   -------------------------------------------------
 //  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 //  rootlogon();
@@ -51,14 +51,14 @@
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
-	
+
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
 
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
- 
+
   PndTimeOffsetFinderTask* timeOffset = new PndTimeOffsetFinderTask();
   timeOffset->SetInputBranch("MVDHitsPixelCorrected");
   timeOffset->SetStartTime(39000000000);
@@ -66,7 +66,7 @@
   timeOffset->SetStartIndex(3647620);
   fRun->AddTask(timeOffset);
 
- 
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();

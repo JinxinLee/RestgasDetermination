@@ -28,15 +28,15 @@ class FTSCAHitV {
                fR(Vc::Zero), fErr2R(Vc::Zero), fErr2A(Vc::Zero), fBeta(Vc::Zero), fIsLeft(true),
 #endif
                fAngle(Vc::Zero){}
-  
+
   FTSCAHitV( const PndFTSCAGBHit** hits, const uint_v& ids, const float_m& valid );
 
   FTSCAHitV( const FTSCAHit* hits, const float_m& valid );
 
   FTSCAHitV( const FTSCAHit* hits, const float_m& valid, bool OneHit );
-  
+
   float_m IsValid() const { return fIStation >= 0; }
-  
+
   char IStation() const {
     const float_m v = IsValid();
     assert(!v.isEmpty());
@@ -49,10 +49,10 @@ class FTSCAHitV {
   float_v X0() const { return fX0; }
   float_v X1() const { return fX1; }
   float_v X2() const { return fX2; }
-  
+
   float_v FStrip() const { return GetStripsValue( fFStripP ); };
   float_v BStrip() const { return GetStripsValue( fBStripP ); };
- 
+
   float_v Err2X1() const { return fErr2X1; }
   float_v ErrX12() const { return fErrX12; }
   float_v Err2X2() const { return fErr2X2; }
@@ -61,7 +61,7 @@ class FTSCAHitV {
   float_v XWire0() const { return fX0; }
   float_v XWire1() const { return fX1 ; }
   float_v XWire2() const { return fX2; }
-  
+
   float_v R() const { return fR; }
   float_v RSigned() const { float_v r = fR; r(fIsLeft) = -r; return r; }
   float_v Err2R() const { return fErr2R; }
@@ -69,15 +69,15 @@ class FTSCAHitV {
   float_v Beta() const { return fBeta; }
   float_m IsLeft() const { return fIsLeft; }
 #endif
-  
+
   float_v Angle() const { return fAngle; }
 
   void GetGlobalCoor( int iV, float& x, float& y, float &z ) const {
     PndFTSCAParameters::CALocalToGlobal(float(X0()[iV]), float(X1()[iV]), float(X2()[iV]), float(Angle()[iV]), x, y, z);
   }
-  
+
   void InitValuesByZeros();
-  
+
  private:
   float_v GetStripsValue( FTSCAStrip* const strip[float_v::Size] ) const {
     float_v::Memory r;
@@ -86,10 +86,10 @@ class FTSCAHitV {
     }
     return float_v(r);
   };
-  
+
   FTSCAStrip* fFStripP[float_v::Size]; // TODO simdize
-  FTSCAStrip* fBStripP[float_v::Size]; 
-  
+  FTSCAStrip* fBStripP[float_v::Size];
+
   int_v fIStation;
   uint_v fId; // index of hits in an input array
 
@@ -103,7 +103,7 @@ class FTSCAHitV {
   float_v fBeta;
   float_m fIsLeft;
 #endif
-  
+
   float_v fAngle; // direction of hit station. Angle between normal and vertical axis. This angle defines local CS of the hit
 };
 
@@ -116,7 +116,7 @@ class FTSCAElementsOnStation<FTSCAHitV>: public vector<FTSCAHitV> {
 
   char& IStation()             { return fISta; }
   const char& IStation() const { return fISta; }
-  
+
  private:
   char fISta;
 };
@@ -129,9 +129,9 @@ class FTSCAHitsV { // same as in FTSCAStationArray
   const FTSCAElementsOnStation<T>& OnStation(char i) const { assert((unsigned char)i<fElement.size() ); return fElement[i]; }
   FTSCAElementsOnStation<T>&       operator[](char i)       { assert((unsigned char)i < fElement.size() ); return fElement[i]; }
   const FTSCAElementsOnStation<T>& operator[](char i) const { assert((unsigned char)i<fElement.size() ); return fElement[i]; }
-  
+
   FTSCAHitsV( const FTSCAHits& hits );
-  
+
   FTSCAHitsV( int nSta ) {
     fElement.resize( nSta );
     for( int i = 0; i < nSta; ++i )
@@ -139,20 +139,20 @@ class FTSCAHitsV { // same as in FTSCAStationArray
   }
 
   int NStations() const { return fElement.size(); }
-  
+
   T& operator[]( TES i ) { return fElement[i.s][i.e]; }
   const T& operator[]( TES i ) const { return fElement[i.s][i.e]; }
-  
+
   void Add( const T& hit ) {
     const int iSta = hit.IStation();
     fElement[iSta].push_back( hit );
   }
-  
+
   void Clean();
-  
+
  protected:
   vector< FTSCAElementsOnStation<T> > fElement; // hits on stations
-  
+
 };
 
 
@@ -162,7 +162,7 @@ inline FTSCAHitV::FTSCAHitV( const PndFTSCAGBHit** hits, const uint_v& ids, cons
 {
   int_v::Memory mIStation;
   mIStation = int_v( -1 );
-    
+
   float_v::Memory mX1, mX2, mX0;
   float_v::Memory mErr2X1, mErrX12, mErr2X2;
 
@@ -191,7 +191,7 @@ inline FTSCAHitV::FTSCAHitV( const PndFTSCAGBHit** hits, const uint_v& ids, cons
     fFStripP[iV] = h.FStripP();
     fBStripP[iV] = h.BStripP();
   }
-  
+
   fIStation = int_v(mIStation);
   fX1 = float_v(mX1); fX2 = float_v(mX2); fX0 = float_v(mX0);
   fErr2X1 = float_v(mErr2X1); fErrX12 = float_v(mErrX12); fErr2X2 = float_v(mErr2X2);
@@ -201,7 +201,7 @@ inline FTSCAHitV::FTSCAHitV( const PndFTSCAGBHit** hits, const uint_v& ids, cons
   fAngle = float_v(mAlpha);
 }
 
-inline FTSCAHitV::FTSCAHitV( const FTSCAHit* hits, const float_m& valid, bool OneHit )
+inline FTSCAHitV::FTSCAHitV( const FTSCAHit* hits, const float_m& valid, bool /*OneHit*/ ) //[R.K. 9/2018] unused
 {
   InitValuesByZeros();
   float_v::Memory mIsLeft;
@@ -237,7 +237,7 @@ inline FTSCAHitV::FTSCAHitV( const FTSCAHit* hits, const float_m& valid, bool On
 inline FTSCAHitV::FTSCAHitV( const FTSCAHit* hits, const float_m& valid )
 {
   InitValuesByZeros();
-  
+
   float_v::Memory mIsLeft;
   foreach_bit(unsigned short iV, valid) {
     const FTSCAHit& h = hits[iV];
@@ -264,10 +264,10 @@ inline FTSCAHitV::FTSCAHitV( const FTSCAHit* hits, const float_m& valid )
     //mIsUsed[iV] = h.IsUsed() ? 1.f : 0.f;
   }
   fIsLeft = ( float_v(mIsLeft) == 1.f );
-  
+
   /*int_v::Memory mIStation;
   mIStation = int_v( -1 );
-    
+
   uint_v::Memory mId;
   float_v::Memory mX1, mX2, mX0;
   float_v::Memory mErr2X1, mErrX12, mErr2X2;
@@ -319,7 +319,7 @@ inline void FTSCAHitV::InitValuesByZeros()
   fId = Vc::Zero;
   fX0 = Vc::Zero; fX1 = Vc::Zero; fX2 = Vc::Zero;
   fErr2X1 = Vc::Zero; fErrX12 = Vc::Zero; fErr2X2 = Vc::Zero;
-  fR = Vc::Zero; fErr2R = Vc::Zero; fErr2A = Vc::Zero; fBeta = Vc::Zero; 
+  fR = Vc::Zero; fErr2R = Vc::Zero; fErr2A = Vc::Zero; fBeta = Vc::Zero;
   fIsLeft = static_cast <float_m> (true);
   fAngle = Vc::Zero;
 }
@@ -337,7 +337,7 @@ inline FTSCAHitsV::FTSCAHitsV( const FTSCAHits& hits )
   }
 }
 
-  
+
 inline void FTSCAHitsV::Clean()
 { // remove used hits TODO
     // for( unsigned int i = 0; i < fElement.size(); ++i ) {
@@ -357,4 +357,4 @@ inline void FTSCAHitsV::Clean()
 
 
 #endif
-  
+

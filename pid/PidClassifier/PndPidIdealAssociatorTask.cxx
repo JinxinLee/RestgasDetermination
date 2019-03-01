@@ -24,6 +24,7 @@ PndPidIdealAssociatorTask::PndPidIdealAssociatorTask() {
   //---
   fNeutralBranchName="PidAlgoIdealNeutral";
   fChargedBranchName="PidAlgoIdealCharged";
+  fTrackBranchNamePidHypo="";
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
 }
@@ -34,6 +35,7 @@ PndPidIdealAssociatorTask::PndPidIdealAssociatorTask(const char *name, const cha
   //---
   fNeutralBranchName="PidAlgoIdealNeutral";
   fChargedBranchName="PidAlgoIdealCharged";
+  fTrackBranchNamePidHypo="";
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
   SetTitle(title);
@@ -54,13 +56,13 @@ InitStatus PndPidIdealAssociatorTask::Init() {
   FairRootManager *fManager =FairRootManager::Instance();
 
   // TODO: Am I allowed to write in these Arrays?
-  fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand");
+  fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand"+fTrackBranchNamePidHypo);
   if ( ! fPidChargedCand) {
     std::cout << "-I- PndPidIdealAssociatorTask::Init: No PndPidCandidate array PidChargedCand there!" << std::endl;
     return kERROR;
   }
 
-  fPidNeutralCand = (TClonesArray *)fManager->GetObject("PidNeutralCand");
+  fPidNeutralCand = (TClonesArray *)fManager->GetObject("PidNeutralCand"+fTrackBranchNamePidHypo);
   if ( ! fPidNeutralCand) {
     std::cout << "-I- PndPidIdealAssociatorTask::Init: No PndPidCandidate array PidNeutralCand there!" << std::endl;
     return kERROR;
@@ -186,9 +188,9 @@ void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
 void PndPidIdealAssociatorTask::Register() {
   //---
   FairRootManager::Instance()->
-  Register(fChargedBranchName,"Pid", fPidChargedProb, kTRUE);
+  Register(fChargedBranchName+fTrackBranchNamePidHypo,"Pid", fPidChargedProb, kTRUE);
   FairRootManager::Instance()->
-  Register(fNeutralBranchName,"Pid", fPidNeutralProb, kTRUE);
+  Register(fNeutralBranchName+fTrackBranchNamePidHypo,"Pid", fPidNeutralProb, kTRUE);
 }
 
 //_________________________________________________________________

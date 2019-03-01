@@ -1,5 +1,5 @@
 /** PndTrackingQualityMCInfo
- ** 
+ **
  ** Data container for the result of the ideal track finder and the information of the associated MCTrack
  **
  ** @author Lia Lavezzi with modifications by Tobias Stockmanns <t.stockmanns@fz-juelich.de>
@@ -15,15 +15,15 @@
 
 class PndTrackingQualityMCInfo : public TObject
 {
-  
- public:    
+
+ public:
 
   PndTrackingQualityMCInfo();
   PndTrackingQualityMCInfo(int nofmvdpix, int nofmvdstr, int nofsttparal, int nofsttskew, int nofgem, int noffts);
   PndTrackingQualityMCInfo(const PndTrackingQualityMCInfo& info);
-  ~PndTrackingQualityMCInfo();    
+  ~PndTrackingQualityMCInfo();
 
-  PndTrackingQualityMCInfo& operator=(const PndTrackingQualityMCInfo& info); 
+  PndTrackingQualityMCInfo& operator=(const PndTrackingQualityMCInfo& info);
 
 
   void SetPositionFirst(TVector3 pos) { fPosFirst = pos; }
@@ -46,7 +46,7 @@ class PndTrackingQualityMCInfo : public TObject
   Int_t GetNofGemPoints() {return fNofGemPoints; }
   Int_t GetNofFtsPoints() {return fNofFtsPoints; }
   Int_t GetNofMCPoints() {return  fNofMvdPixelPoints + fNofMvdStripPoints + fNofSttParalPoints + fNofSttSkewPoints + fNofGemPoints + fNofFtsPoints; }
- 
+
   Int_t GetMCTrackID() { return fMCTrackID; }   //< Returns the corresponding MCTrack to an ideal track
   Short_t GetNofRecoTracks(void)     const { return fRecoTrackIDs.size(); } //< Returns the number of reco tracks associated to the ideal track
   Int_t GetRecoTrackID(Int_t i=0) const {                                   //< Returns the id of the ith reco track associated to the ideal track
@@ -72,7 +72,7 @@ class PndTrackingQualityMCInfo : public TObject
 
   void SetMCTrackID(Int_t mctrackid) { fMCTrackID = mctrackid; }
   void SetRecoTrackIDs(const std::vector<int> recotrkids) { fRecoTrackIDs = recotrkids; }
-  void SetRecoTrackID(int recotrkid) { 
+  void SetRecoTrackID(int recotrkid) {
     fRecoTrackIDs.push_back(recotrkid);
   }
   void SetAssoRecoTrackID(int asso) { fAssoRecoTrackID = asso; }
@@ -85,21 +85,20 @@ class PndTrackingQualityMCInfo : public TObject
   Int_t GetMCQuality() { return fMCQuality; }
 
  protected:
- 
+
   Int_t fNofMvdPixelPoints,  fNofMvdStripPoints,  fNofSttParalPoints, fNofSttSkewPoints, fNofGemPoints, fNofFtsPoints;
+
   Bool_t fReconstructabilityStatus;
-  Bool_t fIsPrimary;
   Int_t fMCTrackID;
-  TVector3 fVertex;	  //< Vertex position from MCTrack
-  TVector3 fMomentum; //< Momentum at vertex position from MCTrack
-  Int_t fCharge;	  //< Charge from MCTrack
-  Int_t fPDGCode;	  //< PDG code from MCTrack
-  
   std::vector<int> fRecoTrackIDs;
-  
   TVector3 fPosFirst, fMomFirst;
   TVector3 fPosLast, fMomLast;
 
+  Int_t fCharge;	  //< Charge from MCTrack
+  Bool_t fIsPrimary;
+  TVector3 fVertex;	  //< Vertex position from MCTrack
+  TVector3 fMomentum; //< Momentum at vertex position from MCTrack
+  Int_t fPDGCode;	  //< PDG code from MCTrack
 
   Int_t fQuality;
   Int_t fMCQuality;

@@ -24,6 +24,7 @@
 #include "PndSttHit.h"
 #include "PndSttTube.h"
 #include "PndSttMapCreator.h"
+#include "PndSttTubeMap.h"
 #include "PndGeoSttPar.h"
 #include "FairRuntimeDb.h"
 #include "FairRunAna.h"
@@ -89,7 +90,12 @@ PndSttRecoHit2::PndSttRecoHit2(PndSttHit *currenthit, const genfit::TrackCandHit
   setHitId(hit->getHitId());
 
   Int_t tubeID = currenthit->GetTubeID();
-  PndSttTube *tube = (PndSttTube *) tubeArray->At(tubeID);
+  PndSttTube* tube = nullptr;
+  if (tubeArray != nullptr){
+      tube = (PndSttTube *) tubeArray->At(tubeID);
+  } else {
+      tube = PndSttTubeMap::Instance()->GetTube(tubeID);
+  }
 
   // wire1(3), wire2(3), rdrift
   TVector3 wiredirection = tube->GetWireDirection();

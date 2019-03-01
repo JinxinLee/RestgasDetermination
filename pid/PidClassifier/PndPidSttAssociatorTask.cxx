@@ -54,7 +54,7 @@ InitStatus PndPidSttAssociatorTask::Init() {
     return kFATAL;
   }
   
-  fPidChargedCand = (TClonesArray *) ioman->GetObject("PidChargedCand");
+  fPidChargedCand = (TClonesArray *) ioman->GetObject("PidChargedCand"+fTrackBranchNamePidHypo);
   if ( ! fPidChargedCand) {
     std::cout << "-E- PndPidSttAssociatorTask::Init: No PidChargedCand array!" << std::endl;
     return kERROR;
@@ -74,7 +74,7 @@ InitStatus PndPidSttAssociatorTask::Init() {
   ProtonDEDXSigmaFunctionL();
   ProtonDEDXSigmaFunctionH();
 
-  ioman->Register("PidAlgoStt","Pid", fPidChargedProb, kTRUE); 
+  ioman->Register("PidAlgoStt"+fTrackBranchNamePidHypo,"Pid", fPidChargedProb, kTRUE);
 
   if(fDefaultHypo == kTRUE) std::cout << "-I- PndPidSttAssociatorTask: using default mass hypo bands (muon)" << endl;
   else std::cout << "-I- PndPidSttAssociatorTask: NOT using default mass hypo bands" << endl;

@@ -40,6 +40,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/analysis/rho
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoTools
+  ${CMAKE_SOURCE_DIR}/analysis/AnalysisTools
   ${CMAKE_SOURCE_DIR}/pid
   ${CMAKE_SOURCE_DIR}/pid/PidData
   ${CMAKE_SOURCE_DIR}/pid/PidCorr
@@ -82,6 +83,7 @@ PidCorr/PndPidEmcInfo.cxx
 PidCorr/PndPidTofInfo.cxx
 PidCorr/PndPidBremCorrector.cxx
 PndPidContFact.cxx
+PndPidTestTask.cxx
 
 ###### Associator
 PidClassifier/PndPidIdealAssociatorTask.cxx
@@ -107,6 +109,7 @@ PidCorr/PndPidCorrPar.h
 PidCorr/PndPidCorrelator.h
 PidCorr/PndPidBremCorrector.h
 PndPidContFact.h
+PndPidTestTask.h
 
 ###### Associator Headers
 PidClassifier/PndPidIdealAssociatorTask.h

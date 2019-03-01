@@ -103,7 +103,7 @@ void PndTrkCTGeometryCalculations::calculateintersections(
 	Double_t C0x,
 	Double_t C0y,
 	Double_t C0z,
-	Double_t r,
+	Double_t /*r*/, //[R.K. 9/2018] unused
 	Double_t vx,
 	Double_t vy,
 	Double_t vz,
@@ -316,9 +316,9 @@ void PndTrkCTGeometryCalculations::CalculateSandZ2(
        for( ii=0; ii<2; ii++){
         j=3*ii;
         distance = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) +
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) +
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1)
                             );
 
 
@@ -494,7 +494,7 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExit3(
 			FiOrderedList[i] = fi[nIntersections-i-1];
 		} // end of for( i=0;i<nIntersections;i++)
 
-	  } else { // case in which charge is negative; particle rotates counterclockwise when looking into the beam; 
+	  } else { // case in which charge is negative; particle rotates counterclockwise when looking into the beam;
 		for( i=0;i<nIntersections;i++){
 		  fi[i] = atan2(YintersectionList[i]-Oyy,
 				XintersectionList[i]-Oxx);
@@ -544,7 +544,7 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ(
 //	this method returns the distance (WITH ITS SIGN ) :  ZZ - ZED.  Therefore this number
 //	can be negative.
 //	Care is taken to calculate this distance properly taking into
-//	account that we are dealing with the function  FI = mod(KAPPA*Z + FI0, 2*3.14). 
+//	account that we are dealing with the function  FI = mod(KAPPA*Z + FI0, 2*3.14).
 
 // the limits of an Int_t are : -2147483648 <= n <= 2147483647
 
@@ -562,7 +562,7 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ(
 	}
 
 //	gap = fabs(TWO_PI/KAPPA);
-	
+
 	aaa = (KAPPA*ZED)/TWO_PI;
 	if( aaa<-2147483648.) {
 		*nrounds = -2147483647;
@@ -595,7 +595,7 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ(
 //-------------------------  begin of function  PndTrkCTGeometryCalculations::Dist_SZ_bis
 
 Double_t PndTrkCTGeometryCalculations::Dist_SZ_bis(
-	Double_t Rr,	// input
+	Double_t /*Rr*/,	 //[R.K. 9/2018] unused// input
 	Double_t KAPPA,	// input
 	Double_t FI0,	// input
 	Double_t ZED,	// input
@@ -613,7 +613,7 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ_bis(
 	Short_t	i;
 		//nMax, //[R.K. 01/2017] unused variable?
 		//nMin //[R.K. 01/2017] unused variable?
-		
+
 
 	Double_t
 		boundaries[n_allowed_rounds+3],
@@ -1023,7 +1023,7 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange2(
 	//	on the RIGHT side, in the XY projection of the trajectory [looking into the beam] with respect
 	//	to the segment joining the Center of the Helix with the origin (0,0);
 	// Fi_low_limit[1], Fi_up_limit[1] is the solution corresponding to the LEFT intersection; in case
-	//			there is no second solution it is set at -100.; 
+	//			there is no second solution it is set at -100.;
 	// the charge is not considered here; the two solution are just determined by the intersection of the trajectory
 	// circle with the inner and outer boundary of the STT detector system;
 
@@ -1197,16 +1197,16 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonLeft(
 	     / |
 	    /  |
 	   /  /
-	  /  / 
-	 /  /  
-	/  /   
-	|  |   
-	|  |   
-	|  |   
-	|  |   
-	\  \   
-	 \  \  
-	  \  \ 
+	  /  /
+	 /  /
+	/  /
+	|  |
+	|  |
+	|  |
+	|  |
+	\  \
+	 \  \
+	  \  \
 	   \  \
 	    \  |
 	     \ |
@@ -1305,24 +1305,24 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonLeft2(
 //
 
 
-//	      /|
-//	     / |
-//	    /  |
-//	   /  /
-//	  /  / 
-//	 /  /  
-//	/  /   
-//	|  |   
-//	|  |   
-//	|  |   
-//	|  |   
-//	\  \   
-//	 \  \  
-//	  \  \ 
-//	   \  \
-//	    \  |
-//	     \ |
-//	      \|
+//	      /|    //
+//	     / |    //
+//	    /  |    //
+//	   /  /     //
+//	  /  /      //
+//	 /  /       //
+//	/  /        //
+//	|  |        //
+//	|  |        //
+//	|  |        //
+//	|  |        //
+//	\  \        //
+//	 \  \       //
+//	  \  \      //
+//	   \  \     //
+//	    \  |    //
+//	     \ |    //
+//	      \|    //
 
 
 // finding all possible intersections with inner parallel straw region.
@@ -1421,19 +1421,19 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonRight(
 // geometrical shape considered in this method :
 //
 //
-//	|\
-//	| \
-//	|  \
-//	 \  \
-//	  \  \
-//	   |  |
-//	   |  |
-//	   /  /
-//	  /  /
-//	 /  /
-//	|  /
-//	| /
-//	|/
+//	|\           //
+//	| \          //
+//	|  \         //
+//	 \  \        //
+//	  \  \       //
+//	   |  |      //
+//	   |  |      //
+//	   /  /      //
+//	  /  /       //
+//	 /  /        //
+//	|  /         //
+//	| /          //
+//	|/           //
 //
 
 // finding all possible intersections with inner parallel straw region.
@@ -1530,19 +1530,19 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonRight2(
 // geometrical shape considered in this method :
 //
 //
-//	|\
-//	| \
-//	|  \
-//	 \  \
-//	  \  \
-//	   |  |
-//	   |  |
-//	   /  /
-//	  /  /
-//	 /  /
-//	|  /
-//	| /
-//	|/
+//	|\           //
+//	| \          //
+//	|  \         //
+//	 \  \        //
+//	  \  \       //
+//	   |  |      //
+//	   |  |      //
+//	   /  /      //
+//	  /  /       //
+//	 /  /        //
+//	|  /         //
+//	| /          //
+//	|/           //
 //
 
 // finding all possible intersections with inner parallel straw region.
@@ -2646,13 +2646,13 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedPolygon(
 	// a,b,c == coefficients of the implicit equations of the six sides of the Hexagon
 	// centered at 0 :   a*x + b*y +c =0; see Gianluigi's logbook on page 277;
 	// the coefficient  c  has to be multiplied by Erre.
-	// The first side is 
+	// The first side is
 		a[] = { 1./sqrt(3.) , 1., -1./sqrt(3.), 1./sqrt(3.) , 1. , -1./sqrt(3.) } ,
 		b[] = { 1., 0. , 1., 1., 0. , 1. },
 		c[] = { -2./sqrt(3.) , -1., 2./sqrt(3.), 2./sqrt(3.), 1., -2./sqrt(3.)},
 	//----------------------
 
-		Erre[] = {Rmi, Rma},  //  this is the distance from (0,0) 
+		Erre[] = {Rmi, Rma},  //  this is the distance from (0,0)
 					// of the SIDES of the Hexagon delimiting the Skew area
 		tempX[2],
 		tempY[2];
@@ -3710,8 +3710,8 @@ bool PndTrkCTGeometryCalculations::IsInsideArc(
   bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk21_77to21_79withMargin(
 	Double_t X,		//  X coordinate of point;
 	Double_t Y,		//  Y coordinate of point;
-	Double_t xmargin,	//  safety margin in X coordinate;
-	Double_t ymargin	//  safety margin in Y coordinate;
+	Double_t /*xmargin*/, //[R.K. 9/2018] unused	//  safety margin in X coordinate;
+	Double_t /*ymargin*/ //[R.K. 9/2018] unused	//  safety margin in Y coordinate;
 	)
 {
 //	this is a set of sensors placed vertically perpendicularly to the Z direction;
@@ -4199,7 +4199,7 @@ nIntersections<<", X inter "<<AllXOrderedList[i]<<", Y inter "
 				}	// end of if( jArc != oldArc )
 
 				break;
-			} // end of if(fi < AllFiOrderedList[2*jArc] && fi>AllFiOrderedList[2*jArc+1]) 
+			} // end of if(fi < AllFiOrderedList[2*jArc] && fi>AllFiOrderedList[2*jArc+1])
 		  }	// end of for(j=0;j<nIntersections;j++)
 		}	// end of for(i=0;i<nHits;i++)
 
@@ -4228,7 +4228,7 @@ nIntersections<<", X inter "<<AllXOrderedList[i]<<", Y inter "
 				}	// end of if( jArc != oldArc )
 
 				break;
-			} // end of if(fi < AllFiOrderedList[2*jArc] && fi>AllFiOrderedList[2*jArc+1]) 
+			} // end of if(fi < AllFiOrderedList[2*jArc] && fi>AllFiOrderedList[2*jArc+1])
 		  }	// end of for(j=0;j<nIntersections;j++)
 		}	// end of for(i=0;i<nHits;i++)
 

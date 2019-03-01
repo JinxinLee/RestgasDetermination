@@ -24,63 +24,109 @@
 #include "TString.h"
 #include "PndRecoKalmanFit.h"
 #include "PndGeoSttPar.h"
+#include "PndGeoFtsPar.h"
 
 // Collaborating Class Declarations --
 class TClonesArray;
 class GFRecoHitFactory;
- 
+
 
 class PndRecoMultiKalmanTask : public PndPersistencyTask {
-public:
+  public:
 
-  // Constructors/Destructors ---------
-  PndRecoMultiKalmanTask(const char* name = "Genfit", Int_t iVerbose = 0);
+    // Constructors/Destructors ---------
+    PndRecoMultiKalmanTask(const char* name = "Genfit", Int_t iVerbose = 0, TString fithypo = "electron;muon;pion;kaon;proton");
     ~PndRecoMultiKalmanTask();
 
-  // Operators
-  
+    // Operators
 
-  // Accessors -----------------------
-  
-  // Modifiers -----------------------
-  void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name; } 
-  void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; }
-  void SetMvdBranchName(const TString& name)       { fMvdBranchName = name; }
-  void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
-  void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;         }
-  void SetNumIterations(Int_t num)               { fNumIt = num;        }
- 
-  // Operations ----------------------
-  virtual InitStatus Init();
-  virtual void Exec(Option_t* opt);
-  
-  void SetParContainers();
-  
-private:
 
-  // Private Data Members ------------
-  TClonesArray* fTrackArray; 
-  TClonesArray* fFitTrackArrayElectron; //! Output TCA for track
-  TClonesArray* fFitTrackArrayMuon;     //! Output TCA for track
-  TClonesArray* fFitTrackArrayPion;     //! Output TCA for track
-  TClonesArray* fFitTrackArrayKaon;     //! Output TCA for track
-  TClonesArray* fFitTrackArrayProton;   //! Output TCA for track
-  
-  TString fTrackInBranchName;      //! Name of the input TCA
-  TString fTrackOutBranchName;     //! Name of the output TCA
-  
-  TString fMvdBranchName;           //! Name of the TCA for MVD
-  TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
-  
-  PndRecoKalmanFit *fFitter;
+    // Accessors -----------------------
 
-  Bool_t fUseGeane;              //! Flag to use Geane 
-  Bool_t fSmoothing;             //! Flag to set on smoothing
-  Int_t fNumIt;                  //! Number of iterations
-  PndGeoSttPar *fSttParameters;  //! STT params
+    // Modifiers -----------------------
+    void SetTrackInBranchName(const TString& name)   {
+      fTrackInBranchName = name;
+    }
+    void SetTrackOutBranchName(const TString& name)  {
+      fTrackOutBranchName = name;
+    }
+    void SetMvdBranchName(const TString& name)       {
+      fMvdBranchName = name;
+    }
+    void SetCentralTrackerBranchName(const TString& name)  {
+      fCentralTrackerBranchName = name;
+    }
+    void SetGeane(Bool_t opt = kTRUE)              {
+      fUseGeane = opt;
+    }
+    void SetNumIterations(Int_t num)               {
+      fNumIt = num;
+    }
+    void SetFitHypotheses(const TString& name)   {
+      fFitWithHypo = name;
+    }
+    void SetBusyCut(Int_t b)                         {
+      fBusyCut=b;
+    }
+    void SetTrackRep(Short_t num)                    {
+      fTrackRep = num;
+    }
 
-  ClassDef(PndRecoMultiKalmanTask,1);
+
+    // Operations ----------------------
+    virtual InitStatus Init();
+    virtual void Exec(Option_t* opt);
+
+    void SetParContainers();
+
+  private:
+
+    // Private Data Members ------------
+    TClonesArray* fTrackArray;
+    TClonesArray* fFitTrackArrayElectron; //! Output TCA for track
+    TClonesArray* fFitTrackArrayMuon;     //! Output TCA for track
+    TClonesArray* fFitTrackArrayPion;     //! Output TCA for track
+    TClonesArray* fFitTrackArrayKaon;     //! Output TCA for track
+    TClonesArray* fFitTrackArrayProton;   //! Output TCA for track
+
+    TString fTrackInBranchName;      //! Name of the input TCA
+    TString fTrackOutBranchName;     //! Name of the output TCA
+
+    TString fMvdBranchName;           //! Name of the TCA for MVD
+    TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
+
+    TString fFitWithHypo;
+
+    PndRecoKalmanFit *fFitter;
+
+    Bool_t fPersistence;           //! Persistence
+    Bool_t fUseGeane;              //! Flag to use Geane
+    Bool_t fIdealHyp;              //! Flag to use MC particle hypothesis
+    Bool_t fPropagateToIP;         //! Flag to propagate the parameters to the interaction point (kTRUE)
+    Float_t fPropagateDistance;    //! Distance in [cm] to back-propagate the parameters, negative number means no backpropagation
+    Bool_t fPerpPlane;             //! Flag to use as initial plane the one perpendicular to the track (kFALSE)
+    Short_t fTrackRep;             //! (0) GeaneTrackRep, 1 RKTrackRep
+    Int_t fNumIt;                  //! Number of iterations
+    Int_t fBusyCut;                 //! Skip too busy events with more tracks
+    Bool_t fSmoothing;             //! Flag to set on smoothing
+    Bool_t fHypoFlag[5];	    			//! Flag to check which hypotheses to fit with
+    PndGeoSttPar *fSttParameters;  //! STT params
+    PndGeoFtsPar *fFtsParameters;  //! STT params
+
+    TDatabasePDG *pdg;             //! Particle DB
+
+
+
+
+
+
+
+
+
+
+    ClassDef(PndRecoMultiKalmanTask,1);
 
 };
 
 #endif
+

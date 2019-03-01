@@ -53,7 +53,7 @@ class PndFTSCATrackParamVector
     fC40(0.f), fC41(0.f), fC42(0.f), fC43(0.f), fC44(0.f),
     fChi2(0.f), fNDF(0.f)
   { fZB[0] = fZB[1] = 10e10; fDirection = true; }
-  
+
   void SetTrackParam(const PndFTSCATrackParamVector &param, const float_m &m = float_m( true )  )
   {
     for(int i=0; i<5; i++) Par(i)(m) = param.Par(i);
@@ -64,7 +64,7 @@ class PndFTSCATrackParamVector
     fNDF(static_cast<int_m>(m)) = param.NDF();
     fAlpha(static_cast<int_m>(m)) = param.Angle();
   }
-  
+
   void SetTrackParamOne(int iV, const PndFTSCATrackParamVector &param, int iVa  )
   {
     for(int i=0; i<5; i++) Par(i)[iV] = param.Par(i)[iVa];
@@ -81,7 +81,7 @@ class PndFTSCATrackParamVector
   void PrintCovMat()
   {
     cout << "CovMat " << endl;
-    //for ( int i = 0; i < 15; i++ ) 
+    //for ( int i = 0; i < 15; i++ )
     cout << Cov(0) << endl;
     cout << Cov(1) << " "<< Cov(2) << endl;
     cout << Cov(3) << " "<< Cov(4) <<" "<< Cov(5) << endl;
@@ -93,7 +93,7 @@ class PndFTSCATrackParamVector
     cout << Cov(6)[0] << " "<< Cov(7)[0] <<" "<< Cov(8)[0] <<" "<< Cov(9)[0] << endl;
     cout << Cov(10)[0] <<" "<< Cov(11)[0] <<" "<< Cov(12)[0] <<" "<< Cov(13)[0] <<" "<< Cov(14)[0];*/
   }
-  
+
   void InitCovMatrix( float_v d2QMom = 0.f );
   void InitByTarget( const FTSCATarget& target );
   void InitByHit( const FTSCAHitV& hit, const PndFTSCAParam& param, const float_v& dQP );
@@ -108,7 +108,7 @@ class PndFTSCATrackParamVector
     SetTy( ty );
   }
 
-  
+
   float_v X()      const { return fX; }
   float_v Y()      const { return fY; }
   float_v Z()      const { return fZ; }
@@ -118,7 +118,7 @@ class PndFTSCATrackParamVector
 
   float_v Bx() const { return fBx; }
   float_v By() const { return fBy; }
-  
+
 
   float_v Chi2()  const { return fChi2; }
   int_v   NDF()   const { return fNDF; }
@@ -135,7 +135,7 @@ class PndFTSCATrackParamVector
     const float_v tx12 = Tx1()*Tx1();
     return sqrt( tx12/(1.f + tx12) );
   }
-  
+
   const float_v& Par( int i ) const {
     switch ( i ) {
       case 0: return fX;
@@ -147,7 +147,7 @@ class PndFTSCATrackParamVector
     };
     assert(0); return fX;
   }
-  
+
   const float_v& Cov( int i ) const {
     switch ( i ) {
       case 0: return fC00;
@@ -168,10 +168,10 @@ class PndFTSCATrackParamVector
     };
     assert(0); return fC00;
   }
-  
+
   float_v Err2X1()      const { return Err2X(); }
   float_v Err2X2()      const { return Err2Y(); }
-  
+
   float_v Err2X()      const { return fC00; }
   float_v Err2Y()      const { return fC11; }
   float_v Err2QP()          const { return fC44; }
@@ -186,8 +186,8 @@ class PndFTSCATrackParamVector
   void SetTy( const float_v &v )    { fTy = v; }
   void SetQP( const float_v &v )    { fQP = v; }
   void SetQMomentum( const float_v &v )     {  fQP = v; }
-  void SetBx( const float_v &v )    { fBx = v; } 
- void SetBy( const float_v &v )    { fBy = v; }   
+  void SetBx( const float_v &v )    { fBx = v; }
+ void SetBy( const float_v &v )    { fBy = v; }
 
   void SetChi2( const float_v &v )  {  fChi2 = v; }
   void SetNDF( int v )   { fNDF = v; }
@@ -223,9 +223,9 @@ class PndFTSCATrackParamVector
       case 14: fC44 = v; break;
     }
   }
-  
+
   void SetDirection( bool b ) { fDirection = b; }
-  
+
   float_v& Par( int i ) {
       switch ( i ) {
       case 0: return fX;
@@ -236,7 +236,7 @@ class PndFTSCATrackParamVector
     };
     assert(0); return fX;
   }
-  
+
   float_v& Cov( int i ) {
     switch ( i ) {
       case 0: return fC00;
@@ -265,35 +265,35 @@ class PndFTSCATrackParamVector
   void SetTy( const float_v &v, const float_m &m )     {  fTy( m ) = v; }
   void SetQP( const float_v &v, const float_m &m )     {  fQP( m ) = v; }
   void SetQMomentum( const float_v &v, const float_m &m )     {  fQP( m ) = v; }
-  
+
   void SetChi2( const float_v &v, const float_m &m  )  {  fChi2(m) = v; }
   void SetNDF( const int_v &v, const int_m &m )   { fNDF(m) = v; }
 
   void SetField( int i, const CAFieldValue& b, const float_v& zb ) { fB[i] = b; fZB[i] = zb; }
-  
+
   void UpdateFieldValues(const FTSCAHitV& hit, const PndFTSCAParam& param, L1FieldRegion& f, const float_m& mask);
   void UpdateFieldValues(const FTSCAHitV& hit, int_v& iVrt, float_v& zVirtualStation, const PndFTSCAParam& param, L1FieldRegion& f, const float_m& mask);
-  
+
   void SetCovX12( float_v v00, float_v v10, float_v v11 ) { fC00 = v00; fC10 = v10; fC11 = v11; }
-  
+
 //  float_m Transport(const int_v& ista, const int_v& iVSta, const PndFTSCAParam& param, const float_m&mask = float_m( true ) );
   //float_m Transport( const int_v& ista, const PndFTSCAParam& param, const float_m &mask = float_m( true ) );
-  
+
   float_m Transport( const FTSCAHitV& hit, const PndFTSCAParam& p, float_v& qp0, const float_m &mask = float_m( true ) );
   float_m Transport( const FTSCAHitV& hit, const PndFTSCAParam& p, const float_m &mask = float_m( true ) );
 
   float_m TransportByLine( const FTSCAHitV& hit, const PndFTSCAParam& param, const float_m &mask = float_m( true ) );
-  
+
   float_m Filter( const FTSCAHitV& hit, const PndFTSCAParam& param, const float_m &mask = float_m( true ), const float_v& chi2Cut = 10e10f );
-  
+
   float_m Transport( const FTSCAHit& hit, const PndFTSCAParam& p, const float_m &mask = float_m( true ) );
   float_m Filter( const FTSCAHit& hit, const PndFTSCAParam& param, const float_m &mask = float_m( true ), const float_v& chi2Cut = 10e10f );
 
   float_m AddTarget( const FTSCATarget& t, const float_m &mask = float_m( true ) );
-  
+
  private:
 //  float_m Transport( const FTSCAHitV& hit, const L1FieldRegion& F, const PndFTSCAParam& p, const float_m &mask = float_m( true ) ); // dbg TODO delme
-  
+
   float_m TransportToX0WithMaterial( const float_v &x0, const L1FieldRegion &F, const L1MaterialInfo &material, float_v &qp0, const float_m &mask = float_m( true ) );
   float_m TransportToX0( const float_v &x0, const L1FieldRegion &F, const float_v &qp0, const float_m &mask = float_m( true ) );
   float_m RK4TransportToX0( const float_v &x0_out, const L1FieldRegion &F, const float_v &qp0, const float_m &mask = float_m(true) );
@@ -301,14 +301,14 @@ class PndFTSCATrackParamVector
   float_m PassMaterial( const L1MaterialInfo &info, const float_v &qp0, const float_m &mask = float_m( true ) );
   void    EnergyLossCorrection( const float_v& mass2, const float_v& radThick, float_v &qp0, float_v direction, const float_m &mask);
   float_v ApproximateBetheBloch( const float_v &bg2 );
-  
+
   float_m Filter( const float_v &y0, const float_v &z0, const float_v &r, const FTSCAStripInfoVector &info, float_v err2, const float_m &active, const float_v& chi2Cut = 10e10f );
 
   float_m FilterVtx( const float_v &xV, const float_v& yV, const L1XYMeasurementInfo &info, float_v& extrDx, float_v& extrDy, float_v J[], const float_m &active = float_m( true ) );
 
   float_m TransportJXY0ToX0( const float_v &x0, const L1FieldRegion &F, float_v& extrDx, float_v& extrDy, float_v &J04, float_v &J14, const float_m &active = float_m( true )  );
 
-  
+
   float_v fX,fY,fTx,fTy,fQP,fZ,
                                  fC00,
                                  fC10, fC11,
@@ -318,7 +318,7 @@ class PndFTSCATrackParamVector
 
   float_v fChi2;   // the chi^2 value
   int_v   fNDF;    // the Number of Degrees of Freedom
-  
+
   float_v fBx;
   float_v fBy;
   CAFieldValue fB[2]; // field at two previous points, which track passed
@@ -334,12 +334,12 @@ inline float_m PndFTSCATrackParamVector::TransportToX0Line( const float_v &x0_ou
 {
   float_v dz = (x0_out - fZ);
   //cout<<"dz "<<dz<<endl;
-  
+
   fX(mask) += fTx*dz;
   fY(mask) += fTy*dz;
   fZ(mask) +=    dz;
 
-  const float_v dzC32_in = dz * fC32;  
+  const float_v dzC32_in = dz * fC32;
 
   fC21(mask) += dzC32_in;
   fC10(mask) += dz * (  fC21 + fC30 );
@@ -357,11 +357,11 @@ inline float_m PndFTSCATrackParamVector::TransportToX0Line( const float_v &x0_ou
 
   fC40(mask) += dz * fC42;
   fC41(mask) += dz * fC43;
-  
+
   return mask;
 }
 
-inline float_m PndFTSCATrackParamVector::Filter( const float_v &x0, const float_v &y0, const float_v &r, const FTSCAStripInfoVector &info, float_v err2, const float_m &active, const float_v& chi2Cut )
+inline float_m PndFTSCATrackParamVector::Filter( const float_v &x0, const float_v &y0, const float_v &r, const FTSCAStripInfoVector &info, float_v err2, const float_m &active, const float_v& /*chi2Cut*/ ) //[R.K. 9/2018] unused
     // Adds the tube measurement with the Kalman filter
     // @beta is angle between the strip and z-axis, clockwise. The wire equation is: {x,y,z} - {x0,y0,z0} = t*e_s, where ort e_s = { 0, -sinB, cos B }
 {
@@ -382,13 +382,13 @@ inline float_m PndFTSCATrackParamVector::Filter( const float_v &x0, const float_
     h0[iV] = info.cos;
     h1[iV] = info.sin;
   }*/
-  
-  
+
+
   const float_v tx = h0*fTx + h1*fTy;
 
   float_v zeta;
 
-// float_v Sign_1 = float_v(0.0); 
+// float_v Sign_1 = float_v(0.0);
 
   float_v rCorrection = sqrt(1.f+tx*tx);
 
@@ -404,7 +404,7 @@ inline float_m PndFTSCATrackParamVector::Filter( const float_v &x0, const float_
     if (Diff_f> 0.f )
     {
       //zeta = h0*(fX - x0) + h1*(fY - y0) - r*rCorrection;
-      zeta[iDiff] = zeta_1[iDiff];    
+      zeta[iDiff] = zeta_1[iDiff];
     }
     else
     {
@@ -414,8 +414,8 @@ inline float_m PndFTSCATrackParamVector::Filter( const float_v &x0, const float_
   } // iDiff
 
   //const float_v zeta2 = h0*(fX - x0) + h1*(fY - y0) + r*rCorrection;
-  
-  if (err2[0] < 0.01f) err2[0] = err2[0] + r[0]*r[0]; 
+
+  if (err2[0] < 0.01f) err2[0] = err2[0] + r[0]*r[0];
   err2 *= rCorrection*rCorrection;
 
   float_v wi, zetawi, HCH;
@@ -434,8 +434,8 @@ inline float_m PndFTSCATrackParamVector::Filter( const float_v &x0, const float_
   F2 = h0*fC20 + h1*fC21;
   F3 = h0*fC30 + h1*fC31;
   F4 = h0*fC40 + h1*fC41;
-   
-  float_v dChi2(Vc::Zero);  
+
+  float_v dChi2(Vc::Zero);
 #if 0 // use mask
   cout<<"we don't have to be here for now \n";
   const float_m mask = success && (HCH > err2 * 16.f);
@@ -454,7 +454,7 @@ inline float_m PndFTSCATrackParamVector::Filter( const float_v &x0, const float_
 #endif // 0
 
   //success &= fChi2 < chi2Cut;
-  
+
   K1 = F1*wi;
   K2 = F2*wi;
   K3 = F3*wi;
@@ -465,7 +465,7 @@ inline float_m PndFTSCATrackParamVector::Filter( const float_v &x0, const float_
   fTx(success) -= F2*zetawi;
   fTy(success) -= F3*zetawi;
   fQP(success) -= F4*zetawi;
-  
+
   fC00(success) -= F0*F0*wi;
   fC10(success) -= K1*F0;
   fC11(success) -= K1*F1;
@@ -481,7 +481,7 @@ inline float_m PndFTSCATrackParamVector::Filter( const float_v &x0, const float_
   fC42(success) -= K4*F2;
   fC43(success) -= K4*F3;
   fC44(success) -= K4*F4;
-  
+
   fNDF( static_cast<int_m>(success) ) += 1;
 
   return success;
@@ -498,13 +498,13 @@ inline float_m PndFTSCATrackParamVector::TransportToX0WithMaterial( const float_
   float_v direction = -1.f;
   if(fDirection)
     direction = 1.f;
-  //std::cout << "qp " << qp0[0] << " " << " fQP " << fQP[0]<<"     "; 
+  //std::cout << "qp " << qp0[0] << " " << " fQP " << fQP[0]<<"     ";
   EnergyLossCorrection(mass2, material.RadThick, qp0, direction, active);
   //std::cout << qp0[0] << " " << fQP[0] << std::endl;
   return active;
 }
 
-inline float_m PndFTSCATrackParamVector::RK4TransportToX0( const float_v &x0_out, const L1FieldRegion &F, const float_v &qp0, const float_m &mask )
+inline float_m PndFTSCATrackParamVector::RK4TransportToX0( const float_v &x0_out, const L1FieldRegion &/*F*/, const float_v &/*qp0*/, const float_m &mask ) //[R.K. 9/2018] 2 unused
 {
     // Forth-order Runge-Kutta method for solution of the equation
   // of motion of a particle with parameter qp = Q /P
@@ -522,9 +522,9 @@ inline float_m PndFTSCATrackParamVector::RK4TransportToX0( const float_v &x0_out
   //     x=x[0], y=x[1], tx=x[3], ty=x[4].
   //
   //========================================================================
-  
+
 //   const float ZERO = 0.0, ONE = 1.;
-  
+
   //RK4ORDER
   float_v xOut[5];
   float_v Fmat[25];
@@ -535,9 +535,9 @@ inline float_m PndFTSCATrackParamVector::RK4TransportToX0( const float_v &x0_out
   coef[2] = 0.5f; coef[3] = 1.f;
 
   float_v xIn[4];
-  xIn[0] = fX; xIn[2] = fTx; 
+  xIn[0] = fX; xIn[2] = fTx;
   xIn[1] = fY; xIn[3] = fTy; xIn[4] = fQP;
-   
+
   float_v Ax[4], Ay[4];
   float_v dAx_dtx[4], dAy_dtx[4], dAx_dty[4], dAy_dty[4];
   float_v k[4][4];
@@ -549,12 +549,12 @@ inline float_m PndFTSCATrackParamVector::RK4TransportToX0( const float_v &x0_out
   float_v x0[4];
 
   float_v x[4];
-  x[0] = fX; x[2] = fTx; 
+  x[0] = fX; x[2] = fTx;
   x[1] = fY; x[3] = fTy; //x[4] = fQP;
 
   for (unsigned int iStep = 0; iStep < 4; iStep++) { // 1
      if (iStep > 0) {
-         
+
         x[0] = xIn[0] + coef[iStep] * k[0][iStep - 1];
         x[1] = xIn[1] + coef[iStep] * k[1][iStep - 1];
         x[2] = xIn[2] + coef[iStep] * k[2][iStep - 1];
@@ -614,7 +614,7 @@ inline float_m PndFTSCATrackParamVector::RK4TransportToX0( const float_v &x0_out
   xOut[2] = xIn[2] + k[2][0]/6.f + k[2][1]/3.f + k[2][2]/3.f + k[2][3]/6.f;
   xOut[3] = xIn[3] + k[3][0]/6.f + k[3][1]/3.f + k[3][2]/3.f + k[3][3]/6.f;
   xOut[4] = xIn[4];
-   
+
   fX(mask)  = xOut[0];
   fY(mask)  = xOut[1];
   fTx(mask) = xOut[2];
@@ -656,12 +656,12 @@ inline float_m PndFTSCATrackParamVector::RK4TransportToX0( const float_v &x0_out
       k[3][iStep] = (dAy_dtx[iStep] * x[2] + dAy_dty[iStep] * x[3]) * hCqp;
    } // 2
 
-   
+
   Fmat[2] = x0[0] + k[0][0]/6.f + k[0][1]/3.f + k[0][2]/3.f + k[0][3]/6.f;
-   
+
   Fmat[7] = x0[1] + k[1][0]/6.f + k[1][1]/3.f + k[1][2]/3.f + k[1][3]/6.f;
   Fmat[12] = 1.f;
-   
+
   Fmat[17] = x0[3] + k[3][0]/6.f + k[3][1]/3.f + k[3][2]/3.f + k[3][3]/6.f;
   Fmat[22] = 0.f;
   // end of derivatives dx/dtx
@@ -685,7 +685,7 @@ inline float_m PndFTSCATrackParamVector::RK4TransportToX0( const float_v &x0_out
    }  // 4
 
   Fmat[3] = x0[0] + k[0][0]/6.f + k[0][1]/3.f + k[0][2]/3.f + k[0][3]/6.f;
-  
+
   Fmat[8] = x0[1] + k[1][0]/6.f + k[1][1]/3.f + k[1][2]/3.f + k[1][3]/6.f;
 
   Fmat[13] = x0[2] + k[2][0]/6.f + k[2][1]/3.f + k[2][2]/3.f + k[2][3]/6.f;
@@ -714,18 +714,18 @@ inline float_m PndFTSCATrackParamVector::RK4TransportToX0( const float_v &x0_out
                     hCqp * (dAy_dtx[iStep] * x[2] + dAy_dty[iStep] * x[3]);
    }  // 4
 
- 
+
   Fmat[4] = x0[0] + k[0][0]/6.f + k[0][1]/3.f + k[0][2]/3.f + k[0][3]/6.f;
- 
+
   Fmat[9] = x0[1] + k[1][0]/6.f + k[1][1]/3.f + k[1][2]/3.f + k[1][3]/6.f;
- 
+
   Fmat[14] = x0[2] + k[2][0]/6.f + k[2][1]/3.f + k[2][2]/3.f + k[2][3]/6.f;
- 
+
   Fmat[19] = x[3] + k[3][0]/6.f + k[3][1]/3.f + k[3][2]/3.f + k[3][3]/6.f;
   Fmat[24] = 1.f;
   // end of derivatives dx/dqp
 
-   
+
   // end calculation of the derivatives
   // F*C*Ft
   float_v A = fC20 + Fmat[2] * fC22 + Fmat[3] * fC32 + Fmat[4] * fC42;
@@ -771,25 +771,25 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
   //cout<<"Extrapolation..."<<endl;
   //
   //  Part of the analytic extrapolation formula with error (c_light*B*dz)^4/4!
-  //  
+  //
   /*cout<<"before extrp fX fY fTx fTy fQP "<<fX[0]<<" "<<fY[0]<<" "<<fTx[0]<<" "<<fTy[0]<<" "<<fQP[0] << "   z " << fZ[0] <<endl;
   cout<<"transport to x0 "<<x0_out[0]<<endl;*/
   const float_v c_light = 0.000299792458f;
 //   std::cout <<"Extrapolate 0 " <<std::endl;
 //   std::cout << "fX " << fX << "   fY " << fY << "   fZ " << fZ << std::endl;
 //   std::cout << "fTx " << fTx << "   fTy " << fTy << "   Qp " << fQP << std::endl;
-  
-  const float_v   
+
+  const float_v
     c1 = 1.f, c2 = 2.f, c3 = 3.f, c4 = 4.f, c6 = 6.f, c9 = 9.f, c15 = 15.f, c18 = 18.f, c45 = 45.f,
     c2i = 1.f/2.f, c3i = 1.f/3.f, c6i = 1.f/6.f, c12i = 1.f/12.f;
 
-  float_v dz(Vc::Zero); 
+  float_v dz(Vc::Zero);
   dz(mask) = (x0_out - fZ);
   //const float_v dz = (x0_out - fZ);
   const float_v dz2 = dz*dz;
   const float_v dz3 = dz2*dz;
   // construct coefficients
-  
+
   const float_v x = fTx;
   const float_v y = fTy;
   const float_v xx = x*x;
@@ -803,14 +803,14 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
 
   const float_v Ay = -xx-c1;
   const float_v Ayy = x*(xx*c3+c3);
-  const float_v Ayz = -c2*xy; 
+  const float_v Ayz = -c2*xy;
   const float_v Ayyy = -(c15*xx*xx+c18*xx+c3);
 
   const float_v Ayy_fX = c3*xx31;
   const float_v Ayyy_fX = -x4*xx159;
 
-  const float_v bx = yy+c1; 
-  const float_v Byy = y*xx31; 
+  const float_v bx = yy+c1;
+  const float_v Byy = y*xx31;
   const float_v Byz = c2*xx+c1;
   const float_v Byyy = -xy*xx159;
 
@@ -825,7 +825,7 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
   const float_v h    = qp0*c_light;
   const float_v ht   = h*t;
 
-  
+
   // get field integrals
   const float_v ddz = fZ-F.z0;
   float_v Fx0 = F.cx0 + F.cx1*ddz + F.cx2*ddz*ddz;
@@ -837,7 +837,7 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
   float_v Fz0 = F.cz0 + F.cz1*ddz + F.cz2*ddz*ddz;
   float_v Fz1 = (F.cz1 + c2*F.cz2*ddz)*dz;
   float_v Fz2 = F.cz2*dz2;
-  
+
   const float_v sx = ( Fx0 + Fx1*c2i + Fx2*c3i  );
   const float_v sy = ( Fy0 + Fy1*c2i + Fy2*c3i );
   const float_v sz = ( Fz0 + Fz1*c2i + Fz2*c3i );
@@ -845,55 +845,55 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
   const float_v Sx = ( Fx0*c2i + Fx1*c6i + Fx2*c12i );
   const float_v Sy = ( Fy0*c2i + Fy1*c6i + Fy2*c12i );
   const float_v Sz = ( Fz0*c2i + Fz1*c6i + Fz2*c12i );
-  
+
   float_v syz;
-  { 
-    const float_v 
-      d = 1.f/360.f, 
+  {
+    const float_v
+      d = 1.f/360.f,
       c00 = 30.f*6.f*d, c01 = 30.f*2.f*d,   c02 = 30.f*d,
-      c10 = 3.f*40.f*d, c11 = 3.f*15.f*d,   c12 = 3.f*8.f*d, 
+      c10 = 3.f*40.f*d, c11 = 3.f*15.f*d,   c12 = 3.f*8.f*d,
       c20 = 2.f*45.f*d, c21 = 2.f*2.f*9.f*d, c22 = 2.f*2.f*5.f*d;
-    syz = Fy0*( c00*Fz0 + c01*Fz1 + c02*Fz2) 
-      +   Fy1*( c10*Fz0 + c11*Fz1 + c12*Fz2) 
+    syz = Fy0*( c00*Fz0 + c01*Fz1 + c02*Fz2)
+      +   Fy1*( c10*Fz0 + c11*Fz1 + c12*Fz2)
       +   Fy2*( c20*Fz0 + c21*Fz1 + c22*Fz2) ;
   }
 
   float_v Syz;
   {
-    const float_v 
-      d = 1.f/2520.f, 
+    const float_v
+      d = 1.f/2520.f,
       c00 = 21.f*20.f*d, c01 = 21.f*5.f*d, c02 = 21.f*2.f*d,
-      c10 =  7.f*30.f*d, c11 =  7.f*9.f*d, c12 =  7.f*4.f*d, 
+      c10 =  7.f*30.f*d, c11 =  7.f*9.f*d, c12 =  7.f*4.f*d,
       c20 =  2.f*63.f*d, c21 = 2.f*21.f*d, c22 = 2.f*10.f*d;
-    Syz = Fy0*( c00*Fz0 + c01*Fz1 + c02*Fz2 ) 
-      +   Fy1*( c10*Fz0 + c11*Fz1 + c12*Fz2 ) 
+    Syz = Fy0*( c00*Fz0 + c01*Fz1 + c02*Fz2 )
+      +   Fy1*( c10*Fz0 + c11*Fz1 + c12*Fz2 )
       +   Fy2*( c20*Fz0 + c21*Fz1 + c22*Fz2 ) ;
   }
 
   const float_v syy  = sy*sy*c2i;
   const float_v syyy = syy*sy*c3i;
 
-  float_v Syy ;   
+  float_v Syy ;
   {
-    const float_v  
+    const float_v
     d= 1.f/2520.f, c00= 420.f*d, c01= 21.f*15.f*d, c02= 21.f*8.f*d,
     c03= 63.f*d, c04= 70.f*d, c05= 20.f*d;
     Syy =  Fy0*(c00*Fy0+c01*Fy1+c02*Fy2) + Fy1*(c03*Fy1+c04*Fy2) + c05*Fy2*Fy2 ;
   }
-  
+
   float_v Syyy;
   {
-    const float_v 
-      d = 1.f/181440.f, 
-      c000 =   7560*d, c001 = 9*1008*d, c002 = 5*1008*d, 
-      c011 = 21*180*d, c012 = 24*180*d, c022 =  7*180*d, 
+    const float_v
+      d = 1.f/181440.f,
+      c000 =   7560*d, c001 = 9*1008*d, c002 = 5*1008*d,
+      c011 = 21*180*d, c012 = 24*180*d, c022 =  7*180*d,
       c111 =    540*d, c112 =    945*d, c122 =    560*d, c222 = 112*d;
     const float_v Fy22 = Fy2*Fy2;
     Syyy = Fy0*( Fy0*(c000*Fy0+c001*Fy1+c002*Fy2)+ Fy1*(c011*Fy1+c012*Fy2)+c022*Fy22 )
       +    Fy1*( Fy1*(c111*Fy1+c112*Fy2)+c122*Fy22) + c222*Fy22*Fy2                  ;
   }
-  
-  
+
+
   const float_v sA1   = sx*xy   + sy*Ay   + sz*y ;
   const float_v sA1_fX = sx*y - sy*x2 ;
   const float_v sA1_fY = sx*x + sz ;
@@ -917,7 +917,7 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
   const float_v sB2   = syy*Byy   + syz*Byz  ;
   const float_v sB2_fX = syy*Byy_fX + syz*x4 ;
   const float_v sB2_fY = syy*xx31 ;
-  
+
   const float_v SA2   = Syy*Ayy   + Syz*Ayz ;
   const float_v SA2_fX = Syy*Ayy_fX - Syz*y2 ;
   const float_v SA2_fY = -Syz*x2 ;
@@ -931,7 +931,7 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
   const float_v sB3_fX = syyy*Byyy_fX;
   const float_v sB3_fY = syyy*Byyy_fY;
 
- 
+
   const float_v SA3   = Syyy*Ayyy  ;
   const float_v SA3_fX = Syyy*Ayyy_fX;
   const float_v SB3   = Syyy*Byyy  ;
@@ -950,7 +950,7 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
   const float_v ht2sB2 = ht2*sB2;
   const float_v ht2SB2 = ht2*SB2;
   const float_v ht3sA3 = ht3*sA3;
-  const float_v ht3sB3 = ht3*sB3; 
+  const float_v ht3sB3 = ht3*sB3;
   const float_v ht3SA3 = ht3*SA3;
   const float_v ht3SB3 = ht3*SB3;
 
@@ -963,7 +963,7 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
 //   std::cout <<"Extrapolate 1 " <<std::endl;
 //   std::cout << "fX " << fX << "   fY " << fY << "   fZ " << fZ << std::endl;
 //   std::cout << "fTx " << fTx << "   fTy " << fTy << "   Qp " << fQP << std::endl;
-  
+
   const float_v ctdz  = c_light*t*dz;
   const float_v ctdz2 = c_light*t*dz2;
 
@@ -980,36 +980,36 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
   const float_v j12 = dz*(     xt2i*tmp1 + ht1*SB1_fX + ht2*SB2_fX + ht3*SB3_fX);
   const float_v j22 =     c1 + xt2i*tmp2 + ht1*sA1_fX + ht2*sA2_fX + ht3*sA3_fX ;
   const float_v j32 =          xt2i*tmp3 + ht1*sB1_fX + ht2*sB2_fX + ht3*sB3_fX ;
-    
+
   const float_v j03 = dz*(     yt2i*tmp0 + ht1*SA1_fY + ht2*SA2_fY );
   const float_v j13 = dz*(c1 + yt2i*tmp1 + ht1*SB1_fY + ht2*SB2_fY + ht3*SB3_fY );
   const float_v j23 =          yt2i*tmp2 + ht1*sA1_fY + ht2*sA2_fY  ;
   const float_v j33 =     c1 + yt2i*tmp3 + ht1*sB1_fY + ht2*sB2_fY + ht3*sB3_fY ;
-    
+
   const float_v j04 = ctdz2*( SA1 + c2*ht1*SA2 + c3*ht2*SA3 );
   const float_v j14 = ctdz2*( SB1 + c2*ht1*SB2 + c3*ht2*SB3 );
   const float_v j24 = ctdz *( sA1 + c2*ht1*sA2 + c3*ht2*sA3 );
   const float_v j34 = ctdz *( sB1 + c2*ht1*sB2 + c3*ht2*sB3 );
-  
+
 
   // extrapolate inverse momentum
   fX (mask)+=j04*dqp;
   fY (mask)+=j14*dqp;
   fTx(mask)+=j24*dqp;
   fTy(mask)+=j34*dqp;
-  
+
 //   std::cout <<"Extrapolate 2 " <<std::endl;
 //   std::cout << "fX " << fX << "   fY " << fY << "   fZ " << fZ << std::endl;
 //   std::cout << "fTx " << fTx << "   fTy " << fTy << "   Qp " << fQP << std::endl;
- //          covariance matrix transport 
- 
+ //          covariance matrix transport
+
   const float_v c42 = fC42, c43 = fC43;
 
   const float_v cj00 = fC00 + fC20*j02 + fC30*j03 + fC40*j04;
 //  const float_v cj10 = fC10 + fC21*j02 + fC31*j03 + fC41*j04;
   const float_v cj20 = fC20 + fC22*j02 + fC32*j03 + c42*j04;
   const float_v cj30 = fC30 + fC32*j02 + fC33*j03 + c43*j04;
- 
+
   const float_v cj01 = fC10 + fC20*j12 + fC30*j13 + fC40*j14;
   const float_v cj11 = fC11 + fC21*j12 + fC31*j13 + fC41*j14;
   const float_v cj21 = fC21 + fC22*j12 + fC32*j13 + c42*j14;
@@ -1024,7 +1024,7 @@ inline float_m PndFTSCATrackParamVector::TransportToX0( const float_v &x0_out, c
 //  const float_v cj13 = fC21*j32 + fC31*j33 + fC41*j34;
   const float_v cj23 = fC22*j32 + fC32*j33 + c42*j34;
   const float_v cj33 = fC32*j32 + fC33*j33 + c43*j34;
-  
+
   fC40(mask)+= (c42*j02 + c43*j03 + fC44*j04); // cj40
   fC41(mask)+= (c42*j12 + c43*j13 + fC44*j14); // cj41
   fC42(mask) = (c42*j22 + c43*j23 + fC44*j24); // cj42
@@ -1058,17 +1058,17 @@ inline float_m PndFTSCATrackParamVector::PassMaterial( const L1MaterialInfo &inf
   float_v t = sqrt(txtx1 + tyty);
   float_v h2 = h*h;
   float_v qp0t = qp0*t;
-  
+
   const float_v c1=0.0136f, c2=c1*0.038f, c3=c2*0.5f, c4=-c3/2.0f, c5=c3/3.0f, c6=-c3/4.0f;
-    
-  float_v s0 = (c1+c2*info.logRadThick + c3*h + h2*(c4 + c5*h +c6*h2) )*qp0t;    
+
+  float_v s0 = (c1+c2*info.logRadThick + c3*h + h2*(c4 + c5*h +c6*h2) )*qp0t;
   float_v a = ( (t+mass2*qp0*qp0t)*info.RadThick*s0*s0 );
   //std::cout<<"info.RadThick info.logRadThick "<<info.RadThick<<" "<<info.logRadThick<<std::endl;
 // std::cout <<" a " << a << std::endl;
 //  a=0.000005;
   fC22(mask) += txtx1*a;
   fC32(mask) += fTx*fTy*a; fC33(mask) += (1.f + tyty)*a;
-  
+
   return mask;
 }
 
@@ -1126,7 +1126,7 @@ inline void PndFTSCATrackParamVector::EnergyLossCorrection( const float_v& mass2
   const float_v& bethe = ApproximateBetheBloch( p2/mass2 );
 
   float_v tr = sqrt(1.f + fTx*fTx + fTy*fTy) ;
-  
+
   const float_v& dE = bethe * radThick*tr * 2.33f * 9.34961f;
 
   const float_v& E2Corrected = (sqrt(E2) + direction*dE) * (sqrt(E2) + direction*dE);
@@ -1154,9 +1154,9 @@ inline float_m PndFTSCATrackParamVector::FilterVtx( const float_v &xV, const flo
 
     // H = 1 0 J[0] J[1] J[2]
     //     0 1 J[3] J[4] J[5]
-  
+
   // F = CH'
-  F00 = fC00;       F01 = fC10;    
+  F00 = fC00;       F01 = fC10;
   F10 = fC10;       F11 = fC11;
   F20 = J[0]*fC22;  F21 = J[3]*fC22;
   F30 = J[1]*fC33;  F31 = J[4]*fC33;
@@ -1219,14 +1219,14 @@ inline float_m PndFTSCATrackParamVector::TransportJXY0ToX0( const float_v &x0, c
   float_v xy  = fTx*fTy;
 
   float_v Ay = -xx-c1;
-  float_v bx = yy+c1; 
+  float_v bx = yy+c1;
 
   float_v ctdz2 = c_light*sqrt( c1 + xx + yy )*dz2;
 
   float_v Sx = F.cx0*c2i + F.cx1*dzc6i + F.cx2*dz2c12i ;
   float_v Sy = F.cy0*c2i + F.cy1*dzc6i + F.cy2*dz2c12i ;
   float_v Sz = F.cz0*c2i + F.cz1*dzc6i + F.cz2*dz2c12i ;
-    
+
   extrDx(active) = ( fTx )*dz ;
   extrDy(active) = ( fTy )*dz ;
   J04(active) = ctdz2 * (Sx*xy   + Sy*Ay   + Sz*fTy);
@@ -1245,8 +1245,8 @@ inline float_m PndFTSCATrackParamVector::TransportJXY0ToX0( const float_v &x0, c
 
 class PndFTSCATrackLinearisationVector;
 class PndFTSCAParam;
-class FTSCAHit; 
-class FTSCAHitV; 
+class FTSCAHit;
+class FTSCAHitV;
 class FTSCATarget;
 
 
@@ -1282,10 +1282,10 @@ class PndFTSCATrackParamVector
     }
 
   void ConvertTrackParamToVector( PndFTSCATrackParam t0[float_v::Size], int nTracksV );
-  
+
   void InitCovMatrix( float_v d2QMom = 0.f );
-  void InitByTarget( const FTSCATarget& target ); 
-  void InitByHit( const FTSCAHitV& hit, const PndFTSCAParam& param, const float_v& dQMom ); 
+  void InitByTarget( const FTSCATarget& target );
+  void InitByHit( const FTSCAHitV& hit, const PndFTSCAParam& param, const float_v& dQMom );
 
   void InitDirection( float_v r0, float_v r1, float_v r2 ) // initialize direction parameters according to a given tangent vector
     {
@@ -1294,7 +1294,7 @@ class PndFTSCATrackParamVector
       SetSignCosPhi( r0/abs(r0) );
       SetDzDs( r2/r );
     }
-  
+
     struct PndFTSCATrackFitParam {
       float_v fBethe;
       float_v fE;
@@ -1322,7 +1322,7 @@ class PndFTSCATrackParamVector
   float_v Tx1()     const { return SinPhi()/(SignCosPhi()*sqrt( 1 - SinPhi()*SinPhi() )); } // CHECKME
   float_v Tx2()     const { return DzDs()/(SignCosPhi()*sqrt( 1 - SinPhi()*SinPhi() )); } // dx2/dx0 = dz/dx
   float_v QMomentum()    const { return QPt(); } // used for triplets comparison
-  
+
     /**
      * The sign of cos phi is always positive in the slice tracker. Only after coordinate
      * transformation can the sign change to negative.
@@ -1359,7 +1359,7 @@ class PndFTSCATrackParamVector
 
   const float_v& Par( int i ) const { return fP[i]; }
   const float_v& Cov( int i ) const { return fC[i]; }
-  
+
  private:
   friend class PndFTSCATrackParam;
   const float_v *Par() const { return fP; }
@@ -1367,7 +1367,7 @@ class PndFTSCATrackParamVector
   float_v *Par()  { return fP; }
   float_v *Cov()  { return fC; }
  public:
-  
+
   void SetTrackParam(const PndFTSCATrackParamVector &param, const float_m &m = float_m( true )  )
   {
     for(int i=0; i<5; i++) fP[i](m) = param.Par()[i];
@@ -1378,7 +1378,7 @@ class PndFTSCATrackParamVector
     fNDF(static_cast<int_m>(m)) = param.GetNDF();
     fAlpha(static_cast<int_m>(m)) = param.Angle();
   }
-  
+
   void SetTrackParamOne(int iV, const PndFTSCATrackParamVector &param, int iVa  )
   {
     for(int i=0; i<5; i++) fP[i][iV] = param.Par()[i][iVa];
@@ -1415,14 +1415,14 @@ class PndFTSCATrackParamVector
     void SetNDF( int v )   { fNDF = v; }
     void SetNDF( const int_v &v )   { fNDF = v; }
     void SetNDF( const int_v &v, const int_m &m )   { fNDF(m) = v; }
-  
+
     void SetAngle( const float_v &v )  {  fAlpha = v; }
     void SetAngle( const float_v &v, const float_m &m )  {  fAlpha(m) = v; }
 
     void SetErr2Y( float_v v ) { fC[0] = v; }
     void SetErr2Z( float_v v ) { fC[2] = v; }
     void SetErr2QPt( float_v v ) { fC[14] = v; }
-  
+
     float_v GetDist2( const PndFTSCATrackParamVector &t ) const;
     float_v GetDistXZ2( const PndFTSCATrackParamVector &t ) const;
 
@@ -1445,7 +1445,7 @@ const float_v &XThimesRho, const float_v &Bz, const float maxSinPhi = .999f );
         const float_v &Bz, const float_v maxSinPhi = .999f, const float_m &mask = float_m( true ) );
 
     float_m  TransportToX0WithMaterial( const float_v &x,  PndFTSCATrackLinearisationVector &t0,
-        PndFTSCATrackFitParam &par, const float_v &XOverX0, 
+        PndFTSCATrackFitParam &par, const float_v &XOverX0,
         const float_v &XThimesRho,
         const float_v &Bz, const float maxSinPhi = .999f, const float_m &mask = float_m( true ) );
 
@@ -1453,19 +1453,19 @@ const float_v &XThimesRho, const float_v &Bz, const float maxSinPhi = .999f );
         PndFTSCATrackFitParam &par, const float_v &XOverX0,
 const float_v &XThimesRho, const float_v &Bz, const float maxSinPhi = .999f );
 
-    float_m Rotate( const float_v &alpha, PndFTSCATrackLinearisationVector &t0, 
+    float_m Rotate( const float_v &alpha, PndFTSCATrackLinearisationVector &t0,
                      const float maxSinPhi = .999f, const float_m &mask = float_m( true ) );
     float_m Rotate( const float_v &alpha, const float maxSinPhi = .999f, const float_m &mask = float_m( true ) );
     void RotateXY( float_v alpha, float_v &x, float_v &y, float_v &sin, const float_m &mask = float_m( true ) ) const ;
 
-    float_m FilterWithMaterial( const float_v &y, const float_v &z, float_v err2Y, float_v errYZ, float_v err2Z, 
+    float_m FilterWithMaterial( const float_v &y, const float_v &z, float_v err2Y, float_v errYZ, float_v err2Z,
                                  float maxSinPhi=0.999f, const float_m &mask = float_m( true ), const int_v& hitNDF = int_v(2) ,const float_v& chi2Cut = 10e10f ); // filters 2-D measurement
 
     float_m FilterWithMaterial( const float_v &y, const float_v &z, const FTSCAStripInfo &info, float_v err2,
                                  float maxSinPhi=0.999f, const float_m &mask = float_m( true ), const float_v& chi2Cut = 10e10f ); // filters 1-D measurement
     float_m FilterWithMaterial( const float_v &y, const float_v &z, const float_v &r, const FTSCAStripInfo &info, float_v err2,
                                  float maxSinPhi=0.999f, const float_m &mask = float_m( true ), const float_v& chi2Cut = 10e10f ); // filters tube measurement
-  
+
     static float_v ApproximateBetheBloch( const float_v &beta2 );
     static float_v BetheBlochGeant( const float_v &bg,
                                            const float_v &kp0 = 2.33f,
@@ -1495,12 +1495,12 @@ const float_v &XThimesRho, const float_v &Bz, const float maxSinPhi = .999f );
   float_m Transport( const int_v& ista, const PndFTSCAParam& param, const float_m &mask = float_m( true )  );
   float_m Transport( const FTSCAHitV& hit, const PndFTSCAParam& p, const float_m &mask = float_m( true ) );
   float_m Filter( const FTSCAHitV& hit, const PndFTSCAParam& param, const float_m &mask = float_m( true ), const float_v& chi2Cut = 10e10f );
-  
+
   float_m Transport( const FTSCAHit& hit, const PndFTSCAParam& p, const float_m &mask = float_m( true ) );
   float_m Filter( const FTSCAHit& hit, const PndFTSCAParam& param, const float_m &mask = float_m( true ), const float_v& chi2Cut = 10e10f );
 
   float_m AddTarget( const FTSCATarget& target, const float_m &mask = float_m( true ) );
-  
+
   private:
 
     float_v fX;      // x position
@@ -1856,7 +1856,7 @@ inline float_m PndFTSCATrackParamVector::Rotate( const float_v &alpha, const flo
 {
   //* Rotate the coordinate system in XY on the angle alpha
   if ( (abs(alpha) < 1e-6f || !mask).isFull() ) return mask;
-  
+
   const float_v cA = CAMath::Cos( alpha );
   const float_v sA = CAMath::Sin( alpha );
   const float_v x = X(), y = Y(), sP = SinPhi(), cP = GetCosPhi();
@@ -1866,7 +1866,7 @@ inline float_m PndFTSCATrackParamVector::Rotate( const float_v &alpha, const flo
   float_m mReturn = mask && (CAMath::Abs( sinPhi ) < maxSinPhi) && (CAMath::Abs( cosPhi ) > 1.e-2f) && (CAMath::Abs( cP ) > 1.e-2f);
 
   mReturn &= abs(alpha) < 3.1415f * 0.25f; // allow turn by 45 degree only
-  
+
   const float_v j0 = cP / cosPhi;
   const float_v j2 = cosPhi / cP;
 
@@ -1904,7 +1904,7 @@ inline void PndFTSCATrackParamVector::RotateXY( float_v alpha, float_v &x, float
 {
   //* Rotate the coordinate system in XY on the angle alpha
   if ( (abs(alpha) < 1e-6f || !mask).isFull() ) return;
-  
+
   const float_v cA = CAMath::Cos( alpha );
   const float_v sA = CAMath::Sin( alpha );
 
@@ -1934,15 +1934,15 @@ inline float_m PndFTSCATrackParamVector::FilterVtx( const float_v &yV, const flo
   float_v& c42 = fC[12];
   float_v& c43 = fC[13];
   float_v& c44 = fC[14];
-  
+
   zeta0 = Y() + extrDy - yV;
   zeta1 = Z() + extrDz - zV;
 
     // H = 1 0 J[0] J[1] J[2]
     //     0 1 J[3] J[4] J[5]
-  
+
   // F = CH'
-  F00 = c00;       F01 = c10;    
+  F00 = c00;       F01 = c10;
   F10 = c10;       F11 = c11;
   F20 = J[0]*c22;  F21 = J[3]*c22;
   F30 = J[1]*c33;  F31 = J[4]*c33;
@@ -1987,7 +1987,7 @@ inline float_m PndFTSCATrackParamVector::FilterVtx( const float_v &yV, const flo
   c42(active)  = -( K40*F20 + K41*F21 );
   c43(active)  = -( K40*F30 + K41*F31 );
   c44(active) -=  ( K40*F40 + K41*F41 );
-  
+
   return active;
 }
 

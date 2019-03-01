@@ -19,6 +19,7 @@ PndPidEmcBayesAssociatorTask::~PndPidEmcBayesAssociatorTask() {
 PndPidEmcBayesAssociatorTask::PndPidEmcBayesAssociatorTask() {
   //---
   fPidChargedProb = new TClonesArray("PndPidProbability");
+  fTrackBranchNamePidHypo="";
 }
 
 //___________________________________________________________
@@ -26,6 +27,7 @@ PndPidEmcBayesAssociatorTask::PndPidEmcBayesAssociatorTask(const char *name, con
 {
   //---
   fPidChargedProb = new TClonesArray("PndPidProbability");
+  fTrackBranchNamePidHypo="";
   SetTitle(title);
 }
 
@@ -36,7 +38,7 @@ InitStatus PndPidEmcBayesAssociatorTask::Init() {
   
   FairRootManager *fManager =FairRootManager::Instance();        
 
-  fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand");
+  fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand"+fTrackBranchNamePidHypo);
   if ( ! fPidChargedCand) {
     std::cout << "-I- PndPidEmcBayesAssociatorTask::Init: No PndPidCandidate array PidChargedCand there!" << std::endl;
     return kERROR;
@@ -288,7 +290,7 @@ void PndPidEmcBayesAssociatorTask::GetPdf(Double_t ppin, Double_t thin, Double_t
 void PndPidEmcBayesAssociatorTask::Register() {
   //---
   FairRootManager::Instance()->
-    Register("PidAlgoEmcBayes","Pid", fPidChargedProb, kTRUE); 
+    Register("PidAlgoEmcBayes"+fTrackBranchNamePidHypo,"Pid", fPidChargedProb, kTRUE);
 }
 
 //_________________________________________________________________

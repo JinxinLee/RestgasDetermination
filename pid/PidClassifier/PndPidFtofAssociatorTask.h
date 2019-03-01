@@ -15,6 +15,7 @@ class PndPidFtofAssociatorTask : public FairTask {
   TClonesArray* fPidChargedCand;    //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidChargedProb;    //! PndPidProbability TCA for charged particles
 
+  TString fTrackBranchNamePidHypo;
 
   void DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob);
 
@@ -37,6 +38,8 @@ class PndPidFtofAssociatorTask : public FairTask {
   /** Get parameter containers **/
   virtual void SetParContainers();
   virtual void Finish();
+
+  void SetOutputBranch(TString branch)    { fTrackBranchNamePidHypo = branch; };
 
  private:
 

@@ -18,7 +18,7 @@ PndSmpCand::PndSmpCand(TLorentzVector lv, Float_t chrg, Int_t pdg, Int_t uid) :
 	fLV(lv), fCharge(chrg), fPdgCode(pdg), fUniqueID(uid), fMarker(0), fNDau(0)
 {
 	for (int i=0;i<5;++i) fDaughter[i] = 0;
-	if (uid>0) fMarker = 1<<fUniqueID;
+	if (uid>=0) fMarker = 1<<fUniqueID;
 }
 
 // -------------------------------------------------------------------------
@@ -27,7 +27,7 @@ PndSmpCand::PndSmpCand(TLorentzVector *lv, Float_t chrg, Int_t pdg, Int_t uid) :
 	fLV(*lv), fCharge(chrg), fPdgCode(pdg), fUniqueID(uid), fMarker(0), fNDau(0)
 {
 	for (int i=0;i<5;++i) fDaughter[i] = 0;
-	if (uid>0) fMarker = 1<<fUniqueID;
+	if (uid>=0) fMarker = 1<<fUniqueID;
 }
 
 // -------------------------------------------------------------------------

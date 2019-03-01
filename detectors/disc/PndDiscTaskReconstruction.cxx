@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 // Author:      Mustafa Schmidt (Mustafa.A.Schmidt@physik.uni-giessen.de)
-// Changes:     
+// Changes:
 // Date:        30.11.2015
 // Description: Track Reconstruction
 //-------------------------------------------------------------------------
@@ -425,7 +425,7 @@ PndDiscTaskReconstruction::~PndDiscTaskReconstruction()
 
 InitStatus PndDiscTaskReconstruction::ReInit()
 {
-    fLogger->Info(MESSAGE_ORIGIN, "DiscDircTaskReconstruction::ReInit()");
+    LOG(INFO) << "DiscDircTaskReconstruction::ReInit()";
     return kSUCCESS;
 }
 
@@ -434,13 +434,13 @@ InitStatus PndDiscTaskReconstruction::ReInit()
 
 InitStatus PndDiscTaskReconstruction::Init()
 {
-    fLogger->Info(MESSAGE_ORIGIN, "PndDiscTaskReconstruction::Init()");
-    
+    LOG(INFO) << "PndDiscTaskReconstruction::Init()";
+
     // Get IO manager instance:
     FairRootManager* io_manager = FairRootManager::Instance();
     if(!io_manager)
     {
-        fLogger->Fatal(MESSAGE_ORIGIN, "FairRootManager instance is NULL !!!");
+        LOG(FATAL) << "FairRootManager instance is NULL !!!";
         return kFATAL;
     }
 
@@ -448,14 +448,14 @@ InitStatus PndDiscTaskReconstruction::Init()
     tclarr_digits = (TClonesArray*) io_manager->GetObject(branch_name_digits);
     if(!tclarr_digits)
     {
-        fLogger->Error(MESSAGE_ORIGIN, "Branch %s is not accessible through FairRootManager.", branch_name_digits.Data());
+        LOG(ERROR) << "Branch " << branch_name_digits.Data() << " is not accessible through FairRootManager.";
         return kERROR;
     }
 
     tclarr_particles = (TClonesArray*) io_manager->GetObject("DiscMCTruthTracks");
     if(!tclarr_particles)
     {
-        fLogger->Error(MESSAGE_ORIGIN, "No DiscDIRC_ParticleMCPoint collection registered with FairRootManager");
+        LOG(ERROR) << "No DiscDIRC_ParticleMCPoint collection registered with FairRootManager";
         return kFATAL;
     }
 
@@ -524,9 +524,9 @@ void PndDiscTaskReconstruction::Exec(Option_t*)
         p.push_back(sqrt(px[i]*px[i]+py[i]*py[i]+pz[i]*pz[i]));
 
         t.push_back(particle_mc_point->GetTime());
-        
+
         theta.push_back(acos(pz[i]/sqrt(px[i]*px[i]+py[i]*py[i]+pz[i]*pz[i])));
-        
+
         std::cout << "Primary particles:" << std::endl;
         std::cout << "Particle pos: x = "<< x0[i] << std::endl;
         std::cout << "Particle pos: y = "<< y0[i] << std::endl;
@@ -538,7 +538,7 @@ void PndDiscTaskReconstruction::Exec(Option_t*)
         std::cout << "Particle angle: theta[deg] = " << theta[i]*180/TMath::Pi() << std::endl;
         std::cout << std::endl;
     }
-   
+
     //-------------------------------------------------------------------------
     // Caculating theoretical hit pattern for pion, kaon, proton
     //-------------------------------------------------------------------------
@@ -579,7 +579,7 @@ void PndDiscTaskReconstruction::Exec(Option_t*)
                 double delta = sin(theta[i])*cos(phirel);
                 double lambda = delta*delta+cos(theta[i])*cos(theta[i]);
                 double varphi = acos(delta*cos(cherenkov)/lambda+sqrt((cos(theta[i])*cos(theta[i])-cos(cherenkov)*cos(cherenkov))/lambda+(delta*cos(cherenkov)/lambda)*(delta*cos(cherenkov)/lambda)));
-                double varphidash = atan(tan(varphi)/cos(alpha));   
+                double varphidash = atan(tan(varphi)/cos(alpha));
 
                 int pixel = (TMath::Pi()/2 - varphidash-0.8530931655)/0.0035321867;
 
@@ -634,13 +634,13 @@ void PndDiscTaskReconstruction::Exec(Option_t*)
         particles_out = new((*tclarr_particles_out)[tclarr_particles_out->GetEntriesFast()]) PndDiscParticleMCPoint(*particles_out);
     }
 
-    
+
 
    //Reading out hit information and calculating Cherenkov angle
     for(int i = 0; i < entries; i++)
     {
         PndDiscDigitizedHit* sensor_mc_point =  (PndDiscDigitizedHit*)tclarr_digits->At(i);
-  
+
         int detector_id = sensor_mc_point->GetDetectorID();
         int sensor_id = 27*detector_id + sensor_mc_point->GetReadoutID(); //Sensor ID of hit
         int pixel = sensor_mc_point->GetPixelNumber(); // Pixel number of hit
@@ -649,7 +649,7 @@ void PndDiscTaskReconstruction::Exec(Option_t*)
 
         //Difference vector between particle and sensor element
         //double dx = pos_fel_x[sensor_id] - x0[0];
-        //double dy = pos_fel_y[sensor_id] - y0[0]; 
+        //double dy = pos_fel_y[sensor_id] - y0[0];
 
         //double angle = 0; //[R.K. 01/2017] unused variable
 
@@ -678,7 +678,7 @@ void PndDiscTaskReconstruction::Exec(Option_t*)
         std::cout << std::endl;
     }
 
-   
+
     std::cout << "DiscDIRC_TaskReconstruction::Exec\n";
 }
 

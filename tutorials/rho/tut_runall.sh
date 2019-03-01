@@ -1,6 +1,6 @@
 #!/bin/bash
 
-nev=100
+nev=10
 prefix="signal"
 input="pp_jpsi2pi_jpsi_mumu.dec"
 pbeam=6.231552

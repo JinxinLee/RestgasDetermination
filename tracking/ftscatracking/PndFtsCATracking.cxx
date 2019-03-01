@@ -66,11 +66,11 @@ PndFtsCATracking::PndFtsCATracking(const char* name, Int_t iVerbose ):
   PndPersistencyTask(name, iVerbose), fMCTracks(0), fTracks(0), fDoPerformance(0), fTracker(0), fPerfHistoFile(0) //, fTracksArrayName("FTSCATracks")
 {
   fVerbose = iVerbose;
-  
+
   fTracker = new PndFTSCAGBTracker;
 
   //string fP = "settings.data";
-  string fts_geometry_str = 
+  string fts_geometry_str =
   "48\
   -10\
     0 294.895 0.00044 0.0117 0 1 6\
@@ -121,40 +121,40 @@ PndFtsCATracking::PndFtsCATracking(const char* name, Int_t iVerbose ):
     45 649.365 0.00044 0.0117 -0.0871557 1 6\
     46 653.49 0.00044 0.0117 0 1 6\
     47 654.365 0.00044 0.0117 0 1 6";
-  
+
   std::istringstream settings(fts_geometry_str);
   fTracker->ReadSettings(settings);
-  
+
   SetPersistency(kTRUE);
 
   //cout<<"READGEOM \n";
   //fTracker->ReadSettingsFromFile(fP);
-  
+
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
   fDoPerformance = 1;
-  
+
   TFile* curFile = gFile;
   TDirectory* curDirectory = gDirectory;
-  
-  static TFile* performanceHistoFile = 0;
-  string filePrefix = "./CATrackerData"; 
+
+  //static TFile* performanceHistoFile = 0; //[R.K. 9/2018] unused
+  string filePrefix = "./CATrackerData";
   filePrefix += "/";
-  
+
   if( fDoPerformance ){
     if( !fPerfHistoFile ){
       fPerfHistoFile = new TFile( (filePrefix + "CATrackerPerformance.root").data(), "RECREATE" );
       if( !fPerfHistoFile->IsOpen() ){
         gSystem->Exec( "mkdir ./CATrackerData");
-        fPerfHistoFile = new TFile( (filePrefix + "CATrackerPerformance.root").data(), "RECREATE" ); 
+        fPerfHistoFile = new TFile( (filePrefix + "CATrackerPerformance.root").data(), "RECREATE" );
       }
     }
-        
+
     fPerformance =  &PndFTSCAPerformance::Instance();
     fPerformance->SetOutputFile(fPerfHistoFile);
     fPerformance->CreateHistos();
   }
-  
-  
+
+
   gFile = curFile;
   gDirectory = curDirectory;
 #endif
@@ -169,7 +169,7 @@ InitStatus PndFtsCATracking::Init()
 {
   //Initialize magnetic field
   fTracker->GetParametersNonConst().InitMagneticField();
-  
+
   // ---
   if(fVerbose>3) Info("Init","Start initialisation.");
 
@@ -202,11 +202,11 @@ InitStatus PndFtsCATracking::Init()
   }
 
   fBranchID  =  FairRootManager::Instance()->GetBranchId("FTSHit");
-  
+
   //output track array
   fTracks = new TClonesArray("PndTrack");
   fManager->Register("FtsTrack","Fts",fTracks, kTRUE);
-  
+
   return kSUCCESS;
 }
 
@@ -217,7 +217,7 @@ void PndFtsCATracking::SetParContainers() {
 
 }
 
-vector <int> ftslabels; 
+vector <int> ftslabels;
 vector <PndFTSCALocalMCPoint> ftsmcpoints;
 vector <PndFTSCAMCTrack> ftsmctracks;
 
@@ -225,13 +225,13 @@ bool PndFtsCATracking::NonReconstructableEvent()
 {
   int NHits = fTracker->GetHitsSize();
   //non-reconstructable due to very few hits
-  if (NHits<PndFTSCAParameters::MinimumHitsForRecoTrack) 
+  if (NHits<PndFTSCAParameters::MinimumHitsForRecoTrack)
     return true;
-  //explanation for this upper-limit see in perStationCounts-cycle 
+  //explanation for this upper-limit see in perStationCounts-cycle
   /*if (fHits.Size()>240)
     return true;*/
-  
-  vector <int> perStationCounts(6); 
+
+  vector <int> perStationCounts(6);
   for (int i=0; i<NHits; i++)
   {
     //we've got 6 blocks (each block has 8 sub-stations)
@@ -244,21 +244,21 @@ bool PndFtsCATracking::NonReconstructableEvent()
       }
     }
   }
-  
+
   for (unsigned int j=0; j<perStationCounts.size(); j++)
   {
     //cout<<"perStationCounts[j] "<<perStationCounts[j]<<endl;
-    
+
     //NHits/Station-limit; 40 assumes 40*6=240 hits/event limit
-    if (perStationCounts[j]>40) 
-//       if (perStationCounts[j]>20) // l_r 
+    if (perStationCounts[j]>40)
+//       if (perStationCounts[j]>20) // l_r
       return true;
     //don't allow sequences of empty station-blocks due
     //to non-reconstructable circumstances of such events
     if (j<3)
     {
       //first and last block have hits but 2 between them are empty
-      /*if (((perStationCounts[j+1]+perStationCounts[j+2])<4) && ( (perStationCounts[j]>0) && (perStationCounts[j+3]>0))) 
+      /*if (((perStationCounts[j+1]+perStationCounts[j+2])<4) && ( (perStationCounts[j]>0) && (perStationCounts[j+3]>0)))
 	return true;
       //3 empty blocks sequences ("0+1+2", "1+2+3" or "2+3+4") and 1 following block with few hits
       if (((perStationCounts[j]+perStationCounts[j+1]+perStationCounts[j+2])<4)
@@ -269,25 +269,25 @@ bool PndFtsCATracking::NonReconstructableEvent()
 	return true;
     }
     //5 empty block sequences("0+1+2+3+4" or "1+2+3+4+5")
-    if (j<2) 
+    if (j<2)
     {
       if ((perStationCounts[j]+perStationCounts[j+1]+perStationCounts[j+2]+perStationCounts[j+3]+perStationCounts[j+4])<4)
 	return true;
     }
   }
-  
+
   //case for cylindrically curved tracks (when mc-track has more than 1 hit/station; or if z_hit_AnywereBefore_last_hit > z_last_hit)
   PndFTSCAPerformance* perf = &PndFTSCAPerformance::Instance();
   const int NMCTracks = perf->GetMCTracks()->Size();
   /*int NMCTracks_reconstructable=0;
-  for(int iT=0; iT<NMCTracks; iT++) 
+  for(int iT=0; iT<NMCTracks; iT++)
   {
     int nMCPoints = (*perf->GetMCTracks())[iT].NMCPoints();
     if (nMCPoints>PndFTSCAParameters::MinimumHitsForRecoTrack)
       NMCTracks_reconstructable++;
   }*/
-  for(int iT=0; iT<NMCTracks; iT++) 
-  {   
+  for(int iT=0; iT<NMCTracks; iT++)
+  {
     int nFirstMC = (*perf->GetMCTracks())[iT].FirstMCPointID();
     PndFTSCALocalMCPoint *points = &((*perf->GetMCPoints()).Data()[nFirstMC]);
     int nMCPoints = (*perf->GetMCTracks())[iT].NMCPoints();
@@ -324,7 +324,7 @@ void PndFtsCATracking::CATrackParToFairTrackParP( FairTrackParP *fairParam, cons
   Double_t x = kfParam->X();
   Double_t y = kfParam->Y();
   //Double_t z = kfParam->Z();
-  
+
   Double_t tx = kfParam->Tx();
   Double_t ty = kfParam->Ty();
   Double_t qp = kfParam->QP();
@@ -360,23 +360,23 @@ void PndFtsCATracking::CATrackParToFairTrackParP( FairTrackParP *fairParam, cons
   cov1[ 0] = 2*mA *mB *cov[13] + mB*mB* cov[14] + mA*mA* cov[9];
   */
 
-  //TODO not clear whether we should invert the covariance mtx 
+  //TODO not clear whether we should invert the covariance mtx
   fairParam->SetTrackPar(x, y, tx, ty, qp, cov, TVector3(0,0,0), TVector3(-sA,cA,0), TVector3(cA,sA,0), TVector3(0,0,-1), q);
 }
 
 
-void PndFtsCATracking::Exec(Option_t* opt)
+void PndFtsCATracking::Exec(Option_t* /*opt*/) //[R.K. 9/2018] unused
 {
   if (fVerbose>0) std::cout<<"PndFtsCATracking::Exec"<<std::endl;
-  
+
   fTracks->Delete();
-  
+
   fTracker->StartEvent();
 
   static int iEvent = -1;
   iEvent++;
-  
-  cout << "iEvent " << iEvent << endl;  
+
+  cout << "iEvent " << iEvent << endl;
 
   PndFtsHit* ghit = NULL;
   PndFtsPoint* myPoint=NULL;
@@ -387,15 +387,15 @@ void PndFtsCATracking::Exec(Option_t* opt)
   //Int_t nMCTracks=0;
   unsigned int nMCPoints=0;
   //Int_t prevTrackID=-1;
-  
+
   //vector <Int_t> TrackIds;
   map<int, unsigned int> nHitsInMCTrack, nMCPointsInMCTrack, FirstMCPointIDInMCTrack;
   //PndCATrackFtsMCPointContainer* MCTrackSortedArray = new PndCATrackFtsMCPointContainer[fMCTracks->GetEntriesFast()];
   vector < vector <PndFtsPoint*> > MCTrackSortedArray(fMCTracks->GetEntriesFast());
-  
-  for (Int_t ih = 0; ih < fHits->GetEntriesFast(); ih++) 
+
+  for (Int_t ih = 0; ih < fHits->GetEntriesFast(); ih++)
   {
-    ghit = (PndFtsHit*) fHits->At(ih);  
+    ghit = (PndFtsHit*) fHits->At(ih);
     if(!ghit) continue;
     nFtsHits++;
     Int_t mchitid=ghit->GetRefIndex();
@@ -404,7 +404,7 @@ void PndFtsCATracking::Exec(Option_t* opt)
     if(!myPoint) continue;
     Int_t trackID = myPoint->GetTrackID();
     if(trackID<0) continue;
-    nPoints++;    
+    nPoints++;
     //PndMCTrack* mctr = mctracklist[trackID];
     //if(NULL==mctr)
     //{
@@ -414,17 +414,17 @@ void PndFtsCATracking::Exec(Option_t* opt)
     //mctr->AddHit(fBranchID,ih,myPoint->GetTime());
     //MCTrackSortedArray[myPoint->GetTrackID()].FtsArray.push_back(myPoint);
     MCTrackSortedArray[myPoint->GetTrackID()].push_back(myPoint);
-    //prevTrackID=myPoint->GetTrackID(); 
+    //prevTrackID=myPoint->GetTrackID();
     //TrackIds.push_back(prevTrackID);
     //mctracklist[trackID] = mctr;
   }
-  
+
   //31.01 ftsmctracks.resize(fMCTracks->GetEntriesFast());
   //31.01 ftsmcpoints.resize(fMCPoints->GetEntriesFast());
-  
+
   ///outMCT<<fMCTracks->GetEntriesFast()<<endl;
   ///outMCP<<fMCPoints->GetEntriesFast()<<endl;
-  
+
   //cout<<"NMCTRACKS: "<<fMCTracks->GetEntriesFast()<<endl;
   //cout<<"NMCPOINTS: "<<fMCPoints->GetEntriesFast()<<endl;
   int xNMCTracks=0;
@@ -435,7 +435,7 @@ void PndFtsCATracking::Exec(Option_t* opt)
     //int curTrID=-1;
     //bool checker=true;
     //cout<<"NFTSPOINTS: "<<MCTrackSortedArray[iTr].size()<<endl;
-    for(int iPFts=0; iPFts < MCTrackSortedArray[iTr].size(); iPFts++)
+    for(unsigned int iPFts=0; iPFts < MCTrackSortedArray[iTr].size(); iPFts++)
     {
       PndFtsPoint* point = MCTrackSortedArray[iTr][iPFts]; //MCTrackSortedArray[iTr].FtsArray[iPFts];
       int trackID = point->GetTrackID();
@@ -443,7 +443,7 @@ void PndFtsCATracking::Exec(Option_t* opt)
       {  // get charge
         if ( trackID < fMCTracks->GetEntriesFast() ) {
           const PndMCTrack* mcTr = (PndMCTrack*) fMCTracks->At(trackID);
-          
+
           if ( mcTr ) {
             TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(mcTr->GetPdgCode());
             if ( part )
@@ -459,7 +459,7 @@ void PndFtsCATracking::Exec(Option_t* opt)
       Double_t py = point->GetPy();
       Double_t pz = point->GetPz();
       Double_t p = sqrt( px*px + py*py + pz*pz );*/
-      
+
       if ( fDoPerformance ){
         PndFTSCALocalMCPoint xxx;
         xxx.SetPoint(point, q);
@@ -482,13 +482,13 @@ void PndFtsCATracking::Exec(Option_t* opt)
     }
     const PndMCTrack* mcTr = (PndMCTrack*) fMCTracks->At(iTr);
 
-    if( fDoPerformance ){    
+    if( fDoPerformance ){
       if ( !mcTr ) {
         PndFTSCAMCTrack yyy;
         PndMCTrack* mcTrempty = new PndMCTrack();
         yyy.SetMCTrack(mcTrempty, 0,0,0);
         ftsmctracks.push_back(yyy);
-      } 
+      }
       else {
         Int_t pdg = mcTr->GetPdgCode();
         Double_t px = mcTr->GetMomentum().X();
@@ -542,7 +542,7 @@ void PndFtsCATracking::Exec(Option_t* opt)
       }
     }
   }
-  
+
 
 //  if (xNMCTracks!=1)
 //    return;
@@ -560,9 +560,9 @@ void PndFtsCATracking::Exec(Option_t* opt)
   //Save FTS hits
   WriteFTSHits( vHits, /*outH, outHL, outMCT, outMCP,*/ iHit, nHitsInMCTrack);
 
-  
+
   //if(MCTrackSortedArray) delete[] MCTrackSortedArray;
-  
+
 /*  if( fDoPerformance ){
     outH.close();
     outHL.close();
@@ -570,31 +570,31 @@ void PndFtsCATracking::Exec(Option_t* opt)
     outMCP.close();
   }
   */
-//////////////////  
-    
+//////////////////
+
   const PndFTSCAGBTracker *fTrackerConst = fTracker;
-  
+
   //SETHITS AS IN MVD+STT
   do{
     int kEvents = iEvent;
     char buf[6];
     sprintf( buf, "%d", kEvents );
-    ///const string fileName = filePrefix + "event" + string(buf) + "_";    
+    ///const string fileName = filePrefix + "event" + string(buf) + "_";
     // std::cout << "CA fTracker: Loading Event " << kEvents << "..." << std::endl;
     fTracker->SetHits( vHits );
 
     cout << "NHits " << fTracker->fHits.Size() << endl;
-    
+
 //  if (fTracker->fHits.Size() > 200) return;
 
 /* dbg-cout
 if (fTracker->fHits.Size() >=8 )
 {
   for(unsigned int iH=0; iH<8; iH++)
-    {    
+    {
       int iStation = fTracker->fHits[iH].IRow();
      float X_Hit = fTracker->fHits[iH].X();
-     float Z_Hit = fTracker->fHits[iH].Z(); 
+     float Z_Hit = fTracker->fHits[iH].Z();
      float R_Hit = fTracker->fHits[iH].R();
      float RSigned   = fTracker->fHits[iH].IsLeft();
 
@@ -605,8 +605,8 @@ cout << " R_Hit " << R_Hit << " RSigned " << RSigned << endl;
 }
 }*/
 
-    
-    //std::cout << "Event " << kEvents << " CPU reconstruction..." << std::endl;    
+
+    //std::cout << "Event " << kEvents << " CPU reconstruction..." << std::endl;
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
     // cout<<"Filename "<<fileName<<endl;
     if ( fDoPerformance && fPerformance ) {
@@ -615,15 +615,15 @@ cout << " R_Hit " << R_Hit << " RSigned " << RSigned << endl;
       if (!fPerformance->ReadData(ftslabels,ftsmcpoints, ftsmctracks)) {
   cout << "Monte-Carlo Data for Event " << kEvents << " can't be read." << std::endl;
   break;
-      }    
+      }
       //cout<<"here!!!\n";
-      fPerformance->CombineHits(); 
+      fPerformance->CombineHits();
 //      fPerformance->DivideHitsOnLR();
     }
 #endif
 
 
-    if ( NonReconstructableEvent() ) 
+    if ( NonReconstructableEvent() )
     {
       ftslabels.clear();
       ftsmcpoints.clear();
@@ -636,7 +636,7 @@ cout << " R_Hit " << R_Hit << " RSigned " << RSigned << endl;
 
     fTracker->FindTracks();
 
-    //rewrite reco tracks into global PndTrack-format 
+    //rewrite reco tracks into global PndTrack-format
     {
       int nOutTracks=0;
       for( int itr=0; itr<fTracker->NTracks(); itr++)
@@ -647,24 +647,24 @@ cout << " R_Hit " << R_Hit << " RSigned " << RSigned << endl;
 	for( int ih=0; ih<tr.NHits(); ih++ )
 	{
 	  int hitIndex = fTracker->TrackHit( tr.FirstHitRef() + ih );
-	  const PndFTSCAGBHit &hit = fTracker->Hit( hitIndex );	  	  
+	  const PndFTSCAGBHit &hit = fTracker->Hit( hitIndex );
 	  outCand.AddHit( hit.PndDetID(), hit.PndHitID(), hit.IRow() );
 	}
 	outCand.setMcTrackId(-1);
-	
+
         FairTrackParP paramFirst;
         FairTrackParP paramLast;
 
 	CATrackParToFairTrackParP( &paramFirst, &tr.InnerParam() );
 	CATrackParToFairTrackParP( &paramLast, &tr.OuterParam() );
-	
+
         PndTrack *outTrack = new((*fTracks)[nOutTracks]) PndTrack(paramFirst,paramLast,outCand);
         outTrack->SetRefIndex(nOutTracks);
 	outTrack->SetFlag(0);
 	nOutTracks++;
       }
     }
-     
+
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
     if ( fDoPerformance && fPerformance ) {
       //SG!!! fTracker->SaveTracksInFile(fileName);
@@ -681,7 +681,7 @@ cout << " R_Hit " << R_Hit << " RSigned " << RSigned << endl;
     if (fVerbose>0){
 
       const bool ifAvarageTime = 1;
-      if (!ifAvarageTime){        
+      if (!ifAvarageTime){
       std::cout << "Reconstruction Time"
       << " Real = " << std::setw( 10 ) << (fTrackerConst->SliceTrackerTime() + fTrackerConst->StatTime( 9 )) * 1.e3 << " ms,"
       << " CPU = " << std::setw( 10 ) << (fTrackerConst->SliceTrackerCpuTime() + fTrackerConst->StatTime( 10 )) * 1.e3 << " ms"
@@ -693,20 +693,20 @@ cout << " R_Hit " << R_Hit << " RSigned " << RSigned << endl;
   static double *statTime = new double[NTimers];
   static double statTime_SliceTrackerTime = 0;
   static double statTime_SliceTrackerCpuTime = 0;
-  
+
   if (!statIEvent){
     for (int i = 0; i < NTimers; i++){
       statTime[i] = 0;
     }
   }
-      
+
   statIEvent++;
   for (int i = 0; i < NTimers; i++){
     statTime[i] += fTrackerConst->StatTime( i );
   }
   statTime_SliceTrackerTime += fTrackerConst->SliceTrackerTime();
-  statTime_SliceTrackerCpuTime += fTrackerConst->SliceTrackerCpuTime();      
-      
+  statTime_SliceTrackerCpuTime += fTrackerConst->SliceTrackerCpuTime();
+
   std::cout << "Reconstruction Time"
       << " Real = " << std::setw( 10 ) << 1./statIEvent*(statTime_SliceTrackerTime+statTime[ 9 ]) * 1.e3 << " ms,"
       << " CPU = " << std::setw( 10 ) << 1./statIEvent*(statTime_SliceTrackerCpuTime+statTime[ 10 ]) * 1.e3 << " ms,"
@@ -715,7 +715,7 @@ cout << " R_Hit " << R_Hit << " RSigned " << RSigned << endl;
     } // fVerbose>0
 
   } while(0);
-            
+
   ftslabels.clear();
   ftsmcpoints.clear();
   ftsmctracks.clear();
@@ -728,27 +728,27 @@ void PndFtsCATracking::Finish()
     fPerformance->WriteHistos();
   }
   //fPerformanceHistoFile->Close();
-#endif    
+#endif
 }
 
 void PndFtsCATracking::WriteFTSHits(   std::vector<PndFTSCAGBHit> &vHits,
             /*std::fstream &outH, std::fstream &outHL, std::fstream &outMCT, std::fstream &outMCP,*/ int &iHit, map<int, unsigned int> &nHitsInMCTrack)
-{  
+{
   TClonesArray *hitsArray;
   hitsArray = fHits;
-  Int_t ftsLinkType = FairRootManager::Instance()->GetBranchId("FTSPoint");  
+  Int_t ftsLinkType = FairRootManager::Instance()->GetBranchId("FTSPoint");
   //31.01 ftslabels.resize(hitsArray->GetEntriesFast());
-  
+
   //outHL << hitsArray->GetEntriesFast() << endl;
   //outH << hitsArray->GetEntriesFast() << endl;
-  
+
   std::map<Int_t,Int_t> tubeMap;
   std::map<Int_t,Int_t>::iterator mapIt;
 
   for(int iH=0; iH<hitsArray->GetEntriesFast(); iH++)
   {
     PndFtsHit* currenthit = (PndFtsHit*) hitsArray->At(iH);
-//    cout << " currenthit->GetTimeStamp() " << currenthit->GetTimeStamp() << endl; 
+//    cout << " currenthit->GetTimeStamp() " << currenthit->GetTimeStamp() << endl;
     Int_t tubeID = currenthit->GetTubeID();
     mapIt = tubeMap.find('b');
     if( mapIt == tubeMap.end() ){
@@ -757,7 +757,7 @@ void PndFtsCATracking::WriteFTSHits(   std::vector<PndFTSCAGBHit> &vHits,
       mapIt->second++;
       if( mapIt->second >3 ) continue; //SG!!!
     }
-    
+
     PndFtsTube *tube = (PndFtsTube *) fTubeArrayFts->At(tubeID);
     TVector3 wire_direction = tube->GetWireDirection();
 
@@ -789,15 +789,15 @@ void PndFtsCATracking::WriteFTSHits(   std::vector<PndFTSCAGBHit> &vHits,
     CR = RM*C;
     CR = CR*RM.Transpose(RM);
 
-    
+
     Double_t A = 0;
-    
+
     TVector3 position = tube->GetPosition();
     //Double_t xx = position.X();
     //Double_t yy = position.Y();
     //Double_t zz = position.Z();
     //cout<<"tube coords "<<xx<<" "<<yy<<" "<<zz<<endl;
-    
+
     Double_t x = currenthit->GetX();
     Double_t y = currenthit->GetY();
     Double_t z = currenthit->GetZ();
@@ -827,10 +827,10 @@ void PndFtsCATracking::WriteFTSHits(   std::vector<PndFTSCAGBHit> &vHits,
     // error calculation according to the curve chosen by flag
     Double_t closestDistanceError = currenthit->GetIsochroneError();//0;
 
-    int pointID = -1;
+    //int pointID = -1; //[R.K. 9/2018] unused
 
     int trackID;
-    PndFtsPoint* point;
+    PndFtsPoint* point=NULL;
 
     FairMultiLinkedData links = currenthit->GetLinksWithType(ftsLinkType);
     if( links.GetNLinks() >0 )
@@ -841,15 +841,15 @@ void PndFtsCATracking::WriteFTSHits(   std::vector<PndFTSCAGBHit> &vHits,
 	{
  //       cout<<"CA tracker: wrong index of Fts point: "<<iPoint<<" of "<<fFtsPointsArray->GetEntriesFast()<<endl;
 	  return;
-	} 
-	else 
+	}
+	else
 	{
 	  trackID = point->GetTrackID();
 	}
     }
 
     PndFTSCAGBHit h;
- 
+
     const PndMCTrack* mcTr = (PndMCTrack*) fMCTracks->At(trackID);
     TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(mcTr->GetPdgCode());
     float q = part->Charge()/3.f;
@@ -864,17 +864,17 @@ void PndFtsCATracking::WriteFTSHits(   std::vector<PndFTSCAGBHit> &vHits,
     h.point_Qp = qp;
     h.Track_ID = trackID;
     //mc-links:end
-    
+
     h.SetX( x );
     h.SetY( y );
     h.SetZ( z );
     h.SetErr2X(currenthit->GetDx()*currenthit->GetDx());
     h.SetErr2Y(currenthit->GetDy()*currenthit->GetDy());
-     
+
     h.SetXW(x);
     h.SetYW(y);
     h.SetZW(z);
-    
+
     h.SetEX(tube->GetWireDirection().X());
     h.SetEY(tube->GetWireDirection().Y());
     h.SetEZ(tube->GetWireDirection().Z());
@@ -895,10 +895,10 @@ void PndFtsCATracking::WriteFTSHits(   std::vector<PndFTSCAGBHit> &vHits,
     h.SetPndHitID( iH );
 
     vHits.push_back(h);
-  
+
     int trackIDs[3] = {-1, -1, -1};
     trackIDs[0] = trackID;
-    
+
     if( fDoPerformance ){
       //outH << h;
       //outHL << trackIDs[0] << " " << trackIDs[1] << " " << trackIDs[2] << endl;
@@ -907,7 +907,7 @@ void PndFtsCATracking::WriteFTSHits(   std::vector<PndFTSCAGBHit> &vHits,
     }
 
     iHit++;
- 
+
     if ( nHitsInMCTrack.find(trackIDs[0]) != nHitsInMCTrack.end() ) {
       nHitsInMCTrack[trackIDs[0]]++;
     } else {

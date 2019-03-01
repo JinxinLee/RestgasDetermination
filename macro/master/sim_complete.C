@@ -5,14 +5,13 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552)
+int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552, TString prefix= "evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
 //  gDebug=5;
   TString parAsciiFile   = "all.par";
   
-  TString prefix         = "evtcomplete";     // prefix string for output files
-  
+  TString  options        = "";
   // TString inputGenerator = 
   // EvtGen -> "xxxxxxxx.dec" (parses dec-file for initial particle) or "xxxxxxx.dec:initial_particle"
   // DPM    -> "dpm_xxxxx"
@@ -22,10 +21,11 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t Be
   // LEP    -> "leplep:pid(value):gegm(value):cosTheta(min,max)"
 
   //TString inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  TString inputGenerator = "ftf";
+  //TString inputGenerator = "ftf";
   //TString inputGenerator = "ftf";
   //TString inputGenerator = "box:type(211,1):p(1,1):tht(10,120):phi(0,360)";
- 
+  TString inputGenerator = "box:type(211,10):p(0.5,1.5):tht(5,90):phi(0,360)";
+
   //-------------------------------------------------------------------------
   // -----   Create the Simulation run manager ------------------------------
   PndMasterRunSim *fRun = new PndMasterRunSim();
@@ -35,6 +35,7 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t Be
   fRun->SetNumberOfEvents(nEvents);
   fRun->SetBeamMom(BeamMomentum);
   fRun->SetStoreTraj(kTRUE);
+  fRun->SetOptions(options);
   // -----  Initialization   ------------------------------------------------
   fRun->Setup(prefix);
   // -----   Geometry   -----------------------------------------------------
@@ -48,13 +49,13 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t Be
   // ---- Example configuration for the event filter ------------------------
   //FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
   //chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
-  //primGen->AndFilter(chrgFilter);  
+  //primGen->AndFilter(chrgFilter);
 
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddSimTasks();
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  fRun->Run(nEvents); 
+  fRun->Run(nEvents);
   fRun->Finish();
   return 0;
 }

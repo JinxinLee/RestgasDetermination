@@ -15,15 +15,15 @@
 
 class TClonesArray;
 class PndEmcPoint;
-class FairVolume; 
+class FairVolume;
 class TGeoNode;
 
 /**
  * @brief Simulation of EMC
- * 
+ *
  * @ingroup PndEmc
  */
-class PndEmc : public FairDetector 
+class PndEmc : public FairDetector
 {
 public:
 
@@ -36,7 +36,7 @@ public:
    **/
   PndEmc(const char* name, Bool_t active, Bool_t fast = kFALSE, Bool_t storepnts = kTRUE);
 
-  
+
   /** Destructor **/
   virtual ~PndEmc();
 
@@ -50,7 +50,7 @@ public:
   /** Virtual method ProcessHits
    **
    ** Defines the action to be taken when a step is inside the
-   ** active volume. Creates PndEmcPoints and PndEmcMirrorPoints and adds 
+   ** active volume. Creates PndEmcPoints and PndEmcMirrorPoints and adds
    ** them to the collections.
    *@param vol  Pointer to the active volume
    **/
@@ -81,7 +81,7 @@ public:
    **
    ** Screen output of hit collection.
    **/
-  virtual void Print() const;    
+  virtual void Print() const;
 
 
   /** Virtual method Reset
@@ -105,14 +105,17 @@ public:
   /** Virtual method Construct geometry
    **
    **/
-  virtual void ConstructGeometry(); 
+  virtual void ConstructGeometry();
 
   // construct detector from .dat file
   void ConstructASCIIGeometry();
-  
+
   // construct detector from .root file
   void ConstructRootGeometry();
-  
+
+  // construct detector -Barrel- from .root file
+  void ConstructRootGeomMod12();
+
   // construct detector -BwEndCap- from .root file
   void ConstructRootGeomMod4();
 
@@ -126,7 +129,7 @@ public:
 
   // general function for chosing the combination of EMC geometry
   virtual void  SetGeometryVersion(const Int_t GeoNumber);
-  // 
+  //
   virtual void  SetGeometryFileNameDouble(TString fname, TString fname2, Int_t fwbwchoice=0, TString geoVer="0");
   //
   virtual void  SetGeometryFileNameTriple(TString fname, TString fname2, TString fname3, TString geoVer="0");
@@ -139,13 +142,13 @@ public:
 		      Bool_t enterning, Bool_t exiting);
 
   void SetStorageOfData(Bool_t val); // Method to specify whether points are stored or not.
-  
+
   //      replaces G3 initialisation via g3Config.C
   virtual void SetSpecialPhysicsCuts();
 
 
 private:
-  
+
   Int_t          fTrackID;           //!  track index
   Int_t          fVolumeID;          //!  volume id
   Int_t          fEventID;           //!  event id
@@ -154,7 +157,7 @@ private:
   Double32_t     fTime;              //!  time
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss
-  Int_t fPosIndex;      //! 
+  Int_t fPosIndex;      //!
   TClonesArray* fEmcCollection;        //! Hit collection
   //Int_t volDetector;     //!  MC volume ID of MUO
   Bool_t         bIsFastFsc;         //!  Flag for fast fsc geometry
@@ -168,15 +171,15 @@ private:
   TString fgeoName4;
 
   Int_t MapperVersion;
-  
-  // reset all parameters   
+
+  // reset all parameters
   void ResetParameters();
 
   PndEmc(const  PndEmc& L);
   PndEmc& operator= (const  PndEmc&) {return *this;};
-  
+
   ClassDef(PndEmc,1)
-}; 
+};
 
 
 #endif

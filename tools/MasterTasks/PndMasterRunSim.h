@@ -21,7 +21,10 @@
 
 class FairFilteredPrimaryGenerator;
 class PndFilteredPrimaryGenerator;
+class FairGenerator;
+
 class FairBoxGenerator;
+
 class PndBoxGenerator;
 
 
@@ -109,13 +112,20 @@ class PndMasterRunSim : public FairRunSim
   void SetGenerator();
 
   /**
+   * @brief Add a generator to existing setup
+   * @details # Adds a generator to the existing one. BOTH generators will be active
+   * and produce their particle content in each even simultaneously.
+   */
+  void AddGenerator(FairGenerator *aGen);
+
+  /**
    * @brief Set the event generator for FairBoxGenerator
    * @details # Master event generator for FairBoxGenerator
    * This call set the FairBoxGenerator as event generator. The user should create a
    * FairBoxGenerator object with all the settings, and pass it as argument to the
    * function.
    */
-  void SetGenerator(FairBoxGenerator *boxGen);
+  void SetGenerator(FairGenerator *boxGen);
 
   /**
    * @brief Set the event generator for PndBoxGenerator
@@ -235,6 +245,7 @@ class PndMasterRunSim : public FairRunSim
    * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256
    */
   void SetOptions(TString par) { fOptions = par; fOptions.ToLower();}
+  TString GetOptions() { return fOptions;}
 
   /**
    * @brief Setter of the number of events

@@ -23,7 +23,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndMcCloner::PndMcCloner() : FairTask("Cloner of PndMCTrack"), 
            fInputArray(), fPidChargedArray(), fPidNeutralArray(), fOutputArray(),
-           mapMCIndex(), fCleanMC(kFALSE)
+           mapMCIndex(), fCleanMC(kFALSE), fTrackBranchNamePidHypo("")
 {
 }
 // -------------------------------------------------------------------------
@@ -57,14 +57,14 @@ InitStatus PndMcCloner::Init() {
     return kERROR;
   }
 
-  fPidChargedArray = (TClonesArray*) ioman->GetObject("PidChargedCand");
+  fPidChargedArray = (TClonesArray*) ioman->GetObject("PidChargedCand"+fTrackBranchNamePidHypo);
   if ( ! fPidChargedArray ) {
     cout << "-E- PndMcCloner::Init: "
          << "No PidChargedCand array!" << endl;
     return kERROR;
   }
 
-  fPidNeutralArray = (TClonesArray*) ioman->GetObject("PidNeutralCand");
+  fPidNeutralArray = (TClonesArray*) ioman->GetObject("PidNeutralCand"+fTrackBranchNamePidHypo);
   if ( ! fPidNeutralArray ) {
     cout << "-E- PndMcCloner::Init: "
          << "No PidNeutralCand array!" << endl;

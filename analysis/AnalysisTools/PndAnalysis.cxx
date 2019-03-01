@@ -5,6 +5,7 @@
 
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 using std::cout;
 using std::endl;
@@ -18,7 +19,7 @@ using std::endl;
 #include "TParticlePDG.h"
 
 #include "RhoParticleSelectorBase.h"
-#include "PndRecoCandidate.h"
+#include "PndPidCandidate.h"
 
 //RHO stuff
 #include "RhoFactory.h"
@@ -45,18 +46,19 @@ using std::endl;
 ClassImp ( PndAnalysis );
 
 PndAnalysis::PndAnalysis ( TString tname1, TString tname2, TString algnamec, TString algnamen ) :
-    fRootManager ( FairRootManager::Instance() ),
-    fPidSelector ( 0 ),
-    fEvtCount ( 0 ),
-    fChainEntries ( 0 ),
-    fEventRead ( false ),
-    fBuildMcCands ( false ),
-    fVerbose(0),
-    fPhotosMax(0), fPhotosThresh(0.05),
-    fChargedPidName ( algnamec ),
-    fNeutralPidName ( algnamen ),
-    fTracksName ( tname1 ),
-    fTracksName2 ( tname2 )
+  fRootManager ( FairRootManager::Instance() ),
+  fPidSelector ( 0 ),
+  fEvtCount ( 0 ),
+  fChainEntries ( 0 ),
+  fEventRead ( false ),
+  fBuildMcCands ( false ),
+  fVerbose(0),
+  fPhotosMax(0), fPhotosThresh(0.05),
+  fChargedPidName ( algnamec ),
+  fNeutralPidName ( algnamen ),
+  fTracksName ( tname1 ),
+  fTracksName2 ( tname2 ),
+  fDefaultHypo ( 2 )
 {
   if ( 0 == fRootManager ) {
     std::cout << "-E- PndAnalysis: RootManager not instantiated!" << std::endl;
@@ -76,7 +78,7 @@ PndAnalysis::~PndAnalysis()
 TClonesArray* PndAnalysis::ReadTCA ( TString tcaname )
 {
   TClonesArray* tca = ( TClonesArray* ) fRootManager->GetObject ( tcaname.Data() );
-  if ( ! tca ) {
+  if ( fVerbose>4 && ! tca ) { // the info is printed by the RootManager already.
     std::cout << "-I- PndAnalysis::ReadTCA(): No "<<tcaname.Data() <<" array found." << std::endl;
   }
 
@@ -86,71 +88,127 @@ TClonesArray* PndAnalysis::ReadTCA ( TString tcaname )
 void PndAnalysis::Init()
 {
   Reset();
+  fPidHypoStr[0] = "Electron";
+  fPidHypoStr[1] = "Muon";
+  fPidHypoStr[2] = "Pion";
+  fPidHypoStr[3] = "Kaon";
+  fPidHypoStr[4] = "Proton";
+  fPidHypoStr[5] = "";
+  fHypoPdg[0]=-11;
+  fHypoPdg[1]=-13;
+  fHypoPdg[2]=211;
+  fHypoPdg[3]=321;
+  fHypoPdg[4]=2212;
+  fHypoPdg[5]=0;
 
-  //read arrays
-  fChargedCands = ReadTCA ( "PidChargedCand" );
-  fBremCorr = ReadTCA( "BremCorrected4Mom" );
-  fChargedProbability = ReadTCA ( fChargedPidName.Data() );
   fNeutralCands = ReadTCA ( "PidNeutralCand" );
-  fNeutralProbability = ReadTCA ( fNeutralPidName.Data() );
-  // -- Barrel Part
-  std::cout << "-I- PndAnalysis::Init(): Trying "<<fTracksName.Data() <<" now." << std::endl;
-  fTracks = ReadTCA ( fTracksName );
+  //if ( !fNeutralCands ) {	}
+  //fNeutralProbability = ReadTCA ( fNeutralPidName.Data()+fPidHypoStr[fDefaultHypo] );
 
-  if ( !fTracks ) {
-    std::cout << "-I- PndAnalysis::Init(): Trying SttMvdGenTrack now." << std::endl;
-    fTracks = ReadTCA ( "SttMvdGenTrack" );
-  }
+  // List of branches to check by default
+  TString branchnames1[4]= {fTracksName,"SttMvdGemGenTrack","BarrelGenTrack","SttMvdGenTrack"};
+  TString branchnames2[4]= {fTracksName2,"FTSGenTrack","FtsIdealGenTrack","FTSTrkIdeal"};
+  for (int i = 0; i < 6 ; i++) // 0-4 for PID hypothesis, 5 for fallback
+  {
+    //read pidcand arrays
+    fTracks[i]=NULL; // initialize properly
+    fTracks2[i]=NULL; // initialize properly
+    fBremCorr[i]=NULL; // initialize properly
+    fChargedProbability[i]=NULL; // initialize properly
+    fChargedCands[i] = ReadTCA ( "PidChargedCand"+fPidHypoStr[i] );
+    if ( fChargedCands[i] ) {
+      fHypoFlagCharged[i] = true;
+      std::cout<< "  ####################  read PidChargedCand with special tracking hypothesis: "<<("PidChargedCand"+fPidHypoStr[i]).Data()<<"  pointer "<<fChargedCands[i] <<std::endl;
+    } else {
+      fHypoFlagCharged[i] = false;
+      //fChargedCands[i] = ReadTCA ( "PidChargedCand" );
+      std::cout<< "  ####################  No PidChargedCand with "<<fPidHypoStr[i].Data()<<" tracking hypothesis" <<std::endl;
+    }
 
-  if ( !fTracks ) {
-    std::cout << "-I- PndAnalysis::Init(): Trying SttMvdGemGenTrack now." << std::endl;
-    fTracks = ReadTCA ( "SttMvdGemGenTrack" );
-  }
+    // Read Bremsstrahling Corrections and PID values
+    if(fHypoFlagCharged[i]) {
+      fBremCorr[i] = ReadTCA( "BremCorrected4Mom"+fPidHypoStr[i] );
+      fChargedProbability[i] = ReadTCA ( fChargedPidName.Data()+fPidHypoStr[i] );
+    }
 
-  if ( !fTracks ) {
-    std::cout << "-I- PndAnalysis::Init(): Trying BarrelGenTrack now." << std::endl;
-    fTracks = ReadTCA ( "BarrelGenTrack" );
-  }
+    // load barrel tracks
+    for(int k=0; k<4; k++) {
+      if(fHypoFlagCharged[i]) {
+        if(fVerbose>4) std::cout << "-I- PndAnalysis::Init(): br:"<<k<<" hyp:"<<i<<" Trying \""<<(branchnames1[k]+fPidHypoStr[i]).Data() <<"\" now.";
+        fTracks[i] = ReadTCA ( branchnames1[k]+fPidHypoStr[i] );
+      }
+      if ( fTracks[i] ) {
+        if(fVerbose>4) std::cout << " Succes reading tracking array \""<<(branchnames1[k]+fPidHypoStr[i]).Data() <<"\" with pointer "<<fTracks[i];
+        break;
+      }
+    }
+    if ( !fTracks[i] ) {
+      std::cout << "-W- PndAnalysis::Init(): No barrel track inpt array." << std::endl;
+    } else {
+      std::cout<<" printing track array:";
+      std::cout<<endl;
+      fTracks[i]->Print();
+    }
 
-  if ( !fTracks ) {
-    std::cout << "-E- PndAnalysis::Init(): No track inpt array. Make a Zero TclonesArray." << std::endl;
+    // load forward tracks
+    for(int k=0; k<4; k++) {
+      if(fHypoFlagCharged[i]) {
+
+        if(fVerbose>4) std::cout << "-I- PndAnalysis::Init(): Trying \""<<(branchnames2[k]+fPidHypoStr[i]).Data() <<"\" now.";
+        fTracks2[i] = ReadTCA ( branchnames2[k]+fPidHypoStr[i] );
+      }
+      if ( fTracks2[i] ) break;
+    }
+    if ( !fTracks2[i] ) {
+      std::cout << "-W- PndAnalysis::Init(): No forward track inpt array." << std::endl;
+    } else {
+      std::cout<<endl;
+      fTracks2[i]->Print();
+    }
+
+  } // loop tracking hyp
+
+  //Check if a list of pions exists. If not, set default hypo to something else
+  if (!fHypoFlagCharged[2]) {
+    if (fHypoFlagCharged[1]) {
+      fDefaultHypo=1;
+      std::cout<<"PndAnalysis::Init(): Default hypothesis is muons."<<std::endl;
+    }
+    else if (fHypoFlagCharged[0]) {
+      fDefaultHypo=0;
+      std::cout<<"PndAnalysis::Init(): Default hypothesis is electrons."<<std::endl;
+    }
+    else if (fHypoFlagCharged[3]) {
+      fDefaultHypo=3;
+      std::cout<<"PndAnalysis::Init(): Default hypothesis is Kaons."<<std::endl;
+    }
+    else if (fHypoFlagCharged[4]) {
+      fDefaultHypo=4;
+      std::cout<<"PndAnalysis::Init(): Default hypothesis is protons."<<std::endl;
+    }
+    else {
+      std::cout<<"PndAnalysis::Init(): No Multikalman input branches exist, do fallback."<<std::endl;
+      fDefaultHypo=5; // empty string in name arrays
+    }
   } else {
-    fTracks->Print();
-  }
-
-  // -- Forward part
-  std::cout << "-I- PndAnalysis::Init(): Second: Trying "<<fTracksName2.Data() <<" now." << std::endl;
-
-  fTracks2 = ReadTCA ( fTracksName2 );
-
-  if ( !fTracks2 ) {
-    std::cout << "-I- PndAnalysis::Init(): Second: Trying FTSGenTrack now." << std::endl;
-    fTracks2 = ReadTCA ( "FTSGenTrack" );
-  }
-
-  if ( !fTracks2 ) {
-    std::cout << "-I- PndAnalysis::Init(): Second: Trying FTSTrkIdeal now." << std::endl;
-    fTracks2 = ReadTCA ( "FTSTrkIdeal" );
+    std::cout<<"PndAnalysis::Init(): Default hypothesis is pions."<<std::endl;
   }
 
   // -- MC Tracks
   fBuildMcCands = false;
 
-  fMcCands = 0;//ReadTCA ( "PndMcTracks" ); // try already built RhoCandidates
+  fMcCands = 0;
 
-  if ( ! fMcCands ) {
-    std::cout << "-I- PndAnalysis::Init(): Trying mc stack now." << std::endl;
-    fMcTracks = ( TClonesArray* ) fRootManager->GetObject ( "MCTrack" );
+  if(fVerbose>4) std::cout << "-I- PndAnalysis::Init(): Trying mc stack now." << std::endl;
+  fMcTracks = ( TClonesArray* ) fRootManager->GetObject ( "MCTrack" );
 
-    if ( ! fMcTracks && fVerbose ) {
-      std::cout << "-W- PndAnalysis::Init(): No \"MCTrack\" array found. No MC info available." << std::endl;
-    } else {
-      fBuildMcCands = true;
-      fMcCands = new TClonesArray ( "RhoCandidate" );
-      // next line commented by KG, 07/2012
-      fRootManager->Register ( "PndMcTracks","PndMcTracksFolder", fMcCands, kFALSE );
-  }
-
+  if ( ! fMcTracks && fVerbose ) {
+    std::cout << "-W- PndAnalysis::Init(): No \"MCTrack\" array found. No MC info available." << std::endl;
+  } else {
+    fBuildMcCands = true;
+    fMcCands = new TClonesArray ( "RhoCandidate" );
+    // next line commented by KG, 07/2012
+    fRootManager->Register ( "PndMcTracks","PndMcTracksFolder", fMcCands, kFALSE );
   }
 
   //fChainEntries = ( fRootManager->GetInChain() )->GetEntries();
@@ -170,46 +228,29 @@ void PndAnalysis::Rewind()
 
 void PndAnalysis::Cleanup()
 {
-    // do a safe cleanup
-  fAllCandList.Cleanup();
-  fChargedCandList.Cleanup();
+  // do a safe cleanup
+  for (int i = 0; i<6; i++) {
+    //fAllCandList[i].Cleanup();
+    fChargedCandList[i].Cleanup();
+  }
   fNeutralCandList.Cleanup();
   fMcCandList.Cleanup();
   RhoFactory::Instance()->Reset();
 
 }
 
-void PndAnalysis::ReadCandidates()
-{
-  ReadRecoCandidates();
-  BuildMcCands();
-  // now fill carged and neutral lists.
-  // MC association to reconstructed particles done at this point and copying is ok
-  //std::cout<<"Marke: PndAnalysis::ReadCandidates "<<__LINE__
-    //<< "  fAllCandList.GetLength()="<<fAllCandList.GetLength()
-    //<< "  fNeutralCandList.GetLength()="<<fNeutralCandList.GetLength()
-    //<< "  fChargedCandList.GetLength()="<<fChargedCandList.GetLength()<<std::endl;
-  for(int ik=0;ik<fAllCandList.GetLength();ik++)
-  {
-    if(fAllCandList[ik]->GetCharge()==0){
-      fNeutralCandList.Add ( fAllCandList[ik] );
-    }else{
-      fChargedCandList.Add ( fAllCandList[ik] );
-    }
-  }
-  //std::cout<<"Marke: PndAnalysis::ReadCandidates "<<__LINE__
-    //<< "  fAllCandList.GetLength()="<<fAllCandList.GetLength()
-    //<< "  fNeutralCandList.GetLength()="<<fNeutralCandList.GetLength()
-    //<< "  fChargedCandList.GetLength()="<<fChargedCandList.GetLength()<<std::endl;
-
-  return;
-}
+//void PndAnalysis::ReadCandidates()
+//{
+//ReadRecoCandidates();
+//BuildMcCands();
+//return;
+//}
 
 void PndAnalysis::GetEventInTask()
 {
   Cleanup();
-  ReadCandidates();
-  //std::cout<<"Marke A"<<std::endl;
+  ReadRecoCandidates();
+  BuildMcCands();
   return;
 }
 
@@ -225,14 +266,41 @@ Int_t PndAnalysis::GetEvent ( Int_t n )
 
   if ( fEvtCount>fChainEntries ) {
     fEvtCount=fChainEntries;
-    if(fVerbose) Info("PndAnalysis::GetEvent()","Maximum number of entried in the file chain reached: %i.",fEvtCount);
+    Info("PndAnalysis::GetEvent()","Maximum number of entries in the file chain reached: %i.",fEvtCount);
     return 0;
   }
   fRootManager->ReadEvent ( fEvtCount-1 );
-  ReadCandidates();
+
+  //Printout
+  if(fVerbose>4)
+  {
+    std::cout
+      <<"-------->8-------->8-------->8-------->8-------->8-------->8-------->8-------->8"
+      <<"\n"
+      <<" No. -   Name  -    Flag - PidArr  - Trk Arr -Trk Arr2 -     PID -     Brem"
+      <<std::endl;
+    for (int i = 0; i < 6 ; i++) // 0-4 for PID hypothesis, 5 for fallback
+    {
+      std::cout
+          <<std::setw(5)<<i
+          <<std::setw(10)<<fPidHypoStr[i]
+          <<std::setw(10)<<fHypoFlagCharged[i]
+          <<std::setw(10)<<fChargedCands[i]
+          <<std::setw(10)<<fTracks[i]
+          <<std::setw(10)<<fTracks2[i]
+          <<std::setw(10)<<fChargedProbability[i]
+          <<std::setw(10)<<fBremCorr[i]
+          <<std::endl;
+    }
+    std::cout
+      <<"-------->8-------->8-------->8-------->8-------->8-------->8-------->8-------->8"
+      <<std::endl;
+  }
+
+  ReadRecoCandidates();
+  BuildMcCands();
 
   if(fVerbose) Info("PndAnalysis::GetEvent()","Finished loading event fEvtCount=%i.",fEvtCount);
-  //std::cout<<"PndAnalysis::fAllCandList:   "<<fAllCandList<<std::endl;
   return fEvtCount;
 }
 
@@ -248,16 +316,33 @@ FairMCEventHeader* PndAnalysis::GetEventHeader()
   return evthead;
 }
 
-Bool_t PndAnalysis::FillList ( RhoCandList& resultList, TString listkey, TString pidTcaNames )
+Bool_t PndAnalysis::FillList ( RhoCandList& resultList, TString listkey, TString pidTcaNames, int trackHypothesis )
 {
   // Reads the specified List for the current event
   resultList.Cleanup();
 
+  // Select the right tracking hypothesis
+  if(fHypoFlagCharged[fDefaultHypo]) {
+    trackHypothesis=fDefaultHypo; // Pions are default
+  }
+
+  TString trkPostfix[6]= {"Electron","Muon","Pion","Kaon","Proton",""};
+  if(0>trackHypothesis || 6<trackHypothesis) { //only for unsupportet track hyp. mumber
+    for(int i=0; i<6; ++i) {
+      if (fHypoFlagCharged[i] && listkey.Contains ( trkPostfix[i] ) ) {
+        trackHypothesis=i;
+        break;
+      }
+    }
+  }
+  if(fVerbose>4) cout<<"PndAnalysis::FillList() listkey=\""<<listkey<<"\" trackhypo="<<trackHypothesis<<" pidTcaNames=\""<<pidTcaNames.Data()<<"\"  trkPostfix=\""<<trkPostfix[trackHypothesis]<<"\""<<endl;
+
   // Set which PID information should be used.
   if ( pidTcaNames!="" ) {
-    fPidCombiner->SetTcaNames ( pidTcaNames );
+    fPidCombiner->SetTcaNames ( pidTcaNames, trkPostfix[trackHypothesis] );
   } else {
-    fPidCombiner->SetDefaults();
+    // FIXME This may cause problems, if defaults are not there
+    fPidCombiner->SetDefaults(); // no pid array
   }
 
   // Get or build Monte-Carlo truth list
@@ -265,24 +350,27 @@ Bool_t PndAnalysis::FillList ( RhoCandList& resultList, TString listkey, TString
     return GetMcCandList(resultList);
   }
 
-  //Info("PndAnalysis::FillList","key=%s",listkey.Data());
+  if(fVerbose>4)Info("PndAnalysis::FillList","key=%s",listkey.Data());
   // acceleration: just give the large lists directly
-  if ( listkey=="All" ) {
-    fPidCombiner->Apply ( fAllCandList );
-    resultList=fAllCandList;
-    return kTRUE;
-  }
 
-  if ( listkey=="Neutral" ) {
-    fPidCombiner->Apply(fNeutralCandList);
+  //if ( listkey=="Neutral" ) {
+  if ( listkey.Contains ( "Neutral" ) ) {
     resultList=fNeutralCandList;
     return kTRUE;
   }
+  //if ( listkey.Contains ( "Neutral" ) )
+  //{ // The neutrals are all clusters, except for the ones which were close to a track. The hypothesis is used in extrapolating the track...
+  ////fPidCombiner->Apply ( fNeutralCandList );
+  //fPidSelector->Select ( fNeutralCandList,resultList );
+  //return kTRUE;
+
+  //}
 
   if ( listkey=="Charged" ) {
-    fPidCombiner->Apply ( fChargedCandList );
-    resultList=fChargedCandList;
-    return kTRUE;
+    resultList=fChargedCandList[trackHypothesis];
+    fPidCombiner->Apply ( resultList );
+    if(fVerbose>4)cout<<"trackhyp="<<trackHypothesis<<" list size after selection="<<resultList.GetLength()<<endl;
+   return kTRUE;
   }
 
   const bool doBremCorr = listkey.Contains("Brem");
@@ -296,38 +384,34 @@ Bool_t PndAnalysis::FillList ( RhoCandList& resultList, TString listkey, TString
   if ( listkey.Contains ( "Electron" ) ||listkey.Contains ( "Muon" ) ||listkey.Contains ( "Pion" )
        || listkey.Contains ( "Kaon" ) ||listkey.Contains ( "Proton" )
        || listkey.Contains ( "Plus" ) ||listkey.Contains ( "Minus" ) ||listkey.Contains ( "Charged" ) ) {
-
     // We create a copy of all charged candidates
-    resultList=fChargedCandList;
 
+    resultList=fChargedCandList[trackHypothesis];
+    if(fVerbose>4)cout<<"trackhyp="<<trackHypothesis<<" list size="<<resultList.GetLength()<<endl;
     // Correction for Bremsstrahlung, if desired
-    if ( doBremCorr ) {
-      if (fBremCorr==0) {
+    if ( doBremCorr )
+    {
+      if (fBremCorr[trackHypothesis]==0) {
         if(fVerbose) Warning("PndAnalysis::FillList","Brem requested but no PndPidBremCorrected4Mom found on input file. Brem Correction can't be done.");
       } else {
         for (int j=0; j<resultList.GetLength(); ++j)
         {
           int trk_id = resultList[j]->GetTrackNumber();
-          int nBremCorr = fBremCorr->GetEntriesFast();
+          int nBremCorr = fBremCorr[trackHypothesis]->GetEntriesFast();
           if (nBremCorr!=resultList.GetLength())
             if(fVerbose)
               Warning("PndAnalysis::FillList","Warning: BermCorr list size diff. from chargeCandList");
-          PndPidBremCorrected4Mom *bremCorr = (PndPidBremCorrected4Mom*) fBremCorr->At(trk_id);
+          PndPidBremCorrected4Mom *bremCorr = (PndPidBremCorrected4Mom*) fBremCorr[trackHypothesis]->At(trk_id);
           resultList[j]->SetP3(bremCorr->GetMomentum());
         }
       }
     }
     fPidCombiner->Apply ( resultList );
+    if(fVerbose>4)cout<<"trackhyp="<<trackHypothesis<<" list size after pid      ="<<resultList.GetLength()<<endl;
     resultList.Select(fPidSelector);
+    if(fVerbose>4)cout<<"trackhyp="<<trackHypothesis<<" list size after selection="<<resultList.GetLength()<<endl;
     return kTRUE;
   }
-
-  if ( listkey.Contains ( "Neutral" ) ) {
-    fPidCombiner->Apply ( fNeutralCandList );
-    fPidSelector->Select ( fNeutralCandList,resultList );
-    return kTRUE;
-  }
-
 
   Error ( "FillList", "Unknown list key: %s",listkey.Data() );
   return kFALSE;
@@ -340,7 +424,7 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
   if ( !fMcCands ) return kFALSE;
 
   RhoCandidate* truth=0;
-  for (int i=0;i<fMcCands->GetEntriesFast();i++)
+  for (int i=0; i<fMcCands->GetEntriesFast(); i++)
   {
     // copy candidates via put
     truth = (RhoCandidate*) fMcCands->At(i);
@@ -350,7 +434,7 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
 
   // now set genealogy inside the list
   RhoCandidate* truthmother=0;
-  for (int k=0;k<l.GetLength();k++)
+  for (int k=0; k<l.GetLength(); k++)
   {
     // get mother track
     PndMCTrack* part = (PndMCTrack*) fMcTracks->At(k);
@@ -366,17 +450,17 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
     l[k]->SetMotherLink(truthmother, false);
   }
   // And now we have to rapair the charges, because delta electrons are inside the MC list, but not the inons
-  for (int k=0;k<l.GetLength();k++)
+  for (int k=0; k<l.GetLength(); k++)
   {
     TParticlePDG* ppdg = TDatabasePDG::Instance()->GetParticle(l[k]->PdgCode());
     double charge=0.0;
     if ( ppdg ) {
-       charge=ppdg->Charge();
+      charge=ppdg->Charge();
     } else if (fVerbose) {
-       cout <<"-W- CreateMcCandidate: strange PDG code:"<<l[k]->PdgCode() <<endl;
+      cout <<"-W- CreateMcCandidate: strange PDG code:"<<l[k]->PdgCode() <<endl;
     }
-       if ( fabs(charge) >2 ) {
-       charge/=3.;
+    if ( fabs(charge) >2 ) {
+      charge/=3.;
     }
     l[k]->SetCharge(charge);
   }
@@ -396,51 +480,52 @@ Int_t PndAnalysis::GetEntries()
 void PndAnalysis::ReadRecoCandidates()
 {
   UInt_t _uid=0;
-  fAllCandList.Cleanup();
-  fChargedCandList.Cleanup();
+  for(int i=0; i<6; i++) fChargedCandList[i].Cleanup();
   fNeutralCandList.Cleanup();
-  if ( fNeutralCands ) {
-    for ( Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++ ) {
-        PndRecoCandidate* mic = ( PndRecoCandidate* ) fNeutralCands->At ( i1 );
-        _uid++; // uid will start from 1
-        RhoCandidate tc ( *mic,_uid );
-        tc.SetTrackNumber ( -1 );//(i1);
-        tc.SetType( 22 );     // default PDG code for neutrals is gamma = 22
-        // TODO: Do we want to set something here? It is neutrals anyway.
 
-        if ( 0!=fNeutralProbability && i1<fNeutralProbability->GetEntriesFast() ) {
-          PndPidProbability* neuProb = ( PndPidProbability* ) fNeutralProbability->At ( i1 );
-
-          if ( neuProb == 0 ) {
-            Error ( "FillList", "Neutral PID Probability object not found, skip setting pid for candidate %i.",i1 );
-            continue;
-          }
-          // numbering see PndPidListMaker
-          tc.SetPidInfo ( 0,neuProb->GetElectronPidProb() );
-          tc.SetPidInfo ( 1,neuProb->GetMuonPidProb() );
-          tc.SetPidInfo ( 2,neuProb->GetPionPidProb() );
-          tc.SetPidInfo ( 3,neuProb->GetKaonPidProb() );
-          tc.SetPidInfo ( 4,neuProb->GetProtonPidProb() );
-        }
-        fAllCandList.Add ( &tc );
-      }
-    } else {
-      if(fVerbose) Warning("PndAnalysis::ReadRecoCandidates()","No neutral reco array found.");
+  // CHARGED
+  int nEntries=0;
+  for(int h=0; h<6; h++) {
+    if ( fChargedCands[h] ) {
+      nEntries=fChargedCands[h]->GetEntriesFast();
+      break;
     }
+  }
+  if(0==nEntries&&fVerbose) Warning("PndAnalysis::ReadRecoCandidates()","No filled charged reco array found.");
 
-    if ( fChargedCands) {
-      for ( Int_t i2=0; i2<fChargedCands->GetEntriesFast(); i2++ ) {
-        _uid++; // uid will start from (n_neutrals + 1)
-        PndRecoCandidate* mic = ( PndRecoCandidate* ) fChargedCands->At ( i2 );
-        RhoCandidate tc ( *mic,_uid );
-        tc.SetTrackNumber ( i2 );
-        tc.SetType( tc.Charge()*211 );  // default PDG code for charged is pi = +-211
-        // TODO: Check that no i+1 is requested anymore elsewhere!!!
-        fAllCandList.Add ( &tc );
-      }
-    } else {
-      if(fVerbose) Warning("PndAnalysis::ReadRecoCandidates()","No charged reco array found.");
+  for ( Int_t i2=0; i2<nEntries; i2++ )
+  {
+    _uid++; // uid will start from (n_neutrals + 1) should be uniquie over all five pid hypotheses
+    for(int i=0; i<6; i++)
+    {
+      if (!fHypoFlagCharged[i]) continue;
+      PndPidCandidate* mic = ( PndPidCandidate* ) fChargedCands[i]->At ( i2 );
+      RhoCandidate tc ( *mic,_uid );
+      tc.SetTrackNumber ( i2 ); // Index for PID arrays
+      if(i<5){tc.SetType( tc.Charge()*fHypoPdg[i] );}
+      fChargedCandList[i].Add ( &tc );
+      if(fVerbose>4) cout<<"Added Candidate to list i="<<i<<" with i2="<<i2<<" making the list to size "<<fChargedCandList[i].GetLength()<<endl;
     }
+  }
+
+  // NEUTRALS
+  if ( fNeutralCands )
+  {
+    for ( Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++ )
+    {
+      _uid++; // uid will start from 1
+      PndPidCandidate* mic = ( PndPidCandidate* ) fNeutralCands->At ( i1 );
+
+      RhoCandidate tc ( *mic,_uid );
+
+      tc.SetTrackNumber ( -1 );//(i1);
+      tc.SetType( 22 );     // default PDG code for neutrals is gamma = 22
+      fNeutralCandList.Add(&tc);
+    }
+  } else {
+    if(fVerbose) Warning("PndAnalysis::ReadRecoCandidates()","No neutral reco array found.");
+  }
+
   return;
 }
 
@@ -452,7 +537,7 @@ void PndAnalysis::BuildMcCands()
     if(fVerbose) Info("PndAnalysis::BuildMcCands","No mc to build...");
     return;
   }
-  if ( !fMcCands ){
+  if ( !fMcCands ) {
     Warning("PndAnalysis::BuildMcCands","No array to store candidates...");
     return;
   }
@@ -465,7 +550,7 @@ void PndAnalysis::BuildMcCands()
   }
 
   //loop all MCTracks
-  for (i=0;i<fMcTracks->GetEntriesFast();i++)
+  for (i=0; i<fMcTracks->GetEntriesFast(); i++)
   {
     // fetch particle properties
     PndMCTrack* part = (PndMCTrack*) fMcTracks->At(i);
@@ -474,12 +559,12 @@ void PndAnalysis::BuildMcCands()
     TParticlePDG* ppdg = TDatabasePDG::Instance()->GetParticle(part->GetPdgCode());
     double charge=0.0;
     if ( ppdg ) {
-       charge=ppdg->Charge();
+      charge=ppdg->Charge();
     } else if (fVerbose) {
-       cout <<"-W- CreateMcCandidate: strange PDG code:"<<part->GetPdgCode() <<endl;
+      cout <<"-W- CreateMcCandidate: strange PDG code:"<<part->GetPdgCode() <<endl;
     }
-       if ( fabs(charge) >2 ) {
-       charge/=3.;
+    if ( fabs(charge) >2 ) {
+      charge/=3.;
     }
     // create mc candidate
     RhoCandidate* pmc=new ( (*fMcCands)[i] ) RhoCandidate(p4,charge);
@@ -494,11 +579,13 @@ void PndAnalysis::BuildMcCands()
   GetMcCandList(fMcCandList);
 
   // Assign MC truth to reconstructed allCandnds
+  //todo: make sure that this part is not broken
   RhoCandidate* truth=0;
-  for(int icand=0;icand<fAllCandList.GetLength();icand++){
-    RhoCandidate* currentcand=fAllCandList.Get(icand);
+  for(int icand=0; icand<fNeutralCandList.GetLength(); icand++) {
+    RhoCandidate* currentcand=fNeutralCandList.Get(icand);
     //   get reco candidate
-    PndRecoCandidate* reco = currentcand->GetRecoCandidate();
+    PndPidCandidate* reco = currentcand->GetRecoCandidate();
+
     if(!reco) {
       if (fVerbose) Info("BuildMcCands","reco object to candidate %i (%p) missing.",icand,currentcand);
       continue;
@@ -510,8 +597,28 @@ void PndAnalysis::BuildMcCands()
     currentcand->SetMcTruth(truth);
     if(fVerbose)Info("PndAnalysis::BuildMcCands()","Now setting truth index %i (%p) to candidate (uid=%i)", mcidx,truth,currentcand->Uid());
   }
+  for(int ihyp=0; ihyp<6; ihyp++) {
+    for(int icand=0; icand<fChargedCandList[ihyp].GetLength(); icand++) {
+      RhoCandidate* currentcand=fChargedCandList[ihyp].Get(icand);
+      //for(int icand=0;icand<fAllCandList[ihyp].GetLength();icand++){
+      //RhoCandidate* currentcand=fAllCandList[ihyp].Get(icand);
+      //   get reco candidate
 
-  //std::cout<<"BuildMcCands():  "<<fAllCandList<<std::endl;
+      PndPidCandidate* reco = currentcand->GetRecoCandidate();
+
+      if(!reco) {
+        if (fVerbose) Info("BuildMcCands","reco object to candidate %i (%p) missing.",icand,currentcand);
+        continue;
+      }
+      // get the mctruth
+      Int_t mcidx = reco->GetMcIndex();
+      if (mcidx>fMcCandList.GetLength() || mcidx<0) continue;
+      truth = fMcCandList[mcidx];
+      currentcand->SetMcTruth(truth);
+      if(fVerbose)Info("PndAnalysis::BuildMcCands()","Now setting truth index %i (%p) to candidate (uid=%i)", mcidx,truth,currentcand->Uid());
+    }
+
+  }
 }
 
 Bool_t PndAnalysis::PropagateToIp ( RhoCandidate* cand )
@@ -523,22 +630,7 @@ Bool_t PndAnalysis::PropagateToIp ( RhoCandidate* cand )
 
 Bool_t PndAnalysis::PropagateToZAxis ( RhoCandidate* cand )
 {
-  if ( !cand ) {
-    Error ( "PropagateToZAxis","Candidate not found: %p",cand );
-    return kFALSE;
-  }
-
-  PndPidCandidate* pidCand = (PndPidCandidate*)cand->GetRecoCandidate();
-
-  PndTrack* track = ( PndTrack* ) fTracks->At ( pidCand->GetTrackIndex() );
-
-  if ( !track ) {
-    Warning ( "PropagateToZAxis","Could not find track object of index %d",pidCand->GetTrackIndex() );
-    return kFALSE;
-  }
-
-  FairTrackParP tStart = track->GetParamFirst();
-
+  FairTrackParP tStart = GetFirstPar(cand);
   return Propagator ( 2,tStart,cand );
 }
 
@@ -548,22 +640,7 @@ Bool_t PndAnalysis::PropagateToPoint ( RhoCandidate* cand, TVector3 mypoint )
   //The candidate is updated but the track not touched
   //Only the uncorrelated errors are propagated,
   //TODO: implement a real cov matrix
-  if ( !cand ) {
-    Error ( "PropagateToPoint","Candidate not found: %p",cand );
-    return kFALSE;
-  }
-
-  PndPidCandidate* pidCand = (PndPidCandidate*)cand->GetRecoCandidate();
-
-  PndTrack* track = ( PndTrack* ) fTracks->At ( pidCand->GetTrackIndex() );
-
-  if ( !track ) {
-    Warning ( "PropagateToPoint","Could not find track object of index %d",pidCand->GetTrackIndex() );
-    return kFALSE;
-  }
-
-  FairTrackParP tStart = track->GetParamFirst();
-
+  FairTrackParP tStart = GetFirstPar(cand);
   return Propagator ( 1,tStart,cand,mypoint );
 }
 
@@ -573,24 +650,42 @@ Bool_t PndAnalysis::PropagateToPlane(RhoCandidate* cand, TVector3 origin, TVecto
   //The candidate is updated but the track not touched
   //Only the uncorrelated errors are propagated,
   //TODO: implement a real cov matrix
+  FairTrackParP tStart = GetFirstPar(cand);
+  return Propagator ( 3,tStart,cand,origin,kFALSE,kFALSE,dj,dk );
+}
+
+PndTrack* PndAnalysis::GetTrack ( RhoCandidate* cand )
+{
   if ( !cand ) {
-    Error ( "PropagateToPlane","Candidate not found: %p",cand );
-    return kFALSE;
+    Error ( "GetTrack","Candidate not found: %p",cand );
+    return NULL;
   }
 
   PndPidCandidate* pidCand = (PndPidCandidate*)cand->GetRecoCandidate();
 
-  PndTrack* track = ( PndTrack* ) fTracks->At ( pidCand->GetTrackIndex() );
-
-  if ( !track ) {
-    Warning ( "PropagateToPlane","Could not find track object of index %d",pidCand->GetTrackIndex() );
-    return kFALSE;
+  if ( !pidCand ) {
+    Error ( "GetTrack","PID Candidate not found: %p",pidCand );
+    return NULL;
   }
 
-  FairTrackParP tStart = track->GetParamFirst();
-  return Propagator ( 3,tStart,cand,origin,kFALSE,kFALSE,dj,dk );
-}
+  // TODO fallback should go away someday
+  int hypid=5; // default is the fallback -
+  for(int a=0; a<5; a++) {
+    if(cand->PdgCode()==fHypoPdg[a]) {
+      hypid=a;
+      break;
+    }
+  }
 
+  PndTrack* track = ( PndTrack* ) fTracks[hypid]->At ( pidCand->GetTrackIndex() );
+
+  if ( !track ) {
+    Warning ( "GetTrack","Could not find track object of index %d",pidCand->GetTrackIndex() );
+    return NULL;
+  }
+
+  return track;
+}
 
 FairTrackParP PndAnalysis::GetFirstPar ( RhoCandidate* cand )
 {
@@ -599,13 +694,10 @@ FairTrackParP PndAnalysis::GetFirstPar ( RhoCandidate* cand )
     FairTrackParP dummy;
     return dummy;
   }
-
-  PndPidCandidate* pidCand = (PndPidCandidate*)cand->GetRecoCandidate();
-
-  PndTrack* track = ( PndTrack* ) fTracks->At ( pidCand->GetTrackIndex() );
+  PndTrack* track = GetTrack(cand);
 
   if ( !track ) {
-    Warning ( "GetFirstPar","Could not find track object of index %d",pidCand->GetTrackIndex() );
+    Warning ( "GetFirstPar","Could not find track object " );
     FairTrackParP dummy;
     return dummy;
   }
@@ -638,12 +730,12 @@ Bool_t PndAnalysis::ResetCandidate ( RhoCandidate* cand )
       err[ii][jj]=globalCov[ii][jj];
     }
 
-  //if(fVerbose>2){ std::cout<<"MARS cov (px,py,pz,E,x,y,z): ";err.Print();}
+  if(fVerbose>3){ std::cout<<"MARS cov (px,py,pz,E,x,y,z): ";err.Print();}
   TLorentzVector lv = cand->P4();
 
   TMatrixD covPosMom = RhoCalculationTools::GetConverted7 ( RhoCalculationTools::GetFitError ( lv, err ) );
 
-  //if(fVerbose>2){ std::cout<<"covPosMom (x,y,z,px,py,pz,E): ";covPosMom.Print();}
+  if(fVerbose>3){ std::cout<<"covPosMom (x,y,z,px,py,pz,E): ";covPosMom.Print();}
 
   cand->SetPosition ( firstpar.GetPosition() );
 
@@ -671,7 +763,8 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
   }
 
   if ( fVerbose>2 ) {
-    std::cout<<"Start Params are:"<<std::endl; tStart.Print();
+    std::cout<<"Start Params are:"<<std::endl;
+    tStart.Print();
   }
 
   Double_t startCov[6][6];
@@ -684,7 +777,8 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
     }
 
   if ( fVerbose>2 ) {
-    std::cout<<"Start MARS cov: "; errst.Print();
+    std::cout<<"Start MARS cov: ";
+    errst.Print();
   }
 
   if ( 1==mode ) { // to point
@@ -706,11 +800,11 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
 
   FairTrackParH* myResult=0;
   // now we propagate
-  if(mode==3){
+  if(mode==3) {
     FairTrackParP* tResult = new FairTrackParP();
     rc = geaneProp->Propagate ( &tStart, tResult,pdgcode );
     myResult = new FairTrackParH(*tResult);
-  }else{
+  } else {
     myResult = new FairTrackParH();
     FairTrackParH* myStart = new FairTrackParH ( tStart );
     rc = geaneProp->Propagate ( myStart, myResult,pdgcode );
@@ -752,7 +846,7 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
     vecdiff.Print();
   }
 
-  if(kFALSE==skipcov){
+  if(kFALSE==skipcov) {
     Double_t globalCov[6][6];
     myParab->GetMARSCov ( globalCov );
     TMatrixD err ( 6,6 );
@@ -762,7 +856,8 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
       }
 
     if ( fVerbose>2 ) {
-      std::cout<<"MARS cov (px,py,pz,E,x,y,z): "; err.Print();
+      std::cout<<"MARS cov (px,py,pz,E,x,y,z): ";
+      err.Print();
     }
 
     TLorentzVector lv = cand->P4();
@@ -770,13 +865,14 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
     TMatrixD covPosMom = RhoCalculationTools::GetConverted7 ( RhoCalculationTools::GetFitError ( lv, err ) );
 
     if ( fVerbose>2 ) {
-      std::cout<<"covPosMom (x,y,z,px,py,pz,E): "; covPosMom.Print();
+      std::cout<<"covPosMom (x,y,z,px,py,pz,E): ";
+      covPosMom.Print();
     }
 
     cand->SetCov7 ( covPosMom );
   }
-//  rc = RhoCalculationTools::FillHelixParams(cand,skipcov);
-//  if (!rc) {Warning("Propagator()","P7toHelix failed"); return kFALSE;}
+  //  rc = RhoCalculationTools::FillHelixParams(cand,skipcov);
+  //  if (!rc) {Warning("Propagator()","P7toHelix failed"); return kFALSE;}
 
   if ( fVerbose>2 ) {
     std::cout<<" :::::::::::  Printout in PndAnalysis::Propagator() :::::::::::  "<<std::endl;
@@ -803,7 +899,7 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
   // When taking the Trackparams in the POCA to the z-axis, the SC system from GEANE matches the common helix params easier, i.e:
   // D0 = y_sc and Z0 = sqrt(x_sc^2 + z_sc^2) = z_sc*tan(Lambda)
 
-  if(overwrite){
+  if(overwrite) {
     if ( fVerbose>1 ) {
       Info ( "Propagator  ","overwriting start parameter state with result");
     }
@@ -815,7 +911,7 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
                        myParab->GetJVer(),
                        myParab->GetKVer(),
                        myParab->GetSPU()
-                       );
+                      );
   }
 
   if ( fVerbose>1 ) {
@@ -835,13 +931,13 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
 
 Bool_t PndAnalysis::McTruthMatch(RhoCandidate* cand, Int_t level, bool verbose)
 {
-    return MctMatch(cand,fMcCandList,level,verbose);
+  return MctMatch(cand,fMcCandList,level,verbose);
 }
 
 Int_t PndAnalysis::McTruthMatch(RhoCandList& list, Int_t level, bool verbose)
 {
   Int_t ifound = 0;
-  for(int icand=0;icand<list.GetLength();icand++){
+  for(int icand=0; icand<list.GetLength(); icand++) {
     if( true == MctMatch(list[icand],fMcCandList,level,verbose) ) {
       ifound++;
     }
@@ -871,7 +967,7 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
     }
   }
 
-    // check recursively whether all daughter trees match
+  // check recursively whether all daughter trees match
   for ( Int_t i=0; i<nd; i++ ) {
     if ( !MctMatch (  c->Daughter ( i ) , mct, level, verbose ) ) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected composite (pdg=%i) by non-matching daughter: idau=%i",pdg,i);
@@ -907,8 +1003,10 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   }
   RhoCandidate* mcdauzeromother=mcdauzero->TheMother();
   if (!mcdauzeromother) {
-    if(verbose) {Info("PndMcTruthMatch::MctMatch","rejected by not existing mother of MC truth of daughter zero");
-    cout <<*mcdauzero<<endl;}
+    if(verbose) {
+      Info("PndMcTruthMatch::MctMatch","rejected by not existing mother of MC truth of daughter zero");
+      cout <<*mcdauzero<<endl;
+    }
 
     return false;
   }
@@ -927,13 +1025,13 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   // count daughter photons (pdg==22) from MC mother with E < photos_thresh
   int nphall = 0;
   if (ndaudiff>0)
-    for (int idau=0;idau<mcdauzeromother->NDaughters();++idau)
+    for (int idau=0; idau<mcdauzeromother->NDaughters(); ++idau)
       if (mcdauzeromother->Daughter(idau)->PdgCode()==22 && mcdauzeromother->Daughter(idau)->E()<fPhotosThresh) nphall++;
 
   // reco'd photons with E<photos_thresh
   int nphreco = 0;
   //  now if all daughters MC-Mother is the same
-  for(int idau=1;idau<nd;idau++){
+  for(int idau=1; idau<nd; idau++) {
     // look if all daughters mc mothers are the same
     RhoCandidate* dau = c->Daughter(idau);
     if (!dau) {
@@ -951,9 +1049,9 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by not existing mother of MC truth of daughter %i",idau);
       return false;
     }
-    if(mcdaumother!=mcdauzeromother){
+    if(mcdaumother!=mcdauzeromother) {
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by mc mother of daughter %i(%p) is different to mc mother of daughter zero(%p) -> Tree does not match"
-            ,idau,mcdaumother,mcdauzeromother);
+                         ,idau,mcdaumother,mcdauzeromother);
       return false;
     }
 
@@ -963,8 +1061,8 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   // difference in #phot<max allowed and has to be exactly the total number of particle difference
   if ( (nphall-nphreco)>fPhotosMax || (nphall-nphreco)!=ndaudiff )
   {
-  if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by differing daughter count not being photos photons: cand:%i mc:%i",c->NDaughters(),mcdauzeromother->NDaughters());
-  return false;
+    if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by differing daughter count not being photos photons: cand:%i mc:%i",c->NDaughters(),mcdauzeromother->NDaughters());
+    return false;
   }
 
   // ***
@@ -990,3 +1088,12 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   if (verbose) cout <<*c->GetMcTruth()<<endl;
   return true;  // c's tree matches!
 }
+
+
+
+
+
+
+
+
+

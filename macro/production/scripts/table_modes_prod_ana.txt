@@ -1,0 +1,28 @@
+# analysis mode table for prod_ana.C
+# used if prefix begins with '*'
+
+010	//	-3.872	//	J/psi -> e+ e-                          //  mwin=1.2:qaevs:qarec
+011	//	-3.872	//	J/psi -> e+ e-                          //  mwin=1.2:qaevs:qarec
+012	//	-3.872	//	J/psi -> e+ e-                          //  mwin=1.2:qaevs:qarec
+013	//	-3.872	//	J/psi -> e+ e-                          //  mwin=1.2:qaevs:qarec
+014	//	-3.872	//	J/psi -> e+ e-                          //  mwin=1.2:qaevs:qarec
+110	//	-3.872	//	J/psi -> e+ e-                          //  mwin=1.2:qaevs:qarec
+
+020	//	-3.872	//	J/psi -> mu+ mu-                        //  mwin=1.0:qaevs:qarec
+021	//	-3.872	//	J/psi -> mu+ mu-                        //  mwin=1.0:qaevs:qarec
+022	//	-3.872	//	J/psi -> mu+ mu-                        //  mwin=1.0:qaevs:qarec
+023	//	-3.872	//	J/psi -> mu+ mu-                        //  mwin=1.0:qaevs:qarec
+024	//	-3.872	//	J/psi -> mu+ mu-                        //  mwin=1.0:qaevs:qarec
+120	//	-3.872	//	J/psi -> mu+ mu-                        //  mwin=1.0:qaevs:qarec
+
+030	//	 1.500	//	pbp -> e+ e-                            //  mwin=1.0:qaevs:qarec
+031	//	 1.500	//	pi0 -> gamma gamma; pbp -> e+ e- pi0    //  mwin=1.0:mwin(pi0)=0.04:qaevs:qarec
+130	//	 1.500	//	pbp -> e+ e-                            //  mwin=1.0:qaevs:qarec
+131	//	 1.500	//	pi0 -> gamma gamma; pbp -> e+ e- pi0    //  mwin=1.0:mwin(pi0)=0.04:qaevs:qarec
+
+040	//	 1.642	//	Lambda0 -> proton pi-                   //  mwin=1.0:fitvtx:qaevs:qarec
+140	//	 1.642	//	Lambda0 -> proton pi-                   //  mwin=1.0:fitvtx:qaevs:qarec
+
+
+
+

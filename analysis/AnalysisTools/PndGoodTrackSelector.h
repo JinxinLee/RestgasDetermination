@@ -8,7 +8,7 @@ class PndGoodTrackSelector : public RhoGoodTrackSelector
 {
 
   public:
-    virtual Bool_t Accept(PndRecoCandidate& );
+    virtual Bool_t Accept(PndPidCandidate& );
     void SetCriterion ( const char* crit );
 
     //    virtual Bool_t Accept(RhoCandidate& ) ;

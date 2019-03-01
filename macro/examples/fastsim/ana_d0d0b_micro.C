@@ -88,7 +88,7 @@ int ana_d0d0b_micro(TString fname="dsds_10k.evt.root",int num=0)
 		//
 
 		for (i1=0; i1<fMicro->GetEntriesFast(); i1++){
-			//PndPidCandidate *mic = (PndMicroCandidate *)fMicro->At(i1);
+			//PndPidCandidate *mic = (PndPidCandidate *)fMicro->At(i1);
 			TCandidate tc2(*((PndPidCandidate*)fMicro->At(i1)),i1);
 			if (abs(tc2.Charge())>0.01)chrg.Add(tc2);
 			else neut.Add(tc2);

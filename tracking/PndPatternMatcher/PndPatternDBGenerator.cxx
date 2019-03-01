@@ -83,7 +83,7 @@ InitStatus PndPatternDBGenerator::Init() {
   std::cout << "-I- PndPatternDBGenerator: Initialisation successful" << std::endl;
   return kSUCCESS;
 }
-void PndPatternDBGenerator::Exec(Option_t* opt) {
+void PndPatternDBGenerator::Exec(Option_t* /*opt*/) { //[R.K. 9/2018] unused
   GenerateTrackPatterns();
 }
 void PndPatternDBGenerator::FinishTask() {

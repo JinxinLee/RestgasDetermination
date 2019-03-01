@@ -16,10 +16,10 @@ using std::ios;
 
 #include <string>
 using std::string;
-         
+
 #include <vector>
 using std::vector;
-         
+
 #include <map>
 using std::map;
 
@@ -28,7 +28,7 @@ template <typename T>
 struct TTracksCatCounters // counters for different tracks categories
 {
   int NCounters;
-  
+
   vector<T> counters;
 
   TTracksCatCounters():NCounters(0),counters(){ counters.clear(); };
@@ -36,7 +36,7 @@ struct TTracksCatCounters // counters for different tracks categories
 
   void AddCounter(){ NCounters++; counters.push_back(T(0)); };
   void AddCounters(int nCounters){ NCounters += nCounters; counters.resize( NCounters, T(0)); };
-  
+
   TTracksCatCounters& operator+=(TTracksCatCounters& a){
     if (NCounters != a.NCounters){
       cout << " TTracksCatCounters: Error. Addition of counters of different sizes: " << NCounters << " " << a.NCounters << endl;
@@ -118,23 +118,24 @@ struct TEfficiencies
   TEfficiencies():ratio_ghosts(0),ratio_clones(0),ghosts(0),clones(0),nEvents(0){
     // you should add counter with shortname="total" !!
   };
+  virtual ~TEfficiencies(){};
 
   virtual void AddCounter(string shortname, string name);
-  
+
   TEfficiencies& operator+=(TEfficiencies& a);
   void CalcEff();
   void Inc(bool isReco, string name); // increment counters according to parameters
   void IncNEvents(){ nEvents++; };
   void Print();
 
-  
+
   vector<string> names; // names counters indexed by index of counter
   map<string, int> indices; // indices of counters indexed by a counter shortname
-  
+
   TTracksCatCounters<double> ratio_reco;
   double ratio_ghosts;
   double ratio_clones;
-  
+
   TTracksCatCounters<int> mc;
   TTracksCatCounters<int> reco;
   int ghosts;
@@ -146,7 +147,7 @@ inline void TEfficiencies::AddCounter(string shortname, string name)
 {
   indices[shortname] = names.size();
   names.push_back(name);
-    
+
   ratio_reco.AddCounter();
   mc.AddCounter();
   reco.AddCounter();
@@ -174,14 +175,14 @@ inline TEfficiencies& TEfficiencies::operator+=(TEfficiencies& a)
   mc += a.mc; reco += a.reco;
   ghosts += a.ghosts; clones += a.clones;
   nEvents += a.nEvents;
-  
+
   return *this;
 }
 
 inline void TEfficiencies::Inc(bool isReco, string name)
 {
   const int index = indices[name];
-    
+
   mc.counters[index]++;
   if (isReco) reco.counters[index]++;
 }

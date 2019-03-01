@@ -31,14 +31,12 @@
 PndMasterPidTask::PndMasterPidTask(TString options) :
   PndMasterTask("Master Pid Task"), fOptions(options)
 {
-  pid = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
   // -----   Correlation   ---------------------------------
-  PndPidCorrelator* corr = NULL;
-  this->Add(corr = new PndPidCorrelator()); // 1
-  pid.kPndPidCorrelator = GetListOfTasks()->GetSize()-1;
+  PndPidCorrelator* corr = new PndPidCorrelator();
+
   TString barrelbranchname="SttMvdGemGenTrack";
-  if (fOptions.Contains("nogem")||fOptions.Contains("gem0")){
+  if (fOptions.Contains("nogem")||fOptions.Contains("gem0")) {
     barrelbranchname="SttMvdGenTrack";
   }
   if (fOptions.Contains("filtered")) barrelbranchname+="_filtered";
@@ -49,59 +47,47 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   if (fOptions.Contains("fakeonline")) fwdbranchname+="_fakeonline";
   corr->SetForwardTrackBranch(fwdbranchname);
 
-  corr->SetDebugMode(kTRUE);
-  //corr->SetFast(kTRUE);
-  //corr->SetBackPropagate(kFALSE);
+  if (fOptions.Contains("piddebug")) corr->SetDebugMode(kTRUE);
+  if (fOptions.Contains("pidfast")) corr->SetFast(kTRUE);
+  if (fOptions.Contains("pidnoswim")) corr->SetBackPropagate(kFALSE);
+
+  fStandardTasks.push_back(corr);
 
   // -----   Bremsstrahlung Correction ----------------------
-  this->Add(new PndPidBremCorrector()); // 2
-  pid.kPndPidBremCorrector = GetListOfTasks()->GetSize()-1;
+  fStandardTasks.push_back(new PndPidBremCorrector());
+
+  // -----   Classifiers   ----------------------------------
+  fStandardTasks.push_back(new PndPidIdealAssociatorTask());
+
+  fStandardTasks.push_back(new PndPidMvdAssociatorTask());
+  fStandardTasks.push_back(new PndPidMdtHCAssociatorTask());
+  fStandardTasks.push_back(new PndPidDrcAssociatorTask());
+
+  if ( !fOptions.Contains("day1") && !fOptions.Contains("phase1") )
+  {
+    fStandardTasks.push_back(new PndPidDiscAssociatorTask());
+  }
+
+  fStandardTasks.push_back(new PndPidSttAssociatorTask());
+  fStandardTasks.push_back(new PndPidEmcBayesAssociatorTask());
+  fStandardTasks.push_back(new PndPidSciTAssociatorTask());
+  fStandardTasks.push_back(new PndPidFtofAssociatorTask());
+
+  if ( !fOptions.Contains("day1") && !fOptions.Contains("phase1") )
+  {
+    fStandardTasks.push_back(new PndPidRichAssociatorTask());
+  }
 
   // -----   MC Cloner   ------------------------------------
   PndMcCloner *clone = NULL;
-  this->Add(clone = new PndMcCloner()); // 3
-  pid.kPndMcCloner = GetListOfTasks()->GetSize()-1;
+  fStandardTasks.push_back(clone = new PndMcCloner());
   // Option to clean the MCTrack TClonesArray from particles which were not interacting with sensitive detectors
   clone->SetCleanMc();
 
-  // -----   Classifiers   ----------------------------------
-  this->Add(new PndPidIdealAssociatorTask()); // 4
-  pid.kPndPidIdealAssociatorTask = GetListOfTasks()->GetSize()-1;
-
-  this->Add(new PndPidMvdAssociatorTask()); // 5
-  pid.kPndPidMvdAssociatorTask = GetListOfTasks()->GetSize()-1;
-
-  this->Add(new PndPidMdtHCAssociatorTask()); // 6
-  pid.kPndPidMdtHCAssociatorTask = GetListOfTasks()->GetSize()-1;
-
-  this->Add(new PndPidDrcAssociatorTask()); // 7
-  pid.kPndPidDrcAssociatorTask = GetListOfTasks()->GetSize()-1;
-
-  if ( (!fOptions.Contains("nogem")) && (!fOptions.Contains("gem0")) )
-    {
-      this->Add(new PndPidDiscAssociatorTask()); // 8
-      pid.kPndPidDiscAssociatorTask = GetListOfTasks()->GetSize()-1;
-    }
-
-  this->Add(new PndPidSttAssociatorTask()); // 9
-  pid.kPndPidSttAssociatorTask = GetListOfTasks()->GetSize()-1;
-
-  this->Add(new PndPidEmcBayesAssociatorTask()); // 10
-  pid.kPndPidEmcBayesAssociatorTask = GetListOfTasks()->GetSize()-1;
-
-  this->Add(new PndPidSciTAssociatorTask()); // 11
-  pid.kPndPidSciTAssociatorTask = GetListOfTasks()->GetSize()-1;
-
-  this->Add(new PndPidFtofAssociatorTask()); // 12
-  pid.kPndPidFtofAssociatorTask = GetListOfTasks()->GetSize()-1;
-
-  if ( !fOptions.Contains("day1") && !fOptions.Contains("phase1") )
-    {
-      this->Add(new PndPidRichAssociatorTask()); // 13
-      pid.kPndPidRichAssociatorTask = GetListOfTasks()->GetSize()-1;
-    }
+  std::for_each(fStandardTasks.begin(), fStandardTasks.end(), [this](const FairTask* task){ Add((TTask*)task); } );
 
   SetVerbose(0);
+
 }
 // -------------------------------------------------------------------------
 
@@ -123,3 +109,4 @@ PndMasterPidTask::~PndMasterPidTask()
 /** @cond CLASSIMP */
 ClassImp(PndMasterPidTask);
 /** @endcond */
+

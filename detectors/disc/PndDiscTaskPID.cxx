@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 // Author:      Mustafa Schmidt (Mustafa.A.Schmidt@physik.uni-giessen.de)
-// Changes:     
+// Changes:
 // Date:        30.11.2015
 // Description: Particle Identification
 //-------------------------------------------------------------------------
@@ -84,7 +84,7 @@ PndDiscTaskPID::~PndDiscTaskPID()
 
 InitStatus PndDiscTaskPID::ReInit()
 {
-    fLogger->Info(MESSAGE_ORIGIN, "PndDiscTaskPID::ReInit()");
+    LOG(INFO) << "PndDiscTaskPID::ReInit()";
     return kSUCCESS;
 }
 
@@ -92,13 +92,13 @@ InitStatus PndDiscTaskPID::ReInit()
 
 InitStatus PndDiscTaskPID::Init()
 {
-    fLogger->Info(MESSAGE_ORIGIN, "PndDiscTaskPID::Init()");
-    
+    LOG(INFO) << "PndDiscTaskPID::Init()";
+
     // Get IO manager instance
     FairRootManager* io_manager = FairRootManager::Instance();
     if(!io_manager)
     {
-        fLogger->Fatal(MESSAGE_ORIGIN, "FairRootManager instance is NULL !!!");
+        LOG(FATAL) << "FairRootManager instance is NULL !!!";
         return kFATAL;
     }
 
@@ -106,7 +106,7 @@ InitStatus PndDiscTaskPID::Init()
     tclarr_digits = (TClonesArray*) io_manager->GetObject("DiscDigitizedHit");
     if(!tclarr_digits)
     {
-        fLogger->Error(MESSAGE_ORIGIN, "Branch %s is not accessible through FairRootManager.", branch_name_digits.Data());
+        LOG(ERROR) << "Branch " << branch_name_digits.Data() << " is not accessible through FairRootManager.";
         return kERROR;
     }
 
@@ -114,7 +114,7 @@ InitStatus PndDiscTaskPID::Init()
     tclarr_recon_results = (TClonesArray*) io_manager->GetObject("DiscPatternPrediction");
     if(!tclarr_recon_results)
     {
-        fLogger->Error(MESSAGE_ORIGIN, "No DiscPatternPrediction collection registered with FairRootManager");
+        LOG(ERROR) << "No DiscPatternPrediction collection registered with FairRootManager";
         return kFATAL;
     }
 
@@ -122,7 +122,7 @@ InitStatus PndDiscTaskPID::Init()
     tclarr_particles_in = (TClonesArray*) io_manager->GetObject("DiscRealTracks");
     if(!tclarr_particles_in)
     {
-        fLogger->Error(MESSAGE_ORIGIN, "No DiscRealTracks collection registered with FairRootManager");
+        LOG(ERROR) << "No DiscRealTracks collection registered with FairRootManager";
         return kFATAL;
     }
 
@@ -194,7 +194,7 @@ void PndDiscTaskPID::Exec(Option_t*)
         PndDiscParticleMCPoint* particle_mc_point = (PndDiscParticleMCPoint*)tclarr_particles_in->At(i);
 
         double time = particle_mc_point->GetTime();
- 
+
         t.push_back(time);
     }
 
@@ -225,7 +225,7 @@ void PndDiscTaskPID::Exec(Option_t*)
             int sensor_id = 27*detector_id + sensor_mc_point->GetReadoutID(); //Sensor ID of hit
             //int pixel = sensor_mc_point->GetPixelNumber(); // Pixel number of hit //[R.K. 01/2017] unused variable?
             double tdc = sensor_mc_point->GetTdcTime();
-            
+
             for(int k = 0; k < 3; k++)
             {
                 double propagation = tdc - t[i]; //Calculation of photon propagation time
@@ -265,7 +265,7 @@ void PndDiscTaskPID::Exec(Option_t*)
             int sensor_id = 27*detector_id + sensor_mc_point->GetReadoutID(); //Sensor ID of hit
             int pixel = sensor_mc_point->GetPixelNumber(); // Pixel number of hit
             //double tdc = sensor_mc_point->GetTdcTime(); //[R.K. 01/2017] unused variable?
-            
+
             for(int k = 0; k < 3; k++)
             {
                 //std::cout << "Time differences: " << tdc - t[i] - time_prediction[i][k][sensor_id] - mean_time[i][k] << std::endl;

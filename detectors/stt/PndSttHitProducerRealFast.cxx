@@ -18,6 +18,7 @@
 #include "PndSttTube.h"
 #include "PndSttMapCreator.h"
 #include "PndSttSignalOverlap.h"
+#include "PndSttTubeMap.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -40,7 +41,7 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerRealFast::PndSttHitProducerRealFast() : 
-  PndPersistencyTask("Ideal STT Hit Producer",0), fSeparate(kFALSE), fSttParameters(NULL) {
+  PndPersistencyTask("Ideal STT Hit Producer",0), fSeparate(kFALSE), fSttParameters(NULL), fGeoType(-1) {
   SetPersistency(kTRUE);
   fOverlap = kFALSE;
 }
@@ -65,6 +66,8 @@ InitStatus PndSttHitProducerRealFast::Init() {
     return kFATAL;
   }
   
+  fGeoType = fSttParameters->GetGeometryType();
+
   // Get input array
   fPointArray = (TClonesArray*) ioman->GetObject("STTPoint");
   if ( ! fPointArray ) {
@@ -120,8 +123,12 @@ InitStatus PndSttHitProducerRealFast::Init() {
   //cout << "-I- PndSttHitProducerRealFast: Intialization successfull" << endl;
 
    // CHECK added 
-  PndSttMapCreator mapper(fSttParameters);
-  fTubeArray = mapper.FillTubeArray();
+  if (fGeoType == 1){
+      PndSttMapCreator mapper(fSttParameters);
+      fTubeArray = mapper.FillTubeArray();
+  }
+
+  cout << "-I- PndSttHitProducerRealFast: Intialization successfull" << endl;
 
   return kSUCCESS;
 
@@ -181,7 +188,16 @@ void PndSttHitProducerRealFast::Exec(Option_t*) {
 
     // tubeID  CHECK added
     Int_t tubeID = point->GetTubeID();
-    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    PndSttTube *tube = nullptr;
+
+    if (fGeoType == 1)
+        tube = (PndSttTube*) fTubeArray->At(tubeID);
+    else if (fGeoType == 2){
+        tube = PndSttTubeMap::Instance()->GetTube(tubeID);
+    }
+    if (tube == nullptr){
+        std::cout << "-E- PndSttHitProducerRealFast Nullptr of TubeID: " << tubeID << std::endl;
+    }
 
     double InOut[6];
     memset(InOut, 0, sizeof(InOut));

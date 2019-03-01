@@ -21,7 +21,7 @@
 using namespace std;
 
 // -------------   Default constructor  ----------------------------------
-PndRichCalDb::PndRichCalDb() 
+PndRichCalDb::PndRichCalDb()
   : FairField(),
     fFileName(""),
     fPmin(0), fPmax(0), fPstep(0),
@@ -30,7 +30,7 @@ PndRichCalDb::PndRichCalDb()
     fTmin(0), fTmax(0), fTstep(0),
     fFmin(0), fFmax(0), fFstep(0),
     fNp(0), fNx(0), fNy(0), fNt(0), fNf(0),
-    fBetaMean(NULL), fBetaSig(NULL), fBetaEff(NULL)   
+    fBetaMean(NULL), fBetaSig(NULL), fBetaEff(NULL)
 {
   SetName("");
   fType = 0;
@@ -60,7 +60,7 @@ PndRichCalDb::PndRichCalDb(const char* mapName, const char* fileType)
     fTmin(0), fTmax(0), fTstep(0),
     fFmin(0), fFmax(0), fFstep(0),
     fNp(0), fNx(0), fNy(0), fNt(0), fNf(0),
-    fBetaMean(NULL), fBetaSig(NULL), fBetaEff(NULL)   
+    fBetaMean(NULL), fBetaSig(NULL), fBetaEff(NULL)
 {
   SetName(mapName);
   TString dir = getenv("VMCWORKDIR");
@@ -74,7 +74,7 @@ PndRichCalDb::PndRichCalDb(const char* mapName, const char* fileType)
 
 
 // ------------   Constructor from PndRichCalDbPar   --------------------------
-PndRichCalDb::PndRichCalDb(PndRichCalDbPar* calDbPar) 
+PndRichCalDb::PndRichCalDb(PndRichCalDbPar* calDbPar)
   : FairField(),
     fFileName(""),
     fPmin(0), fPmax(0), fPstep(0),
@@ -83,11 +83,11 @@ PndRichCalDb::PndRichCalDb(PndRichCalDbPar* calDbPar)
     fTmin(0), fTmax(0), fTstep(0),
     fFmin(0), fFmax(0), fFstep(0),
     fNp(0), fNx(0), fNy(0), fNt(0), fNf(0),
-    fBetaMean(NULL), fBetaSig(NULL), fBetaEff(NULL)   
+    fBetaMean(NULL), fBetaSig(NULL), fBetaEff(NULL)
 {
   fType = 1;
   if ( ! calDbPar ) {
-     Error(MESSAGE_ORIGIN, "PndRichCalDb::PndRichCalDb: empty parameter container!");
+     LOG(ERROR) << "PndRichCalDb::PndRichCalDb: empty parameter container!";
      SetName("");
      fType     = -1;
   }
@@ -112,7 +112,7 @@ PndRichCalDb::PndRichCalDb(const  PndRichCalDb& L)
     fTmin(L.fTmin), fTmax(L.fTmax), fTstep(L.fTstep),
     fFmin(L.fFmin), fFmax(L.fFmax), fFstep(L.fFstep),
     fNp(L.fNp), fNx(L.fNx), fNy(L.fNy), fNt(L.fNt), fNf(L.fNf),
-    fBetaMean(L.fBetaMean), fBetaSig(L.fBetaSig), fBetaEff(L.fBetaEff)  
+    fBetaMean(L.fBetaMean), fBetaSig(L.fBetaSig), fBetaEff(L.fBetaEff)
 {
   fType = L.fType;
 }
@@ -135,7 +135,7 @@ void PndRichCalDb::Init() {
   if      (fFileName.EndsWith(".root")) ReadRootFile(fFileName, fName);
   else if (fFileName.EndsWith(".dat"))  ReadAsciiFile(fFileName);
   else {
-    Error(MESSAGE_ORIGIN,"-E- PndRichCalDb::Init: No proper file name defined! (%s) ");
+    LOG(ERROR) << "-E- PndRichCalDb::Init: No proper file name defined! ("<<fFileName.Data()<<")";
     Fatal("Init", "No proper file name");
   }
 }
@@ -167,7 +167,7 @@ Double_t PndRichCalDb::GetBetaMean(dbpoint pnt) {
   if (x<0&&y<0)  { f = 180 + f; x = -x; y = -y; }
   if (f>360) f -= 360;
   if (f<0) f +=360;
-   
+
   if ( IsInside(p, x, y, t, f, ip, ix, iy, it, iq, dp, dx, dy, dt, df) ) {
 
      Double_t pq[5][2];
@@ -266,7 +266,7 @@ Double_t PndRichCalDb::GetBetaSig(dbpoint pnt) {
      return value;
 
   }
-   
+
   return 0.;
 }
 // ------------------------------------------------------------------------
@@ -296,7 +296,7 @@ Double_t PndRichCalDb::GetBetaEff(dbpoint pnt) {
   if (x<0&&y<0)  { f = 180 + f; x = -x; y = -y; }
   if (f>360) f -= 360;
   if (f<0) f +=360;
-   
+
   if ( IsInside(p, x, y, t, f, ip, ix, iy, it, iq, dp, dx, dy, dt, df) ) {
 
      Double_t pq[5][2];
@@ -330,7 +330,7 @@ Double_t PndRichCalDb::GetBetaEff(dbpoint pnt) {
      return value;
 
   }
-   
+
   return 0.;
 }
 // ------------------------------------------------------------------------
@@ -339,8 +339,8 @@ Double_t PndRichCalDb::GetBetaEff(dbpoint pnt) {
 
 
 // -----------   Check whether a point is inside the map   ----------------
-Bool_t PndRichCalDb::IsInside(Double_t p, Double_t x, Double_t y, Double_t t, Double_t f, 
-                              Int_t& ip, Int_t& ix, Int_t& iy, Int_t& it, Int_t& iq, 
+Bool_t PndRichCalDb::IsInside(Double_t p, Double_t x, Double_t y, Double_t t, Double_t f,
+                              Int_t& ip, Int_t& ix, Int_t& iy, Int_t& it, Int_t& iq,
                               Double_t& dp, Double_t& dx, Double_t& dy, Double_t& dt, Double_t& df) {
 
   // ---  Check for being outside the map range
@@ -353,13 +353,13 @@ Bool_t PndRichCalDb::IsInside(Double_t p, Double_t x, Double_t y, Double_t t, Do
     dp = dx = dy = dt = df = 0.;
     return kFALSE;
   }
- 
+
   dp = ( p - fPmin ) / fPstep;
   dx = ( x - fXmin ) / fXstep;
   dy = ( y - fYmin ) / fYstep;
   dt = ( t - fTmin ) / fTstep;
   df = ( f - fFmin ) / fFstep;
-   
+
   // --- Determine grid cell
   ip = Int_t( dp );
   ix = Int_t( dx );
@@ -386,17 +386,17 @@ Bool_t PndRichCalDb::IsInside(Double_t p, Double_t x, Double_t y, Double_t t, Do
 void PndRichCalDb::WriteAsciiFile(const char* fileName) {
 
   // Open file
-  Info(MESSAGE_ORIGIN, "PndRichCalDb: Writing field map to ASCII file %s ",fileName);
+  LOG(INFO) << "PndRichCalDb: Writing field map to ASCII file "<<fileName;
   ofstream mapFile(fileName);
   if ( ! mapFile.is_open() ) {
-    Error(MESSAGE_ORIGIN, "PndRichCalDb:ReadAsciiFile: Could not open file! ");
+    LOG(ERROR) << "PndRichCalDb:ReadAsciiFile: Could not open file! ";
     return;
   }
 
   // Write field map grid parameters
   mapFile.precision(4);
   mapFile << showpoint;
-   
+
   mapFile << fPmin << " " << fPmax << " " << fNp << endl;
   mapFile << fXmin << " " << fXmax << " " << fNx << endl;
   mapFile << fYmin << " " << fYmax << " " << fNy << endl;
@@ -406,7 +406,7 @@ void PndRichCalDb::WriteAsciiFile(const char* fileName) {
   // Write field values
   cout << right;
   //Int_t nTot = fNp * fNx * fNy * fNt * fNf; //[R.K. 01/2017] unused variable?
-  cout << "-I- PndRichCalDb: " << fNp*fNx*fNy*fNt*fNf << " entries to write... " 
+  cout << "-I- PndRichCalDb: " << fNp*fNx*fNy*fNt*fNf << " entries to write... "
        << setw(3) << 0 << " % ";
   Int_t index=0;
 //  div_t modul;
@@ -431,15 +431,15 @@ void PndRichCalDb::WriteAsciiFile(const char* fileName) {
                     }
                  }*/
                  mapFile << fBetaMean->At(index) << " " << fBetaSig->At(index)
-                       << " " << fBetaEff->At(index) << endl; 
+                       << " " << fBetaEff->At(index) << endl;
               }  // f-Loop
            }  // t-Loop
         }  // y-Loop
      }  // x-Loop
   }  // p-Loop
-   mapFile.close();		
+   mapFile.close();
 
-}	
+}
 // ------------------------------------------------------------------------
 
 
@@ -474,15 +474,15 @@ void PndRichCalDb::Print() {
   cout << "----  Field type     : " << type << endl;
   cout << "----" << endl;
   cout << "----  Field map grid : " << endl;
-  cout << "----  p = " << setw(4) << fPmin << " to " << setw(4) << fPmax 
+  cout << "----  p = " << setw(4) << fPmin << " to " << setw(4) << fPmax
        << "   , " << fNp << " grid points, dp = " << fPstep << "   " << endl;
-  cout << "----  x = " << setw(4) << fXmin << " to " << setw(4) << fXmax 
+  cout << "----  x = " << setw(4) << fXmin << " to " << setw(4) << fXmax
        << " cm, " << fNx << " grid points, dx = " << fXstep << " cm" << endl;
-  cout << "----  y = " << setw(4) << fYmin << " to " << setw(4) << fYmax 
+  cout << "----  y = " << setw(4) << fYmin << " to " << setw(4) << fYmax
        << " cm, " << fNy << " grid points, dy = " << fYstep << " cm" << endl;
-  cout << "----  t = " << setw(4) << fTmin << " to " << setw(4) << fTmax 
+  cout << "----  t = " << setw(4) << fTmin << " to " << setw(4) << fTmax
        << "   , " << fNt << " grid points, dt = " << fTstep << "   " << endl;
-  cout << "----  f = " << setw(4) << fFmin << " to " << setw(4) << fFmax 
+  cout << "----  f = " << setw(4) << fFmin << " to " << setw(4) << fFmax
        << "   , " << fNf << " grid points, df = " << fFstep << "   " << endl;
   cout << endl;
 /*  cout << "----  Field scaling factor: " << fScale << endl;
@@ -494,7 +494,7 @@ void PndRichCalDb::Print() {
        << by << ", " << setw(6) << bz << ") kG" << endl;*/
  cout << "======================================================" << endl;
 }
-// ------------------------------------------------------------------------  
+// ------------------------------------------------------------------------
 
 
 
@@ -508,7 +508,7 @@ void PndRichCalDb::Reset() {
    if ( fBetaSig ) { delete fBetaSig; fBetaSig = NULL; }
    if ( fBetaEff ) { delete fBetaEff; fBetaEff = NULL; }
 }
-// ------------------------------------------------------------------------  
+// ------------------------------------------------------------------------
 
 
 
@@ -516,7 +516,7 @@ void PndRichCalDb::Reset() {
 void PndRichCalDb::ReadAsciiFile(const char* fileName) {
 
   // Open file
-  cout << "-I- PndRichCalDb: Reading field map from ASCII file " 
+  cout << "-I- PndRichCalDb: Reading field map from ASCII file "
        << fileName << endl;
   ifstream mapFile(fileName);
   if ( ! mapFile.is_open() ) {
@@ -525,7 +525,7 @@ void PndRichCalDb::ReadAsciiFile(const char* fileName) {
   }
 
   // Read grid parameters
- 
+
   mapFile >>fPmin >> fPmax >> fNp;
   mapFile >>fXmin >> fXmax >> fNx;
   mapFile >>fYmin >> fYmax >> fNy;
@@ -536,7 +536,7 @@ void PndRichCalDb::ReadAsciiFile(const char* fileName) {
   fYstep = ( fYmax - fYmin ) / Double_t( fNy - 1 );
   fTstep = ( fTmax - fTmin ) / Double_t( fNt - 1 );
   fFstep = ( fFmax - fFmin ) / Double_t( fNf - 1 );
-  
+
   // Create field arrays
   fBetaMean = new TArrayF(fNp * fNx * fNy * fNt * fNf);
   fBetaSig  = new TArrayF(fNp * fNx * fNy * fNt * fNf);
@@ -545,7 +545,7 @@ void PndRichCalDb::ReadAsciiFile(const char* fileName) {
   // Read the field values
   cout << right;
   Int_t nTot = fNp * fNx * fNy * fNt * fNf;
-  cout << "-I- PndRichCalDb: " << nTot << " entries to read... " 
+  cout << "-I- PndRichCalDb: " << nTot << " entries to read... "
        << setw(3) << 0 << " % ";
   Int_t index = 0;
 //  div_t modul;
@@ -575,7 +575,7 @@ void PndRichCalDb::ReadAsciiFile(const char* fileName) {
                  }*/
                  mapFile >>  m >> s >> e;
                  if (s<0||e<0||e>1)
-                    cout << index << " " << m << " " << s << " " << e << endl; 
+                    cout << index << " " << m << " " << s << " " << e << endl;
                  fBetaMean->AddAt(m, index);
                  fBetaSig->AddAt(s, index);
                  fBetaEff->AddAt(e, index);
@@ -590,7 +590,7 @@ void PndRichCalDb::ReadAsciiFile(const char* fileName) {
         }  // y-Loop
      }  // x-Loop
   }  // p-Loop
-   
+
   cout << "   " << index+1 << " read" << endl;
 
   mapFile.close();
@@ -601,17 +601,17 @@ void PndRichCalDb::ReadAsciiFile(const char* fileName) {
 
 
 // -------------   Read field map from ROOT file (private)  ---------------
-void PndRichCalDb::ReadRootFile(const char* fileName, 
+void PndRichCalDb::ReadRootFile(const char* fileName,
                                 const char* mapName) {
 
   // Store gFile pointer
   TFile* oldFile = gFile;
 
   // Open root file
-  Info(MESSAGE_ORIGIN, "PndRichCalDb: Reading field map from ROOT file  %s ",fileName);
-  TFile* file = new TFile(fileName, "READ");		
+  LOG(INFO) << "PndRichCalDb: Reading field map from ROOT file  "<<fileName;
+  TFile* file = new TFile(fileName, "READ");
   if (file->IsZombie()) {
-    Error(MESSAGE_ORIGIN, "-E- PndRichCalDb::ReadRootfile: Cannot read from file! ");
+    LOG(ERROR) << "-E- PndRichCalDb::ReadRootfile: Cannot read from file! (" << fileName <<")";
     Fatal("ReadRootFile","Cannot read from file");
   }
 
@@ -619,7 +619,7 @@ void PndRichCalDb::ReadRootFile(const char* fileName,
   PndRichCalDbData* data = NULL;
   file->GetObject(mapName, data);
   if ( ! data ) {
-     Error(MESSAGE_ORIGIN,"PndRichCalDb::ReadRootFile: data object %s not found in file! ", fileName);
+     LOG(ERROR) << "PndRichCalDb::ReadRootFile: data object " << fileName << " not found in file! ";
      exit(-1);
   }
 
@@ -629,7 +629,7 @@ void PndRichCalDb::ReadRootFile(const char* fileName,
   // Close the root file and delete the data object
   file->Close();
   delete data;
-  delete file;	
+  delete file;
   if ( oldFile ) oldFile->cd();
 
 }
@@ -644,11 +644,11 @@ void PndRichCalDb::SetCalDb(const PndRichCalDbData* data) {
    std::cout << "fType = " << fType << " " << data->GetType() << std::endl;
    fType = data->GetType();
   if ( data->GetType() != fType ) {
-    Error(MESSAGE_ORIGIN,"PndRichCalDb::SetField: Incompatible map types Field map is of type %s \n but map on file is of type %s ",fType,data->GetType());
+    LOG(ERROR) << "PndRichCalDb::SetField: Incompatible map types Field map is of type "<<fType<<" \n but map on file is of type " << data->GetType();
     Fatal("SetField","Incompatible map types");
   }
-  
-  
+
+
   fPmin = data->GetPmin();
   fXmin = data->GetXmin();
   fYmin = data->GetYmin();
@@ -677,7 +677,7 @@ void PndRichCalDb::SetCalDb(const PndRichCalDbData* data) {
   fBetaEff = new TArrayF(*(data->GetBetaEff()));
 
 }
-// ------------------------------------------------------------------------  
+// ------------------------------------------------------------------------
 
 
 

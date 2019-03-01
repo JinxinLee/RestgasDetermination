@@ -5,7 +5,7 @@ int cellTrackFinder(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "../../data/ftf_G3_5G0_1000";
+  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  output         = "cell";
   TString  friend1        = "sim";

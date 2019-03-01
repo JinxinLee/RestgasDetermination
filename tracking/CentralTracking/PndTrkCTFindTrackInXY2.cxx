@@ -24,7 +24,7 @@ using namespace std;
 
 void PndTrkCTFindTrackInXY2::AddMvdHitsToSttTracks(
 	Double_t delta,			// input;
-	Double_t highqualitycut,	// input;
+	Double_t /*highqualitycut*/,	// input; //[R.K. 9/2018] unused
 	Double_t FiRangeMvdLow,		// input;
 	Double_t FiRangeMvdUp,		// input;
 	const Short_t maxmvdpixelhitsintrack,	// input;
@@ -125,8 +125,8 @@ void PndTrkCTFindTrackInXY2::AddMvdHitsToSttTracks(
 
 
 Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
-	Double_t dimensionscitil,
-	Double_t *esse, // output, list of  S of the SciTil hits associated. 
+	Double_t /*dimensionscitil*/, //[R.K. 9/2018] unused
+	Double_t *esse, // output, list of  S of the SciTil hits associated.
 	bool* InclusionListSciTil,
 	Short_t *List, // output, list of SciTil hits associated (max. 2);
 	Short_t maxscitilhitsintrack,
@@ -312,7 +312,7 @@ Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
 bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 	struct FindTrackInXYProjection2_InputOutputData* InOut,
 	int istampa,
-	int IVOLTE
+	int /*IVOLTE*/ //[R.K. 9/2018] unused
 	)
 {
 
@@ -515,7 +515,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 //	on the RIGHT side, in the XY projection of the trajectory [looking into the beam] with respect
 //	to the segment joining the Center of the Helix with the origin (0,0);
 // fi_low_limit[1], fi_up_limit[1] is the solution corresponding to the LEFT intersection; in case
-//			there is no second solution it is set at -100.; 
+//			there is no second solution it is set at -100.;
  GeomCalculator.FindingParallelTrackAngularRange2(
 		Ox,
 		Oy,
@@ -842,7 +842,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	//	on the RIGHT side, in the XY projection of the trajectory [looking into the beam] with respect
 	//	to the segment joining the Center of the Helix with the origin (0,0);
 	// fi_low_limit[1], fi_up_limit[1] is the solution corresponding to the LEFT intersection; in case
-	//			there is no second solution it is set at -100.; 
+	//			there is no second solution it is set at -100.;
 	GeomCalculator.FindingParallelTrackAngularRange2(
 		Ox,
 		Oy,
@@ -919,7 +919,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 	// ------------------------  now redo the selection of the STT Axial hits belonging to this track;
 
- 
+
 	// try TrkAssociatedParallelHitsToHelix6 that is the same as TrkAssociatedParallelHitsToHelix5 except that
 	// it takes as input the maximum distance allowed for an associated hit;
 	NN =  TrkAssociatedParallelHitsToHelix6(
@@ -961,7 +961,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 //  equation of the SciTil segment :  y0 * y + x0 * x - x0**2 - y0**2 = 0
 //  where  (x0,y0) = position of center of the SciTil.
 
-//  delimiting points of the SciTil segment :  define L = length of the SciTil, 
+//  delimiting points of the SciTil segment :  define L = length of the SciTil,
 //  and RR = sqrt(x0**2+y0**2), SIGN = the sign of (-x0*y0) or SIGN=1 when y0=0,
 //  SIGN=irrelevant when x0=0;   then :
 //  P1 =  [ x0- abs{(L/2)*y0/RR}; y0-SIGN*abs{(L/2)*x0/RR} ],
@@ -1081,7 +1081,7 @@ void   PndTrkCTFindTrackInXY2::OrderingUsingConformal(
 	)
 {
 
-      Short_t	i,j, 
+      Short_t	i,j,
 		tmp[nHits];
       Double_t	aaa,
 		b1,
@@ -1147,7 +1147,7 @@ void   PndTrkCTFindTrackInXY2::OrderingUsingConformal(
 	} else { // use V as ordering variable [case 2 or 4 Gianluigi's Logbook page 285].
 		for (j = 0; j< nHits; j++){
 			V[j]= info[ListHits[j]][1]/(info[ListHits[j]][0]*info[ListHits[j]][0]+
-			info[ListHits[j]][1]*info[ListHits[j]][1]); 
+			info[ListHits[j]][1]*info[ListHits[j]][1]);
 		}
 		MergeSort.Merge_Sort2( nHits, V, ListHits);
 
@@ -1177,7 +1177,7 @@ void   PndTrkCTFindTrackInXY2::OrderingUsingConformal(
 
 
 
- return; 
+ return;
 
 
 }
@@ -1236,7 +1236,7 @@ void   PndTrkCTFindTrackInXY2::OrderingUsingFi(
 		for (j = 0; j< nHits; j++){
 			iaux[j] = ListHits[nHits-j-1];
 		}
-		
+
 		for (j = 0; j< nHits; j++){
 			ListHits[j]=iaux[j];
 		}
@@ -1244,7 +1244,7 @@ void   PndTrkCTFindTrackInXY2::OrderingUsingFi(
 
 
 
- return; 
+ return;
 
 
 }
@@ -1391,7 +1391,7 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix5(
 	if(angle<Fi_low) angle += 2.*PI;
 	if(angle>Fi_up) continue;
 	auxListHitsinTrack[nAssociatedHits]= ListSttParHits[i];
-	nAssociatedHits++; 
+	nAssociatedHits++;
   } // end for(i=0; i<NhitsParallel;i++)
 
  return nAssociatedHits;
@@ -1448,7 +1448,7 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix6(
 	if(angle<Fi_low) angle += 2.*PI;
 	if(angle>Fi_up) continue;
 	auxListHitsinTrack[nAssociatedHits]= ListSttParHits[i];
-	nAssociatedHits++; 
+	nAssociatedHits++;
   } // end for(i=0; i<NhitsParallel;i++)
 
  return nAssociatedHits;

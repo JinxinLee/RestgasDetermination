@@ -5,11 +5,11 @@ int forwardTrackFinder(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "evtcomplete_1G5";
+  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  output         = "forwardtracking";
-  TString  friend1        = "digi";
-  TString  friend2        = "digionly";
+  TString  friend1        = "sim";
+  TString  friend2        = "digi";
   TString  friend3        = "";
   TString  friend4        = "";
   TString  fOptions       = "";

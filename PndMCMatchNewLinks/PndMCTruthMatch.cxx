@@ -84,7 +84,7 @@ void PndMCTruthMatch::Exec(Option_t*)
 		FairMultiLinkedData_Interface* myData = (FairMultiLinkedData_Interface*)fInBranch->At(i);
 		std::cout << i << " : " << *myData << std::endl;
 		std::vector<FairLink> myLinks = myData->GetSortedMCTracks();
-		for (int trackIndex = 0; trackIndex < myLinks.size(); trackIndex++)
+		for (unsigned int trackIndex = 0; trackIndex < myLinks.size(); trackIndex++)
 		{
 			PndMCTrack* myTrack = (PndMCTrack*)FairRootManager::Instance()->GetCloneOfLinkData(myLinks[trackIndex]);
 			std::cout << myLinks[trackIndex] << " : " << *myTrack;

@@ -56,20 +56,22 @@ void PndLmdContFact::setAllContainers() {
 //  fDigiParNames->Add(new TObjString(p->GetName()));
 //  containers->Add(p);
   
-  FairContainer* p2 = new FairContainer("SDSPixelDigiPar", "PndSds Pixel Digitization Parameters", "TestDefaultContext");
+  FairContainer* p2 = new FairContainer("LMDPixelDigiPar", "PndSds Pixel Digitization Parameters", "TestDefaultContext");
   p2->addContext("TestNonDefaultContext");
   fDigiParNames->Add(new TObjString(p2->GetName()));
   containers->Add(p2);
   
-  FairContainer* p3 = new FairContainer("SDSStripDigiParRect", "PndSds Strip Digitization Parameters (rectangular sensors)", "TestDefaultContext");
+  /*
+  FairContainer* p3 = new FairContainer("LMDStripDigiParRect", "PndSds Strip Digitization Parameters (rectangular sensors)", "TestDefaultContext");
   p3->addContext("TestNonDefaultContext");
   fDigiParNames->Add(new TObjString(p3->GetName()));
   containers->Add(p3);
   
-  FairContainer* p4 = new FairContainer("SDSStripDigiParTrap", "PndSds Strip Digitization Parameters (trapezoid sensors)", "TestDefaultContext");
+  FairContainer* p4 = new FairContainer("LMDStripDigiParTrap", "PndSds Strip Digitization Parameters (trapezoid sensors)", "TestDefaultContext");
   p4->addContext("TestNonDefaultContext");
   fDigiParNames->Add(new TObjString(p4->GetName()));
   containers->Add(p4);
+	*/
 
   FairContainer* p5 = new FairContainer("LMDAlignPar", "PndLmd Alignment Parameters", "TestDefaultContext");
   p5->addContext("TestNonDefaultContext");
@@ -87,17 +89,19 @@ FairParSet* PndLmdContFact::createContainer(FairContainer* c) {
 //    p=new PndMvdGeoPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
 //  }
 
-  if (strcmp(name,"SDSPixelDigiPar")==0) {
+  if (strcmp(name,"LMDPixelDigiPar")==0) {
 	p=new PndSdsPixelDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
 
-  if (strcmp(name,"SDSStripDigiParRect")==0) {
+  /*
+  if (strcmp(name,"LMDStripDigiParRect")==0) {
   p=new PndSdsStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   
-  if (strcmp(name,"SDSStripDigiParTrap")==0) {
+  if (strcmp(name,"LMDStripDigiParTrap")==0) {
     p=new PndSdsStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
+  */
 
   if (strcmp(name,"LMDAlignPar")==0) {
     p=new PndLmdAlignPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());

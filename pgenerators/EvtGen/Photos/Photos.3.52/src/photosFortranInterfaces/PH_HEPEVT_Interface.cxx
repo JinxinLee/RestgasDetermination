@@ -17,28 +17,28 @@ void PH_HEPEVT_Interface::clear(){
 
   m_particle_list.clear();
 
-  ph_hepevt_.nevhep=0; 
+  ph_hepevt_.nevhep=0;
   ph_hepevt_.nhep=0;
-  
+
 
   /**  for(int i=0; i < NMXHEP; i++){
 
     ph_hepevt_.isthep[i]=0;
     ph_hepevt_.idhep[i]=0;
-    
+
     for(int j=0; j<2; j++){
       ph_hepevt_.jmohep[i][j]=0;
       ph_hepevt_.jdahep[i][j]=0;
     }
-    
+
     for(int j=0; j<5; j++)
       ph_hepevt_.phep[i][j]=0;
-    
+
     for(int j=0; j<4; j++)
       ph_hepevt_.vhep[i][j]=0;
-  
+
       ph_phoqed_.qedrad[i]=0;
-  
+
       }**/
 }
 
@@ -57,7 +57,8 @@ void PH_HEPEVT_Interface::add_particle(int i,PhotosParticle * particle,
 
   //now set the element of PH_HEPEVT
   ph_hepevt_.nevhep=0; //dummy
-  ph_hepevt_.nhep=ph_hepevt_.nhep++;
+  //ph_hepevt_.nhep=ph_hepevt_.nhep++; // [R.K. 9/2018] This line may lead to undefined behaviour.
+  ph_hepevt_.nhep++;                   // [R.K. 9/2018] I assume the number should be increased by one
   ph_hepevt_.isthep[i]=particle->getStatus();
   ph_hepevt_.idhep[i]=particle->getPdgID();
 
@@ -71,7 +72,7 @@ void PH_HEPEVT_Interface::add_particle(int i,PhotosParticle * particle,
   ph_hepevt_.phep[i][1]=particle->getPy();
   ph_hepevt_.phep[i][2]=particle->getPz();
   ph_hepevt_.phep[i][3]=particle->getE();
-  
+
   // if massFrom4Vector=true (default) - get sqrt(e^2-p^2)
   // otherwise - get mass from event record
   if(!Photos::massFrom4Vector) ph_hepevt_.phep[i][4]=particle->getMass();
@@ -87,7 +88,7 @@ void PH_HEPEVT_Interface::add_particle(int i,PhotosParticle * particle,
       if(pdgid == abs(Photos::forceMassList->at(j)->first))
       {
         double mass = Photos::forceMassList->at(j)->second;
-        
+
         // when 'forceMass' is used the mass provided is larger than 0.0
         // when 'forceMassFromEventRecord' is used mass is -1.0
         // in this case - get mass from event record
@@ -171,29 +172,29 @@ void PH_HEPEVT_Interface::get(){
   int  daughters_start = ph_hepevt_.jmohep[ph_hepevt_.nhep-1][0];
   int  photons         = ph_hepevt_.nhep - m_particle_list.size();
   bool isPhotonCreated = (photons>0);
-  
+
   std::vector<PhotosParticle*> photon_list; // list of added photons
                                             // which need kinematical treatment
                                             // in special case
 
-  // we decipher daughters_start from  last entry 
+  // we decipher daughters_start from  last entry
   // that is last daughter in  ph_hepevt_
-  // another option of this functionality may be 
+  // another option of this functionality may be
   // ph_hepevt_.jdahep[ ph_hepevt_.jmohep[ph_hepevt_.nhep-1][0]-1][0];
   // Update daughters_start if there are two mothers
   // NOTE: daughters_start is index for C++ arrays, while ph_hepevt_.jmohep
   //       contains indices for Fortran arrays.
   if(ph_hepevt_.jmohep[ph_hepevt_.nhep-1][1]>0)
     daughters_start = ph_hepevt_.jmohep[ph_hepevt_.nhep-1][1];
-  
+
   index = particle_count;
 
   // Add extra photons
   for(;photons>0; photons--, index++){
-    
+
     if(ph_hepevt_.idhep[index]!=PhotosParticle::GAMMA)
       Log::Fatal("PH_HEPEVT_Interface::get(): Extra particle added to the PH_HEPEVT common block in not a photon!",6);
-    
+
     //create a new particle
     PhotosParticle * new_photon;
     new_photon = m_particle_list.at(0)->createNewParticle(ph_hepevt_.idhep[index],
@@ -203,12 +204,12 @@ void PH_HEPEVT_Interface::get(){
 							  ph_hepevt_.phep[index][1],
 							  ph_hepevt_.phep[index][2],
 							  ph_hepevt_.phep[index][3]);
-    
+
     //add into the event record
     //get mother particle of photon
     PhotosParticle * mother =  m_particle_list.at(ph_hepevt_.jmohep[index][0]-1);
     mother->addDaughter(new_photon);
-    
+
     //add to list of photons
     photon_list.push_back(new_photon);
   }
@@ -227,7 +228,7 @@ void PH_HEPEVT_Interface::get(){
     // in the following we create list of   daughters,
     // later  we calculate bool special which is true only if all
     // daughters self-decay
-    // at peresent warning for  mixed self-decay and not self decay 
+    // at peresent warning for  mixed self-decay and not self decay
     // daughters is not printed.
 
     for(int i=daughters_start;i<particle_count;i++)
@@ -239,9 +240,9 @@ void PH_HEPEVT_Interface::get(){
 
     // Check if this is a special case
     special = true;
-    
+
     if(daughters.size()==0) special = false;
-    
+
     // special = false if there is a stable particle on the list
     //                 or there is a particle without self-decay
     for(unsigned int i=0;i<daughters.size();i++)
@@ -251,13 +252,13 @@ void PH_HEPEVT_Interface::get(){
         special = false;
         break;
       }
-      
+
       // NOTE: We can use 'getDaughters' here, because vertices
       //       of daughters are not being modified by Photos right now
       //       (so there will be no caching)
       std::vector<PhotosParticle*> daughters2 = daughters[i]->getDaughters();
-      
-      if(daughters2.size()!=1 || 
+
+      if(daughters2.size()!=1 ||
          daughters2[0]->getPdgID() != daughters[i]->getPdgID() )
       {
         special = false;
@@ -311,12 +312,12 @@ void PH_HEPEVT_Interface::get(){
                                     photon_list[i]->getPy(),
                                     photon_list[i]->getPz(),
                                     photon_list[i]->getE()   );
-                
+
         boosted->boostToRestFrame(p1);
         boosted->boostFromRestFrame(p2);
-        
+
         photon_list[i]->createSelfDecayVertex(boosted);
-        
+
         delete boosted;
       }
 
@@ -341,7 +342,7 @@ void PH_HEPEVT_Interface::get(){
     {
       particle->createHistoryEntry();
     }
-    
+
     //check to see if this particle's 4-momentum has been modified
     bool   update=false;
 
@@ -399,7 +400,7 @@ void PH_HEPEVT_Interface::get(){
 
     }
   }
-  
+
   // cleanup
   if(p1) delete p1;
   if(p2) delete p2;
