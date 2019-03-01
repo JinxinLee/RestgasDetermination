@@ -72,6 +72,7 @@ class PndTrackingQATask : public FairTask
  private:
 //
 //  virtual void FillMapTrackQualifikation();
+  const TString fHypoName[5]={"Electron","Muon","Pion","Kaon","Proton"};  //!
 
 
   /** Analyses the track data and assigns quality indicator to track.

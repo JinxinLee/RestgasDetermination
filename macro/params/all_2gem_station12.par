@@ -135,6 +135,8 @@ noise:Double_t 200
 QCloudSigma:Double_t 0.000581
 FECols:Int_t 110
 FERows:Int_t 116
+#MaxFEperCol:Int_t 1 # TODO Check for actual parameter setting
+#MaxFEperRow:Int_t 1 # TODO Check for actual parameter setting
 ClustRad:Double_t 1.8
 fe_BusClock:Double_t 155.52
 chargeconv_method:Int_t 1
@@ -275,7 +277,7 @@ SampleRate_FWD:Double_t 100e6
 Use_shaped_noise:Int_t 0
 Use_photon_statistic:Int_t 1
 EnergyDigiThreshold:Double_t 2.0e-3
-UseDigiEffectiveSmearing:Int_t 1                
+UseDigiEffectiveSmearing:Int_t 1
 NoiseAllChannels:Int_t 0
 Use_nonuniformity:Int_t 1
 #################################################################
@@ -372,11 +374,11 @@ DrcSigmaPhi:Float_t 0.0474
 DrcCut:Float_t 20.
 #################################################################
 #################################################################
-# Digitization parameters for GEM                                
-# with 3 Stations at 90, 120, 150 cm from the target             
-# Format:                                                        
-#Description of parameters:                                      
-#[PndGemDetectors]                                            
+# Digitization parameters for GEM
+# with 3 Stations at 90, 120, 150 cm from the target
+# Format:
+#Description of parameters:
+#[PndGemDetectors]
 #parameters:d station_number, rotation_angle, number_of_sensors, \
 #                 sensor_number, sensor_type, pos_x, pos_y, pos_z, rotAngle, inn_rad, out_rad, thick, str_ang_0, str_ang_1, pitch_0, pitch_1, \
 #                 sensor_number, ....
@@ -403,7 +405,7 @@ TrackFinderOnHits_ParMat0:   Double_t \
 TrackFinderOnHits_ParMat1:   Double_t \
                                       -7.46844e-10,   -6.6696e-7,    0.000736672
 ##########################################################################################
-# Correlation Parameter for PID 
+# Correlation Parameter for PID
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
 #################################################################

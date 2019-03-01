@@ -5,14 +5,14 @@ int barrelTrackFinder(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "evtcomplete_1G5";
+  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  output         = "barreltracking";
-  TString  friend1        = "digi";
-  TString  friend2        = "digionly";
+  TString  friend1        = "sim";
+  TString  friend2        = "digi";
   TString  friend3        = "";
   TString  friend4        = "";
-  TString  fOptions       = "";
+  TString  fOptions       = "gf2";
 
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
@@ -29,6 +29,36 @@ int barrelTrackFinder(Int_t nEvents = 0)
   tracking->UseMvdSttGem(kTRUE, kTRUE, kTRUE);
   tracking->SetPersistency(kTRUE);
   fRun->AddTask(tracking);
+
+  if (fOptions.Contains("gf1")){
+      FairGeane *Geane = new FairGeane();
+      fRun->AddTask(Geane);
+
+      PndRecoKalmanTask* recoKalman = NULL;
+      fRun->AddTask(recoKalman = new PndRecoKalmanTask());
+      recoKalman->SetTrackInBranchName("BarrelTrack");
+      recoKalman->SetTrackOutBranchName("BarrelGenTrack");
+
+      recoKalman->SetBusyCut(50); // CHECK to be tuned
+      //recoKalman->SetIdealHyp(kTRUE);
+      //recoKalman->SetNumIterations(3);
+      recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
+      //recoKalman->SetPropagateToIP(kFALSE);
+  } else if (fOptions.Contains("gf2")){
+      FairGeane *Geane = new FairGeane();
+      fRun->AddTask(Geane);
+
+      PndRecoKalmanTask2* recoKalman = NULL;
+      fRun->AddTask(recoKalman = new PndRecoKalmanTask2());
+      recoKalman->SetTrackInBranchName("BarrelTrack");
+      recoKalman->SetTrackOutBranchName("BarrelGenTrack");
+
+      recoKalman->SetBusyCut(50); // CHECK to be tuned
+      //recoKalman->SetIdealHyp(kTRUE);
+      //recoKalman->SetNumIterations(3);
+      //recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
+      //recoKalman->SetPropagateToIP(kFALSE);
+  }
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

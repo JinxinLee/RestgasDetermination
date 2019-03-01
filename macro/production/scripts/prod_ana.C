@@ -13,6 +13,8 @@
 //
 // --------------------------------------------------------------------------------------
 
+typedef std::vector<TString> StrVec;
+
 bool checkfile(TString fn)
 {
 	bool fileok=true;
@@ -25,8 +27,50 @@ bool checkfile(TString fn)
 	return fileok;
 }
 
+StrVec SplitString(TString s, TString delim=",")
+{
+	StrVec v;
+	s.ReplaceAll("\t"," ");
+	s += delim;
+		
+	while (s.Contains(delim))
+	{
+		TString tok = s(0,s.Index(delim));
+		s.Remove(0,tok.Length()+delim.Length());
+		tok = (TString)tok.Strip(TString::kBoth);
+		v.push_back(tok);
+	}
+	
+	return v;
+}
+
+StrVec ReadModeTab(TString filename)
+{
+	ifstream input(filename.Data(), std::ifstream::in);
+	
+	StrVec res;
+	
+	for( std::string line; getline( input, line ); )
+	{
+		TString modeline(line);
+		if (modeline.Contains("#")) modeline = modeline(0, modeline.Index("#"));
+		modeline = modeline.Strip(TString::kBoth);
+		if (modeline!="") res.push_back(TString(modeline));
+	}
+	
+	input.close();
+	
+	return res;
+}
+
+
 int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 {
+	// Read table with modes
+	TString path     = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/production/scripts/";
+	TString modefile = path+"table_modes_prod_ana.txt";
+	std::vector<TString> modetab = ReadModeTab(modefile);
+	int modefromtab = -1;
 
 	// ****************************************
 	// configuration for PndSimpleCombinerTask
@@ -34,10 +78,26 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	//           APPLY CHANGES HERE!
 	// ****************************************
 
+
 	double   Mom      = 6.569;
 
 	TString  anadecay = "D0 -> K- pi+; pbp->D0 D0_bar";
 	TString  anaparms = "fit4cbest:mwin=0.8";
+
+	// we look in the analysis table for analysis mode #mode
+	for (int i=0; i<(int)modetab.size(); ++i)
+	{
+		StrVec v = SplitString(modetab[i],"//");
+		
+		if (v[0].Atoi() == mode)
+		{
+			Mom      = v[1].Atof();
+			anadecay = v[2];
+			anaparms = v[3];
+			modefromtab = i;
+			anaparms += ":algo=PidAlgoMvd;PidAlgoMdtHardCuts;PidAlgoDrc;PidAlgoStt;PidAlgoEmcBayes;PidAlgoSciT;PidAlgoFtof";
+		}
+	}
 
 	// this sets fast/full sim mode automatically by checking for input file name suffix
 	//bool     fastsim  = (prefix.EndsWith(".root") && prefix.Contains("_fsim")) || gSystem->AccessPathName(Form("%s_%d_pid.root",prefix.Data(),from));
@@ -53,7 +113,6 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	bool     runST    = false;
 
 
-
 	// ****************************************
 	//           APPLY CHANGES HERE!
 	//
@@ -62,16 +121,29 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 
 
 	// Print some help text
- 	if (prefix=="")
+ 	if (prefix=="" || prefix=="!")
 	{
 		cout << "Example analysis macro using PndSimpleCombiner(Task). !! MODIFY for your purpose !!\n\n";
 		cout << "USAGE:\n";
-		cout << "prod_ana.C( <pref>, <from>, <to>, [nevt] )\n\n";
+		cout << "prod_ana.C( <pref>, <from>, <to>, [mode], [nevt] )\n\n";
 		cout << "   <pref>     : input/output file names prefix or full input file name\n";
 		cout << "   <from>     : first run number\n";
 		cout << "   <to>       : last run number\n";
 		cout << "   [mode]     : arbitrary mode number; default: 0\n";
 		cout << "   [nevt]     : number of events; default: 0 = all\n\n";
+		cout << "Example : root -l -b -q 'prod_ana.C(\"mysim\",1,20,10)'\n\n";
+		
+		if (modetab.size()>0) cout <<"\nFound "<<modetab.size()<<" analysis modes in "<<modefile<<".\n"<<endl;
+		
+		if (modetab.size()>0 && prefix=="!")
+		{
+			for (int i=0;i <(int)modetab.size(); ++i)
+			{
+				StrVec v = SplitString(modetab[i],"//");
+				printf("(%02d)  Mode %4s @ %s = %7s GeV  :  %s  [PARM: %s]\n",  i, v[0].Data(), v[1].Atof()<0 ? "E" : "p",  v[1].Data(),   v[2].Data(), v[3].Data());
+			}
+			cout <<endl;
+		}
 	}
 
 	// if Mom<0, interprete as -E_cm
@@ -94,14 +166,16 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	cout << "------------------------------------------------\n";
 	cout << "        Current analysis configuration\n";
 	cout << "------------------------------------------------\n";
-	printf( " p_beam   : %.3f GeV/c\n",Mom);
-	printf( " E_cm     : %.3f GeV\n",Ecm);
+	printf( " Mode     : %d  (%d)\n",   mode, modefromtab);
+	printf( " p_beam   : %.3f GeV/c\n", Mom);
+	printf( " E_cm     : %.3f GeV\n",   Ecm);
 	cout << " reco     : "<<anadecay<<endl;
 	cout << " params   : "<<anaparms<<endl;
 	cout << " softtrig : "<<(runST?"yes":"no")<<endl;
 	cout << "------------------------------------------------\n\n";
 
 	// if started without parameters -> stop here
+	prefix.ReplaceAll("!","");
 	if (prefix=="") return 0;
 
 
@@ -185,7 +259,7 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	// *****************************
 
 	// PID algorithm for the PndSimpleCombinerTask (for Eventshape variables)
-	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoRich;PidAlgoSciT";
+	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoSciT";
 	if (fastsim) pidalgo = "PidChargedProbability";
 
 	// allow shortcuts

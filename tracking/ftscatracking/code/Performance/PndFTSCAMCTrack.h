@@ -32,7 +32,7 @@ class PndFTSCAMCTrack
 
   void SetMCTrack(const PndMCTrack* ttt, Double_t q, unsigned int Nmcpoints, unsigned int FirstmcpointId);
   PndFTSCAMCTrack& operator =(const PndFTSCAMCTrack &rhs);
-  
+
   // void SetTPCPar( float X, float Y, float Z, float Px, float Py, float Pz );
 
   int MotherId()       const { return fMotherId; }
@@ -52,7 +52,7 @@ class PndFTSCAMCTrack
   const float *TPCPar()         const { return fTPCPar; }
 
   float DzDs()        const { return Pz()/TMath::Sqrt( Px()*Px() + Py()*Py() ); }
-  
+
   int     NHits()          const { return fNHits;}
   int     NMCPoints()      const { return fNMCPoints;}
   int     FirstMCPointID() const { return fFirstMCPointID;}
@@ -64,7 +64,7 @@ class PndFTSCAMCTrack
   int     NHitRows()         const { return fNHitRows; }
   int     NMCContRows()         const { return fNMCContRows; }
   int     NHitContRows()         const { return fNHitContRows; }
-  
+
   void SetMotherId( int v )          { fMotherId = v; }
   void SetP ( float v )          { fP = v; }
   void SetPt( float v )          { fPt = v; }
@@ -82,10 +82,10 @@ class PndFTSCAMCTrack
   void SetNHitRows( int v )        { fNHitRows = v; }
   void SetNMCContRows( int v )        { fNMCContRows = v; }
   void SetNHitContRows( int v )        { fNHitContRows = v; }
-  
+
   bool IsForwardTrack() const { return fIsForwardTrack; }
   void SetIsForwardTrack( bool v) { fIsForwardTrack = v; }
-  
+
 
 
   friend ostream& operator<<(ostream& out, const PndFTSCAMCTrack &a);
@@ -93,7 +93,6 @@ class PndFTSCAMCTrack
 
  protected:
 
-  bool  fIsForwardTrack; //* throw out tracks which don't correspond to a forward model
 
   int    fMotherId;      //* index of mother track in tracks array. -1 for primary tracks. -2 if a mother track is not in the acceptance
   int    fPDG;           //* particle pdg code
@@ -106,6 +105,7 @@ class PndFTSCAMCTrack
   int    fNReconstructed; //* how many times is reconstructed
   int    fSet;            //* set of tracks 0-OutSet, 1-ExtraSet, 2-RefSet, 3-ExtraSecSet, 4-ExtraPrimSet, 5-RefSecSet, 6-RefPrimSet, 7-LongRefPrimSet
   int    fNTurns;         //* N of turns in the current sector
+  bool  fIsForwardTrack; //* throw out tracks which don't correspond to a forward model
 
   int    fNMCRows; // N rows with MC Points. Calculated after reading all MC info.
   int    fNHitRows;

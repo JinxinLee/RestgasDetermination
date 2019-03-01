@@ -6,10 +6,12 @@
 #include "PndMasterLocalRecoTask.h"
 #include "PndMasterRecoIdealTask.h"
 #include "PndMasterPidTask.h"
+#include "PndMasterMultiPidTask.h"
 #include "PndFileNameCreator.h"
 #include "PndEventCounterTask.h"
 
 #include "FairFileSource.h"
+#include "FairFileHeader.h"
 #include "FairParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
 #include "FairRuntimeDb.h"
@@ -27,8 +29,8 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
   FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(),
-  fOptions(), fEventCounterRate(100), fNoGeane(kTRUE), fTimer(),
-  fGenerateRunInfo(kFALSE), fUseFairLinks(kTRUE)
+  fOptions(), fEventCounterRate(100), fNoGeane(kTRUE),
+  fGenerateRunInfo(kFALSE), fUseFairLinks(kTRUE), fTimer()
 {
   fTimer.Start();
 }
@@ -61,17 +63,17 @@ Bool_t PndMasterRunAna::Setup(TString outprefix)
 
   FairFileSource *fileSource;
   if (fFriendFiles.size() == 0) {
-	  fileSource = new FairFileSource(creator.GetSimFileName().data());
-	  fFriendFiles.push_back(creator.GetSimFileName().data());
+    fileSource = new FairFileSource(creator.GetSimFileName().data());
+    fFriendFiles.push_back(creator.GetSimFileName().data());
   }
   else {
-	  fileSource = new FairFileSource(creator.GetCustomFileName(fFriendFiles[0].Data()));
-	  fFriendFiles[0] = creator.GetCustomFileName(fFriendFiles[0].Data());
+    fileSource = new FairFileSource(creator.GetCustomFileName(fFriendFiles[0].Data()));
+    fFriendFiles[0] = creator.GetCustomFileName(fFriendFiles[0].Data());
   }
 
-  for (int files = 1; files < fFriendFiles.size(); files++) {
-	  fileSource->AddFriend(creator.GetCustomFileName(fFriendFiles[files].Data()));
-	  fFriendFiles[files] = creator.GetCustomFileName(fFriendFiles[files].Data());
+  for (unsigned int files = 1; files < fFriendFiles.size(); files++) {
+    fileSource->AddFriend(creator.GetCustomFileName(fFriendFiles[files].Data()));
+    fFriendFiles[files] = creator.GetCustomFileName(fFriendFiles[files].Data());
   }
 
   SetSource(fileSource);
@@ -126,7 +128,10 @@ void PndMasterRunAna::AddDigiOnlyTasks(Bool_t pers)
 void PndMasterRunAna::AddRecoTasks(Bool_t pers)
 {
   // -----   Geane   ---------------------------------------
-  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
+  if(fNoGeane) {
+    AddTask(new FairGeane());
+    fNoGeane=false;
+  }
   PndMasterRecoTask *reco = new PndMasterRecoTask(fOptions);
   if (!pers) reco->SetPersistency(kFALSE);
   reco->SetPersistency(pers);
@@ -137,19 +142,24 @@ void PndMasterRunAna::AddRecoTasks(Bool_t pers)
 void PndMasterRunAna::AddLocalRecoTasks(Bool_t pers)
 {
   // -----   Geane   ---------------------------------------
-  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
+  if(fNoGeane) {
+    AddTask(new FairGeane());
+    fNoGeane=false;
+  }
   PndMasterLocalRecoTask *reco = new PndMasterLocalRecoTask(fOptions);
   if (!pers) reco->SetPersistency(kFALSE);
   reco->SetPersistency(pers);
   AddTask(reco);
 }
 
-
 // -----   AddRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddRecoIdealTasks(Bool_t pers)
 {
   // -----   Geane   ---------------------------------------
-  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
+  if(fNoGeane) {
+    AddTask(new FairGeane());
+    fNoGeane=false;
+  }
   PndMasterRecoIdealTask *recoIdeal = new PndMasterRecoIdealTask(fOptions);
   if (!pers) recoIdeal->SetPersistency(kFALSE);
   recoIdeal->SetPersistency(pers);
@@ -159,17 +169,62 @@ void PndMasterRunAna::AddRecoIdealTasks(Bool_t pers)
 // -----   AddPidTasks   ----------------------------------------------------
 void PndMasterRunAna::AddPidTasks(Bool_t pers)
 {
-  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
-  PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
-  if (!pers) pid->SetPersistency(kFALSE);
-  pid->SetPersistency(pers);
-  AddTask(pid);
+  if(fNoGeane) {
+    AddTask(new FairGeane());
+    fNoGeane=false;
+  }
+  if (fOptions.Contains("multikalman"))
+  {
+    PndMasterMultiPidTask *pid = new PndMasterMultiPidTask(fOptions);
+    if (!pers) pid->SetPersistency(kFALSE);
+    pid->SetPersistency(pers);
+    AddTask(pid);
+  } else {
+    PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
+    if (!pers) pid->SetPersistency(kFALSE);
+    pid->SetPersistency(pers);
+    AddTask(pid);
+  }
+}
+
+void PndMasterRunAna::PrintListOftTasks()
+{
+  cout<<"Tasks that ran just now:"<<endl;
+  TFile* outfile=fRootManager->GetOutFile();
+  bool wasopen=outfile->IsOpen ();
+  if (!wasopen)
+  {
+    cout<<"file is "<< ((wasopen) ? "" : "not " ) <<"open" <<endl;
+    outfile=new TFile(outfile->GetName(),"UPDATE");
+  }
+  FairFileHeader* outheader=(FairFileHeader*)outfile->Get("FileHeader");
+  for(const auto&& os : *(outheader->GetListOfTasks()) ) cout<<" - "<<((TObjString*)os)->GetString().Data()<<endl;
 }
 
 // -----   Finish   ---------------------------------------------------------
 void PndMasterRunAna::Finish()
 {
   cout << endl;
+
+  TFile* outfile=fRootManager->GetOutFile();
+  bool wasopen=outfile->IsOpen ();
+  if (!wasopen)
+  {
+    cout<<"file is "<< ((wasopen) ? "" : "not " ) <<"open" <<endl;
+    outfile=new TFile(outfile->GetName(),"UPDATE");
+  }
+  outfile->cd();
+
+  cout<<"PndMasterRunAna::Finish():";
+  PrintListOftTasks();
+
+  TObjString outoptions(fOptions);
+  outoptions.Write("PndOptions",kOverwrite);
+
+  outfile->Write();
+  if(!wasopen) outfile->Close();
+
+  //safety delete for newer ROOT
   if (gROOT->GetVersionInt() >= 60602) {
     gGeoManager->GetListOfVolumes()->Delete();
     gGeoManager->GetListOfShapes()->Delete();
@@ -195,8 +250,8 @@ void PndMasterRunAna::Finish()
 
   cout << endl;
   cout << "Output file is\t\t"    << fOutFile << endl;
-  for (auto files : fFriendFiles){
-	  cout << "Friend file is\t\t" << files << endl;
+  for (auto files : fFriendFiles) {
+    cout << "Friend file is\t\t" << files << endl;
   }
 
 
@@ -215,3 +270,4 @@ void PndMasterRunAna::Finish()
 /** @cond CLASSIMP */
 ClassImp(PndMasterRunAna);
 /** @endcond */
+

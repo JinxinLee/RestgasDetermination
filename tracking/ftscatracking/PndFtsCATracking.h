@@ -35,35 +35,35 @@ class PndFtsCATracking : public PndPersistencyTask {
   void SetParContainers();
   virtual void Exec(Option_t* opt);
   virtual void Finish();
-  
+
   static void CATrackParToFairTrackParP( FairTrackParP *fairParam, const PndFTSCATrackParam* caParam );
-  
+
   bool NonReconstructableEvent();
-  
+
 private:
-  
+
   Int_t fVerbose;
-  bool fDoPerformance;
   TString fFtsHitsBranchName;
   Int_t          fBranchID;
   TClonesArray*  fMCTracks;         //! Array of PndMCTrack
   TClonesArray*  fMCPoints;      //! Array of event's points
   TClonesArray*  fHits;          //! Array of event's hits
-  
+
   TClonesArray  *fTracks;       //! Array of found tracks
 
+  bool fDoPerformance;
   //PndGeoFtsPar *fFtsParameters;
-  TClonesArray* fTubeArrayFts;  
-  
+  TClonesArray* fTubeArrayFts;
+
   void WriteFTSHits(    /*PndFTSCAGBHit* vHits,*/ std::vector<PndFTSCAGBHit> &vHits,
            /*std::fstream &outH, std::fstream &outHL, std::fstream &outMCT, std::fstream &outMCP,*/ int &iHit, map<int, unsigned int> &nHitsInMCTrack);
-  
+
   PndFTSCAGBTracker *fTracker;
-  
+
   //for performance
   TFile* fPerfHistoFile;
   PndFTSCAPerformance* fPerformance;
-  
+
   ClassDef(PndFtsCATracking,1);
 
 };

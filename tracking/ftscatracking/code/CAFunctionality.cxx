@@ -15,20 +15,20 @@ float_m CAFunctionality::FitIteration(const PndFTSCAParam& caParam, const FTSCAH
 {
   const int NTHits = iHits.size();
   float_m active = mask;
-  
+
   //get hits
   vector<FTSCAHitV> thits( NTHits );
   for ( unsigned short ihit = 0; ihit < NTHits; ihit++ ) {
     TESV index = iHits[ihit];
     if (!dir) index = iHits[NTHits-1-ihit];
- 
+
     FTSCAHit hs[float_v::Size];
     foreach_bit(unsigned short iV, active) {
       hs[iV] = hits[index.s[iV]][index.e[iV]];
     }
     thits[ihit] = FTSCAHitV( hs, active );
   }
-      
+
   const FTSCAHitV& hit0 = thits[NTHits-1];
   /*
   cout<<"active "<<active<<endl;
@@ -90,7 +90,7 @@ float_m CAFunctionality::FitIteration(const PndFTSCAParam& caParam, const FTSCAH
   {
     param.InitByTarget(target);
     param.InitDirection( hit0.X0(), hit0.X1(), hit0.X2() );
-    param.SetAngle( hit0.Angle() );  
+    param.SetAngle( hit0.Angle() );
   }
   /*cout<<"Before Fit "<<endl;
   cout<<param<<endl;
@@ -108,7 +108,7 @@ float_m CAFunctionality::FitIteration(const PndFTSCAParam& caParam, const FTSCAH
     param.PrintCovMat();
     }*/
     //cout<<"2.after filter NDF "<<param.NDF()<<" Chi2 "<<param.Chi2()<<endl;
-  }   
+  }
   //param.PrintCovMat();
   //param.InitCovMatrix(target.Err2QMom());
   /*int_v ndf;
@@ -140,7 +140,7 @@ float_m CAFunctionality::FitIteration(const PndFTSCAParam& caParam, const FTSCAH
     cout<<param<<endl;
     //cout<<"2.after filter NDF "<<param.NDF()<<" Chi2 "<<param.Chi2()<<endl;
   }
-  
+
   param.SetNDF(ndf);
   param.SetChi2(0.f);
   //cout<<"2. fit bckwrd NDF "<<param.NDF()<<" Chi2 "<<param.Chi2()<<endl;
@@ -153,7 +153,7 @@ float_m CAFunctionality::FitIteration(const PndFTSCAParam& caParam, const FTSCAH
     cout<<param<<endl;
     //cout<<"1.after filter NDF "<<param.NDF()<<" Chi2 "<<param.Chi2()<<endl;
   }*/
-  
+
  /* for ( unsigned short ihit = 0; ihit < NTHits; ihit++ ) {
     const FTSCAHitV& hit = thits[ihit];
     active &= param.Transport( hit, caParam, active );
@@ -175,16 +175,16 @@ float_m CAFunctionality::Fit(const PndFTSCAParam& caParam, const FTSCAHits& hits
 {
   float_m active1 = mask;
   int_v maskvar(1);
-  foreach_bit(unsigned short iV, active1) 
+  foreach_bit(unsigned short iV, active1)
   {
     if (iV!=0)
     {
       maskvar[iV] = 0;
     }
   }
-  
+
   float_m active = static_cast<float_m> (maskvar!=0);
-  int i = 0;
+  //int i = 0; //[R.K. 9/2018] unused
 
   float_v qMom = float_v(10e10f);
 
@@ -214,14 +214,14 @@ float_m CAFunctionality::FitUseParam(const PndFTSCAParam& caParam, const FTSCAHi
 {
   float_m active1 = mask;
   int_v maskvar(1);
-  foreach_bit(unsigned short iV, active1) 
+  foreach_bit(unsigned short iV, active1)
   {
     if (iV!=0)
     {
       maskvar[iV] = 0;
     }
   }
-  
+
   float_m active = static_cast<float_m> (maskvar!=0);
   active &= FitIteration( caParam, hits, param, iHits, target, dir, usePar, active );
   return active;

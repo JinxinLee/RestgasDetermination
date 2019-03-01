@@ -1,15 +1,15 @@
 // Macro for running Panda reconstruction tasks
 // to run the macro:
 // root  reco_complete.C  or in root session root>.x  reco_complete.C
-int reco_complete(Int_t nEvents = 0)
+int reco_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "evtcomplete";
+  TString  options        = "multikalman"; //"genfit2"
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "reco";
-  TString  friend1        = "digi";
-  TString  friend2        = "";
+  TString  friend1        = "sim";
+  TString  friend2        = "digi";
   TString  friend3        = "";
   TString  friend4        = "";
 
@@ -22,11 +22,14 @@ int reco_complete(Int_t nEvents = 0)
   fRun->AddFriend(friend3);
   fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
+  fRun->SetOptions(fRun->GetOptions()+options);
   fRun->Setup(prefix);
-  
+
   // -----   Add tasks   ----------------------------------------------------
+//  fRun->SetOptions("multikalman;pion;proton");
+  fRun->SetOptions("multikalman");
   fRun->AddRecoTasks();
-  
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();

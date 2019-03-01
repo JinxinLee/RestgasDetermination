@@ -258,7 +258,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
      Posiz[0] = -999999999.;
      return;
    }
-   
+
    if( fabs( Rr - fabs( norm - info->at(infopar*7+3) ) ) // distance trajectory-drift radius
 				<
 		fabs( Rr - (norm + info->at(infopar*7+3)) )  ) {
@@ -646,7 +646,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 		primo=ultimoangolo[i]*180./PI;
 		ultimoangolo[i]=primoangolo[i]*180./PI;
 		primoangolo[i]=primo;
-		
+
 	}else{
 		if( ultimoangolo[i]<primoangolo[i]) ultimoangolo[i]+=2.*PI;
 		ultimoangolo[i]=ultimoangolo[i]*180./PI;
@@ -903,13 +903,13 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 	int MAXSCITILHITSINTRACK,
 	int MAXSTTHITS,
 	int MAXSTTHITSINTRACK,
-	int , // MAXTRACKSPEREVENT //[R.K.03/2017] unused variable(s)
+	int /*MAXTRACKSPEREVENT*/, //[R.K. 9/2018] unused
 	Short_t nMvdPixelHit,
 	Short_t nMvdStripHit,
 	Short_t nSciTilHits,
 	Short_t nSttHit,
-	Short_t , // nSttParHit //[R.K.03/2017] unused variable(s)
-	Short_t , // nSttSkewHit //[R.K.03/2017] unused variable(s)
+	Short_t /*nSttParHit*/, //[R.K. 9/2018] unused
+	Short_t /*nSttSkewHit*/, //[R.K. 9/2018] unused
 	Short_t nSttTrackCand,
 	Vec <Short_t> * nTrackCandHit,
 	Vec <Double_t> * posizSciTil,
@@ -1106,7 +1106,7 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
 	Short_t nSciTilHits,
 	Short_t nTracksFoundSoFar,
 	Vec <bool> * keepit,
-	Vec <Double_t> * , // FI0 //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * /*FI0*/, //[R.K. 9/2018] unused
 	Vec <Double_t> * Ox,
 	Vec <Double_t> * Oy,
 	Vec <Double_t> * posizSciTil,
@@ -1280,7 +1280,7 @@ fprintf(MACRO,
 
       fprintf(MACRO,"}\n");
       fclose(MACRO);
-       
+
 //------------------------------------------------------------------------------------------------------------
 
  if(!doMcComparison) return;
@@ -1520,7 +1520,7 @@ fprintf(MACRO,
 
       fprintf(MACRO,"}\n");
       fclose(MACRO);
-       
+
 //------------------------------------------------------------------------------------------------------------
 
 
@@ -1541,43 +1541,43 @@ fprintf(MACRO,
 //  inizio cambio_in_perl ;
 
 void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
-	Double_t , // APOTEMAMAXINNERPARSTRAW //[R.K.03/2017] unused variable(s)
-	Double_t , // APOTEMAMAXSKEWSTRAW //[R.K.03/2017] unused variable(s)
-	Double_t , //  APOTEMAMINOUTERPARSTRAW//[R.K.03/2017] unused variable(s)
-	Double_t , // APOTEMAMINSKEWSTRAW //[R.K.03/2017] unused variable(s)
+	Double_t /*APOTEMAMAXINNERPARSTRAW*/, //[R.K. 9/2018] unused
+	Double_t /*APOTEMAMAXSKEWSTRAW*/, //[R.K. 9/2018] unused
+	Double_t /*APOTEMAMINOUTERPARSTRAW*/, //[R.K. 9/2018] unused
+	Double_t /*APOTEMAMINSKEWSTRAW*/, //[R.K. 9/2018] unused
 	Double_t BFIELD,
 	Double_t CVEL,
-	Double_t , // DIMENSIONSCITIL //[R.K.03/2017] unused variable(s)
+	Double_t /*DIMENSIONSCITIL*/, //[R.K. 9/2018] unused
 	bool doMcComparison,
-	TClonesArray *, //  fMCTrackArray//[R.K.03/2017] unused variable(s)
+	TClonesArray */*fMCTrackArray*/, //[R.K. 9/2018] unused
 	Int_t Nhits,
 	Vec <Double_t> * info,
 	PndTrkPlotMacros_InputData In_Put,
 	int IVOLTE,
 	Short_t nMCTracks,
-	Short_t , // nMvdPixelHit //[R.K.03/2017] unused variable(s)
-	Short_t , // nMvdStripHit //[R.K.03/2017] unused variable(s)
+	Short_t /*nMvdPixelHit*/, //[R.K. 9/2018] unused
+	Short_t /*nMvdStripHit*/, //[R.K. 9/2018] unused
 	Short_t nSciTilHits,
 	Short_t nTracksFoundSoFar,
 	Vec <bool> * keepit,
-	Vec <Double_t> * , // FI0 //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * /*FI0*/, //[R.K. 9/2018] unused
 	Vec <Double_t> * Oxxx,
 	Vec <Double_t> * Oyyy,
 	Vec <Double_t> * posizSciTil,
-	Vec <Double_t> * , // primoangolo //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * /*primoangolo*/, //[R.K. 9/2018] unused
 	Vec <Double_t> * R,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
-	Vec <Double_t> * , // sigmaXMvdPixel //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // sigmaXMvdStrip //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // sigmaYMvdPixel //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // sigmaYMvdStrip //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // ultimoangolo //[R.K.03/2017] unused variable(s)
-	Double_t , // VERTICALGAP //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // XMvdPixel //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // XMvdStrip //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // YMvdPixel //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> *  // YMvdStrip //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * /*sigmaXMvdPixel*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*sigmaXMvdStrip*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*sigmaYMvdPixel*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*sigmaYMvdStrip*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*ultimoangolo*/, //[R.K. 9/2018] unused
+	Double_t /*VERTICALGAP*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*XMvdPixel*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*XMvdStrip*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*YMvdPixel*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*YMvdStrip*/ //[R.K. 9/2018] unused
 
 	)
 {
@@ -1902,7 +1902,7 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
 
      fprintf(MACRO,"}\n");
      fclose(MACRO);
-       
+
 
 
 
@@ -1921,15 +1921,15 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
 //  inizio cambio_in_perl ;
 
 void PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
-	Double_t , // APOTEMAMAXINNERPARSTRAW //[R.K.03/2017] unused variable(s)
-	Double_t , // APOTEMAMAXSKEWSTRAW //[R.K.03/2017] unused variable(s)
-	Double_t , // APOTEMAMINOUTERPARSTRAW //[R.K.03/2017] unused variable(s)
-	Double_t , // APOTEMAMINSKEWSTRAW //[R.K.03/2017] unused variable(s)
+	Double_t /*APOTEMAMAXINNERPARSTRAW*/, //[R.K. 9/2018] unused
+	Double_t /*APOTEMAMAXSKEWSTRAW*/, //[R.K. 9/2018] unused
+	Double_t /*APOTEMAMINOUTERPARSTRAW*/, //[R.K. 9/2018] unused
+	Double_t /*APOTEMAMINSKEWSTRAW*/, //[R.K. 9/2018] unused
 	Double_t BFIELD,
 	Double_t CVEL,
-	Double_t , // DIMENSIONSCITIL //[R.K.03/2017] unused variable(s)
+	Double_t /*DIMENSIONSCITIL*/, //[R.K. 9/2018] unused
 	bool doMcComparison,
-	TClonesArray *, // fMCTrackArray //[R.K.03/2017] unused variable(s)
+	TClonesArray */*fMCTrackArray*/, //[R.K. 9/2018] unused
 	Int_t Nhits,
 	Vec <Double_t> * info,
 	PndTrkPlotMacros_InputData In_Put,
@@ -1940,20 +1940,20 @@ void PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 	Short_t nSciTilHits,
 	Short_t nTracksFoundSoFar,
 	Vec <bool> * keepit,
-	Vec <Double_t> * , // FI0 //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * /*FI0*/, //[R.K. 9/2018] unused
 	Vec <Double_t> * Oxxx,
 	Vec <Double_t> * Oyyy,
 	Vec <Double_t> * posizSciTil,
-	Vec <Double_t> * , // primoangolo //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * /*primoangolo*/, //[R.K. 9/2018] unused
 	Vec <Double_t> * R,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
-	Vec <Double_t> * , // sigmaXMvdPixel //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // sigmaXMvdStrip //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // sigmaYMvdPixel //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // sigmaYMvdStrip //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * , // ultimoangolo //[R.K.03/2017] unused variable(s)
-	Double_t , // VERTICALGAP //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * /*sigmaXMvdPixel*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*sigmaXMvdStrip*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*sigmaYMvdPixel*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*sigmaYMvdStrip*/, //[R.K. 9/2018] unused
+	Vec <Double_t> * /*ultimoangolo*/, //[R.K. 9/2018] unused
+	Double_t /*VERTICALGAP*/, //[R.K. 9/2018] unused
 	Vec <Double_t> * XMvdPixel,
 	Vec <Double_t> * XMvdStrip,
 	Vec <Double_t> * YMvdPixel,
@@ -2365,7 +2365,7 @@ void PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 
      fprintf(MACRO,"}\n");
      fclose(MACRO);
-       
+
 
 
 
@@ -2459,11 +2459,11 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
  int icolore;
 
-    Int_t i, j, i1, ii, iii, index, STATUS, imc, Nmin, Nmax; // Kincl, nlow, nup, 
+    Int_t i, j, i1, ii, iii, index, STATUS, imc, Nmin, Nmax; // Kincl, nlow, nup,
 
     Double_t //xmin , xmax, ymin, ymax, //[R.K. 01/2017] unused variable?
            //dx, dy, diff, d1, d2, //[R.K. 01/2017] unused variable?
-           deltaz, deltaS, // delta, deltax, deltay, 
+           deltaz, deltaS, // delta, deltax, deltay,
            esse, //factor,
            zmin, zmax, zmin2, zmax2, Smin, Smax, //S1, S2, //[R.K. 01/2017] unused variable?
            z1, z2, //y1, y2, //[R.K. 01/2017] unused variable?
@@ -2552,9 +2552,9 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
        for( ii=0; ii<2; ii++){
         j=3*ii;
         distance = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) +
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) +
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1)
                             );
         Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
         Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
@@ -2608,9 +2608,9 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
        for( ii=0; ii<2; ii++){
         j=3*ii;
         dist[ii] = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) +
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) +
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1)
                             );
 	}
 	if(dist[0]>dist[1]) ii=1; else ii=0;
@@ -2619,9 +2619,9 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
         j=3*ii;
         distance = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) +
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) +
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1)
                             );
 
 
@@ -2834,9 +2834,9 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
        for( ii=0; ii<2; ii++){
         j=3*ii;
         distance = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) +
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) +
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1)
                             );
         Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
         Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
@@ -2931,9 +2931,9 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
        for( ii=0; ii<2; ii++){
         j=3*ii;
         dist[ii] = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) +
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) +
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1)
                             );
 	}
 	if(dist[0]>dist[1]) ii=1; else ii=0;
@@ -3011,7 +3011,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
         if( Smin > esse ) Smin = esse;
         if( Smax < esse ) Smax = esse;
- 
+
 
 		bool flaggo=true;
 		for( int k=0; k<nMvdPixelCommon;k++){
@@ -3047,7 +3047,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 
         if( Smin > esse ) Smin = esse;
         if( Smax < esse ) Smax = esse;
- 
+
 		bool flaggo=true;
 		for( int k=0; k<nMvdStripCommon;k++){
 			if( MvdStripCommonList[iTrack*MAXMVDSTRIPHITSINTRACK+k]== ii){
@@ -3102,7 +3102,7 @@ void PndTrkPlotMacros::WriteMacroSkewAssociatedHitswithMC(
 	if(esse<0.) esse +=2.*PI;
         if( Smin > esse ) Smin = esse;
         if( Smax < esse ) Smax = esse;
- 
+
             fprintf(MACRO,"TMarker* AloneStrip%d = new TMarker(%f,%f,%d);\nAloneStrip%d->SetMarkerColor(4);\n",
                     ii,ZMvdStrip[ii],Rr*esse,25,ii);
 		fprintf(MACRO,"AloneStrip%d->Draw();\n",ii);
@@ -3266,7 +3266,7 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 	Double_t Rr,
 	Double_t primoangolo,
 	Double_t ultimoangolo,
-	Short_t , //  Nhits//[R.K.03/2017] unused variable(s)
+	Short_t /*Nhits*/,
 	int iTrack,
 	int iNome,
 	Short_t daSttTrackaMCTrack,
@@ -3644,10 +3644,10 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
        for( i=0; i< nMvdStripHitsAssociatedToSttTra; i++) {
         ii = ListMvdStripHitsinTrack.at(iTrack*In_Put.MAXMVDSTRIPHITSINTRACK+i);
-            //x1= XMvdStrip.at(ii)-sigmaXMvdStrip.at(ii);
-            //x2= XMvdStrip.at(ii)+sigmaXMvdStrip.at(ii);
-            //y1= YMvdStrip.at(ii)-sigmaYMvdStrip.at(ii);
-            //y2= YMvdStrip.at(ii)+sigmaYMvdStrip.at(ii);
+            //x1= XMvdStrip.at(ii)-sigmaXMvdStrip.at(ii); //[R.K. 9/2018] unused
+            //x2= XMvdStrip.at(ii)+sigmaXMvdStrip.at(ii); //[R.K. 9/2018] unused
+            //y1= YMvdStrip.at(ii)-sigmaYMvdStrip.at(ii); //[R.K. 9/2018] unused
+            //y2= YMvdStrip.at(ii)+sigmaYMvdStrip.at(ii); //[R.K. 9/2018] unused
 
 		bool flaggo=true;
 		for( int k=0; k<nMvdStripCommon.at(iTrack);k++){
@@ -3680,10 +3680,10 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
        for( i=0; i< nMvdPixelHitsAssociatedToSttTra; i++) {
         ii = ListMvdPixelHitsinTrack.at(iTrack*MAXMVDPIXELHITSINTRACK+i);
-            //x1= XMvdPixel.at(ii)-sigmaXMvdPixel.at(ii);
-            //x2= XMvdPixel.at(ii)+sigmaXMvdPixel.at(ii);
-            //y1= YMvdPixel.at(ii)-sigmaYMvdPixel.at(ii);
-            //y2= YMvdPixel.at(ii)+sigmaYMvdPixel.at(ii);
+            //x1= XMvdPixel.at(ii)-sigmaXMvdPixel.at(ii); //[R.K. 9/2018] unused
+            //x2= XMvdPixel.at(ii)+sigmaXMvdPixel.at(ii); //[R.K. 9/2018] unused
+            //y1= YMvdPixel.at(ii)-sigmaYMvdPixel.at(ii); //[R.K. 9/2018] unused
+            //y2= YMvdPixel.at(ii)+sigmaYMvdPixel.at(ii); //[R.K. 9/2018] unused
 
 		bool flaggo=true;
 		for( int k=0; k<nMvdPixelCommon.at(iTrack);k++){
@@ -3740,7 +3740,7 @@ if( MvdPixelCommonList.at(iTrack*In_Put.MAXMVDPIXELHITSINTRACK+k)== ii){
                      im,Cx,Cy,r_r,r_r,0.,360.,im,im,im);
 	  } // end of  if (fabs(carica)>=0.1 )
 	} // end if ( pMC )
-       };//  end of  if( daSttTrackaMCTrack>-1 
+       };//  end of  if( daSttTrackaMCTrack>-1
 //----------- fine parte del MC
       fprintf(MACRO,"}\n");
       fclose(MACRO);

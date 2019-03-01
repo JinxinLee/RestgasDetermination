@@ -71,6 +71,8 @@ PndGeoHandling::PndGeoHandling(PndSensorNamePar* SensorNamePar): fGeoMan(gGeoMan
 
 void PndGeoHandling::SetParContainers()
 {
+  if (fRunId != 0) return;        //SetParContainers was already called
+  if (fSensorNamePar != 0) return;
   FairRun* run = FairRun::Instance();
   if (!run) Fatal("PndGeoHandling","No FairRun object found.");
   fRtdb = run->GetRuntimeDb();
@@ -82,7 +84,7 @@ void PndGeoHandling::SetParContainers()
   if (!fGeoMan) Fatal("PndGeoHandling","No gGeoManager found.");
   fSensorNamePar = (PndSensorNamePar*) (fRtdb->getContainer("PndSensorNamePar"));
   if ( ! fSensorNamePar) Fatal("PndGeoHandling","No PndSensorNamePar parameters found.");
-  //fRtdb->initContainers(fRunId);
+  fRtdb->initContainers(fRunId);
   FairTask::SetParContainers();
 }
 
@@ -165,7 +167,7 @@ void PndGeoHandling::GetGeoManager()
 {
 	if (fRunId < 0)
 		return;
-	FairBaseParSet* par=(FairBaseParSet*)(fRtdb->getContainer("FairBaseParSet"));
+	FairBaseParSet* par=(FairBaseParSet*)(fRtdb->getContainer("FairGeoParSet"));
 	fRtdb->initContainers(fRunId);
   if(fVerbose>0) par->Print();
 }
@@ -373,11 +375,11 @@ TVector3 PndGeoHandling::GetSensorDimensionsPath(TString path)
 
 TGeoHMatrix* PndGeoHandling::GetMatrixPath(TString path)
 {
-	TString actPath = fGeoMan->GetPath();
+//	TString actPath = fGeoMan->GetPath();
 	fGeoMan->cd(path);
 
 	TGeoHMatrix* currMatrix = fGeoMan->GetCurrentMatrix();
-	if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
+//	if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
 
 	return currMatrix;
 

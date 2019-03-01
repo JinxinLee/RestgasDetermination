@@ -11,11 +11,13 @@ Set(ROOT_HAS_VC ${ROOT_HAS_VC} PARENT_SCOPE)
 If(NOT ${ROOT_HAS_VC})
   Message(STATUS "Root does not support VC. Compile the internal version.")
 
+# We have to split up the commands in order to get it working
 Execute_process(COMMAND mkdir -pv ${CMAKE_SOURCE_DIR}/external/vc
-                COMMAND git submodule init
-                COMMAND git submodule update
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+Execute_process(COMMAND git submodule deinit -- external/vc
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+Execute_process(COMMAND git submodule update --init -- external/vc
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 #old way?
   ExternalProject_Add(vc

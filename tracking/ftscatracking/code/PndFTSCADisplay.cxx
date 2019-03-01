@@ -64,7 +64,7 @@ class PndFTSCADisplay::PndFTSCADisplayTmpHit
 {
   //* Displaying information on the screen*//
 
-  
+
   public:
 
     int ID() const { return fHitID; }
@@ -109,11 +109,11 @@ PndFTSCADisplay::PndFTSCADisplay() :
 #ifdef PANDA_FTS
   fXMin(0), fXMax(0),
 #else
-    fRInnerMin( 50. ), fRInnerMax( 133.3 ), fROuterMin( 50 ), fROuterMax( 50 ), fTPCZMin( -60. ), fTPCZMax( 60 ), 
+    fRInnerMin( 50. ), fRInnerMax( 133.3 ), fROuterMin( 50 ), fROuterMax( 50 ), fTPCZMin( -60. ), fTPCZMax( 60 ),
 #endif
     fArc(), fLine(), fPLine(), fMarker(), fBox(), fCrown(), fLatex(), fDrawOnlyRef( 0 ) // iklm. This is just default. If they are not correct SetTPC(...) can and should be used!
 {
-  fPerf = &( PndFTSCAPerformance::Instance() ); 
+  fPerf = &( PndFTSCAPerformance::Instance() );
   // constructor
 }
 
@@ -154,7 +154,7 @@ void PndFTSCADisplay::Init()
 #endif
     fYX = static_cast<TPad *>( fCanvas->GetPrimitive( "CA_1" ) ); // ("YX", "YX window", -1, 0, 600, 600);
 #endif // PANDA_FTS
-    
+
     fYX->SetCanvas( fCanvas );
     fYX->SetTitle( "XY" );
     fZX->SetCanvas( fCanvas );
@@ -164,10 +164,10 @@ void PndFTSCADisplay::Init()
       fZR->SetTitle( "ZR" );
     }
 
-    
+
     fMarker = TMarker( 0.0, 0.0, 20 );//6);
     fDrawOnlyRef = 0;
-  
+
     firstCall = 0;
   }
 }
@@ -230,13 +230,13 @@ void PndFTSCADisplay::DrawTPC()
     fArc.SetLineWidth(.1);
     fArc.DrawArc( 0, 0, fROuterMax );
     fArc.DrawArc( 0, 0, fRInnerMin );
-        
+
     TLatex Tl;
     Tl.SetTextSize(0.03);
     Tl.SetTextAlign(22);
     Tl.DrawLatex( -fROuterMax, fROuterMax, "XY" );
   }
-  
+
   fZX->cd();
 #ifdef CLEAR
   fZX->Clear();
@@ -249,7 +249,7 @@ void PndFTSCADisplay::DrawTPC()
     ZX.SetLineColor(detColor);
     ZX.DrawBox(fZMin,-fROuterMax,fZMax,fROuterMax);
       //  ZX.DrawBox(fZMin,fROuterMax,fZMax,fRInnerMin);
-    
+
     TLatex Tl;
     Tl.SetTextSize(0.03);
     Tl.SetTextAlign(22);
@@ -268,13 +268,13 @@ void PndFTSCADisplay::DrawTPC()
     XY.SetLineWidth(.1);
     XY.SetLineColor(detColor);
     XY.DrawBox(fXMin,fYMin,fXMax,fYMax);
-    
+
     TLatex Tl;
     Tl.SetTextSize(0.03);
     Tl.SetTextAlign(22);
     Tl.DrawLatex( fXMin + (fXMax-fXMin)*0.07, fYMax - (fYMax-fYMin)*0.05, "XY" );
   }
-  
+
   fZX->cd();
 #ifdef CLEAR
   fZX->Clear();
@@ -289,14 +289,14 @@ void PndFTSCADisplay::DrawTPC()
 
     const int NStations = 6;
     const float XLeft[NStations]  = { -659.025, -659.025, -881.225, -1042.825, -1951.825, -1951.825 }; // mm
-    const float NTubes[NStations] = { 132,      132,      176,      208,       388,       388       }; 
+    const float NTubes[NStations] = { 132,      132,      176,      208,       388,       388       };
     const float MinZ[NStations]   = { 2949.627, 3269.627, 3940.627, 4380.627,  6070.627,  6390.627  };
     const float MaxZ[NStations]   = { 3108.373, 3428.373, 4244.123, 4684.123,  6229.373,  6549.373  };
     const float Offset = 2;
-    for ( int iS = 0; iS < NStations; iS++ ) 
+    for ( int iS = 0; iS < NStations; iS++ )
       ZX.DrawBox( MinZ[iS]/10 - Offset, XLeft[iS]/10 - Offset, MaxZ[iS]/10 + Offset, (XLeft[iS] + NTubes[iS]*10.1)/10 + Offset );
 
-    
+
     TLatex Tl;
     Tl.SetTextSize(0.03);
     Tl.SetTextAlign(22);
@@ -330,13 +330,13 @@ void PndFTSCADisplay::DrawTPC()
           l.DrawLine( x[i], y[i], c*x[i], c*y[i] );
         }
     }
-    
 
-    
+
+
     TPolyLine pl;
     pl.SetLineColor( color );
     pl.SetLineWidth( width );
-    
+
     {
       const float x0L = 16.1;//16.825;
       const float a = x0L/sqrt(3.f/4.f);
@@ -357,7 +357,7 @@ void PndFTSCADisplay::DrawTPC()
       pl.DrawPolyLine( 7, x, y );
     }
 
-    
+
     {
       const float x0L = 31.7;//16.825;
       const float a = x0L/sqrt(3.f/4.f);
@@ -400,13 +400,13 @@ void PndFTSCADisplay::DrawTPC()
     fArc.DrawArc( 0, 0, 9.210 );
     fArc.DrawArc( 0, 0, 12.529 );
     fArc.DrawArc( 0, 0, RMax ); // rMax STT
-    
+
     TLatex Tl;
     Tl.SetTextSize(0.03);
     Tl.SetTextAlign(22);
     Tl.DrawLatex( -fROuterMax, fROuterMax, "XY" );
   }
-    
+
   fZX->cd();
 #ifdef CLEAR
   fZX->Clear();
@@ -442,7 +442,7 @@ void PndFTSCADisplay::DrawTPC()
     l.DrawLine(162.5/10, -131.15/10, 162.5/10, 131.15/10); // 5.2
     l.DrawLine(220/10, -73.96/10, 220/10, 73.96/10); // 6.1
     l.DrawLine(207.5/10, -131.15/10, 207.5/10, 131.15/10); // 6.2
-    
+
     TLatex Tl;
     Tl.SetTextSize(0.03);
     Tl.SetTextAlign(22);
@@ -465,7 +465,7 @@ void PndFTSCADisplay::DrawTPC()
         l.DrawLine(fZMin, 23.3, fZMax, 23.3);
         l.DrawLine(fZMin, 31.7, fZMax, 31.7);
       }
-      
+
         // barrel MVD
       TBox ZX;
       ZX.SetFillStyle( 0 );
@@ -482,7 +482,7 @@ void PndFTSCADisplay::DrawTPC()
       ZX.DrawBox(-133.8/10, 0, 139.0/10, 96.86/10);
       ZX.DrawBox(-169.2/10, 0, 139.0/10, 129.24/10);
       ZX.DrawBox(fZMin, 0.,fZMax,fROuterMax);
-      
+
         // forward MVD
       {
         TLine l;
@@ -498,7 +498,7 @@ void PndFTSCADisplay::DrawTPC()
         l.DrawLine(220/10, 11.70/10, 220/10, 73.96/10); // 6.1
         l.DrawLine(207.5/10, 74.33/10, 207.5/10, 131.15/10); // 6.2
       }
-        
+
       TLatex Tl;
       Tl.SetTextSize(0.03);
       Tl.SetTextAlign(22);
@@ -531,7 +531,7 @@ void  PndFTSCADisplay::DrawPoint(float x, float y, float z, int Start, Size_t wi
 
 void  PndFTSCADisplay::DrawGBPoint(float x, float y, float z, int Start, Size_t width )
 {
-  //std::cout<<"x y z "<<x<<" "<<y<<" "<<z<<std::endl; 
+  //std::cout<<"x y z "<<x<<" "<<y<<" "<<z<<std::endl;
   fMarker.SetMarkerSize( width );
   fMarker.SetMarkerColor( Start);
 
@@ -572,7 +572,7 @@ void  PndFTSCADisplay::DrawGBPoint(float x, float y, float z, float angle, int S
   fYX->cd();
   fMarker.DrawMarker( x, y );
 //  fArrow.DrawArrow(x, y, ax, ay, 0.003, "|>"); // draw module direction
-  
+
   fZX->cd();
 #ifdef PANDA_FTS
   fMarker.DrawMarker( z, x );
@@ -586,7 +586,7 @@ void  PndFTSCADisplay::DrawGBPoint(float x, float y, float z, float angle, int S
 #endif
 }
 
-void  PndFTSCADisplay::DrawGBLine(float x, float y, float z, float x2, float y2, float z2, int Start, Size_t width, int projection )
+void  PndFTSCADisplay::DrawGBLine(float x, float y, float z, float x2, float y2, float z2, int Start, Size_t /*width*/, int projection ) //[R.K. 9/2018] unused
 {
   fLine.SetLineWidth( 2 );
   fLine.SetLineColor( Start);
@@ -708,7 +708,7 @@ void PndFTSCADisplay::DrawGBHits( const PndFTSCAGBTracker &tracker, int color, S
 
   if ( !fPerf ) return;
   if ( width < 0 ) width = .6;
-  
+
   for ( int iHit = 0; iHit < tracker.NHits(); iHit++ ) {
     const PndFTSCAGBHit &h = tracker.Hits()[iHit];
 //     if ((hitsType == 1) && (h.ISlice() >= 12)) continue;
@@ -732,7 +732,7 @@ void PndFTSCADisplay::DrawGBHits( const PndFTSCAGBTracker &tracker, int color, S
     fMarker.SetMarkerSize( width );
     fMarker.SetMarkerColor( col );
     double vx = h.X(), vy = h.Y();
-    
+
  // //   fArrow.SetAngle(h.Angle());
  //    fArrow.SetFillColor( col );
  //    fArrow.SetLineColor( col );
@@ -762,7 +762,7 @@ void PndFTSCADisplay::DrawGBHits( const PndFTSCAGBTracker &tracker, int color, S
         fMarker.DrawMarker( h.Z(), sqrt(vx*vx+vy*vy) );
       }
     }
-    
+
 #if defined(DRIFT_TUBES)
     TEllipse el;
     el.SetLineWidth( width );
@@ -802,13 +802,13 @@ void PndFTSCADisplay::DrawGBHits( const PndFTSCAGBTracker &tracker, int color, S
         const double betaLast = M_PI_2 + b;
         const double zL = p2, yL = p1;
         const double z = x2, y = x1;
-        
+
         const double ctbL = tan( - betaLast);
         const double ctb = tan( - beta);
         double xM = x0;
         double zM = ((zL*ctbL - yL) - (z*ctb - y))/(ctbL - ctb);
         double yM = y + (zM - z)*ctb;
- 
+
         double r2 = (yM - yL)*(yM - yL) + (zM - zL)*(zM - zL);
 
         if (r2 > r2Min) continue;
@@ -835,7 +835,7 @@ void PndFTSCADisplay::DrawGBHits( const PndFTSCAGBTracker &tracker, int color, S
 
     // fMarker.SetMarkerStyle(9);
     // fMarker.SetMarkerSize(width);
-    
+
 //     TLatex* Tl = new TLatex();
 //     Tl->SetTextSize(0.002);
 //     Tl->SetTextAlign(22);
@@ -868,7 +868,7 @@ void PndFTSCADisplay::DrawGBHits( const PndFTSCAGBTracker &tracker, int color, S
 #else
     fYX->cd(); // TODO
 #endif
-    
+
     // { // draw covariance ellipse
     //     // eigen values;
     //   const double C00 = h.C(2,2);
@@ -927,7 +927,7 @@ void PndFTSCADisplay::DrawGBHits(const FTSCAHitsV& all) {
     if ( iColor == kWhite )
       iColor++;
 
-#ifdef COUNT_SAME_HITS  
+#ifdef COUNT_SAME_HITS
       map<TVector3,int> nSameHits;
 #endif
     const FTSCAElementsOnStation<FTSCAHitV>& s = all.OnStation( iS );
@@ -992,7 +992,7 @@ void PndFTSCADisplay::DrawGBHits(const FTSCAHits& all) {
     if ( iColor == kWhite )
       iColor++;
 
-#ifdef COUNT_SAME_HITS  
+#ifdef COUNT_SAME_HITS
       map<TVector3,int> nSameHits;
 #endif
     const FTSCAElementsOnStation<FTSCAHit>& s = all.OnStation( iS );
@@ -1032,7 +1032,7 @@ void PndFTSCADisplay::DrawGBHits(const FTSCAHits& all) {
       fYX->cd();
       Tl->DrawLatex( gx, gy, ss);
           // std::cout << iS << " " << i << cd -" " << " " << h.X1() << " " << h.X2() << " " << h.X0() << std::endl; // dbg
-      
+
     }
 #ifdef COUNT_SAME_HITS
     for (std::map<TVector3,int>::iterator it=nSameHits.begin(); it!=nSameHits.end(); ++it) {
@@ -1062,7 +1062,7 @@ void PndFTSCADisplay::DrawGBPoints() {
    // for STT
   static double rMax[NSta];
   static double x0LRange[NSta][2];
-  
+
   static bool first_call = true;
   if (first_call) {
     for( int i = 0; i < NSta; i++ ) {
@@ -1083,9 +1083,9 @@ void PndFTSCADisplay::DrawGBPoints() {
     first_call = false;
   }
 #endif // CALC_GEO
-  
+
   const PndFTSResizableArray<PndFTSCALocalMCPoint>& mcPs = *(fPerf->GetMCPoints());
-  for( unsigned int i = 0; i < mcPs.Size(); ++i ) {
+  for( int i = 0; i < mcPs.Size(); ++i ) {
     PndFTSCALocalMCPoint mcPoint = mcPs[i];
     double mcX0 =  mcPoint.X();
     double mcY0 =  mcPoint.Y();
@@ -1099,7 +1099,7 @@ void PndFTSCADisplay::DrawGBPoints() {
     //   case 3: PndFTSCADisplay::Instance().DrawGBPoint((float)mcX0, (float)mcY0, (float)mcZ, kRed, (Size_t).2); break;
     //   default: PndFTSCADisplay::Instance().DrawGBPoint((float)mcX0, (float)mcY0, (float)mcZ, kGray, (Size_t).2);
     // }
-    
+
 #ifdef CALC_GEO
     const int iS = mcPoint.IRow();
     if ( iS >= NSta || iS < 0 ) continue;
@@ -1157,7 +1157,7 @@ void PndFTSCADisplay::DrawPVHisto(const vector<float>& pvHist, const PndFTSCAPar
   for( unsigned int i = 0; i < N; ++i ) {
     max = ( max < pvHist[i] ) ? pvHist[i] : max;
   }
-  
+
   for( unsigned int i = 0; i < N; ++i ) {
     float z = (2.f*i/N-1)*maxZ;
     float dr = pvHist[i]/max*maxZ;
@@ -1170,7 +1170,7 @@ void PndFTSCADisplay::DrawPVHisto(const vector<float>& pvHist, const PndFTSCAPar
 }
 
 void PndFTSCADisplay::DrawGBNPlets(const FTSCANPletsV& all) {
-  for( int iS = 0; iS < all.NStations(); ++iS ) 
+  for( int iS = 0; iS < all.NStations(); ++iS )
   {
     const FTSCAElementsOnStation<FTSCANPletV>& s = all.OnStation( iS );
     if ( s.size() <= 0 ) continue;
@@ -1195,19 +1195,19 @@ void PndFTSCADisplay::DrawGBNPlets(const FTSCANPletsV& all) {
         case 3: color = kGreen+((iS%2)*4); break;
         case 4: color = kMagenta+((iS%2)*4); break;
     }*/
-    for( unsigned int i = 0; i < s.size(); ++i ) 
+    for( unsigned int i = 0; i < s.size(); ++i )
     {
-      foreach_bit( int iV, s[i].IsValid() ) 
+      foreach_bit( int iV, s[i].IsValid() )
       {
         vector<float> gx(N), gy(N), gz(N);
-        for ( int ih = 0; ih < N; ih++ ) 
+        for ( int ih = 0; ih < N; ih++ )
         {
           HitToGlobal( s.GetHit( iV, ih, i ), gx[ih], gy[ih], gz[ih] );
         }
 
         for ( int ih = 1; ih < N; ih++ )
         {
-            DrawGBLine( gx[ih-1], gy[ih-1], gz[ih-1], gx[ih], gy[ih], gz[ih], color, 0 ); 
+            DrawGBLine( gx[ih-1], gy[ih-1], gz[ih-1], gx[ih], gy[ih], gz[ih], color, 0 );
         }
 
         if ( N == 1 ) // singlets
@@ -1226,7 +1226,7 @@ void PndFTSCADisplay::DrawGBNPlets(const FTSCANPletsV& all) {
 }
 
 
-void PndFTSCADisplay::DrawGBNPlets(const FTSCAElementsOnStation<FTSCANPletV>& s) 
+void PndFTSCADisplay::DrawGBNPlets(const FTSCAElementsOnStation<FTSCANPletV>& s)
 {
     if ( s.size() <= 0 ) return;
     const int N = s[0].N();
@@ -1242,14 +1242,14 @@ void PndFTSCADisplay::DrawGBNPlets(const FTSCAElementsOnStation<FTSCANPletV>& s)
       case 6: color = kRed; break;
     }
 
-    for( unsigned int i = 0; i < s.size(); ++i ) 
+    for( unsigned int i = 0; i < s.size(); ++i )
     {
       //cout<<"s[i].IsValid() "<<s[i].IsValid()<<endl;
       //cout<<"N "<<N<<endl;
-      foreach_bit( int iV, s[i].IsValid() ) 
+      foreach_bit( int iV, s[i].IsValid() )
       {
         vector<float> gx(N), gy(N), gz(N);
-        for ( int ih = 0; ih < N; ih++ ) 
+        for ( int ih = 0; ih < N; ih++ )
         {
           HitToGlobal( s.GetHit( iV, ih, i ), gx[ih], gy[ih], gz[ih] );
         }
@@ -1261,7 +1261,7 @@ void PndFTSCADisplay::DrawGBNPlets(const FTSCAElementsOnStation<FTSCANPletV>& s)
         for ( int ih = 1; ih < N; ih++ )
         {
             //cout<<"gx[ih], gy[ih], gz[ih] "<<gx[ih]<<" "<<gy[ih]<<" "<<gz[ih]<<endl;
-            DrawGBLine( gx[ih-1], gy[ih-1], gz[ih-1], gx[ih], gy[ih], gz[ih], color+2*(ih==1), 0 ); 
+            DrawGBLine( gx[ih-1], gy[ih-1], gz[ih-1], gx[ih], gy[ih], gz[ih], color+2*(ih==1), 0 );
         }
       }
     }
@@ -1363,7 +1363,7 @@ bool PndFTSCADisplay::DrawTrack( PndFTSCATrackParam t, double Alpha, const PndFT
 // #else
   const bool drawEndPoints = 0;
 // #endif // DRAW_3D
-  
+
   if ( NHits < 2 ) return 0;
 
   const PndFTSCAGBTracker &tracker = *fGB;
@@ -1461,7 +1461,7 @@ bool PndFTSCADisplay::DrawTrack( PndFTSCATrackParam t, double Alpha, const PndFT
       mHits++;
     }
   }
-  
+
 #ifdef DRAW_3D
   const float zoom = 0.6;
   const float z_zoom = 1.2;
@@ -1469,14 +1469,14 @@ bool PndFTSCADisplay::DrawTrack( PndFTSCATrackParam t, double Alpha, const PndFT
   for ( int i = mHits - 1; i >= 0; i-- ) {
     TVector3 v(vx[i], -vz[i], vy[i]);
 
-    v.RotateX(TMath::Pi()/70); 
+    v.RotateX(TMath::Pi()/70);
     v.RotateZ(TMath::Pi()/12);
     vx[i] = v.X()*zoom;
     vy[i] = v.Z()*zoom;
     vz[i] = -v.Y()*zoom;
 
     vx[i] *= (z0_zoom-vz[i])/z0_zoom * z_zoom;
-    vy[i] *= (z0_zoom-vz[i])/z0_zoom * z_zoom; 
+    vy[i] *= (z0_zoom-vz[i])/z0_zoom * z_zoom;
   }
 #endif // DRAW_3D
 
@@ -1516,7 +1516,7 @@ bool PndFTSCADisplay::DrawTrack( PndFTSCATrackParam t, double Alpha, const PndFT
 void PndFTSCADisplay::DrawHelix(float p0, float c, float z, float zStart, float z0, float xc, float yc, float r, float b, int color, Size_t width)
 {
   fLine.SetLineColor(color);
-  fLine.SetLineWidth(width);  
+  fLine.SetLineWidth(width);
   // draw slice track
   float x,y,p;
   p = p0 + c*(zStart-z0)/b;
@@ -1549,7 +1549,7 @@ void PndFTSCADisplay::DrawHelix(float p0, float c, float z, float zStart, float 
 void PndFTSCADisplay::DrawParticleGlobal(float *param, float q, float tStart, float tEnd, float b, int color, Size_t width)
 {
   fLine.SetLineColor(color);
-  fLine.SetLineWidth(width);  
+  fLine.SetLineWidth(width);
   fArrow.SetFillColor( color );
   fArrow.SetLineColor( color );
   fArrow.SetLineWidth( width );
@@ -1576,7 +1576,7 @@ void PndFTSCADisplay::DrawParticleGlobal(float *param, float q, float tStart, fl
 
     sB = (1.e-8 < fabs(bs)) ? (s/b) : ((1-bs*kOvSqr6)*(1+bs*kOvSqr6)*t) ;
     cB = (1.e-8 < fabs(bs)) ? ((1-c)/b) : (.5*sB*bs) ;
-  
+
     float px = param[3];
     float py = param[4];
     float pz = param[5];
@@ -1607,7 +1607,7 @@ void PndFTSCADisplay::DrawParticleGlobal(float *param, float q, float tStart, fl
 void PndFTSCADisplay::DrawParticleGlobal(float *param, float q, float n[4], float b, int color, Size_t width)
 {
   fLine.SetLineColor(color);
-  fLine.SetLineWidth(width);  
+  fLine.SetLineWidth(width);
   fArrow.SetFillColor( color );
   fArrow.SetLineColor( color );
   fArrow.SetLineWidth( width );
@@ -1639,7 +1639,7 @@ void PndFTSCADisplay::DrawParticleGlobal(float *param, float q, float n[4], floa
 
     sB = (1.e-8 < fabs(bs)) ? (s/b) : ((1-bs*kOvSqr6)*(1+bs*kOvSqr6)*t) ;
     cB = (1.e-8 < fabs(bs)) ? ((1-c)/b) : (.5*sB*bs) ;
-  
+
     float px = param[3];
     float py = param[4];
     float pz = param[5];
@@ -1654,7 +1654,7 @@ void PndFTSCADisplay::DrawParticleGlobal(float *param, float q, float n[4], floa
     p[7] = param[7];
 
     dist = p[0]*n[0]+p[1]*n[1]+p[2]*n[2]+n[3];
-        
+
     if(dist < dist_last)
     {
       fYX->cd();
@@ -1692,10 +1692,10 @@ void PndFTSCADisplay::DrawGBTrack( int itr, int color, int width )
   // draw global track
 
   const PndFTSCAGBTracker &tracker = *fGB;
-  
+
   const PndFTSCAGBTrack &track = tracker.Track( itr );
   if ( track.NHits() < 2 ) return;
-    
+
   vector<PndFTSCADisplayTmpHit> vHits( track.NHits() );
 
   for ( int ih = 0; ih < track.NHits(); ih++ ) {
@@ -1705,14 +1705,14 @@ void PndFTSCADisplay::DrawGBTrack( int itr, int color, int width )
     vHits[ih].SetS( 0 );
     vHits[ih].SetZ( h.Z() );
   }
-  
+
   DrawTrack( track.Param(), track.Param().Angle(), &(vHits[0]), track.NHits(), color, width );
 }
 
 void PndFTSCADisplay::DrawRecoTrack( int itr, int color, int width )
 {
   const PndFTSCAGBTracker &tracker = *fGB;
-  
+
   const PndFTSCAGBTrack &track = tracker.Track( itr );
   if ( track.NHits() < 2 ) return;
 
@@ -1732,13 +1732,13 @@ void PndFTSCADisplay::DrawRecoTrack( int itr, int color, int width )
       const double betaLast = M_PI_2 + hLast.Beta(); // strip angle
       const double beta = M_PI_2 + h.Beta(); // strip angle
       if ( fabs(betaLast - beta) > 5e-7 && h.IRow() > PndFTSCAParameters::NMVDStations ) {
-    
+
         const double ctbL = tan(M_PI_2 - betaLast);
         const double ctb = tan(M_PI_2 - beta);
         float xL, yL, zL, x, y, z;
         hLast.GetLocalX0X1X2( xL, yL, zL );
         h.GetLocalX0X1X2( x, y, z );
-      
+
         double xM = (xL + x)*0.5;
         double zM = ((zL*ctbL - yL) - (z*ctb - y))/(ctbL - ctb);
         double yM = y + (zM - z)*ctb;

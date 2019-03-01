@@ -56,10 +56,12 @@ void PndTrackSmearTask::Exec(Option_t *) {
   for(TClonesArray* arr : fOutputTracks) {arr->Delete();}
 
 
-  for (int i=0;i<fTracks.size();i++)
+  for (unsigned int i=0;i<fTracks.size();i++)
   {
     TClonesArray* trkArray=fTracks[i];
+    if(trkArray==NULL) continue;
     TClonesArray* trkOutArray=fOutputTracks[i];
+    if(trkOutArray==NULL) continue;
     TString trkbranchname = fInputTrackBranches[i];
     for (int j = 0; j < trkArray->GetEntriesFast(); j++)
     {

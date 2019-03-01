@@ -34,6 +34,7 @@
 #include "PndSttHit.h"
 #include "PndSttMapCreator.h"
 #include "PndSttTube.h"
+#include "PndSttTubeMap.h"
 
 #include <iostream>
 #include <iomanip>
@@ -63,7 +64,7 @@ using std::map;
 
 
 // -----   Default constructor   ------------------------------------------
-PndBarrelTrackFinder::PndBarrelTrackFinder() : PndPersistencyTask("Barrel Track Finder", 1) {
+PndBarrelTrackFinder::PndBarrelTrackFinder() : PndPersistencyTask("Barrel Track Finder", 1), fGeoType(0) {
   for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     fIncludeDet  [idet] = kFALSE;
     fHitArray    [idet] = NULL;
@@ -286,7 +287,13 @@ void PndBarrelTrackFinder::Exec(Option_t*) {
       else                    if ( fHitDetId[ihit] == 2 ) {
 	detHit = (PndSttHit*)fHitArray[fHitDetId[ihit]]->At(fHitDetNo[ihit]);
 	Int_t iTube = ((PndSttHit*)detHit)->GetTubeID(); 
-	PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
+	PndSttTube *sttTube = nullptr;
+	if (fGeoType == 1)
+        sttTube = (PndSttTube*) fTubeArray->At(iTube);
+    else if (fGeoType == 2){
+        sttTube = PndSttTubeMap::Instance()->GetTube(iTube);
+    }
+
 	if ( sttTube->GetWireDirection().Z() < 1. )
 	  continue; // don't draw skewed hits (how else to put them?)
 
@@ -346,7 +353,14 @@ void PndBarrelTrackFinder::Exec(Option_t*) {
     if ( fHitDetId[hitN] == 2 ) {
       sttHit = kTRUE;
       Int_t iTube = ((PndSttHit*)detHit)->GetTubeID(); 
-      PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
+      PndSttTube *sttTube = nullptr;
+      if (fGeoType == 1)
+          sttTube = (PndSttTube*) fTubeArray->At(iTube);
+      else if (fGeoType == 2){
+          sttTube = PndSttTubeMap::Instance()->GetTube(iTube);
+      }
+      if (sttTube == nullptr)
+          std::cout << "-E- PndBarrelTrackFinder::Exec no sttTube " << iTube << std::endl;
       if ( sttTube->GetWireDirection().Z() < 1. ) {
 	skewedSttHit = kTRUE;
 	if ( fVerbose > 3 ) 
@@ -410,7 +424,12 @@ void PndBarrelTrackFinder::Exec(Option_t*) {
     if ( fHitVectDI[iuh] == 2 ) {
       sttHit = kTRUE;
       Int_t iTube = ((PndSttHit*)fHitVector[iuh])->GetTubeID(); 
-      PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
+      PndSttTube *sttTube = nullptr;
+      if (fGeoType == 1)
+          sttTube = (PndSttTube*) fTubeArray->At(iTube);
+      else if (fGeoType == 2){
+          sttTube = PndSttTubeMap::Instance()->GetTube(iTube);
+      }
       if ( sttTube->GetWireDirection().Z() < 1. ) {
 	skewedSttHit = kTRUE;
       }
@@ -506,8 +525,13 @@ Bool_t PndBarrelTrackFinder::MatchSkewedSttHitTT     (FairHit* thisHit, Int_t de
   if ( TMath::Abs(fTracksVector[trackNo].meanR) < 1. ) return kFALSE;
 
   Int_t iTube = ((PndSttHit*)thisHit)->GetTubeID(); 
-  PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
-      
+  PndSttTube *sttTube = nullptr;
+  if (fGeoType == 1)
+      sttTube = (PndSttTube*) fTubeArray->At(iTube);
+  else if (fGeoType == 2){
+      sttTube = PndSttTubeMap::Instance()->GetTube(iTube);
+  }
+
   Double_t ra = TMath::ATan(TMath::Sqrt(sttTube->GetWireDirection().X()*sttTube->GetWireDirection().X()+
 					sttTube->GetWireDirection().Y()*sttTube->GetWireDirection().Y())/
 			    sttTube->GetWireDirection().Z());
@@ -523,7 +547,7 @@ Bool_t PndBarrelTrackFinder::MatchSkewedSttHitTT     (FairHit* thisHit, Int_t de
   tubePar[6] = sttTube->GetWireDirection().Z();
   tubePar[7] = a;
   
-  if ( fVerbose > 4 || printInfo )     
+  if ( fVerbose > 4 || printInfo )
     cout << "matching to track " << trackNo << " with " << fTracksVector[trackNo].trackHits.size() << " hits" << endl;
   
   Bool_t trackFits = kFALSE;
@@ -901,7 +925,12 @@ Bool_t PndBarrelTrackFinder::MatchHitToHit   (FairHit* thisHit, Int_t detId, Int
   //      cout << fHitVector[prevHNo]->GetZ() << " " << flush;
   if ( fHitVectDI[prevHNo] == 2 ) {
     Int_t prevTube = ((PndSttHit*)fHitVector[prevHNo])->GetTubeID(); 
-    PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(prevTube);
+    PndSttTube *sttTube = nullptr;
+    if (fGeoType == 1)
+        sttTube = (PndSttTube*) fTubeArray->At(prevTube);
+    else if (fGeoType == 2){
+        sttTube = PndSttTubeMap::Instance()->GetTube(prevTube);
+    }
     if ( sttTube->GetWireDirection().Z() < 1. )
       return kFALSE;
     sH2[2] = ((PndSttHit*)fHitVector[prevHNo])->GetIsochrone();
@@ -1105,7 +1134,12 @@ Bool_t PndBarrelTrackFinder::ExtractMeanZ_PFromTrack     (Int_t trackNo) {
     }
     else {
       Int_t tubeId = ((PndSttHit*)fTracksVector[trackNo].trackHits[ihit])->GetTubeID();
-      PndSttTube* sttTube = (PndSttTube*) fTubeArray->At(tubeId); 
+      PndSttTube *sttTube = nullptr;
+      if (fGeoType == 1)
+          sttTube = (PndSttTube*) fTubeArray->At(tubeId);
+      else if (fGeoType == 2){
+          sttTube = PndSttTubeMap::Instance()->GetTube(tubeId);
+      }
       
       if ( sttTube->GetWireDirection().Z() < 1. ) {
 	nofZHits++;
@@ -1215,7 +1249,12 @@ void   PndBarrelTrackFinder::PrintTracks() {
 	Bool_t skewedSttHit = kFALSE;
 	if ( fTracksVector[itr].trackHitD[ihit] == 2 ) {
 	  Int_t iTube = ((PndSttHit*) fTracksVector[itr].trackHits[ihit])->GetTubeID(); 
-	  PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
+	    PndSttTube *sttTube = nullptr;
+	    if (fGeoType == 1)
+	        sttTube = (PndSttTube*) fTubeArray->At(iTube);
+	    else if (fGeoType == 2){
+	        sttTube = PndSttTubeMap::Instance()->GetTube(iTube);
+	    }
 	  if ( sttTube->GetWireDirection().Z() < 1. ) {
 	    skewedSttHit = kTRUE;
 	  }
@@ -1300,7 +1339,12 @@ void   PndBarrelTrackFinder::DrawTracks() {
 	//Bool_t skewedSttHit = kFALSE; //[R.K. 01/2017] unused variable?
 	if ( fTracksVector[itr].trackHitD[ihit] == 2 ) {
 	  Int_t iTube = ((PndSttHit*) fTracksVector[itr].trackHits[ihit])->GetTubeID(); 
-	  PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
+	    PndSttTube *sttTube = nullptr;
+	    if (fGeoType == 1)
+	        sttTube = (PndSttTube*) fTubeArray->At(iTube);
+	    else if (fGeoType == 2){
+	        sttTube = PndSttTubeMap::Instance()->GetTube(iTube);
+	    }
 	  if ( sttTube->GetWireDirection().Z() < 1. ) {
 	    //skewedSttHit = kTRUE; //[R.K. 01/2017] unused variable?
 	  }
@@ -1753,8 +1797,11 @@ InitStatus PndBarrelTrackFinder::Init() {
   cout << "\b\b. " << endl;
   cout << "================================================================================" << endl;
 
-  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-  fTubeArray = mapper->FillTubeArray();
+  fGeoType = fSttParameters->GetGeometryType();
+  if ( fGeoType == 1){
+      PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+      fTubeArray = mapper->FillTubeArray();
+  }
 //   cout << "****************************************************" << endl;
 //   cout << "**  " << fTubeArray->GetEntriesFast() << "  TUBES  ***********************************" << endl;
 //   cout << "****************************************************" << endl;

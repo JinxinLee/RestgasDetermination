@@ -34,8 +34,8 @@ int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_
   // set random random seed
   gRandom->SetSeed();
 
-  // runsim option
-  TString opt="";
+  // runsim option 
+  TString opt="PndFiltPrim"; // for PndFilteredPrimaryGenerator the options must contain this key word
   
   double mp = 0.938272;
 	
@@ -78,12 +78,11 @@ int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_
   fRun->SetGenerator();
 
   // -----   Event filter setup   -------------------------------------------
-  FairFilteredPrimaryGenerator *primGen = fRun->GetFilteredPrimaryGenerator();
-  primGen->SetVerbose(0);
+  // fetch the PndFilteredPrimaryGenerator (only existing if option contains 'PndFiltPrim')
+  PndFilteredPrimaryGenerator *primGen = fRun->GetPndFilteredPrimaryGenerator();
   // ---- Example configuration for the event filter ------------------------
-  //FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
-  //chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
-  //primGen->AndFilter(chrgFilter);  
+  //primGen->SetVerbose(1);
+  //primGen->AddFilter("(t+-;4..) && M(e+ e-; m[3.1,0.6])");  //require 4 tracks and at least one e+e- candidate in mass window [2.8,3.4]
 
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddSimTasks();

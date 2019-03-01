@@ -16,10 +16,10 @@ using std::ios;
 
 #include <string>
 using std::string;
-         
+
 #include <vector>
 using std::vector;
-         
+
 #include <map>
 using std::map;
 
@@ -37,7 +37,7 @@ struct PndFTSEfficiencies: public TEfficiencies
     AddCounter("total"         ,"Allset    efficiency");
     AddCounter("rest"          ,"Rest      efficiency");
   }
-
+  virtual ~PndFTSEfficiencies(){};
   virtual void AddCounter(string shortname, string name){
     TEfficiencies::AddCounter(shortname, name);
     ratio_killed.AddCounter();
@@ -93,7 +93,7 @@ struct PndFTSEfficiencies: public TEfficiencies
     for (int iC = 0; iC < NCounters; iC++){
       if (( names[iC] != "D0        efficiency") || (mc.counters[iC] != 0))
         std::cout << names[iC]  << "   : "
-             << ratio_reco.counters[iC]              
+             << ratio_reco.counters[iC]
              //<< "  / " << ratio_killed.counters[iC]  // tracks with aren't reco because other tracks takes their hit(-s)
              << "  / " << ratio_length.counters[iC]  // nRecoMCHits/nMCHits
              << "  / " << ratio_fakes.counters[iC]   // nFakeHits/nRecoAllHits
@@ -107,7 +107,7 @@ struct PndFTSEfficiencies: public TEfficiencies
     //restore original cout flags
     cout.flags(coutFlags);
   }
-  
+
   TTracksCatCounters<double> ratio_killed;
   TTracksCatCounters<double> ratio_clone;
   TTracksCatCounters<double> ratio_length;

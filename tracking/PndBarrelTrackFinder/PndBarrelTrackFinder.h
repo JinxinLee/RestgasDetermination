@@ -173,6 +173,7 @@ class PndBarrelTrackFinder : public PndPersistencyTask
   /** from parameters array of PndSttTube **/  //  CHECK added
   TClonesArray* fTubeArray;
   PndGeoSttPar *fSttParameters;  //  CHECK added
+  Int_t fGeoType;
 
   /** Intialisation **/
   virtual InitStatus Init();

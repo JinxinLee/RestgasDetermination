@@ -60,7 +60,7 @@ UShort_t PndHammingDecoder::CheckHammingCode(ULong64_t dataword, int dataword_le
 std::vector<char> PndHammingDecoder::ConvertData(std::vector<ULong64_t> topixFrame)
 {
 	std::vector<char> topix_data;
-	for (int i = 1; i < topixFrame.size() - 1; i++) {
+	for (unsigned int i = 1; i < topixFrame.size() - 1; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (j == 0 or j == 1 or j == 2) {
 				topix_data.push_back(0x00);

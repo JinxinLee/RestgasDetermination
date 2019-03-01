@@ -65,7 +65,7 @@ void PndLmdHitPair::PrintPair() const {
  */
 void PndLmdHitPair::check() {
 
-	bool colSane=false, rowSane=false, idsane=false, allVarsSet=false, distanceOk=false;
+	bool colSane=false, rowSane=false, idsane=false, allVarsSet=false; //, distanceOk=false; //[R.K. 9/2018] unused
 	if(std::isinf(_col1) || std::isinf(_col2) || std::isnan(_col1) || std::isnan (_col2)){
 		colSane=false;
 	}

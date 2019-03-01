@@ -15,26 +15,26 @@
 // -------------------------------------------------------------------------
 
 PndSmpCand::PndSmpCand(TLorentzVector lv, Float_t chrg, Int_t pdg, Int_t uid) : 
-	fLV(lv), fCharge(chrg), fPdgCode(pdg), fUniqueID(uid), fNDau(0)
+	fLV(lv), fCharge(chrg), fPdgCode(pdg), fUniqueID(uid), fMarker(0), fNDau(0)
 {
 	for (int i=0;i<5;++i) fDaughter[i] = 0;
-	fMarker = 1<<fUniqueID;
+	if (uid>=0) fMarker = 1<<fUniqueID;
 }
 
 // -------------------------------------------------------------------------
 
 PndSmpCand::PndSmpCand(TLorentzVector *lv, Float_t chrg, Int_t pdg, Int_t uid) : 
-	fLV(*lv), fCharge(chrg), fPdgCode(pdg), fUniqueID(uid), fNDau(0)
+	fLV(*lv), fCharge(chrg), fPdgCode(pdg), fUniqueID(uid), fMarker(0), fNDau(0)
 {
 	for (int i=0;i<5;++i) fDaughter[i] = 0;
-	fMarker = 1<<fUniqueID;
+	if (uid>=0) fMarker = 1<<fUniqueID;
 }
 
 // -------------------------------------------------------------------------
 
 void PndSmpCand::Print()
 {
-	printf("uid:%3d  lv:(%7.3f,%7.3f,%7.3f,%7.3f ; m:%7.3f, p:%7.3f, pt:%7.3f, tht:%6.1f, phi:%7.1f)  ch:%2.0f  pdg:%5d  marker:%8lu (",
+	printf("uid:%3d  lv:(%7.3f,%7.3f,%7.3f,%7.3f ; m:%7.3f, p:%7.3f, pt:%7.3f, tht:%6.1f, phi:%7.1f)  ch:%2.0f  pdg:%6d  marker:%8lu (",
 		fUniqueID, fLV.Px(), fLV.Py(), fLV.Pz(), fLV.E(), fLV.M(), fLV.P(), fLV.Pt(), fLV.Theta()*57.296, fLV.Phi()*57.296, fCharge, fPdgCode, fMarker);
 	PrintBinary(fMarker);
 	printf(")\n");

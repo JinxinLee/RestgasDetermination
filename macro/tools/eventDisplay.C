@@ -30,6 +30,9 @@ int eventDisplay()
 	  fRun->UseFairLinks(kTRUE);
 
 	  FairEventManager *fMan= new FairEventManager();
+
+	    PndSttRootGeometryInitTask* task = new PndSttRootGeometryInitTask();
+	    fRun->AddTask(task);
  
  
  //----------------------Traks and points -------------------------------------
@@ -103,11 +106,13 @@ int eventDisplay()
   }
 
   if (enableTrackDraw) {
-	  PndTrackDraw* SttMvdTrack = new PndTrackDraw("SttMvdTrack");
+	  PndTrackDraw* BarrelTrackDraw = new PndTrackDraw("BarrelTrack", kTRUE);
+          PndTrackDraw* SttMvdTrack = new PndTrackDraw("BarrelGenTrack", kTRUE);
 	  PndTrackDraw* SttMvdGemTrack = new PndTrackDraw("SttMvdGemTrack", kTRUE);
 	  PndTrackDraw* FtsIdealTrack = new PndTrackDraw("FtsIdealTrack");
           PndTrackDraw* SttMvdGemGenTrack = new PndTrackDraw("SttMvdGemGenTrack", kTRUE);
 	  PndTrackDraw* FtsIdealGenTrack = new PndTrackDraw("FtsIdealGenTrack");
+	  fMan->AddTask(BarrelTrackDraw);
 	  fMan->AddTask(SttMvdTrack);
 	  fMan->AddTask(SttMvdGemTrack);
           fMan->AddTask(SttMvdGemGenTrack);

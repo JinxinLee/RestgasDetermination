@@ -34,16 +34,18 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         "ignoring return value of 'char* fgets(char*, int, FILE*)'"
         "ignoring return value of 'char* fscanf(char*, int, FILE*)'"
 
-        # -- EvtGen source code, cannot be touched by us 
+        # -- EvtGen source code, cannot be touched by us
         "pgenerators/EvtGen/EvtGen/R01-03-00/"
         "pgenerators/EvtGen/Photos/"
+        "pgenerators/DpmEvtGen/"
         "genfit/"
         "genfit2/"
         "Pythia"
-        "Weffc"
         "/include/HepMC/"
         "/include/root/"
+        "/include/boost/"
         "/include/Fair"
+        "[-Woverloaded-virtual]"
   )
 
 # -----------------------------------------------------------
@@ -52,12 +54,13 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
 set(CTEST_CUSTOM_WARNING_MATCH	${CTEST_CUSTOM_WARNING_MATCH}
 	)
 
-Set (CTEST_CUSTOM_COVERAGE_EXCLUDE 
+Set (CTEST_CUSTOM_COVERAGE_EXCLUDE
      "Dict.h"
      "Dict.cxx"
      "pgenerators/EvtGen/"
      "genfit/"
      "genfit2/"
+     "external/"
     )
 
 # -----------------------------------------------------------

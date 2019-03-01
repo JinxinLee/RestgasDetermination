@@ -30,7 +30,7 @@ using namespace std;
 	Vec <Short_t> *ListSttParHitsinTrack,
 	Vec <Short_t> *ListMvdPixelHitsinTrack,
 	Vec <Short_t> *ListSciTilHitsinTrack,
-	Vec <Short_t> *, // ListSttSkewHitsinTrack //[R.K.03/2017] unused variable(s)
+	Vec <Short_t> */*ListSttSkewHitsinTrack*/, //[R.K. 9/2018] unused
 	Vec <Short_t> *ListMvdStripHitsinTrack,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
@@ -40,7 +40,7 @@ using namespace std;
 	Vec <Short_t> *nSttParHitsinTrack,
 	int nMCTracks,
 	Vec <Short_t> *nMvdPixelHitsinTrack,
-	Short_t , // nSciTilHits //[R.K.03/2017] unused variable(s)
+	Short_t /*nSciTilHits*/, //[R.K. 9/2018] unused
 	Vec <Short_t> *nSciTilHitsinTrack,
 	Vec <Short_t> *nSttSkewHitsinTrack,
 	Vec <Short_t> *nMvdStripHitsinTrack,
@@ -54,7 +54,7 @@ using namespace std;
 	Vec <Double_t> *Y2,
 	Vec <Double_t> *X3,
 	Vec <Double_t> *Y3,
-	int  // IVOLTE //[R.K.03/2017] unused variable(s)
+	int /*IVOLTE*/ //[R.K. 9/2018] unused
 
 						)
 {
@@ -63,7 +63,7 @@ using namespace std;
  int tmp_dim = MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK;
 
  int tmp_dim2;
- // protection in case nTracksFoundSoFar = 0; the dimension of vector must be 
+ // protection in case nTracksFoundSoFar = 0; the dimension of vector must be
  // >= 1;
  if(nTracksFoundSoFar>0) { tmp_dim2 = nTracksFoundSoFar;} else {tmp_dim2 = 1;}
 
@@ -640,18 +640,14 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 //----------   fetching the MC truth tracks
 	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
-	if (istampa >= 2) {
-	     cout<<"from PndTrkComparisonMCTruth  : event (starting from 0)  N. "<<
-	       IVOLTE<< "\n       N. di MC truth tracks  : "<<nMCTracks<<endl;
-	}
 
 	if (nMCTracks ==0){
-		cout<<"from PndTrkComparisonMCTruth  :  N. MC truth tracks = 0, return!\n"<<endl;
+		// cout<<"from PndTrkComparisonMCTruth  :  N. MC truth tracks = 0, return!\n"<<endl;
 		return 0;
 	} else if(nMCTracks> MAXMCTRACKS){
-		cout<<"from PndTrkComparisonMCTruth  :  N. MC truth tracks = "<<nMCTracks
-		<<" and it is > MAXMCTRACKS = "<<MAXMCTRACKS
-		<<", setting it equal to MAXMCTRACKS.\n";
+		// cout<<"from PndTrkComparisonMCTruth  :  N. MC truth tracks = "<<nMCTracks
+		// <<" and it is > MAXMCTRACKS = "<<MAXMCTRACKS
+		// <<", setting it equal to MAXMCTRACKS.\n";
 		nMCTracks = MAXMCTRACKS;
 	}
 
@@ -912,11 +908,11 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 //---------- stampe.
  if(istampa>=3){
 	for(i=0;i<nTotalCandidates;i++){
-		cout<<"from PndTrkComparisonMCtruth : Track candidate n. "<<i;
+		// cout<<"from PndTrkComparisonMCtruth : Track candidate n. "<<i;
 		if(keepit[i]){
-		  cout<<"  associated to MC Track n. "<<daTrackFoundaTrackMC[i]<<endl;
+		 // cout<<"  associated to MC Track n. "<<daTrackFoundaTrackMC[i]<<endl;
 		} else {
-		  cout<<"  has keepit  false!\n";
+		 // cout<<"  has keepit  false!\n";
 		}
 
 
@@ -1094,15 +1090,20 @@ for (i=0;i<nMCTracks;i++){
 
 	citata=0;
 	for(int ic=0;ic<nSttHit;ic++){
-		// info[*][5] = tipe of inclination of the straw;
+		// info[*][5] = tipe of inclination of the straw; the following is the requirement that
+		// the inclination is not 99 (=skew straw) but instead 1 (= parallel straw);
 		if( ( (int) (info[ic*7 + 6]+0.1) ) == i   && info[ic*7 + 5]<2.){
 			citata++;
 		}
 	}   // end  for(int ic=0;ic<nSttHit;ic++)
 
 	if( citata>2 && fabs(Oxx)<1. && fabs(Oyy) < 1. ) {
+
+/*
 		ListaMCTracksaccettabili[nMCTracksaccettabili]=i;
 		nMCTracksaccettabili++;
+*/
+
 
 		// check if there is at least 1 MvdHit in this MC track;
 		// the Pixel first;
@@ -1122,7 +1123,17 @@ for (i=0;i<nMCTracks;i++){
 			}
 		   }
 		}  // end of if;
-		if(cita>0){ nHasMvdHit++; }
+		if(cita>0){
+			nHasMvdHit++;
+			// define an acceptable MC track one that has at leat 3 STT parallel hits and
+			// at least 1 Mvd hit;
+			ListaMCTracksaccettabili[nMCTracksaccettabili]=i;
+			nMCTracksaccettabili++;
+		}
+
+
+
+
 		//-------------------------------
 
 		// check if there is at least 1 SciTil hit in this MC track;
@@ -1334,7 +1345,7 @@ ioData.nSciTilCommon[ii]+ioData.nMCSciTilAlone[ii],ioData.nSciTilCommon[ii],ioDa
      fmod(Fifi+ PI, 2.*PI),  //  FI0  da MC truth
      FI0[ ii ]
            );
-   
+
     fprintf(HANDLE,
 "       %%truePar %5.1f ;%%missPar %5.1f ;%%trueSkew  %5.1f ;%%missSkew  %5.1f ;%%trueStt %5.1f ;%%missStt %5.1f ;\n",
  	perc_trueSttPar*100.,perc_missSttPar*100.,perc_trueSttSkew*100.,
@@ -1607,7 +1618,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 	Vec <Short_t> *nMvdStripSpuriinTrack,
 	Vec <Short_t> *MvdStripSpuriList,
 	Vec <Short_t> *nMCMvdStripAlone,
-	Vec <Short_t> *MCMvdStripAloneList	
+	Vec <Short_t> *MCMvdStripAloneList
 				)
 {
 //  fine cambio_in_perl.
@@ -1731,7 +1742,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 //  inizio cambio_in_perl.
 
 void PndTrkComparisonMCtruth::MvdMatchtoMC(
-	Double_t , // ERRORSQPIXEL //[R.K.03/2017] unused variable(s)
+	Double_t /*ERRORSQPIXEL*/, //[R.K. 9/2018] unused
 	Double_t ERRORSQSTRIP,
 	TClonesArray *fMvdMCPointArray,
 	Short_t nMvdMCPoint,
@@ -1748,7 +1759,7 @@ void PndTrkComparisonMCtruth::MvdMatchtoMC(
 	Vec <Double_t> *ZMvdPixel,
 	Vec <Double_t> *ZMvdStrip,
 	Vec <Int_t> *FromPixeltoMCTrack,
-	Vec <Int_t> *FromStriptoMCTrack	
+	Vec <Int_t> *FromStriptoMCTrack
 	)
 {
 //  fine cambio_in_perl.
@@ -1880,10 +1891,10 @@ cout<<"Evento n. "<<IVOLTE<<
 //----------begin of function PndTrkComparisonMCtruth::SciTilMatchtoMC
 //  inizio cambio_in_perl.
  void PndTrkComparisonMCtruth::SciTilMatchtoMC(
-	Double_t , //  BFIELD//[R.K.03/2017] unused variable(s)
-	Double_t , // CVEL //[R.K.03/2017] unused variable(s)
-	Double_t , // DIMENSIONSCITIL //[R.K.03/2017] unused variable(s)
-	TClonesArray *, //  fMCTrackArray//[R.K.03/2017] unused variable(s)
+	Double_t /*BFIELD*/, //[R.K. 9/2018] unused
+	Double_t /*CVEL*/, //[R.K. 9/2018] unused
+	Double_t /*DIMENSIONSCITIL*/, //[R.K. 9/2018] unused
+	TClonesArray */*fMCTrackArray*/, //[R.K. 9/2018] unused
 	Vec <int> *FromSciTiltoMCTrackList,
 	TClonesArray *fSciTHitArray,
 	Short_t fSciTilMaxNumber,
@@ -1893,9 +1904,9 @@ cout<<"Evento n. "<<IVOLTE<<
 	int nMCTracks,
 	Short_t nSciTilHits,
 	Short_t *OriginalSciTilList,
-	Vec <Double_t> *, // XSciTilCenter //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> *, // YSciTilCenter //[R.K.03/2017] unused variable(s)
-	Vec <Double_t> * // ZSciTilCenter //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> */*XSciTilCenter*/, //[R.K. 9/2018] unused
+	Vec <Double_t> */*YSciTilCenter*/, //[R.K. 9/2018] unused
+	Vec <Double_t> */*ZSciTilCenter*/ //[R.K. 9/2018] unused
 
 		)
 {
@@ -1930,7 +1941,7 @@ cout<<"Evento n. "<<IVOLTE<<
 			// prima da uno hit della stessa SciTil;
 			bool accetto = true;
 			for(int kk=0;kk<nFromSciTiltoMCTrack->at(nsc);kk++){ // loop sulle tracce MC finora associate;
-			   if( point->GetTrackID() == 
+			   if( point->GetTrackID() ==
 				FromSciTiltoMCTrackList->at(nsc*nMCTracks+kk) ){
 				accetto=false;
 				break;
@@ -2080,39 +2091,38 @@ cout<<"Evento n. "<<IVOLTE<<
 //----------begin of function PndTrkComparisonMCtruth::StampaMCTracks
 //  inizio cambio_in_perl.
  void PndTrkComparisonMCtruth::stampaMCTracks(
-	Double_t BFIELD,
-	Double_t CVEL,
+	Double_t /*BFIELD*/, //[R.K. 9/2018] unused
+	Double_t /*CVEL*/, //[R.K. 9/2018] unused
 	TClonesArray* fMCTrackArray,
 	int nMCTracks
 						)
  {
-//  fine cambio_in_perl.
-	cout<<"from PndTrkComparisonMCtruth::StampaMCTracks  n. MC Tracks "
-		<<nMCTracks<<" e lista solo di quelle che vengono da (0,0,0) :\n";
+	// cout<<"from PndTrkComparisonMCtruth::StampaMCTracks  n. MC Tracks "
+	//	<<nMCTracks<<" e lista solo di quelle che vengono da (0,0,0) :\n";
 		for(int ic=0;ic<nMCTracks;ic++){
 			PndMCTrack* pMC = (PndMCTrack*) fMCTrackArray->At(ic);
 			if ( !( fabs(pMC->GetStartVertex().X())<0.5 &&
 			     fabs(pMC->GetStartVertex().Y())<0.5 &&
 			     fabs(pMC->GetStartVertex().Z())<0.5 )) continue;
-			double carica;
-			int icode  = pMC->GetPdgCode() ;    //   PDG code of track
-			double Pxx = pMC->GetMomentum().X();
-			double Pyy = pMC->GetMomentum().Y();
-			double aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
-			double Rr =   aaa*1000./(BFIELD*CVEL);// R (cm) of Helix of track projected
+			//double carica; //[R.K. 9/2018] unused
+			//int icode  = pMC->GetPdgCode() ;    //   PDG code of track //[R.K. 9/2018] unused
+			//double Pxx = pMC->GetMomentum().X(); //[R.K. 9/2018] unused
+			//double Pyy = pMC->GetMomentum().Y(); //[R.K. 9/2018] unused
+			//double aaa = sqrt( Pxx*Pxx + Pyy*Pyy); //[R.K. 9/2018] unused
+			//double Rr =   aaa*1000./(BFIELD*CVEL);// R (cm) of Helix of track projected //[R.K. 9/2018] unused
 						//  in XY plane; B = 2 Tesla
-			TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-			TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
-			if (icode>1000000000) carica = 1.;
-			else  carica = fParticle->Charge()/3. ;    //   charge of track
+			//TDatabasePDG *fdbPDG= TDatabasePDG::Instance(); //[R.K. 9/2018] unused
+			//TParticlePDG *fParticle= fdbPDG->GetParticle(icode); //[R.K. 9/2018] unused
+			//if (icode>1000000000) carica = 1.; //[R.K. 9/2018] unused
+			//else  carica = fParticle->Charge()/3. ;    //   charge of track //[R.K. 9/2018] unused
 
-			cout<<"\tTraccia n. "<<ic<<", Px "<<pMC->GetMomentum().X()
-			<<", Py "<<pMC->GetMomentum().Y()
-			<<", Pz "<<pMC->GetMomentum().Z()
-			<<", carica = "<<carica
-			<<"\n\t\tRaggio "<<Rr<<", Xvert "<<pMC->GetStartVertex().X()
-			<<", Yvert "<<pMC->GetStartVertex().Y()
-			<<", Zvert "<<pMC->GetStartVertex().Z()<<endl;
+			//cout<<"\tTraccia n. "<<ic<<", Px "<<pMC->GetMomentum().X()
+			//<<", Py "<<pMC->GetMomentum().Y()
+			//<<", Pz "<<pMC->GetMomentum().Z()
+			//<<", carica = "<<carica
+			//<<"\n\t\tRaggio "<<Rr<<", Xvert "<<pMC->GetStartVertex().X()
+			//<<", Yvert "<<pMC->GetStartVertex().Y()
+			//<<", Zvert "<<pMC->GetStartVertex().Z()<<endl;
 		}
 
 }
@@ -2128,9 +2138,9 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	Vec <bool> *InclusionListStt,
 	Vec <Double_t> *info,
 	Vec <bool> *keepit,
-	int , //  MAXSTTHITS//[R.K.03/2017] unused variable(s)
+	int /*MAXSTTHITS*/, //[R.K. 9/2018] unused
 	int MAXSTTHITSINTRACK,
-	int , // MAXTRACKSPEREVENT //[R.K.03/2017] unused variable(s)
+	int /*MAXTRACKSPEREVENT*/, //[R.K. 9/2018] unused
 	Vec <Short_t> *ListSttParHitsinTrack,
 	Vec <Short_t> *ListSttSkewHitsinTrack,
 	Vec <Short_t> *MCParalAloneList,

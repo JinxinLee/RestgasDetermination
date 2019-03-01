@@ -1,18 +1,17 @@
 // Macro for running Panda pid tasks
 // to run the macro:
 // root  pid_complete.C  or in root session root>.x  pid_complete.C
-int pid_complete(Int_t nEvents = 0)
+int pid_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "pid";
   TString  friend1        = "digi";
   TString  friend2        = "reco";
-  TString  friend3        = "";
+  TString  friend3        = "sim";
   TString  friend4        = "";
-  
+
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
   fRun->SetInput(input);
@@ -22,11 +21,13 @@ int pid_complete(Int_t nEvents = 0)
   fRun->AddFriend(friend3);
   fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
+  fRun->SetOptions(fRun->GetOptions()+options);
   fRun->Setup(prefix);
-  
+
   // -----   Add tasks   ----------------------------------------------------
+  fRun->SetOptions("multikalman");
   fRun->AddPidTasks();
-  
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();

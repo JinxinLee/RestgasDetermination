@@ -204,7 +204,7 @@ void PndFilteredPrimaryGenerator::AddFilter(TString filterStr)
 			// negate filter?
 			if (fs.BeginsWith("!")) {f.veto = true; fs.ReplaceAll("!","");}
 			
-			// if the filter string starts with "M" it's a mass filter, else a multiplicity filter ("N..") 
+			// if the filter string has the form "M(...)" it's a mass filter, else a multiplicity filter ("(...)") 
 			if (fs.BeginsWith("m(")) f.compo=true;
 			
 			for (int j=0;j<(int)cuts.size();++j)
@@ -413,14 +413,20 @@ Bool_t PndFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 			TLorentzVector l(particle->Px(), particle->Py(), particle->Pz(), particle->Energy());
 			Float_t ch = fdbPdg->GetParticle(pdg) ? fdbPdg->GetParticle(pdg)->Charge()/3. : 0;
 			
+			// and push to to all-list
+			if (fSetFsPdg.find(pdg)==fSetFsPdg.end())
+			{
+				// push to all list, but with uid = -1 for non-final states, since not needed for combinatorics
+				all.push_back(PndSmpCand(l, ch, pdg, -1));
+				continue;
+			}
+
+			// create candidate with marker (uid >= 0) only for final states used for combinatorics
 			PndSmpCand sc(l, ch, pdg, cnt++);
 			
 			// and push to to all-list
 			all.push_back(sc);
 			
-			// do we want particle for combinatorics?
-			if (fSetFsPdg.find(pdg)==fSetFsPdg.end()) continue;
-
 			// add particle to all lists with the same charge
 			for (unsigned int j=0;j<fCombFsPdg.size();++j)
 			{
@@ -444,6 +450,7 @@ Bool_t PndFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 		{
 			PrintSmpCandList(all,"All particles:");
 			
+			if (fVerbose>4)
 			for (int i=0;i<(int)fCombFsPdg.size();++i) 
 			{
 				int pdg = fCombFsPdg[i];
@@ -500,14 +507,18 @@ Bool_t PndFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 					// filter pdg (or special) code
 					int flpdg = f.pdg[0];
 
-					// any particle: code = 3
-					if (flpdg == 3)   trpdg = flpdg;
-					
-					// all charged tracks t+- : code = 2
-					if (flpdg == 2)   trpdg = abs(trchg)*2;
-					
-					// simple track+- and neutral counting (t+,t-,nt) : code = charge (-1, +1, 0); 0 also used for photons with pdg = 22 
-					if (abs(flpdg)<2) trpdg = trchg;
+					// the counters for any, t+-, t+, t- and nt/gam only for final states
+					if (all[j].Marker()>0)
+					{
+						// any particle: code = 3
+						if (flpdg == 3)   trpdg = flpdg;
+
+						// all charged tracks t+- : code = 2
+						if (flpdg == 2)   trpdg = abs(trchg)*2;
+
+						// simple track+- and neutral counting (t+,t-,nt) : code = charge (-1, +1, 0); 0 also used for photons with pdg = 22 
+						if (abs(flpdg)<2) trpdg = trchg;
+					}
 					
 					// the pdg code ignoring charge : code = 1000*pdg, e.g. K+- = 321000, pi+- = 211000
 					if (flpdg%1000==0) trpdg = abs(trpdg)*1000;
@@ -516,12 +527,12 @@ Bool_t PndFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 					if ( (trpdg==flpdg)  &&  CheckKinematic(f,  all[j].P4()) )
 					{
 						cnt_matches++;
-						if (fVerbose>2) cout  << " ** ";
+						if (fVerbose>2) cout  << "\033[1;34m ** ";
 					}
 					else if (fVerbose>2) cout << "    ";
 					
 					// *** (and print if verbose)
-					if (fVerbose>2) all[j].Print();
+					if (fVerbose>2) {all[j].Print(); cout<<"\033[0;0m";}
 				}
 				
 				// does multiplicity match?
@@ -595,12 +606,12 @@ Bool_t PndFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 					if (acc_cand)
 					{
 						cnt_matches++;
-						if (fVerbose>2) cout  << " ** ";
+						if (fVerbose>2) cout  << "\033[1;35m ** ";
 					}
 					else if (fVerbose>2) cout << "    ";
 					
 					// *** (and print if verbose)
-					if (fVerbose>2) comblist[j].Print();
+					if (fVerbose>2) { comblist[j].Print(); cout<<"\033[0;0m";}
 				}		
 				
 				// does multiplicity match?

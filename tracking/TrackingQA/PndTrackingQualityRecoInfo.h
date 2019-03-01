@@ -1,6 +1,6 @@
 /** PndTrackingQualityRecoInfo
- ** 
- ** @author Lia Lavezzi 
+ **
+ ** @author Lia Lavezzi
  **/
 
 #ifndef PNDTRACKINGQUALITYRECOINFO_H
@@ -13,12 +13,12 @@
 
 class PndTrackingQualityRecoInfo : public TObject
 {
-  
- public:    
+
+ public:
 
   PndTrackingQualityRecoInfo();
   PndTrackingQualityRecoInfo(int recotrackid);
-  ~PndTrackingQualityRecoInfo();    
+  ~PndTrackingQualityRecoInfo();
 
   void SetMCTrackInfo(PndTrackingQualityMCInfo *info) {
     fMCTrackInfo = *info;
@@ -66,7 +66,7 @@ class PndTrackingQualityRecoInfo : public TObject
   double GetGemEfficiency();
   double GetFtsEfficiency();
   /*  double GetSciTilEfficiency(); */
- 
+
   double GetInefficiency();
   double GetMvdPixelInefficiency();
   double GetMvdStripInefficiency();
@@ -115,7 +115,7 @@ class PndTrackingQualityRecoInfo : public TObject
   Int_t GetNofFtsTrueHits() {return fNofFtsTrueHits; }
   /*  Int_t GetNofSciTilTrueHits() {return fNofSciTilTrueHits; } */
   Int_t GetNofRecoTrueHits() {return  fNofMvdPixelTrueHits + fNofMvdStripTrueHits + fNofSttTrueHits + fNofGemTrueHits + fNofFtsTrueHits; } // + fNofSttParalTrueHits + fNofSttSkewTrueHit + fNofSciTilTrueHits; }
- 
+
   void SetNofMvdPixelFakeHits(int nofpix) { fNofMvdPixelFakeHits = nofpix; }
   void SetNofMvdStripFakeHits(int nofstr) { fNofMvdStripFakeHits = nofstr; }
   /*  void SetNofSttParalFakeHits(int nofsttparal) { fNofSttParalFakeHits = nofsttparal; } */
@@ -134,7 +134,7 @@ class PndTrackingQualityRecoInfo : public TObject
   Int_t GetNofGemFakeHits() {return fNofGemFakeHits; }
   Int_t GetNofFtsFakeHits() {return fNofFtsFakeHits; }
   /*  Int_t GetNofSciTilFakeHits() {return fNofSciTilFakeHits; } */
-  Int_t GetNofRecoFakeHits() {return  fNofMvdPixelFakeHits + fNofMvdStripFakeHits + fNofSttFakeHits + fNofGemFakeHits; }//  + fNofSttParalFakeHits + fNofSttSkewFakeHits + fNofSciTilFakeHits; } 
+  Int_t GetNofRecoFakeHits() {return  fNofMvdPixelFakeHits + fNofMvdStripFakeHits + fNofSttFakeHits + fNofGemFakeHits; }//  + fNofSttParalFakeHits + fNofSttSkewFakeHits + fNofSciTilFakeHits; }
 
   Int_t GetNofMvdPixelMissingHits() { return fNofMvdPixelMissingHits; }
   Int_t GetNofMvdStripMissingHits() { return fNofMvdStripMissingHits; }
@@ -185,9 +185,9 @@ class PndTrackingQualityRecoInfo : public TObject
   Int_t GetCharge() { return fCharge; }
 
   PndTrackingQualityMCInfo GetMCTrackInfo() { return fMCTrackInfo; }
-  void SetMCTrackID(int mctrackid) { fMCTrackID = mctrackid; } 
+  void SetMCTrackID(int mctrackid) { fMCTrackID = mctrackid; }
   Int_t GetMCTrackID() { return fMCTrackID; }
- 
+
   void SetTrue() { fTrue = 1; }
   Bool_t IsTrue() { return fTrue == 1; }
 
@@ -201,9 +201,8 @@ class PndTrackingQualityRecoInfo : public TObject
   Int_t GetIdealTrackId() { return fIdealTrackId; }
 
  protected:
- 
 
-  Int_t  fMCTrackID;
+
   Int_t fNofMvdPixelTrueHits,  fNofMvdStripTrueHits,  fNofSttTrueHits, fNofGemTrueHits, fNofFtsTrueHits;
   Int_t fNofMvdPixelFakeHits,  fNofMvdStripFakeHits,  fNofSttFakeHits, fNofGemFakeHits, fNofFtsFakeHits;
   Int_t fNofMvdPixelMissingHits,  fNofMvdStripMissingHits,  fNofSttMissingHits, fNofGemMissingHits, fNofFtsMissingHits;
@@ -216,25 +215,28 @@ class PndTrackingQualityRecoInfo : public TObject
   Int_t fRecoTrackID;
   TVector3 fPosFirst, fMomFirst;
   TVector3 fPosLast, fMomLast;
-  Int_t fCharge;
 
+  PndTrackingQualityMCInfo fMCTrackInfo;
+  Int_t fFlag;
+  Int_t fNofMCTracks;
   Int_t    fIdealTrackId;
+
   TVector3 fMCMomFirst;
   TVector3 fMCMomLast;
   TVector3 fMCVertex;
   TVector3 fMCMomentum;
   Int_t    fMCCharge;
   Int_t    fMCPdg;
+
   Bool_t   fIsPrimary;
   Int_t    fQuality;
   Int_t    fMCQuality;
-
-
-  PndTrackingQualityMCInfo fMCTrackInfo;
+  Int_t    fCharge;
+  Int_t    fMCTrackID;
   // true = 0, clone = 1
-  Int_t fFlag;
-  Int_t fNofMCTracks;
   Bool_t fTrue;
+
+
   ClassDef(PndTrackingQualityRecoInfo,2);
 };
 

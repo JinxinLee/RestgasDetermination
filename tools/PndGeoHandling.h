@@ -151,8 +151,18 @@ public:
 		  return 0;
   }
   
+  std::vector<TString> GetSensorNamesWithString(TString value){
+    if (fSensorNamePar != 0)
+        return fSensorNamePar->GetSensorNamesWithString(value);
+    else {
+        std::vector<TString> empty;
+        return empty;
+    }
+  }
+
   Int_t GetRunId(TString mcFile);
   void GetGeoManager();
+  TGeoManager* GetGeoMan(){return fGeoMan;}
   void GetSensorNamePar();
   void FillSensorMap(){
 	  fSensorNamePar->FillMap();

@@ -14,7 +14,7 @@
 #include "TDatabasePDG.h"
 #include "RhoBase/RhoParticleSelectorBase.h"
 #include "RhoBase/RhoCandidate.h"
-#include "PndRecoCandidate.h"
+#include "PndPidCandidate.h"
 #include "RhoBase/RhoCandList.h"
 
 ClassImp ( RhoParticleSelectorBase )
@@ -105,9 +105,9 @@ void RhoParticleSelectorBase::Select ( RhoCandList& in, RhoCandList& out )
   for ( Int_t i=0; i<n; i++ ) {
     RhoCandidate* c = in[i];
 
-    if ( Accept ( c ) ) { 
+    if ( Accept ( c ) ) {
       //printf("selector \"%s\" accepted i=%i\n",fName.Data(),i);
-      out.Put ( c ); 
+      out.Put ( c );
     } //else printf("selector \"%s\" rejected i=%i\n",fName.Data(),i);
   }
 }

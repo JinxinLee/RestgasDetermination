@@ -80,6 +80,8 @@ class PndSensorNamePar : public FairParGenericSet
 
     TObjArray* GetSensorNames() const{return fSensorNames;}
 
+    std::vector<TString> GetSensorNamesWithString(TString identifier);
+
     PndSensorNamePar(const  PndSensorNamePar& L);
     PndSensorNamePar& operator= (const  PndSensorNamePar& L);
 

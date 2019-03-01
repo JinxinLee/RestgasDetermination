@@ -57,7 +57,7 @@ PndFTSCAPerformance::PndFTSCAPerformance()
 
   if (first_call){
     typedef TSubPerformance TSP;
-    
+
       /// Just define here all sub-performances
       /// TSP(new __ClassName__               , __Name__      ),
 #if !defined(KFPARTICLE)
@@ -112,7 +112,7 @@ bool PndFTSCAPerformance::SetNewEvent(PndFTSCAGBTracker* const tracker, string m
   }
   ReadMCEvent( file );
   fclose( file );
-  
+
   file = std::fopen( mcPointsFile.data(), "rb" );
   if ( !file ) {
     return false;
@@ -126,7 +126,7 @@ bool PndFTSCAPerformance::SetNewEvent(PndFTSCAGBTracker* const tracker, string m
 void PndFTSCAPerformance::InitSubPerformances()
 {
     // Init subperformances
-  static bool first_call = true;
+  //static bool first_call = true; //[R.K. 9/2018] unused
   for (unsigned int iPerf = 0; iPerf < subPerformances.size(); iPerf++){
     subPerformances[iPerf]->SetNewEvent(fTracker, &fHitLabels, &fMCTracks, &fLocalMCPoints);
   }
@@ -134,16 +134,16 @@ void PndFTSCAPerformance::InitSubPerformances()
   /*if ( GetSubPerformance("Topo Performance") )
     dynamic_cast<PndFTSTopoPerformance*>(GetSubPerformance("Topo Performance"))->SetNewEvent2(fTopoReconstructor);*/
 #endif
-  
+
 //   if (first_call) CreateHistos();
-  
-  first_call = false;
+
+  //first_call = false; //[R.K. 9/2018] unused
 } // void PndFTSCAPerformance::InitSubPerformances
 
 void PndFTSCAPerformance::CreateHistos()
 {
   for (unsigned int iPerf = 0; iPerf < subPerformances.size(); iPerf++){
-    if(!(subPerformances[iPerf]->IsHistoCreated())) 
+    if(!(subPerformances[iPerf]->IsHistoCreated()))
       subPerformances[iPerf]->CreateHistos(subPerformances[iPerf].name, fOutputFile);
   }
 }
@@ -152,7 +152,7 @@ bool PndFTSCAPerformance::CreateHistos(string name)
 {
   unsigned i = 0;
   for( ; i < (subPerformances.size()) && (subPerformances[i].name != name); i++);
-  if(!(subPerformances[i]->IsHistoCreated()) && i != subPerformances.size()) 
+  if(!(subPerformances[i]->IsHistoCreated()) && i != subPerformances.size())
     subPerformances[i]->CreateHistos(subPerformances[i].name, fOutputFile);
   if ( i == subPerformances.size() ) return 0;
   return 1;
@@ -190,14 +190,14 @@ void PndFTSCAPerformance::ExecPerformance()
     if(subPerformances[iPerf].IsGlobalPerf) subPerformances[iPerf]->Exec(0);
   }
 #if 1  // current event efficiencies
-  for (unsigned int iPerf = 0; iPerf < subPerformances.size(); iPerf++){    
+  for (unsigned int iPerf = 0; iPerf < subPerformances.size(); iPerf++){
     cout << endl
         << " ---- " << subPerformances[iPerf].name << " event " << fStatNEvents << " ---- "<< endl;
     subPerformances[iPerf]->PrintEfficiency();
   }
   cout << endl << " ============================== " << endl;
 #endif //0
-  for (unsigned int iPerf = 0; iPerf < subPerformances.size(); iPerf++){  
+  for (unsigned int iPerf = 0; iPerf < subPerformances.size(); iPerf++){
     cout << endl
         << " ---- " << subPerformances[iPerf].name << " " << fStatNEvents << " events Statistic ---- " << endl;
     if(subPerformances[iPerf].IsGlobalPerf) subPerformances[iPerf]->PrintEfficiencyStatistic();
@@ -268,7 +268,7 @@ void PndFTSCAPerformance::ReadMCEvent( FILE *file )
 
 void PndFTSCAPerformance::ReadLocalMCPoints( FILE *file )
 {
-  
+
   int read;
   int n;
 
@@ -306,10 +306,10 @@ void PndFTSCAPerformance::SetHitLabels(vector<PndFTSCAHitLabel>& hitLabels)
   fHitLabels.Resize(N);
   for(int i = 0; i < N; i++){
     fHitLabels[i] = hitLabels[i];
-  }					   
+  }
 }
 
-void PndFTSCAPerformance::SaveDataInFiles(string prefix) const
+void PndFTSCAPerformance::SaveDataInFiles(string /*prefix*/) const //[R.K. 9/2018] unused
 {
   /*
   {
@@ -351,7 +351,7 @@ bool PndFTSCAPerformance::ReadData(vector <int>& labels, vector <PndFTSCALocalMC
 
   {
     fHitLabels.Resize(labels.size());
-    for (int i = 0; i < labels.size(); i++){
+    for (unsigned int i = 0; i < labels.size(); i++){
       PndFTSCAHitLabel l;
       l.fLab[0] = labels[i];
       l.fLab[1] = -1;
@@ -375,11 +375,11 @@ bool PndFTSCAPerformance::ReadData(vector <int>& labels, vector <PndFTSCALocalMC
     cout<<endl;
   {
     fMCTracks.Resize(mctracks.size());
-    for (int i = 0; i < mctracks.size(); i++){
+    for (unsigned int i = 0; i < mctracks.size(); i++){
       fMCTracks[i] = mctracks[i];
-      //cout<<"fMCTracks["<<i<<"]: "<<fMCTracks[i]; 
+      //cout<<"fMCTracks["<<i<<"]: "<<fMCTracks[i];
     }
-    
+
     /*ifstream ifile((prefix+"MCTracks.data").data());
     if ( !ifile.is_open() ) return 0;
     int Size;
@@ -397,9 +397,9 @@ bool PndFTSCAPerformance::ReadData(vector <int>& labels, vector <PndFTSCALocalMC
   {
     fLocalMCPoints.Resize(mcpoints.size());
     //cout<<"mcpoints.size() "<<mcpoints.size()<<endl;
-    for (int i = 0; i < mcpoints.size(); i++){
+    for (unsigned int i = 0; i < mcpoints.size(); i++){
       fLocalMCPoints[i] = mcpoints[i];
-      //cout<<"fLocalMCPoints["<<i<<"].IRow(): "<<fLocalMCPoints[i].IRow()<<" QP() "<<fLocalMCPoints[i].QP()<<endl; 
+      //cout<<"fLocalMCPoints["<<i<<"].IRow(): "<<fLocalMCPoints[i].IRow()<<" QP() "<<fLocalMCPoints[i].QP()<<endl;
     }
     /*ifstream ifile((prefix+"MCPoints.data").data());
     if ( !ifile.is_open() ) return 0;
@@ -413,7 +413,7 @@ bool PndFTSCAPerformance::ReadData(vector <int>& labels, vector <PndFTSCALocalMC
     }
     ifile.close();*/
   }
-  
+
 	// calculate needed additional info
   {
     const int NMCTracks = fMCTracks.Size();
@@ -429,13 +429,13 @@ bool PndFTSCAPerformance::ReadData(vector <int>& labels, vector <PndFTSCALocalMC
       }
 
       int nRows = 0;
-      
+
       int nMCContRows = 0;
       int istaold = -2, ncont=0;
       for (unsigned int j = 0 ; j < rows.size(); j++) {
         if( rows[j] > 0 ) {
           nRows++;
-          
+
           if( istaold == static_cast<int>(j)-1 ) {
             ncont++;
            }
@@ -447,13 +447,13 @@ bool PndFTSCAPerformance::ReadData(vector <int>& labels, vector <PndFTSCALocalMC
         }
       }
       nMCContRows = (nMCContRows > ncont) ? nMCContRows : ncont;
-      
+
       t.SetNMCRows( nRows );
       t.SetNMCContRows( nMCContRows );
     }
-    
+
       // NHitRows
-    
+
     vector<int> zero(PndFTSCAParameters::MaxNStations, 0);
     vector< vector<int> > nmchits(NMCTracks,zero);
     PndFTSResizableArray<PndFTSCAGBHit>& hits = const_cast<PndFTSCAGBTracker *>(fTracker)->fHits;
@@ -467,7 +467,7 @@ bool PndFTSCAPerformance::ReadData(vector <int>& labels, vector <PndFTSCALocalMC
         nmchits[trackId][hits[i].IRow()]++;
       }
     }
-    
+
     for (int i = 0; i < NMCTracks; ++i ){
       PndFTSCAMCTrack& t = fMCTracks[i];
       int nRows = 0;
@@ -549,11 +549,11 @@ bool PndFTSCAPerformance::ReadData(vector <int>& labels, vector <PndFTSCALocalMC
     }
 #endif
   }
-  
+
   return 1;
 }
 
-int PndFTSCAPerformance::GetMCPoint( const PndFTSCAGBHit& hit ) const 
+int PndFTSCAPerformance::GetMCPoint( const PndFTSCAGBHit& hit ) const
 {
   const PndFTSCAHitLabel &l = fHitLabels[hit.ID()];
 
@@ -596,7 +596,7 @@ int PndFTSCAPerformance::GetMCPoint( const PndFTSCAGBHit& hit ) const
     }
   }
 
-  
+
   return iMCP;
 }
 
@@ -606,7 +606,7 @@ void PndFTSCAPerformance::ShiftHitsToMC( float errorX1, float errorX2 ){
   PndFTSResizableArray<PndFTSCAGBHit>& hits = const_cast<PndFTSCAGBTracker *>(fTracker)->fHits;
 
   std::sort( hits.Data(), hits.Data() + const_cast<PndFTSCAGBTracker *>(fTracker)->NHits(), PndFTSCAGBHit::Compare ); // has an influence on the procedure. CHECKME why?
-  
+
   static TRandom3 rand;
   {
     int nHits = fTracker->NHits();
@@ -627,22 +627,22 @@ void PndFTSCAPerformance::ShiftHitsToMC( float errorX1, float errorX2 ){
 //                                                    (float)points[iMCPoint].Y(),
 //                                                    (float)points[iMCPoint].Z(), 1, (Size_t)1);
 //       }
-//       PndFTSCADisplay::Instance().DrawGBPoint((float)hit.X(), 
+//       PndFTSCADisplay::Instance().DrawGBPoint((float)hit.X(),
 //                                                  (float)hit.Y(),
 //                                                  (float)hit.Z(),
 //                                                  -1, (Size_t)0.5);
-//       PndFTSCADisplay::Instance().DrawGBPoint((float)point.X(), 
+//       PndFTSCADisplay::Instance().DrawGBPoint((float)point.X(),
 //                                                  (float)point.Y(),
 //                                                  (float)point.Z(),
 //                                                   2, (Size_t)0.5);
 //       std::cout << hit.IRow() << "    " << hit.X() << " " << hit.Y() << " " << hit.Z() << std::endl;
 //       std::cout << point.IRow() << "    " << point.X() << " " << point.Y() << " " << point.Z() << std::endl;
-// 
+//
 //       PndFTSCADisplay::Instance().Ask();
 // #endif
 
       if ( errorX2 <= 0 ) errorX2 = errorX1;
-      
+
       const float err2X1 = errorX1*errorX1;
       const float err2X2 = errorX2*errorX2;
 
@@ -654,12 +654,12 @@ void PndFTSCAPerformance::ShiftHitsToMC( float errorX1, float errorX2 ){
       else                 hit.SetErrYZ(0);
 
       const float_v Err2Y = hit.Err2Y(), Err2Z = hit.Err2Z();
-      
+
       double mcX =  point.X();
       double mcY =  point.Y();
       double mcZ =  point.Z();
       double angle = hit.Angle();
-      
+
       double xl,yl,zl;
       PndFTSCAParameters::GlobalToCALocal( mcX, mcY, mcZ, angle, xl, yl, zl );
       yl += sqrt(Err2Y[0])*rand.Gaus();
@@ -687,8 +687,8 @@ void PndFTSCAPerformance::ResimulateHits( float errorX1, float errorX2 ){
 
   fStrips.Resize(NHits);
   bStrips.Resize(NHits);
-  
-  
+
+
   static TRandom3 rand;
   for ( int ih = 0; ih < NHits; ih++ ) {
     PndFTSCALocalMCPoint &mcP = fLocalMCPoints[ih];
@@ -702,7 +702,7 @@ void PndFTSCAPerformance::ResimulateHits( float errorX1, float errorX2 ){
 
       // get errors
     if ( errorX2 <= 0 ) errorX2 = errorX1;
-    
+
     const float err2X1 = errorX1*errorX1;
     const float err2X2 = errorX2*errorX2;
 #ifdef STAR_HFT
@@ -721,14 +721,14 @@ void PndFTSCAPerformance::ResimulateHits( float errorX1, float errorX2 ){
 
     hit.SetIRow( mcP.IRow() );
     hit.SetAngle( mcP.Angle() );
-    
+
     double mcXTmp  =  mcX*cos( hit.Angle() ) +  mcY*sin( hit.Angle() );
     double mcYTmp  = -mcX*sin( hit.Angle() ) +  mcY*cos( hit.Angle() );
     mcYTmp -= sqrt(Err2Y[0])*rand.Gaus();
     mcZ -= sqrt(Err2Z[0])*rand.Gaus();
     mcX = mcXTmp*cos( hit.Angle() ) -  mcYTmp*sin( hit.Angle() );
     mcY = mcXTmp*sin( hit.Angle() ) +  mcYTmp*cos( hit.Angle() );
-    
+
     hit.SetX( mcX );
     hit.SetY( mcY );
     hit.SetZ( mcZ );
@@ -757,7 +757,7 @@ void PndFTSCAPerformance::RematchHits(){
       const float dY = hit.Y() - fLocalMCPoints[iMCPoint].Y();
       const float dZ = hit.Z() - fLocalMCPoints[iMCPoint].Z();
       const float r2 = dY*dY + dZ*dZ;
-      
+
       if( r2 < R2 ) {
         MCindex = iMCPoint;
         R2 = r2;
@@ -771,7 +771,7 @@ void PndFTSCAPerformance::RematchHits(){
       continue;
     }
 
-    
+
     l.fLab[0] = fLocalMCPoints[MCindex].TrackI();
     l.fLab[1] = -1;
     l.fLab[2] = -1;
@@ -807,7 +807,7 @@ void PndFTSCAPerformance::CombineHits(){
   for (int i = 0; i < NHits; i++){
     PndFTSCAGBHit &l = hits[i];
     const int iS = l.IRow();
-    
+
     Vector3 v(l.X(), l.Y(), l.Z());
     if ( minR[iS].count(v) > 0 ) {
       minR[iS][v] = min(l.R(), minR[iS][v]);
@@ -861,7 +861,7 @@ void PndFTSCAPerformance::CombineHits(){
     }
   }
 #endif
-  
+
   const_cast<PndFTSCAGBTracker *>(fTracker)->SetNHits(nHits2);
   for (int i = 0; i < nHits2; i++){
     hits[i] = hits2[i];
@@ -896,16 +896,16 @@ void PndFTSCAPerformance::DivideHitsOnLR(){
     PndFTSCAGBHit &hIn = hits[i];
     PndFTSCAGBHit &hOut1 = hits2[2*i-nMvdHits];
     PndFTSCAGBHit &hOut2 = hits2[2*i-nMvdHits+1];
-    
+
     const float k = 1.5; // diff between real size and sigma
-    const float r = hIn.R();
+    //const float r = hIn.R(); //[R.K. 9/2018] unused
 
     // const float x = hIn.X();
     // const float y = hIn.Y();
-    
 
 
-     
+
+
     const float errT = 0.02/k; // tangential error 2 mm
 //    cout << 0.02/k << " " << sqrt(hIn.Err2R()) << endl;
     const float errN = sqrt(hIn.Err2R()); // normal error
@@ -931,12 +931,12 @@ void PndFTSCAPerformance::DivideHitsOnLR(){
     const float x = hIn.X();
     const float y = hIn.Y();
     const float a = hIn.Angle();
-    
+
     hOut1.SetX( x + r*cos(a) ); // neglect 3deg angle
     hOut1.SetY( y - r*sin(a) );
 #else //PANDA_FTS
     const float x = hIn.X();
-    
+
     hOut1.SetX( x ); // neglect 3deg angle
 #endif
     hOut1.SetIsLeft( false );
@@ -949,7 +949,7 @@ void PndFTSCAPerformance::DivideHitsOnLR(){
     hOut1.SetX( x );
 #endif
     hOut2.SetIsLeft( true );
-    
+
     hOut1.SetID(hIn.ID()*2-nMvdHits);
     hOut2.SetID(hIn.ID()*2-nMvdHits+1);
   }
@@ -958,7 +958,7 @@ void PndFTSCAPerformance::DivideHitsOnLR(){
   for (int i = 0; i < NHits2; i++){
     hits[i] = hits2[i];
   }
-  
+
     // create additional hitLables
   PndFTSResizableArray<PndFTSCAHitLabel> labs2;
   const int NLabs = fHitLabels.Size();
@@ -980,10 +980,10 @@ void PndFTSCAPerformance::DivideHitsOnLR(){
   {
     const PndFTSCAGBHit &hitR = hits[iHit];
     const PndFTSCAGBHit &hitL = hits[iHit+1];
-    
+
     int iMCP = -1;
     float dxMin = 1.e6;
-    for( int k = 0; k < 3 && iMCP == -1; k++ ) 
+    for( int k = 0; k < 3 && iMCP == -1; k++ )
     {
       const int iMCTrack = fHitLabels[iHit].fLab[k];
       if (iMCTrack < 0) continue;
@@ -1010,7 +1010,7 @@ void PndFTSCAPerformance::DivideHitsOnLR(){
 	float dx = dxR;
 	if(fabs(dxL)<fabs(dxR))
 	  dx = dxL;
-	
+
 	if(fabs(dx)<dxMin)
 	{
 // 	  if( fabs(dx) < 10*sqrt(hitR.Err2R())*sqrt(1.+correction*correction) )
@@ -1021,8 +1021,8 @@ void PndFTSCAPerformance::DivideHitsOnLR(){
 	}
       }
     }
-  
-    if (iMCP < 0) 
+
+    if (iMCP < 0)
     {
       for(int iLabel=0; iLabel<3; iLabel++)
       {
@@ -1031,22 +1031,22 @@ void PndFTSCAPerformance::DivideHitsOnLR(){
       }
       continue;
     }
-    
+
     const PndFTSCALocalMCPoint &p = fLocalMCPoints[iMCP];
-    
+
     float sinA = fTracker->GetParameters().Station(hitR.IRow()).f.sin;
     float cosA = fTracker->GetParameters().Station(hitR.IRow()).f.cos;
     float correction = cosA*(p.Px()/p.Pz()) + sinA*(p.Py()/p.Pz());
     float dxR = cosA*hitR.X() + sinA*hitR.Y() + hitR.R()*sqrt(1.+correction*correction) - cosA*p.X()- sinA*p.Y(); // dx = hit.X() - hit.R() - p.X();
     float dxL = cosA*hitL.X() + sinA*hitL.Y() - hitL.R()*sqrt(1.+correction*correction) - cosA*p.X()- sinA*p.Y(); // dx = hit.X() + hit.R() - p.X();
-    
+
     if(fabs(dxR) < fabs(dxL))
       for(int iLabel=0; iLabel<3; iLabel++)
         fHitLabels[iHit+1].fLab[iLabel] = -1;
     else
       for(int iLabel=0; iLabel<3; iLabel++)
-        fHitLabels[iHit].fLab[iLabel] = -1;  
-  }  
+        fHitLabels[iHit].fLab[iLabel] = -1;
+  }
 
 #if 0
   const int NMCPoints = GetMCPoints()->Size();
@@ -1063,7 +1063,7 @@ void PndFTSCAPerformance::DivideHitsOnLR(){
     }
     hitsOnPoint[id].push_back(iH);
   }
-  
+
 std::cout << "fHitLabels " << fHitLabels.Size() << std::endl;
   int nNegative = 0;
   for(int iHL=0; iHL<fHitLabels.Size(); iHL++)
@@ -1071,9 +1071,9 @@ std::cout << "fHitLabels " << fHitLabels.Size() << std::endl;
     std::cout << "iHL " << iHL << " " << fHitLabels[iHL].fLab[0] << " " <<fHitLabels[iHL].fLab[1] << " " << fHitLabels[iHL].fLab[2] << " " <<  std::endl;
     if(fHitLabels[iHL].fLab[0] < 0 && fHitLabels[iHL].fLab[1] < 0 && fHitLabels[iHL].fLab[2] < 0)
       nNegative++;
-  }  
+  }
 std::cout << "nNegative " << nNegative << std::endl;
-  
+
     // clean double hits. Comment this out to calculate efficiency without tacking into account left-right ambiguity
 // #ifdef INCLUDE_LR_EFF
   for(int iT=0; iT<NMCPoints; iT++) {
@@ -1086,14 +1086,14 @@ std::cout << "nNegative " << nNegative << std::endl;
       const int iMCP = GetMCPoint(h);
       if (iMCP < 0) continue;
       const PndFTSCALocalMCPoint &p = fLocalMCPoints[iMCP];
-      
+
       float sinA = fTracker->GetParameters().Station(h.IRow()).f.sin;
       float cosA = fTracker->GetParameters().Station(h.IRow()).f.cos;
       float correction = cosA*(p.Px()/p.Pz()) + sinA*(p.Py()/p.Pz());
       float dx = cosA*h.X() + sinA*h.Y() + h.R()*sqrt(1.+correction*correction) - cosA*p.X()- sinA*p.Y(); // dx = hit.X() - hit.R() - p.X();
       if(h.IsLeft())
         dx =  cosA*h.X() + sinA*h.Y() - h.R()*sqrt(1.+correction*correction) - cosA*p.X()- sinA*p.Y(); // dx = hit.X() + hit.R() - p.X();
-      
+
       if (fabs(dx) < r2Min) {
         r2Min = fabs(dx);
         iBestH = iH;
@@ -1128,7 +1128,7 @@ std::cout << "fHitLabels " << fHitLabels.Size() << std::endl;
     std::cout << "iHL " << iHL << " " << fHitLabels[iHL].fLab[0] << " " <<fHitLabels[iHL].fLab[1] << " " << fHitLabels[iHL].fLab[2] << " " <<  std::endl;
     if(fHitLabels[iHL].fLab[0] < 0 && fHitLabels[iHL].fLab[1] < 0 && fHitLabels[iHL].fLab[2] < 0)
       nNegative2++;
-  }  
+  }
 std::cout << "nNegative " << nNegative2 << std::endl;
 #endif
 }

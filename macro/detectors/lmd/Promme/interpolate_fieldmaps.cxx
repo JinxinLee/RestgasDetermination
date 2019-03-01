@@ -47,7 +47,7 @@ double gBx, gBy, gBz, gDBx, gDBy, gDBz;
 void interpolate_fieldmap(PndFieldMap* map_to_corr,
 		PndFieldMap* map_to_interpol, double weight, string fileName) {
 	// Open file
-	//fLogger->Info(MESSAGE_ORIGIN, "PndFieldMap: Writing field map to ASCII file %s ",fileName);
+	//LOG(INFO) << "PndFieldMap: Writing field map to ASCII file " << fileName.c_Str()   ;
 	ofstream mapFile((fileName+".dat").c_str());
 	if (!mapFile.is_open()) {
 		cout << "WriteAsciiFile: Could not open file! " << endl;

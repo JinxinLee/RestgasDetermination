@@ -24,6 +24,8 @@ protected:
   TString fNeutralBranchName;
   TString fChargedBranchName;
   
+  TString fTrackBranchNamePidHypo;
+
   TClonesArray* fPidChargedCand;    //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidNeutralCand;    //! PndPidCandidate TCA for neutral particles
   TClonesArray* fPidChargedProb;    //! PndPidProbability TCA for charged particles
@@ -51,6 +53,8 @@ public:
   virtual void SetParContainers();
   virtual void Finish();
   
+  void SetOutputBranch(TString branch)    { fTrackBranchNamePidHypo = branch; };
+
   ClassDef(PndPidIdealAssociatorTask,1)   // PndPidIdealAssociatorTask
   
 };

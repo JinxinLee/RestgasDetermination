@@ -40,7 +40,6 @@ const int
 const int MVD_BARREL_LAYERS_FULL_AZIMUTH = 3;  // number of barrel layers with 360 degree azimuthal coverage;
 const Double_t
 	MVD_BARREL_FULL_AZIMUTH_MAX_RADIUS[3] = { 12.35 ,  9.,     12.35 },
-	MVD_BARREL_FULL_AZIMUTH_MIN_RADIUS[3] = { 12.92 ,  9.6959, 12.92 },
 	MVD_BARREL_FULL_AZIMUTH_Z_LOW[3] = { -16.917 ,  -13.376 , -10.048 },
 	MVD_BARREL_FULL_AZIMUTH_Z_UP[3] =  { -10.248 ,  - 6.707 , - 3.379 };
 	
@@ -69,7 +68,7 @@ const int MVD_BARREL_LAYERS_PARTIAL_AZIMUTH = 11,  // number barrel layers with 
 						  3, 3
 						} ;
 const Double_t
-        // in practice there are never more than 13 gaps in azimuthal angle in radians from ) to 2*pi;
+        // in practice there are never more than 13 gaps in azimuthal angle in radians from 0 to 2*pi;
 	MVD_BARREL_PARTIAL_AZIMUTH_GAP_LOW_INNER[11][13] ={
 
 0. ,    0.347 , 0.701 , 1.2437 , 2.141 , 2.590, 3.039, 3.489, 3.843, 4.385, 5.282, 5.7311, 6.18, // first Barrel
@@ -230,7 +229,8 @@ const int
 	MAXSKEWHITSINFIT=8,
 	MAXSTTHITSINTRACK=40,
 
-	MINIMUMHITSPERTRACK=2,
+	MINIMUMMVDHITSPERTRACK=1,
+	MINIMUMSTTMHITSPERTRACK=2,
 	MINOUTERHITSPERTRACK=5,
 	MAX_NOT_CONNECTED=1;	// maximum # of STT "holes" in the hits of a track;
 

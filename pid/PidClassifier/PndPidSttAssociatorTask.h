@@ -30,6 +30,8 @@ class PndPidSttAssociatorTask : public FairTask {
   TClonesArray* fPidChargedCand;    //! charged candidates
   TClonesArray* fPidChargedProb;    //! 
 
+  TString fTrackBranchNamePidHypo;
+
   // assign probabilities
   void DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob);
 
@@ -86,6 +88,7 @@ class PndPidSttAssociatorTask : public FairTask {
   virtual void Exec(Option_t* opt);
 
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
+  void SetOutputBranch(TString branch)    { fTrackBranchNamePidHypo = branch; };
 	
   void SetDefaultMassHypo(Bool_t hypo ) { fDefaultHypo = hypo; }
   Bool_t IsDefaultMassHypo() { return fDefaultHypo; }

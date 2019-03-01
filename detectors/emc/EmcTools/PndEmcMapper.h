@@ -4,7 +4,7 @@
 // Author List:
 // Dima Melnychuk
 //
-/////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////
 
 //#pragma once
 #ifndef PNDEMCMAPPER_H
@@ -26,26 +26,26 @@ public:
 	static PndEmcMapper* Instance();
 	static void Init(Int_t MapVersion);
 	const std::map<Int_t,PndEmcTwoCoordIndex* >& GetTciMap();
-	
+
 	/** Destructor **/
-	virtual ~PndEmcMapper();    
-	
+	virtual ~PndEmcMapper();
+
 	/** Accessors **/
 	Int_t GetMapVersion()  const { return fMapVersion ;};
-	
+
 	void Add(PndEmcMapper*);
-	
+
 	PndEmcTwoCoordIndex* GetTCI(Int_t DetectorId);
 protected:
 	std::map<Int_t,PndEmcTwoCoordIndex* > fIntTwoCoordMap;
-	PndEmcMapper();  
+	PndEmcMapper();
 private:
-	
+
 	static PndEmcMapper* _instance;
 	static Int_t fMapVersion;
 	Int_t GetDetId(Int_t iTheta,Int_t iPhi);
 
-        
+
 	ClassDef(PndEmcMapper,1)
 };
 
@@ -53,6 +53,12 @@ class PndEmcMapperGeo12Dat: public PndEmcMapper
 {
 	public:
 		PndEmcMapperGeo12Dat();
+};
+
+class PndEmcMapperGeo12Root: public PndEmcMapper
+{
+  public:
+    PndEmcMapperGeo12Root();
 };
 
 class PndEmcMapperGeo3Dat: public PndEmcMapper

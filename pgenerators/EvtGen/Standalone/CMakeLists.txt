@@ -41,3 +41,4 @@ foreach(program ${ALLEvtGen_exe})
 	install(TARGETS EvtGen_exe_${program} DESTINATION ${CMAKE_BINARY_DIR}/bin)
 endforeach(program)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../EvtGen/Private/evt.pdl ${CMAKE_CURRENT_SOURCE_DIR}/../EvtGen/Private/DECAY.DEC DESTINATION ${CMAKE_BINARY_DIR}/bin)

@@ -26,8 +26,10 @@
 #include "PndMasterSimTask.h"
 #include "PndEventCounterTask.h"
 #include "PndFileNameCreator.h"
+#include "PndFilteredPrimaryGenerator.h"
 
 #include "FairFileSource.h"
+#include "FairFileHeader.h"
 #include "FairParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
 #include "FairRuntimeDb.h"
@@ -36,8 +38,7 @@
 #include "FairDetector.h"
 #include "FairPrimaryGenerator.h"
 #include "FairFilteredPrimaryGenerator.h"
-#include "PndFilteredPrimaryGenerator.h"
-#include "FairBoxGenerator.h"
+#include "FairGenerator.h"
 #include "FairLogger.h"
 
 #include "TLorentzVector.h"
@@ -389,7 +390,7 @@ void PndMasterRunSim::AddSimTasks()
 // -----   SetGenerator   --------------------------------------------------
 void PndMasterRunSim::SetGenerator()
 {
-  if (fOptions.Contains("PndFiltPrim"))
+  if (fOptions.Contains("pndfiltprim"))
   	fGen = new PndFilteredPrimaryGenerator();
   else
   	fGen = new FairFilteredPrimaryGenerator();
@@ -626,7 +627,7 @@ void PndMasterRunSim::UseLepLepGenerator(TString leplepConfig)
 }
 
 // -----   SetGenerator   --------------------------------------------------
-void PndMasterRunSim::SetGenerator(FairBoxGenerator *boxGen)
+void PndMasterRunSim::SetGenerator(FairGenerator *boxGen)
  {
   LOG(INFO) << "Using FairBoxGenerator generator" << FairLogger::endl;
   if (fOptions.Contains("PndFiltPrim"))
@@ -727,8 +728,31 @@ void PndMasterRunSim::Finish()
 {
   fRtdb->saveOutput();
 
+  cout<<"PndMasterRunAna::Finish(): Tasks that ran just now:"<<endl;
+  TFile* outfile=fRootManager->GetOutFile();
+  bool wasopen=outfile->IsOpen ();
+  if (!wasopen)
+  {
+    cout<<"file is "<< ((wasopen) ? "" : "not " ) <<"open" <<endl;
+    outfile=new TFile(outfile->GetName(),"UPDATE");
+  }
+  outfile->cd();
+
   // write the summary of event filter to output root file
-  ((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile();
+  if (!strcmp(fGen->ClassName(),"PndFilteredPrimaryGenerator"))
+  	((PndFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
+  else
+  	((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
+
+  FairFileHeader* outheader=(FairFileHeader*)outfile->Get("FileHeader");
+  cout<<"Task tha ran just now:"<<endl;
+  for(const auto&& os : *(outheader->GetListOfTasks()) ) cout<<" - "<<((TObjString*)os)->GetString().Data()<<endl;
+
+  TObjString outoptions(fOptions);
+  outoptions.Write("PndOptions",kOverwrite);
+
+  outfile->Write();
+  if(!wasopen) outfile->Close();
 
   cout << endl;
   if (gROOT->GetVersionInt() >= 60602) {

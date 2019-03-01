@@ -15,7 +15,7 @@
 
 PndRhoTupleQA::PndRhoTupleQA(PndAnalysis *ana, double pbarmom)
 {
-  fDummyCand = new RhoCandidate(); 
+  fDummyCand = new RhoCandidate();
   fAnalysis = ana;
   fVtxPoca = new RhoVtxPoca();
   double mp=0.938272;
@@ -32,67 +32,67 @@ PndRhoTupleQA::~PndRhoTupleQA()
 
 void PndRhoTupleQA::qaESPidMult(TString pre, PndEventShape *evsh, double prob, double pmin, RhoTuple *n)
 {
-  n->Column(pre+"npide", (Int_t) evsh->MultElectronPminLab(prob,pmin),		0 );
-  n->Column(pre+"npidmu",(Int_t) evsh->MultMuonPminLab(prob,pmin),			0 );
-  n->Column(pre+"npidpi",(Int_t) evsh->MultPionPminLab(prob,pmin),			0 );
-  n->Column(pre+"npidk", (Int_t) evsh->MultKaonPminLab(prob,pmin),			0 );
-  n->Column(pre+"npidp", (Int_t) evsh->MultProtonPminLab(prob,pmin),			0 );
+  n->Column(pre+"npide", (Int_t) evsh->MultElectronPminLab(prob,pmin),    0 );
+  n->Column(pre+"npidmu",(Int_t) evsh->MultMuonPminLab(prob,pmin),      0 );
+  n->Column(pre+"npidpi",(Int_t) evsh->MultPionPminLab(prob,pmin),      0 );
+  n->Column(pre+"npidk", (Int_t) evsh->MultKaonPminLab(prob,pmin),      0 );
+  n->Column(pre+"npidp", (Int_t) evsh->MultProtonPminLab(prob,pmin),      0 );
 }
 
 // -------------------------------------------------------------------------
 
 void PndRhoTupleQA::qaESMult(TString pre, PndEventShape *evsh, RhoTuple *n)
 {
-  n->Column(pre+"npart", (Int_t)  	evsh->NParticles(),	0 );
-  n->Column(pre+"nneut", (Int_t)		evsh->NNeutral(),	0 );
-  n->Column(pre+"nchrg", (Int_t)  	evsh->NCharged(),	0 );
+  n->Column(pre+"npart", (Int_t)    evsh->NParticles(),  0 );
+  n->Column(pre+"nneut", (Int_t)    evsh->NNeutral(),  0 );
+  n->Column(pre+"nchrg", (Int_t)    evsh->NCharged(),  0 );
 }
 
 // -------------------------------------------------------------------------
 
 void PndRhoTupleQA::qaESSum(TString pre, PndEventShape *evsh, RhoTuple *n)
 {
-  n->Column(pre+"sumpc", 	(Float_t)  evsh->ChrgPSumCms(),		0.0f );
-  n->Column(pre+"sumpcl", (Float_t)  evsh->ChrgPSumLab(),		0.0f );
-  n->Column(pre+"sumen", 	(Float_t)  evsh->NeutESumCms(),		0.0f );
-  n->Column(pre+"sumenl", (Float_t)  evsh->NeutESumLab(),		0.0f );
+  n->Column(pre+"sumpc",   (Float_t)  evsh->ChrgPSumCms(),    0.0f );
+  n->Column(pre+"sumpcl", (Float_t)  evsh->ChrgPSumLab(),    0.0f );
+  n->Column(pre+"sumen",   (Float_t)  evsh->NeutESumCms(),    0.0f );
+  n->Column(pre+"sumenl", (Float_t)  evsh->NeutESumLab(),    0.0f );
 
-  n->Column(pre+"sumpt", 	(Float_t)  evsh->PtSumCms(),			0.0f );
-  n->Column(pre+"sumptl",  (Float_t) evsh->PtSumLab(),			0.0f );
-  n->Column(pre+"sumptc", (Float_t)  evsh->ChrgPtSumCms(),		0.0f );
-  n->Column(pre+"sumptcl",(Float_t)  evsh->ChrgPtSumLab(),		0.0f );
-  n->Column(pre+"sumetn",  (Float_t) evsh->NeutEtSumCms(),		0.0f );
-  n->Column(pre+"sumetnl", (Float_t) evsh->NeutEtSumLab(),		0.0f );
+  n->Column(pre+"sumpt",   (Float_t)  evsh->PtSumCms(),      0.0f );
+  n->Column(pre+"sumptl",  (Float_t) evsh->PtSumLab(),      0.0f );
+  n->Column(pre+"sumptc", (Float_t)  evsh->ChrgPtSumCms(),    0.0f );
+  n->Column(pre+"sumptcl",(Float_t)  evsh->ChrgPtSumLab(),    0.0f );
+  n->Column(pre+"sumetn",  (Float_t) evsh->NeutEtSumCms(),    0.0f );
+  n->Column(pre+"sumetnl", (Float_t) evsh->NeutEtSumLab(),    0.0f );
 }
 
 // -------------------------------------------------------------------------
 
 void PndRhoTupleQA::qaESMinMax(TString pre, PndEventShape *evsh, RhoTuple *n)
 {
-  n->Column(pre+"pmax", (Float_t)	  evsh->PmaxCms(),	0.0f );
-  n->Column(pre+"ptmax",(Float_t)	  evsh->Ptmax() ,	0.0f );
-  n->Column(pre+"pmaxl",(Float_t)	  evsh->PmaxLab() ,	0.0f );
-  n->Column(pre+"pmin", (Float_t)	  evsh->PminCms(),	0.0f );
-  n->Column(pre+"ptmin",(Float_t)   evsh->Ptmin(),	0.0f );
-  n->Column(pre+"pminl",(Float_t)	  evsh->PminLab(),	0.0f );
+  n->Column(pre+"pmax", (Float_t)    evsh->PmaxCms(),  0.0f );
+  n->Column(pre+"ptmax",(Float_t)    evsh->Ptmax() ,  0.0f );
+  n->Column(pre+"pmaxl",(Float_t)    evsh->PmaxLab() ,  0.0f );
+  n->Column(pre+"pmin", (Float_t)    evsh->PminCms(),  0.0f );
+  n->Column(pre+"ptmin",(Float_t)   evsh->Ptmin(),  0.0f );
+  n->Column(pre+"pminl",(Float_t)    evsh->PminLab(),  0.0f );
 }
 
 // -------------------------------------------------------------------------
 
 void PndRhoTupleQA::qaESEventVars(TString pre, PndEventShape *evsh, RhoTuple *n)
 {
-  n->Column(pre+"prapmax",(Float_t) evsh->PRapmax(),		0.0f );
-  n->Column(pre+"sph", (Float_t)	  evsh->Sphericity(),	0.0f );
-  n->Column(pre+"apl", (Float_t)	  evsh->Aplanarity(),	0.0f );
-  n->Column(pre+"pla", (Float_t)	  evsh->Planarity(),	0.0f );
-  n->Column(pre+"thr",(Float_t)	  evsh->Thrust(),		0.0f );
-  n->Column(pre+"cir", (Float_t)	  evsh->Circularity(),	0.0f );
+  n->Column(pre+"prapmax",(Float_t) evsh->PRapmax(),    0.0f );
+  n->Column(pre+"sph", (Float_t)    evsh->Sphericity(),  0.0f );
+  n->Column(pre+"apl", (Float_t)    evsh->Aplanarity(),  0.0f );
+  n->Column(pre+"pla", (Float_t)    evsh->Planarity(),  0.0f );
+  n->Column(pre+"thr",(Float_t)    evsh->Thrust(),    0.0f );
+  n->Column(pre+"cir", (Float_t)    evsh->Circularity(),  0.0f );
 
-  n->Column(pre+"fw1", (Float_t)	  evsh->FoxWolfMomR(1),	0.0f );
-  n->Column(pre+"fw2", (Float_t)	  evsh->FoxWolfMomR(2),	0.0f );
-  n->Column(pre+"fw3", (Float_t)	  evsh->FoxWolfMomR(3),	0.0f );
-  n->Column(pre+"fw4", (Float_t)	  evsh->FoxWolfMomR(4),	0.0f );
-  n->Column(pre+"fw5", (Float_t)	  evsh->FoxWolfMomR(5),	0.0f );
+  n->Column(pre+"fw1", (Float_t)    evsh->FoxWolfMomR(1),  0.0f );
+  n->Column(pre+"fw2", (Float_t)    evsh->FoxWolfMomR(2),  0.0f );
+  n->Column(pre+"fw3", (Float_t)    evsh->FoxWolfMomR(3),  0.0f );
+  n->Column(pre+"fw4", (Float_t)    evsh->FoxWolfMomR(4),  0.0f );
+  n->Column(pre+"fw5", (Float_t)    evsh->FoxWolfMomR(5),  0.0f );
 }
 
 // -------------------------------------------------------------------------
@@ -121,52 +121,52 @@ void PndRhoTupleQA::qaEventShape(TString pre, PndEventShape *evsh, RhoTuple *n)
   qaESMinMax(pre, evsh, n);
 
   // Multiplicities with min momemtum cut (cms)
-  n->Column(pre+"np05", (Int_t)	  evsh->MultPminCms(0.5),	0 );
-  n->Column(pre+"np10", (Int_t)	  evsh->MultPminCms(1.0),	0 );
-  n->Column(pre+"np20", (Int_t)	  evsh->MultPminCms(2.0),	0 );
-  n->Column(pre+"np30", (Int_t)	  evsh->MultPminCms(3.0),	0 );
-  n->Column(pre+"np40", (Int_t)	  evsh->MultPminCms(4.0),	0 );
-  n->Column(pre+"np50", (Int_t)	  evsh->MultPminCms(5.0),	0 );
+  n->Column(pre+"np05", (Int_t)    evsh->MultPminCms(0.5),  0 );
+  n->Column(pre+"np10", (Int_t)    evsh->MultPminCms(1.0),  0 );
+  n->Column(pre+"np20", (Int_t)    evsh->MultPminCms(2.0),  0 );
+  n->Column(pre+"np30", (Int_t)    evsh->MultPminCms(3.0),  0 );
+  n->Column(pre+"np40", (Int_t)    evsh->MultPminCms(4.0),  0 );
+  n->Column(pre+"np50", (Int_t)    evsh->MultPminCms(5.0),  0 );
 
   // Multiplicities with min momemtum cut (lab)
-  n->Column(pre+"np05l", (Int_t)  evsh->MultPminLab(0.5),	0 );
-  n->Column(pre+"np10l", (Int_t)  evsh->MultPminLab(1.0),	0 );
-  n->Column(pre+"np20l", (Int_t)  evsh->MultPminLab(2.0),	0 );
-  n->Column(pre+"np30l", (Int_t)  evsh->MultPminLab(3.0),	0 );
-  n->Column(pre+"np40l", (Int_t)  evsh->MultPminLab(4.0),	0 );
-  n->Column(pre+"np50l", 	(Int_t)  evsh->MultPminLab(5.0),	0 );
+  n->Column(pre+"np05l", (Int_t)  evsh->MultPminLab(0.5),  0 );
+  n->Column(pre+"np10l", (Int_t)  evsh->MultPminLab(1.0),  0 );
+  n->Column(pre+"np20l", (Int_t)  evsh->MultPminLab(2.0),  0 );
+  n->Column(pre+"np30l", (Int_t)  evsh->MultPminLab(3.0),  0 );
+  n->Column(pre+"np40l", (Int_t)  evsh->MultPminLab(4.0),  0 );
+  n->Column(pre+"np50l",   (Int_t)  evsh->MultPminLab(5.0),  0 );
 
   // Multiplicities with min p_t cut (cms)
-  n->Column(pre+"npt05", 	(Int_t)  evsh->MultPtminCms(0.5),	0 );
-  n->Column(pre+"npt10", 	(Int_t)  evsh->MultPtminCms(1.0),	0 );
-  n->Column(pre+"npt15", 	(Int_t)  evsh->MultPtminCms(1.5),	0 );
-  n->Column(pre+"npt20", 	(Int_t)  evsh->MultPtminCms(2.0),	0 );
-  n->Column(pre+"npt25", 	(Int_t)  evsh->MultPtminCms(2.5),	0 );
-  n->Column(pre+"npt30", 	(Int_t)  evsh->MultPtminCms(3.0),	0 );
+  n->Column(pre+"npt05",   (Int_t)  evsh->MultPtminCms(0.5),  0 );
+  n->Column(pre+"npt10",   (Int_t)  evsh->MultPtminCms(1.0),  0 );
+  n->Column(pre+"npt15",   (Int_t)  evsh->MultPtminCms(1.5),  0 );
+  n->Column(pre+"npt20",   (Int_t)  evsh->MultPtminCms(2.0),  0 );
+  n->Column(pre+"npt25",   (Int_t)  evsh->MultPtminCms(2.5),  0 );
+  n->Column(pre+"npt30",   (Int_t)  evsh->MultPtminCms(3.0),  0 );
 
   // Neutral multiplicities with min energy cut (lab)
-  n->Column(pre+"nne003l",  (Int_t) evsh->MultNeutEminLab(0.03),	0 );
-  n->Column(pre+"nne005l",  (Int_t) evsh->MultNeutEminLab(0.05),	0 );
-  n->Column(pre+"nne01l",   (Int_t) evsh->MultNeutEminLab(0.1),	0 );
-  n->Column(pre+"nne05l",   (Int_t) evsh->MultNeutEminLab(0.5),	0 );
+  n->Column(pre+"nne003l",  (Int_t) evsh->MultNeutEminLab(0.03),  0 );
+  n->Column(pre+"nne005l",  (Int_t) evsh->MultNeutEminLab(0.05),  0 );
+  n->Column(pre+"nne01l",   (Int_t) evsh->MultNeutEminLab(0.1),  0 );
+  n->Column(pre+"nne05l",   (Int_t) evsh->MultNeutEminLab(0.5),  0 );
 
   // Charged multiplicities with min momentum cut (lab)
-  n->Column(pre+"ncp005l", (Int_t)	  evsh->MultChrgPminLab(0.05),	0 );
-  n->Column(pre+"ncp01l", (Int_t)	  evsh->MultChrgPminLab(0.1),	0 );
-  n->Column(pre+"ncp02l", (Int_t)	  evsh->MultChrgPminLab(0.2),	0 );
-  n->Column(pre+"ncp05l", (Int_t)	  evsh->MultChrgPminLab(0.5),	0 );
-  n->Column(pre+"ncp10l", (Int_t)	  evsh->MultChrgPminLab(1.0),	0 );
+  n->Column(pre+"ncp005l", (Int_t)    evsh->MultChrgPminLab(0.05),  0 );
+  n->Column(pre+"ncp01l", (Int_t)    evsh->MultChrgPminLab(0.1),  0 );
+  n->Column(pre+"ncp02l", (Int_t)    evsh->MultChrgPminLab(0.2),  0 );
+  n->Column(pre+"ncp05l", (Int_t)    evsh->MultChrgPminLab(0.5),  0 );
+  n->Column(pre+"ncp10l", (Int_t)    evsh->MultChrgPminLab(1.0),  0 );
 
   // Charged multiplicities with min momentum cut (cms)
-  n->Column(pre+"ncp005", (Int_t)	  evsh->MultChrgPminCms(0.05),	0 );
-  n->Column(pre+"ncp01", (Int_t)	  evsh->MultChrgPminCms(0.1),	0 );
-  n->Column(pre+"ncp02", (Int_t)	  evsh->MultChrgPminCms(0.2),	0 );
-  n->Column(pre+"ncp05", (Int_t)	  evsh->MultChrgPminCms(0.5),	0 );
-  n->Column(pre+"ncp10", (Int_t)	  evsh->MultChrgPminCms(1.0),	0 );
+  n->Column(pre+"ncp005", (Int_t)    evsh->MultChrgPminCms(0.05),  0 );
+  n->Column(pre+"ncp01", (Int_t)    evsh->MultChrgPminCms(0.1),  0 );
+  n->Column(pre+"ncp02", (Int_t)    evsh->MultChrgPminCms(0.2),  0 );
+  n->Column(pre+"ncp05", (Int_t)    evsh->MultChrgPminCms(0.5),  0 );
+  n->Column(pre+"ncp10", (Int_t)    evsh->MultChrgPminCms(1.0),  0 );
 
   // Sum of p_t  with min momentum cut (cms)
-  n->Column(pre+"sumpt05", (Float_t) evsh->SumPtminCms(0.5),	0.0f );
-  n->Column(pre+"sumpt10", (Float_t) evsh->SumPtminCms(1.0),	0.0f );
+  n->Column(pre+"sumpt05", (Float_t) evsh->SumPtminCms(0.5),  0.0f );
+  n->Column(pre+"sumpt10", (Float_t) evsh->SumPtminCms(1.0),  0.0f );
 
   // Sum of charged momenta with min momentum cut (cms)
   n->Column(pre+"sumpc05", (Float_t) evsh->SumChrgPminCms(0.5) ,0.0f );
@@ -212,8 +212,8 @@ void PndRhoTupleQA::qaEventShapeShort(TString pre, PndEventShape *evsh, RhoTuple
   qaESMinMax(pre, evsh, n);
 
   // some multiplicities with min momentum cut (lab, cms)
-  n->Column(pre+"np10",  (Int_t)  evsh->MultPminCms(1.0),	 	0 );
-  n->Column(pre+"npt10", (Int_t)  evsh->MultPtminCms(1.0),	0 );
+  n->Column(pre+"np10",  (Int_t)  evsh->MultPminCms(1.0),     0 );
+  n->Column(pre+"npt10", (Int_t)  evsh->MultPtminCms(1.0),  0 );
   n->Column(pre+"ncp10l", (Int_t) evsh->MultChrgPminLab(1.0), 0 );
   n->Column(pre+"nne10l",(Int_t)  evsh->MultNeutEminLab(1.0), 0 );
 
@@ -321,9 +321,9 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool covs,
     else mct = (truth->PdgCode()==c->PdgCode());
   }
   // store cand info in lab and cms
-  qaCand(pre,	c,	n);
+  qaCand(pre,  c,  n);
   qaP4Cms(pre, c->P4(), n);
-  if(covs)qaP4Cov(pre,	c,	n);
+  if(covs)qaP4Cov(pre,  c,  n);
   if(pulls) qaPull(pre,c,n, (0==truth));
   n->Column(pre+"mct",  (Float_t) mct, 0.0f);
 
@@ -334,7 +334,7 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool covs,
   if (nd==0)
   {
     // charged particle -> store PID info
-    if ( fabs(c->Charge())>0.1 ) qaPid(pre,	c,	n);
+    if ( fabs(c->Charge())>0.1 ) qaPid(pre,  c,  n);
 
     // and pdg code from truth
     Float_t trpdg = 0.;
@@ -388,7 +388,7 @@ void PndRhoTupleQA::qaPi0(TString pre, RhoCandidate *c, RhoTuple *n)
   RhoCandidate *truth = c->GetMcTruth();
 
   qaCand(pre, c, n);
-  n->Column(pre+"oang",(Float_t) ang,		0.0f);
+  n->Column(pre+"oang",(Float_t) ang,    0.0f);
 
   qaCand(pre+"d0", d0, n);
   qaEmc(pre+"d0", d0, n);
@@ -424,7 +424,7 @@ void PndRhoTupleQA::qaKs0(TString pre, RhoCandidate *c, RhoTuple *n)
   qaPoca(pre, c, n);
   qaVtx(pre, c, n);
 
-  n->Column(pre+"oang",(Float_t) ang,		0.0f);
+  n->Column(pre+"oang",(Float_t) ang,    0.0f);
 
   qaCand(pre+"d0", d0, n);
   qaPid(pre+"d0",  d0, n);
@@ -472,15 +472,15 @@ void PndRhoTupleQA::qaP4(TString pre, TLorentzVector c, RhoTuple *n, bool skip)
   }
   else
   {
-    n->Column(pre+"px",  (Float_t) -999.,  			0.0f );
-    n->Column(pre+"py",  (Float_t) -999.,  			0.0f );
-    n->Column(pre+"pz",  (Float_t) -999.,  			0.0f );
-    n->Column(pre+"e",   (Float_t) -999.,  			0.0f );
-    n->Column(pre+"p",   (Float_t) -999.,  			0.0f );
-    n->Column(pre+"tht", (Float_t) -999., 			0.0f );
-    n->Column(pre+"phi", (Float_t) -999.,  			0.0f );
-    n->Column(pre+"pt",  (Float_t) -999.,  			0.0f );
-    n->Column(pre+"m",   (Float_t) -999.,  			0.0f );
+    n->Column(pre+"px",  (Float_t) -999.,        0.0f );
+    n->Column(pre+"py",  (Float_t) -999.,        0.0f );
+    n->Column(pre+"pz",  (Float_t) -999.,        0.0f );
+    n->Column(pre+"e",   (Float_t) -999.,        0.0f );
+    n->Column(pre+"p",   (Float_t) -999.,        0.0f );
+    n->Column(pre+"tht", (Float_t) -999.,       0.0f );
+    n->Column(pre+"phi", (Float_t) -999.,        0.0f );
+    n->Column(pre+"pt",  (Float_t) -999.,        0.0f );
+    n->Column(pre+"m",   (Float_t) -999.,        0.0f );
   }
 }
 // -------------------------------------------------------------------------
@@ -503,13 +503,13 @@ void PndRhoTupleQA::qaP4Cms(TString pre, TLorentzVector c, RhoTuple *n, bool ski
   }
   else
   {
-    n->Column(pre+"pxcm",  (Float_t) -999.,  			0.0f );
-    n->Column(pre+"pycm",  (Float_t) -999.,  			0.0f );
-    n->Column(pre+"pzcm",  (Float_t) -999.,  			0.0f );
-    n->Column(pre+"ecm",   (Float_t) -999.,  			0.0f );
-    n->Column(pre+"pcm",   (Float_t) -999.,  			0.0f );
-    n->Column(pre+"thtcm", (Float_t) -999., 			0.0f );
-    n->Column(pre+"phicm", (Float_t) -999.,  			0.0f );
+    n->Column(pre+"pxcm",  (Float_t) -999.,        0.0f );
+    n->Column(pre+"pycm",  (Float_t) -999.,        0.0f );
+    n->Column(pre+"pzcm",  (Float_t) -999.,        0.0f );
+    n->Column(pre+"ecm",   (Float_t) -999.,        0.0f );
+    n->Column(pre+"pcm",   (Float_t) -999.,        0.0f );
+    n->Column(pre+"thtcm", (Float_t) -999.,       0.0f );
+    n->Column(pre+"phicm", (Float_t) -999.,        0.0f );
   }
 }
 
@@ -562,8 +562,8 @@ void PndRhoTupleQA::qaCand(TString pre, RhoCandidate *cc, RhoTuple *n, bool skip
 
     qaP4(pre, c, n);
     qaPos(pre, p, n);
-    n->Column(pre+"chg", (Float_t) cc->Charge(), 	0.0f );
-    n->Column(pre+"pdg", (Float_t) cc->PdgCode(),	0.0f );
+    n->Column(pre+"chg", (Float_t) cc->Charge(),   0.0f );
+    n->Column(pre+"pdg", (Float_t) cc->PdgCode(),  0.0f );
   }
   else
   {
@@ -571,8 +571,8 @@ void PndRhoTupleQA::qaCand(TString pre, RhoCandidate *cc, RhoTuple *n, bool skip
     TVector3 dummypos;
     qaP4(pre, dummy, n, true);
     qaPos(pre, dummypos, n, true);
-    n->Column(pre+"chg", (Float_t) -999., 			0.0f );
-    n->Column(pre+"pdg", (Float_t) -999.,			0.0f );
+    n->Column(pre+"chg", (Float_t) -999.,       0.0f );
+    n->Column(pre+"pdg", (Float_t) -999.,      0.0f );
   }
 }
 // -------------------------------------------------------------------------
@@ -583,17 +583,17 @@ void PndRhoTupleQA::qaPos(TString pre, TVector3 p, RhoTuple *n, bool skip)
 
   if (!skip)
   {
-    n->Column(pre+"x",   (Float_t) p.X(),    	0.0f );
-    n->Column(pre+"y",   (Float_t) p.Y(),			0.0f );
-    n->Column(pre+"z",   (Float_t) p.Z(),			0.0f );
-    n->Column(pre+"l",   (Float_t) p.Mag(),		0.0f );
+    n->Column(pre+"x",   (Float_t) p.X(),      0.0f );
+    n->Column(pre+"y",   (Float_t) p.Y(),      0.0f );
+    n->Column(pre+"z",   (Float_t) p.Z(),      0.0f );
+    n->Column(pre+"l",   (Float_t) p.Mag(),    0.0f );
   }
   else
   {
-    n->Column(pre+"x",   (Float_t) -999.,  			0.0f );
-    n->Column(pre+"y",   (Float_t) -999.,  			0.0f );
-    n->Column(pre+"z",   (Float_t) -999.,  			0.0f );
-    n->Column(pre+"l",   (Float_t) -999.,  			0.0f );
+    n->Column(pre+"x",   (Float_t) -999.,        0.0f );
+    n->Column(pre+"y",   (Float_t) -999.,        0.0f );
+    n->Column(pre+"z",   (Float_t) -999.,        0.0f );
+    n->Column(pre+"l",   (Float_t) -999.,        0.0f );
   }
 }
 // -------------------------------------------------------------------------
@@ -626,25 +626,25 @@ void PndRhoTupleQA::qaPull(TString pre, RhoCandidate *c, RhoTuple *n, bool skip)
       n->Column(pre+"pullyz",   (Float_t) (sqrt(difpos.Y()*difpos.Z()/covpos(1,2))),   0.0f );
     } else {skip=true;}
   }
-  
+
   if (skip)
   {
-      n->Column(pre+"pullpx",   (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullpy",   (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullpz",   (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pulle",    (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullx",    (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pully",    (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullz",    (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullpxpy", (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullpxpz", (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullpypz", (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullpxe",  (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullpye",  (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullpze",  (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullxy",   (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullxz",   (Float_t) -999.,    	0.0f );
-      n->Column(pre+"pullyz",   (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullpx",   (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullpy",   (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullpz",   (Float_t) -999.,      0.0f );
+      n->Column(pre+"pulle",    (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullx",    (Float_t) -999.,      0.0f );
+      n->Column(pre+"pully",    (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullz",    (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullpxpy", (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullpxpz", (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullpypz", (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullpxe",  (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullpye",  (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullpze",  (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullxy",   (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullxz",   (Float_t) -999.,      0.0f );
+      n->Column(pre+"pullyz",   (Float_t) -999.,      0.0f );
  }
 }
 // -------------------------------------------------------------------------
@@ -657,12 +657,31 @@ void PndRhoTupleQA::qaTrk(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"trkdof",  	(Int_t)   mic->GetDegreesOfFreedom(),	0 );
-    n->Column(pre+"trkstat",  	(Int_t)   mic->GetFitStatus(),			0 );
-    n->Column(pre+"trkchi2",  	(Float_t) mic->GetChiSquared(),			0.0f );
-    n->Column(pre+"trkidx",  	(Int_t)   mic->GetTrackIndex(),			0 );
-    n->Column(pre+"trkbranch",	(Int_t)   mic->GetTrackBranch() ,		0 );
+    n->Column(pre+"trkpx",      (Float_t) mic->GetMomentum().X(),     0.0f );
+    n->Column(pre+"trkpy",      (Float_t) mic->GetMomentum().Y(),     0.0f );
+    n->Column(pre+"trkpz",      (Float_t) mic->GetMomentum().Z(),     0.0f );
+    n->Column(pre+"trkvx",      (Float_t) mic->GetPosition().X(),     0.0f );
+    n->Column(pre+"trkvy",      (Float_t) mic->GetPosition().Y(),     0.0f );
+    n->Column(pre+"trkvz",      (Float_t) mic->GetPosition().Z(),     0.0f );
+    n->Column(pre+"trkdof",     (Int_t)   mic->GetDegreesOfFreedom(), 0 );
+    n->Column(pre+"trkstat",    (Int_t)   mic->GetFitStatus(),        0 );
+    n->Column(pre+"trkchi2",    (Float_t) mic->GetChiSquared(),       0.0f );
+    n->Column(pre+"trkidx",     (Int_t)   mic->GetTrackIndex(),       0 );
+    n->Column(pre+"trkbranch",  (Int_t)   mic->GetTrackBranch() ,     0 );
+  } else {
+    n->Column(pre+"trkpx",      (Float_t) -999.,  0.0f );
+    n->Column(pre+"trkpy",      (Float_t) -999.,  0.0f );
+    n->Column(pre+"trkpz",      (Float_t) -999.,  0.0f );
+    n->Column(pre+"trkvx",      (Float_t) -999.,  0.0f );
+    n->Column(pre+"trkvy",      (Float_t) -999.,  0.0f );
+    n->Column(pre+"trkvz",      (Float_t) -999.,  0.0f );
+    n->Column(pre+"trkdof",     (Int_t)   -999.,  0 );
+    n->Column(pre+"trkstat",    (Int_t)   -999.,  0 );
+    n->Column(pre+"trkchi2",    (Float_t) -999.,  0.0f );
+    n->Column(pre+"trkidx",     (Int_t)   -999.,  0 );
+    n->Column(pre+"trkbranch",  (Int_t)   -999.,  0 );
   }
+
 }
 
 // -------------------------------------------------------------------------
@@ -690,14 +709,14 @@ void PndRhoTupleQA::qaPid(TString pre, RhoCandidate *c, RhoTuple *n)
     }
   }
 
-  n->Column(pre+"pide",  	(Float_t) pinf[0],		0.0f );
-  n->Column(pre+"pidmu", 	(Float_t) pinf[1],		0.0f );
-  n->Column(pre+"pidpi",	(Float_t) pinf[2],		0.0f );
-  n->Column(pre+"pidk",  	(Float_t) pinf[3],		0.0f );
-  n->Column(pre+"pidp",  	(Float_t) pinf[4],		0.0f );
+  n->Column(pre+"pide",    (Float_t) pinf[0],    0.0f );
+  n->Column(pre+"pidmu",   (Float_t) pinf[1],    0.0f );
+  n->Column(pre+"pidpi",  (Float_t) pinf[2],    0.0f );
+  n->Column(pre+"pidk",    (Float_t) pinf[3],    0.0f );
+  n->Column(pre+"pidp",    (Float_t) pinf[4],    0.0f );
 
-  n->Column(pre+"pidmax",	(Float_t) pinf[5],		0.0f );
-  n->Column(pre+"pidbest",(Float_t) bestidx,		0.0f );
+  n->Column(pre+"pidmax",  (Float_t) pinf[5],    0.0f );
+  n->Column(pre+"pidbest",(Float_t) bestidx,    0.0f );
 
 }
 
@@ -720,9 +739,9 @@ void PndRhoTupleQA::qa2Body(TString pre, RhoCandidate *c, RhoTuple *n)
   Float_t dec  = d_cms.Vect().Angle(c->P3());
   Float_t cdec = cos(dec);
 
-  n->Column(pre+"oang", 	 (Float_t) oang,		0.0f );
-  n->Column(pre+"decang",  (Float_t) dec,		0.0f );
-  n->Column(pre+"cdecang", (Float_t) cdec,		0.0f );
+  n->Column(pre+"oang",    (Float_t) oang,    0.0f );
+  n->Column(pre+"decang",  (Float_t) dec,    0.0f );
+  n->Column(pre+"cdecang", (Float_t) cdec,    0.0f );
 }
 
 
@@ -737,13 +756,13 @@ void PndRhoTupleQA::qaDalitz(TString pre, RhoCandidate *c, RhoTuple *n)
   TLorentzVector l12 = c->Daughter(1)->P4()+c->Daughter(2)->P4();
   TLorentzVector l02 = c->Daughter(2)->P4()+c->Daughter(0)->P4();
 
-  n->Column(pre+"m01", (Float_t) l01.M(),		0.0f );
-  n->Column(pre+"m12", (Float_t) l12.M(),		0.0f );
-  n->Column(pre+"m02", (Float_t) l02.M(),		0.0f );
+  n->Column(pre+"m01", (Float_t) l01.M(),    0.0f );
+  n->Column(pre+"m12", (Float_t) l12.M(),    0.0f );
+  n->Column(pre+"m02", (Float_t) l02.M(),    0.0f );
 
-  n->Column(pre+"dal01", (Float_t) l01.M2(),		0.0f );
-  n->Column(pre+"dal12", (Float_t) l12.M2(),		0.0f );
-  n->Column(pre+"dal02", (Float_t) l02.M2(),		0.0f );
+  n->Column(pre+"dal01", (Float_t) l01.M2(),    0.0f );
+  n->Column(pre+"dal12", (Float_t) l12.M2(),    0.0f );
+  n->Column(pre+"dal02", (Float_t) l02.M2(),    0.0f );
 }
 
 
@@ -753,17 +772,17 @@ void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 {
   if (n==0) return;
 
- 	RhoCandidate *d = c->Daughter(0);
+   RhoCandidate *d = c->Daughter(0);
   TVector3 v = c->DecayVtx();
   if (d)
   {
     if (v.X()==0 && v.Y()==0 && v.Z()==0)
       v = d->Pos();
-    // 		TLorentzVector d_cms = d->P4();
-    // 		d_cms.Boost(-(c->P4().BoostVector()));
+    //     TLorentzVector d_cms = d->P4();
+    //     d_cms.Boost(-(c->P4().BoostVector()));
 
     Float_t ctau = v.Mag()*c->M()/c->P();
-    /*		Float_t dec  = d_cms.Vect().Angle(c->P3());
+    /*    Float_t dec  = d_cms.Vect().Angle(c->P3());
      Float_t cdec = cos(dec);*/
 
     // if primary Vertex available, compute ctau relative to that one
@@ -777,25 +796,25 @@ void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 
     if (primvtx.Mag()>0) ctaud = (v-primvtx).Mag()*c->M()/c->P();
 
-    n->Column(pre+"vx",  	(Float_t) v.X(),		0.0f );
-    n->Column(pre+"vy",  	(Float_t) v.Y(),		0.0f );
-    n->Column(pre+"vz",  	(Float_t) v.Z(),		0.0f );
-    n->Column(pre+"len", 	(Float_t) v.Mag(),		0.0f );
-    n->Column(pre+"ctau",	(Float_t) ctau,			0.0f );
-    n->Column(pre+"ctaud",	(Float_t) ctaud,		0.0f );
-    /*		n->Column(pre+"decang", (Float_t) dec,			0.0f );
-     n->Column(pre+"cdecang",(Float_t) cdec,			0.0f );*/
+    n->Column(pre+"vx",    (Float_t) v.X(),    0.0f );
+    n->Column(pre+"vy",    (Float_t) v.Y(),    0.0f );
+    n->Column(pre+"vz",    (Float_t) v.Z(),    0.0f );
+    n->Column(pre+"len",   (Float_t) v.Mag(),    0.0f );
+    n->Column(pre+"ctau",  (Float_t) ctau,      0.0f );
+    n->Column(pre+"ctaud",  (Float_t) ctaud,    0.0f );
+    /*    n->Column(pre+"decang", (Float_t) dec,      0.0f );
+     n->Column(pre+"cdecang",(Float_t) cdec,      0.0f );*/
   }
   else
   {
-    n->Column(pre+"vx",  	(Float_t) -999.0,		0.0f );
-    n->Column(pre+"vy",  	(Float_t) -999.0,		0.0f );
-    n->Column(pre+"vz",  	(Float_t) -999.0,		0.0f );
-    n->Column(pre+"len", 	(Float_t) -999.0,		0.0f );
-    n->Column(pre+"ctau",  	(Float_t) -999.0,		0.0f );
-    n->Column(pre+"ctaud",	(Float_t) -999.0,		0.0f );
-    /*		n->Column(pre+"decang", (Float_t) -999.0,		0.0f );
-     n->Column(pre+"cdecang",(Float_t) -999.0,		0.0f );*/
+    n->Column(pre+"vx",    (Float_t) -999.0,    0.0f );
+    n->Column(pre+"vy",    (Float_t) -999.0,    0.0f );
+    n->Column(pre+"vz",    (Float_t) -999.0,    0.0f );
+    n->Column(pre+"len",   (Float_t) -999.0,    0.0f );
+    n->Column(pre+"ctau",    (Float_t) -999.0,    0.0f );
+    n->Column(pre+"ctaud",  (Float_t) -999.0,    0.0f );
+    /*    n->Column(pre+"decang", (Float_t) -999.0,    0.0f );
+     n->Column(pre+"cdecang",(Float_t) -999.0,    0.0f );*/
   }
 }
 
@@ -809,19 +828,19 @@ void PndRhoTupleQA::qaEmc(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"emceraw",  (Float_t) mic->GetEmcRawEnergy(),			0.0f );
-    n->Column(pre+"emcecal",  (Float_t) mic->GetEmcCalEnergy(),			0.0f );
-    n->Column(pre+"emcqa",    (Float_t) mic->GetEmcQuality(),   		0.0f );
-    n->Column(pre+"emcnx",    (Int_t)   mic->GetEmcNumberOfCrystals(),	0 );
-    n->Column(pre+"emcnb",    (Int_t)   mic->GetEmcNumberOfBumps(),   	0 );
-    n->Column(pre+"emcz20",   (Float_t) mic->GetEmcClusterZ20(),   		0.0f );
-    n->Column(pre+"emcz53",   (Float_t) mic->GetEmcClusterZ53(),   		0.0f );
-    n->Column(pre+"emclat",   (Float_t) mic->GetEmcClusterLat(),   		0.0f );
-    n->Column(pre+"emce1",    (Float_t) mic->GetEmcClusterE1(),   		0.0f );
-    n->Column(pre+"emce9",    (Float_t) mic->GetEmcClusterE9(),   		0.0f );
-    n->Column(pre+"emce25",   (Float_t) mic->GetEmcClusterE25(),   		0.0f );
-    n->Column(pre+"emcmod",   (Int_t)   mic->GetEmcModule(),   			0 );
-    n->Column(pre+"emcidx",   (Int_t)   mic->GetEmcIndex(),   			0 );
+    n->Column(pre+"emceraw",  (Float_t) mic->GetEmcRawEnergy(),      0.0f );
+    n->Column(pre+"emcecal",  (Float_t) mic->GetEmcCalEnergy(),      0.0f );
+    n->Column(pre+"emcqa",    (Float_t) mic->GetEmcQuality(),       0.0f );
+    n->Column(pre+"emcnx",    (Int_t)   mic->GetEmcNumberOfCrystals(),  0 );
+    n->Column(pre+"emcnb",    (Int_t)   mic->GetEmcNumberOfBumps(),     0 );
+    n->Column(pre+"emcz20",   (Float_t) mic->GetEmcClusterZ20(),       0.0f );
+    n->Column(pre+"emcz53",   (Float_t) mic->GetEmcClusterZ53(),       0.0f );
+    n->Column(pre+"emclat",   (Float_t) mic->GetEmcClusterLat(),       0.0f );
+    n->Column(pre+"emce1",    (Float_t) mic->GetEmcClusterE1(),       0.0f );
+    n->Column(pre+"emce9",    (Float_t) mic->GetEmcClusterE9(),       0.0f );
+    n->Column(pre+"emce25",   (Float_t) mic->GetEmcClusterE25(),       0.0f );
+    n->Column(pre+"emcmod",   (Int_t)   mic->GetEmcModule(),         0 );
+    n->Column(pre+"emcidx",   (Int_t)   mic->GetEmcIndex(),         0 );
   }
 }
 // -------------------------------------------------------------------------
@@ -834,7 +853,7 @@ void PndRhoTupleQA::qaGem(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"gemnhits",  (Int_t) mic->GetGemHits(),			0 );
+    n->Column(pre+"gemnhits",  (Int_t) mic->GetGemHits(),      0 );
   }
 }
 
@@ -849,8 +868,8 @@ void PndRhoTupleQA::qaMvd(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"mvddedx",  (Float_t) mic->GetMvdDEDX(),			0.0f );
-    n->Column(pre+"mvdhits",  (Int_t)   mic->GetMvdHits(),			0 );
+    n->Column(pre+"mvddedx",  (Float_t) mic->GetMvdDEDX(),      0.0f );
+    n->Column(pre+"mvdhits",  (Int_t)   mic->GetMvdHits(),      0 );
   }
 }
 
@@ -864,8 +883,8 @@ void PndRhoTupleQA::qaStt(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"sttdedx",  (Float_t) mic->GetSttMeanDEDX(),		0.0f );
-    n->Column(pre+"stthits",  (Int_t)   mic->GetSttHits(),			0 );
+    n->Column(pre+"sttdedx",  (Float_t) mic->GetSttMeanDEDX(),    0.0f );
+    n->Column(pre+"stthits",  (Int_t)   mic->GetSttHits(),      0 );
   }
 }
 
@@ -879,11 +898,11 @@ void PndRhoTupleQA::qaDrc(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"drcthtc",  	(Float_t) mic->GetDrcThetaC(),			0.0f );
-    n->Column(pre+"drcdthtc", 	(Float_t) mic->GetDrcThetaCErr(),		0.0f );
-    n->Column(pre+"drcqa",  	(Float_t) mic->GetDrcQuality(),			0.0f );
-    n->Column(pre+"drcnphot",  	(Int_t)   mic->GetDrcNumberOfPhotons(),	0 );
-    n->Column(pre+"drcidx",  	(Int_t)   mic->GetDrcIndex(),			0 );
+    n->Column(pre+"drcthtc",    (Float_t) mic->GetDrcThetaC(),      0.0f );
+    n->Column(pre+"drcdthtc",   (Float_t) mic->GetDrcThetaCErr(),    0.0f );
+    n->Column(pre+"drcqa",    (Float_t) mic->GetDrcQuality(),      0.0f );
+    n->Column(pre+"drcnphot",    (Int_t)   mic->GetDrcNumberOfPhotons(),  0 );
+    n->Column(pre+"drcidx",    (Int_t)   mic->GetDrcIndex(),      0 );
   }
 }
 
@@ -897,11 +916,11 @@ void PndRhoTupleQA::qaDsc(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"dscthtc",  	(Float_t) mic->GetDiscThetaC(),			0.0f );
-    n->Column(pre+"dscdthtc",  	(Float_t) mic->GetDiscThetaCErr(),		0.0f );
-    n->Column(pre+"dscqa",  	(Float_t) mic->GetDiscQuality(),		0.0f );
-    n->Column(pre+"dscnphot",  	(Int_t)   mic->GetDiscNumberOfPhotons(),0 );
-    n->Column(pre+"dscidx",  	(Int_t)   mic->GetDiscIndex(),			0 );
+    n->Column(pre+"dscthtc",    (Float_t) mic->GetDiscThetaC(),      0.0f );
+    n->Column(pre+"dscdthtc",    (Float_t) mic->GetDiscThetaCErr(),    0.0f );
+    n->Column(pre+"dscqa",    (Float_t) mic->GetDiscQuality(),    0.0f );
+    n->Column(pre+"dscnphot",    (Int_t)   mic->GetDiscNumberOfPhotons(),0 );
+    n->Column(pre+"dscidx",    (Int_t)   mic->GetDiscIndex(),      0 );
   }
 }
 
@@ -915,11 +934,11 @@ void PndRhoTupleQA::qaRich(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"richthtc",  	(Float_t) mic->GetRichThetaC(),			0.0f );
-    n->Column(pre+"richdthtc",  (Float_t) mic->GetRichThetaCErr(),		0.0f );
-    n->Column(pre+"richqa",  	(Float_t) mic->GetRichQuality(),		0.0f );
+    n->Column(pre+"richthtc",    (Float_t) mic->GetRichThetaC(),      0.0f );
+    n->Column(pre+"richdthtc",  (Float_t) mic->GetRichThetaCErr(),    0.0f );
+    n->Column(pre+"richqa",    (Float_t) mic->GetRichQuality(),    0.0f );
     n->Column(pre+"richnphot",  (Int_t)   mic->GetRichNumberOfPhotons(),0 );
-    n->Column(pre+"richidx",  	(Int_t)    mic->GetRichIndex(),			0 );
+    n->Column(pre+"richidx",    (Int_t)    mic->GetRichIndex(),      0 );
   }
 }
 
@@ -933,14 +952,14 @@ void PndRhoTupleQA::qaMuo(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"muonlay",  	(Int_t)   mic->GetMuoNumberOfLayers(),	0 );;
-    n->Column(pre+"muoprob",  	(Float_t) mic->GetMuoProbability(),		0.0f );;
-    n->Column(pre+"muoqa",  	(Float_t) mic->GetMuoQuality() ,		0.0f ); ;
-    n->Column(pre+"muoiron",  	(Float_t) mic->GetMuoIron() ,			0.0f );  ;
-    n->Column(pre+"muopin",  	(Float_t) mic->GetMuoMomentumIn(),		0.0f );;
-    n->Column(pre+"muomod", 	(Int_t)   mic->GetMuoModule(),			0 );  ;
-    n->Column(pre+"muohits",  	(Int_t)   mic->GetMuoHits(),			0 );  ;
-    n->Column(pre+"muoidx",  	(Int_t)   mic->GetMuoIndex(),			0 ); ;
+    n->Column(pre+"muonlay",    (Int_t)   mic->GetMuoNumberOfLayers(),  0 );;
+    n->Column(pre+"muoprob",    (Float_t) mic->GetMuoProbability(),    0.0f );;
+    n->Column(pre+"muoqa",    (Float_t) mic->GetMuoQuality() ,    0.0f ); ;
+    n->Column(pre+"muoiron",    (Float_t) mic->GetMuoIron() ,      0.0f );  ;
+    n->Column(pre+"muopin",    (Float_t) mic->GetMuoMomentumIn(),    0.0f );;
+    n->Column(pre+"muomod",   (Int_t)   mic->GetMuoModule(),      0 );  ;
+    n->Column(pre+"muohits",    (Int_t)   mic->GetMuoHits(),      0 );  ;
+    n->Column(pre+"muoidx",    (Int_t)   mic->GetMuoIndex(),      0 ); ;
   }
 }
 
@@ -954,12 +973,12 @@ void PndRhoTupleQA::qaTof(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"toftime", 	(Float_t) mic->GetTofStopTime(),	0.0f );
-    n->Column(pre+"tofm2",  	(Float_t) mic->GetTofM2(),			0.0f );
-    n->Column(pre+"toflen",  	(Float_t) mic->GetTofTrackLength(),	0.0f );
-    n->Column(pre+"tofqa",  	(Float_t) mic->GetTofQuality(),		0.0f );
-    n->Column(pre+"tofidx",  	(Int_t)   mic->GetTofIndex(),		0 );
-    n->Column(pre+"tofbeta",  	(Float_t) mic->GetTofBeta(),		0.0f );
+    n->Column(pre+"toftime",   (Float_t) mic->GetTofStopTime(),  0.0f );
+    n->Column(pre+"tofm2",    (Float_t) mic->GetTofM2(),      0.0f );
+    n->Column(pre+"toflen",    (Float_t) mic->GetTofTrackLength(),  0.0f );
+    n->Column(pre+"tofqa",    (Float_t) mic->GetTofQuality(),    0.0f );
+    n->Column(pre+"tofidx",    (Int_t)   mic->GetTofIndex(),    0 );
+    n->Column(pre+"tofbeta",    (Float_t) mic->GetTofBeta(),    0.0f );
   }
 }
 
@@ -972,32 +991,32 @@ void PndRhoTupleQA::qaRecoShort(TString pre, RhoCandidate *c, RhoTuple *n)
 
   if (mic)
   {
-    n->Column(pre+"emcecal",  (Float_t) mic->GetEmcCalEnergy(),			0.0f );
-    n->Column(pre+"emcnx",    (Int_t)   mic->GetEmcNumberOfCrystals(),	0 );
-    n->Column(pre+"emcnb",    (Int_t)   mic->GetEmcNumberOfBumps(),   	0 );
+    n->Column(pre+"emcecal",  (Float_t) mic->GetEmcCalEnergy(),      0.0f );
+    n->Column(pre+"emcnx",    (Int_t)   mic->GetEmcNumberOfCrystals(),  0 );
+    n->Column(pre+"emcnb",    (Int_t)   mic->GetEmcNumberOfBumps(),     0 );
 
-    n->Column(pre+"gemnhits",  (Int_t) mic->GetGemHits(),			    0 );
+    n->Column(pre+"gemnhits",  (Int_t) mic->GetGemHits(),          0 );
 
-    n->Column(pre+"mvddedx",  (Float_t) mic->GetMvdDEDX(),			    0.0f );
-    n->Column(pre+"mvdhits",  (Int_t)   mic->GetMvdHits(),			    0 );
-	
-    n->Column(pre+"sttdedx",  (Float_t) mic->GetSttMeanDEDX(),		    0.0f );
-    n->Column(pre+"stthits",  (Int_t)   mic->GetSttHits(),			    0 );
-	
-    n->Column(pre+"drcthtc",  	(Float_t) mic->GetDrcThetaC(),			0.0f );
-    n->Column(pre+"drcnphot",  	(Int_t)   mic->GetDrcNumberOfPhotons(),	0 );
+    n->Column(pre+"mvddedx",  (Float_t) mic->GetMvdDEDX(),          0.0f );
+    n->Column(pre+"mvdhits",  (Int_t)   mic->GetMvdHits(),          0 );
 
-    n->Column(pre+"dscthtc",  	(Float_t) mic->GetDiscThetaC(),			0.0f );
-    n->Column(pre+"dscnphot",  	(Int_t)   mic->GetDiscNumberOfPhotons(),0 );
+    n->Column(pre+"sttdedx",  (Float_t) mic->GetSttMeanDEDX(),        0.0f );
+    n->Column(pre+"stthits",  (Int_t)   mic->GetSttHits(),          0 );
 
-    n->Column(pre+"richthtc",  	(Float_t) mic->GetRichThetaC(),			0.0f );
+    n->Column(pre+"drcthtc",    (Float_t) mic->GetDrcThetaC(),      0.0f );
+    n->Column(pre+"drcnphot",    (Int_t)   mic->GetDrcNumberOfPhotons(),  0 );
+
+    n->Column(pre+"dscthtc",    (Float_t) mic->GetDiscThetaC(),      0.0f );
+    n->Column(pre+"dscnphot",    (Int_t)   mic->GetDiscNumberOfPhotons(),0 );
+
+    n->Column(pre+"richthtc",    (Float_t) mic->GetRichThetaC(),      0.0f );
     n->Column(pre+"richnphot",  (Int_t)   mic->GetRichNumberOfPhotons(),0 );
 
-    n->Column(pre+"muonlay",  	(Int_t)   mic->GetMuoNumberOfLayers(),	0 );;
-    n->Column(pre+"muoiron",  	(Float_t) mic->GetMuoIron() ,			0.0f );  ;
+    n->Column(pre+"muonlay",    (Int_t)   mic->GetMuoNumberOfLayers(),  0 );;
+    n->Column(pre+"muoiron",    (Float_t) mic->GetMuoIron() ,      0.0f );  ;
 
-    n->Column(pre+"tofm2",  	(Float_t) mic->GetTofM2(),			    0.0f );
-    n->Column(pre+"tofbeta",  	(Float_t) mic->GetTofBeta(),		    0.0f );
+    n->Column(pre+"tofm2",    (Float_t) mic->GetTofM2(),          0.0f );
+    n->Column(pre+"tofbeta",    (Float_t) mic->GetTofBeta(),        0.0f );
   }
 }
 
@@ -1062,9 +1081,9 @@ void PndRhoTupleQA::qaMc(TString pre, RhoCandidate *c, RhoTuple *n, bool skip)
   if (c==0) return;
 
   RhoCandidate *mct=c->GetMcTruth();
-  
+
   if (mct){
-	  qaCand(pre+"mc",mct,n,skip);
+    qaCand(pre+"mc",mct,n,skip);
   }
   else {
       qaCand(pre+"mc", fDummyCand,n,skip);
@@ -1219,14 +1238,14 @@ void PndRhoTupleQA::qaMcDiff(TString pre, RhoCandidate *c, RhoTuple *n, bool ski
 
 void PndRhoTupleQA::qaFitter(TString pre, RhoFitterBase* fitter, RhoTuple* n, bool skip)
 {
-	if(!skip){
-		n->Column(pre+"chisq" , (Float_t) fitter->GetChi2(),       0.0f);
-		n->Column(pre+"ndf" ,   (Float_t) fitter->GetNdf(),        0.0f);
-		n->Column(pre+"prob" ,  (Float_t) fitter->GetProb(),       0.0f);
-	} else {
-		n->Column(pre+"chisq" , (Float_t) -999.0,       0.0f);
-		n->Column(pre+"ndf" ,   (Float_t) -999.0,       0.0f);
-		n->Column(pre+"prob" ,  (Float_t) -999.0,       0.0f);
-	}
+  if(!skip){
+    n->Column(pre+"chisq" , (Float_t) fitter->GetChi2(),       0.0f);
+    n->Column(pre+"ndf" ,   (Float_t) fitter->GetNdf(),        0.0f);
+    n->Column(pre+"prob" ,  (Float_t) fitter->GetProb(),       0.0f);
+  } else {
+    n->Column(pre+"chisq" , (Float_t) -999.0,       0.0f);
+    n->Column(pre+"ndf" ,   (Float_t) -999.0,       0.0f);
+    n->Column(pre+"prob" ,  (Float_t) -999.0,       0.0f);
+  }
 }
 

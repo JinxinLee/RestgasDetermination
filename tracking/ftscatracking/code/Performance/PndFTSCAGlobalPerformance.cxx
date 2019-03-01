@@ -89,7 +89,7 @@ void PndFTSCAGlobalPerformance::CheckMCTracks()
     if ( l.fLab[1] >= 0 ) (*fMCTracks)[l.fLab[1]].SetNHits( (*fMCTracks)[l.fLab[1]].NHits() + 1 );
     if ( l.fLab[2] >= 0 ) (*fMCTracks)[l.fLab[2]].SetNHits( (*fMCTracks)[l.fLab[2]].NHits() + 1 );
   }
-  
+
   /*for ( int ih = 0; ih < (*fHitLabels).Size(); ih++ ) { // TODO: do we need to calculate consequtive hits??
     const PndFTSCAHitLabel &l = (*fHitLabels)[ih];
     if ( l.fLab[0] >= 0 ) (*fMCTracks)[l.fLab[0]].SetNHits( (*fMCTracks)[l.fLab[0]].NHits() + 1 );
@@ -119,7 +119,7 @@ void PndFTSCAGlobalPerformance::CheckMCTracks()
 
        )
       mcTrackData.SetAsReconstructable();
-    
+
      // sets of tracks 0-OutSet, 1-ExtraSet, 2-RefSet, 3-ExtraSecSet, 4-ExtraPrimSet, 5-RefSecSet, 6-RefPrimSet, 7-LongRefPrimSet
     if ( mc.P() >= PParameters::ExtraThreshold ) {
       if ( mc.P() >= PParameters::RefThreshold ) {
@@ -128,7 +128,7 @@ void PndFTSCAGlobalPerformance::CheckMCTracks()
         if ( mc.MotherId() != -1 ) {
           mc.SetSet( 5 );
           mcTrackData.SetSet( 5 );
-          
+
         }
         else {
           mc.SetSet( 6 );
@@ -145,7 +145,7 @@ void PndFTSCAGlobalPerformance::CheckMCTracks()
         if ( mc.MotherId() != -1 ) {
           mc.SetSet( 3 );
           mcTrackData.SetSet( 3 );
-          
+
         }
         else {
           mc.SetSet( 4 );
@@ -234,7 +234,7 @@ void PndFTSCAGlobalPerformance::EfficiencyPerformance( )
         ratio_fakes += 1 - rd.GetPurity();
       }
     }
-    
+
     if ( mc.GetSet() == 0){ // rest, out track
       fEff.Inc(reco, killed, ratio_length, ratio_fakes, nclones, "rest");
     }
@@ -285,15 +285,15 @@ void PndFTSCAGlobalPerformance::FillHistos()
   vector<int> nHitsVsRow;
   vector<int> nMCPointsVsRow;
   const int Multiplicity = (*fMCTracks).Size();
-  
+
   mcTrackNRecoHits.resize(NMCTracks, 0);
   nHitsVsRow.resize(fTracker->NStations());
   nMCPointsVsRow.resize(fTracker->NStations());
   for(int iH=0; iH < fTracker->NHits(); iH++){
     const PndFTSCAGBHit &hit = fTracker->Hit( iH );
-    
+
     nHitsVsRow[hit.IRow()]++;
-    
+
     const PndFTSCAHitLabel &l = (*fHitLabels)[hit.ID()];
     if ( l.fLab[0] >= 0 ) mcTrackNRecoHits[l.fLab[0]]++;
     if ( l.fLab[1] >= 0 ) mcTrackNRecoHits[l.fLab[1]]++;
@@ -301,10 +301,10 @@ void PndFTSCAGlobalPerformance::FillHistos()
   }
   for(int i=0; i < NMCTracks; i++){
     PndFTSCAMCTrack &mcT = (*fMCTracks)[i];
-        
+
     GetHisto("mcTrackNRecoHits")->Fill( mcTrackNRecoHits[i] );
     GetHisto("nMCPointsVsMCMom")->Fill( mcT.P(), mcT.NMCPoints() );
-    
+
     if ( mcT.NMCPoints() > 0 ) {
       double mcEx = mcT.Px();
       double mcEy = mcT.Py();
@@ -339,7 +339,7 @@ void PndFTSCAGlobalPerformance::FillHistos()
       // if ( mcTr.NHits() != fTracker->NStations() ) continue;
       // if ( abs(mcTr.Pt()) < 1 ) continue;
       // if ( abs(mcTr.DzDs()) < 0.5 ) continue;
-    
+
 #ifdef USE_CA_FIT // use 3 iterational fit, which ends on inner station
 //    PndFTSCATrackParam param = recoTr.OuterParam();
    PndFTSCATrackParam param = recoTr.InnerParam();
@@ -355,7 +355,7 @@ void PndFTSCAGlobalPerformance::FillHistos()
       //     fNVsMom->Fill( param.Y());
       //     fLengthVsMom->Fill( param.Y(), t.NHits());
     double prob = param.Chi2() != -1 ? TMath::Prob( param.Chi2(), param.NDF() ) : -1;
-    
+
     GetHisto("purity")->Fill( recoData[iRTr].GetPurity() );
     if (  recoD.IsGhost(PParameters::MinTrackPurity) ) {
 #if !defined(PANDA_FTS)
@@ -403,7 +403,7 @@ void PndFTSCAGlobalPerformance::FillHistos()
       // if ( abs(mcTr.DzDs()) < 0.5 ) continue;
 
 */
-  
+
   // global tracker performance
   {
     //cout<<"checkpoint #0 \n";
@@ -412,7 +412,7 @@ void PndFTSCAGlobalPerformance::FillHistos()
     for ( int itr = 0; itr < nRecoTracks; itr++ ) {
       const int iMC = recoData[itr].GetMCTrackId();
       if ( recoData[itr].IsGhost(PParameters::MinTrackPurity) ) continue;
-      PndFTSCAMCTrack &mc = (*fMCTracks)[iMC];
+      //PndFTSCAMCTrack &mc = (*fMCTracks)[iMC]; //[R.K. 9/2018] unused
 
         // if ( mc.MotherId() == -1 ) continue;
         // if ( (*fMCTracks)[mc.MotherId()].PDG() != 310 ) continue;
@@ -423,10 +423,10 @@ void PndFTSCAGlobalPerformance::FillHistos()
 #endif
         // if ( abs(mc.DzDs()) < 0.5 ) continue;
       //cout<<"checkpoint #1 \n";
-      int nFirstMC = mc.FirstMCPointID();
-      int nMCPoints = mc.NMCPoints();
+      //int nFirstMC = mc.FirstMCPointID(); //[R.K. 9/2018] unused
+      //int nMCPoints = mc.NMCPoints(); //[R.K. 9/2018] unused
 
-      PndFTSCALocalMCPoint *points = &((*fLocalMCPoints).Data()[nFirstMC]);
+      //PndFTSCALocalMCPoint *points = &((*fLocalMCPoints).Data()[nFirstMC]); //[R.K. 9/2018] unused
 
       const PndFTSCAGBTrack &t = fTracker->Track( itr );
 #ifdef USE_CA_FIT
@@ -444,14 +444,14 @@ void PndFTSCAGlobalPerformance::FillHistos()
 // std::cout << "hits:" << std::endl;
 // for(int iH=0; iH<nHits; iH++)
 //   std::cout << fTracker->Hit( fTracker->TrackHit(t.FirstHitRef() + iH) ).X() << " " <<
-//                fTracker->Hit( fTracker->TrackHit(t.FirstHitRef() + iH) ).Y() << " " << 
-//                fTracker->Hit( fTracker->TrackHit(t.FirstHitRef() + iH) ).Z() << " " << std::endl; 
+//                fTracker->Hit( fTracker->TrackHit(t.FirstHitRef() + iH) ).Y() << " " <<
+//                fTracker->Hit( fTracker->TrackHit(t.FirstHitRef() + iH) ).Z() << " " << std::endl;
 // std::cout << "MCPoints:" << std::endl;
 // for(int iMCPoint=0; iMCPoint<nMCPoints; iMCPoint++)
 //   std::cout << points[iMCPoint].X() << " " <<
-//                points[iMCPoint].Y() << " " << 
-//                points[iMCPoint].Z() << " " << std::endl; 
-// 
+//                points[iMCPoint].Y() << " " <<
+//                points[iMCPoint].Z() << " " << std::endl;
+//
 // std::cout << "track:" << std::endl;
 // std::cout << p.X() << " " << p.Y() << " " << p.Z() << std::endl;
 
@@ -477,7 +477,7 @@ void PndFTSCAGlobalPerformance::FillHistos()
 
   float Tx_mc = hit.point_Px/hit.point_Pz;
   float Ty_mc = hit.point_Py/hit.point_Pz;
-  
+
   /*
   cout << "  p.Chi2() " << p.Chi2() << " p.NDF() " << p.NDF() << endl;
   cout<<"p.X1() p.X2() p.Tx1() p.Tx2() p.QP()"<<p.X1()<<" "<<p.X2()<<" "<<p.Tx1()<<" "<<p.Tx2()<<" " << p.QP() << endl;
@@ -488,18 +488,18 @@ void PndFTSCAGlobalPerformance::FillHistos()
   if(p.Chi2() < 0 || p.NDF() <= 0) continue;
 
 
-  //cout << "p.Chi2() " << p.Chi2() << " p.NDF() " << p.NDF() << endl; 
+  //cout << "p.Chi2() " << p.Chi2() << " p.NDF() " << p.NDF() << endl;
   while ( true ) {
-     
+
 	//GetHisto("resX1")->Fill( p.X1() - mcX1 );
 
 	GetHisto("resX1")->Fill( p.X1() - hit.point_X );
 //       if ( p.Err2X1() > 0 ) GetHisto("pullX1")->Fill( ( p.X1() - mcX1 ) / TMath::Sqrt( p.Err2X1() ) );
-	if ( p.Err2X1() > 0 ) 
+	if ( p.Err2X1() > 0 )
 	  GetHisto("pullX1")->Fill( ( p.X1() - hit.point_X ) / TMath::Sqrt( p.Err2X1() ) );
-	
+
        GetHisto("resX2")->Fill( p.X2() - hit.point_Y );
-       if ( p.Err2X2() > 0 ) 
+       if ( p.Err2X2() > 0 )
 	 GetHisto("pullX2")->Fill( ( p.X2() - hit.point_Y ) / TMath::Sqrt( p.Err2X2() ) );
 
 #ifdef PANDA_FTS
@@ -508,7 +508,7 @@ void PndFTSCAGlobalPerformance::FillHistos()
 
 //       GetHisto("resTx1")->Fill( p.Tx1() - mcTx1 );
 
-       GetHisto("resTx1")->Fill( p.Tx1() - Tx_mc );       
+       GetHisto("resTx1")->Fill( p.Tx1() - Tx_mc );
        GetHisto("resTx2")->Fill( p.Tx2() - Ty_mc );
        if(CAMath::Abs(qP) > 1.e-7)
        {
@@ -520,17 +520,17 @@ void PndFTSCAGlobalPerformance::FillHistos()
        cout << "p.X1() - mcX " << p.X1() - hit.point_X << endl;
        cout << "p.Tx1() - mcTx " << p.Tx1() - Tx_mc << endl;*/
 
-//        cout << "err " <<TMath::Sqrt( p.Err2X1())<< " " <<TMath::Sqrt( p.Err2X2()) <<" "<<  TMath::Sqrt( p.Err2Tx1() ) << " " << TMath::Sqrt( p.Err2Tx2() ) << " " << 
+//        cout << "err " <<TMath::Sqrt( p.Err2X1())<< " " <<TMath::Sqrt( p.Err2X2()) <<" "<<  TMath::Sqrt( p.Err2Tx1() ) << " " << TMath::Sqrt( p.Err2Tx2() ) << " " <<
 //        TMath::Sqrt(p.Err2QP()) << std::endl;
-       
+
 //       if ( p.Err2Tx1() > 0 ) GetHisto("pullTx1")->Fill( ( p.Tx1() - mcTx1 ) / TMath::Sqrt( p.Err2Tx1() ) );
 
-      if ( p.Err2Tx1() > 0 ) 
+      if ( p.Err2Tx1() > 0 )
 	GetHisto("pullTx1")->Fill( ( p.Tx1() - Tx_mc) / TMath::Sqrt( p.Err2Tx1() ) );
 
-       if ( p.Err2Tx2() > 0 ) 
+       if ( p.Err2Tx2() > 0 )
 	 GetHisto("pullTx2")->Fill( ( p.Tx2() - Ty_mc ) / TMath::Sqrt( p.Err2Tx2() ) );
-       if(CAMath::Abs(qP) > 1.e-7 && p.Err2QP() > 0 ) 
+       if(CAMath::Abs(qP) > 1.e-7 && p.Err2QP() > 0 )
 	 GetHisto("pullQP")->Fill( (qP - hit.point_Qp)/TMath::Sqrt(p.Err2QP()) );
 
 	if ( p.Chi2() < 1.e-7 ) continue;
@@ -540,8 +540,8 @@ void PndFTSCAGlobalPerformance::FillHistos()
        GetHisto("recosChi2")->Fill( p.Chi2()/p.NDF() );
        GetHisto("recosProb")->Fill( prob );
 #else // PANDA_FTS
-              
-       double qPt = p.QPt(); 
+
+       double qPt = p.QPt();
 
        GetHisto("resSinPhi")->Fill( p.SinPhi() - mcSinPhi );
        GetHisto("resDzDs")->Fill( p.DzDs() - mcDzDs );
@@ -556,7 +556,7 @@ void PndFTSCAGlobalPerformance::FillHistos()
        if ( p.Err2DzDs() > 0 ) GetHisto("pullDzDs")->Fill( ( p.DzDs() - mcDzDs ) / TMath::Sqrt( p.Err2DzDs() ) );
        if(CAMath::Abs(qPt) > 1.e-7 && p.Err2QPt()>0 ) GetHisto("pullQPt")->Fill( (qPt - mcQPt)/TMath::Sqrt(p.Err2QPt()) );
 #endif // PANDA_FTS
-        
+
        break;
       }
     }
@@ -570,7 +570,7 @@ void PndFTSCAGlobalPerformance::FillHistos()
       const PndFTSCAGBHit &hit = fTracker->Hit( ih );
       float x0HLoc, x1HLoc, x2HLoc;
       PndFTSCAParameters::GlobalToCALocal( hit.X(), hit.Y(), hit.Z(), hit.Angle(), x0HLoc, x1HLoc, x2HLoc );
-        
+
       const int iMCP = PndFTSCAPerformance::Instance().GetMCPoint(hit);
       if (iMCP == -1) continue;
       const PndFTSCALocalMCPoint& point = fLocalMCPoints->Data()[iMCP];
@@ -583,7 +583,7 @@ void PndFTSCAGlobalPerformance::FillHistos()
       x1PLoc += t1*( x0HLoc - x0PLoc );
       x2PLoc += t2*( x0HLoc - x0PLoc );
       x0PLoc =  x0HLoc;
-      
+
       GetHisto("resXHit")->Fill( x0HLoc - x0PLoc );
       GetHisto("resYHit")->Fill( x1HLoc - x1PLoc );
       GetHisto("resZHit")->Fill( x2HLoc - x2PLoc );
@@ -687,11 +687,11 @@ void PndFTSCAGlobalPerformance::Draw()
       if ( doDraw ) disp.DrawRecoTrack( iT, kGreen+1, 0.4 );
 #endif
     }
-  } 
+  }
 
   disp.SaveCanvasToFile( "DrawGlobalPerformance.pdf" );
   disp.Ask();
-  
+
 #endif // DRAW_GLOBALPERF
 } // void PndFTSCAGlobalPerformance::Draw()
 

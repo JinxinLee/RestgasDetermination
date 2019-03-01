@@ -17,6 +17,7 @@ PndPidSciTAssociatorTask::~PndPidSciTAssociatorTask() {
 PndPidSciTAssociatorTask::PndPidSciTAssociatorTask() {
   //---
   fPidChargedProb = new TClonesArray("PndPidProbability");
+  fTrackBranchNamePidHypo="";
 }
 
 //___________________________________________________________
@@ -24,6 +25,7 @@ PndPidSciTAssociatorTask::PndPidSciTAssociatorTask(const char *name, const char 
 {
   //---
   fPidChargedProb = new TClonesArray("PndPidProbability");
+  fTrackBranchNamePidHypo="";
   SetTitle(title);
 }
 
@@ -34,7 +36,7 @@ InitStatus PndPidSciTAssociatorTask::Init() {
   
   FairRootManager *fManager =FairRootManager::Instance();	
 
-  fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand");
+  fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand"+fTrackBranchNamePidHypo);
   if ( ! fPidChargedCand) {
     std::cout << "-I- PndPidSciTAssociatorTask::Init: No PndPidCandidate array PidChargedCand there!" << std::endl;
     return kERROR;
@@ -136,7 +138,7 @@ Double_t PndPidSciTAssociatorTask::GetPdf(Double_t mom, Double_t length, Double_
 void PndPidSciTAssociatorTask::Register() {
   //---
   FairRootManager::Instance()->
-    Register("PidAlgoSciT","Pid", fPidChargedProb, kTRUE); 
+    Register("PidAlgoSciT"+fTrackBranchNamePidHypo,"Pid", fPidChargedProb, kTRUE);
 }
 
 //_________________________________________________________________

@@ -31,7 +31,7 @@
 
 namespace
 {
-    double n_phase(const double & lambda_um, const double* sellmeier_coefficients) 
+    double n_phase(const double & lambda_um, const double* sellmeier_coefficients)
     {
         double lambda_um_sq = lambda_um*lambda_um;
         return sqrt(    sellmeier_coefficients[0]/(1.0-(sellmeier_coefficients[3]/lambda_um_sq))
@@ -105,13 +105,13 @@ void PndDisc::ConstructGeometry()
     TString fname = GetGeometryFileName();
     if(!fname.EndsWith(".root"))
     {
-        fLogger->GetLogger()->Error(MESSAGE_ORIGIN,"Geometry format not supported.");
+        LOG(ERROR) << "Geometry format not supported.";
         return;
     }
 
     if(!fname.CompareTo("DIRC_GEO_LIF1.root"))
     {
-        fLogger->GetLogger()->Warning(MESSAGE_ORIGIN,"Wrong filename: (%s). DiscDIRC_Detector is expecting geo file DIRC_GEO_LRD.root.", fname.Data());
+        LOG(WARNING) << "Wrong filename: (%s). DiscDIRC_Detector is expecting geo file DIRC_GEO_LRD.root." << fname.Data();
     }
 
     names_of_sensitive_volumes.insert(std::string("DiscDIRC_Radiator"));
@@ -136,7 +136,7 @@ void PndDisc::ConstructOpGeometry()
 {
     int i=0;
     char str_name[100];
-    FairLogger::GetLogger()->Info(MESSAGE_ORIGIN, "DiscDIRC_Detector::ConstructOpGeometry()");
+    LOG(INFO) << "DiscDIRC_Detector::ConstructOpGeometry()";
 
     //-------------------------------------------------------
     // define the surface properties
@@ -271,14 +271,15 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
     static Double_t integrated_energy_deposit;
 
     const Int_t pid_optical_photon = 50000050;
-    
+
     static const Int_t sensor_volume_id       = gMC->VolId("DiscDIRC_sensor_pmt"); // find a good place for one time initialization
     static const Int_t radiator_volume_id     = gMC->VolId("DiscDIRC_Radiator"); // find a good place for one time initialization
     static const Int_t prism_a_volume_id      = gMC->VolId("DiscDIRC_prism_a");
     static const Int_t prism_b_volume_id      = gMC->VolId("DiscDIRC_prism_b");
     static const Int_t prism_c_volume_id      = gMC->VolId("DiscDIRC_prism_c");
 
-    static const Int_t sensor_volume_uid = gGeoManager->GetUID("DiscDIRC_sensor_pmt"); // find a good place for one time initialization  //FIXME [R.K. 03/2017] unused variable?
+    //static const Int_t sensor_volume_uid = // [R.K. 09/2018] unused variable
+    gGeoManager->GetUID("DiscDIRC_sensor_pmt"); // find a good place for one time initialization
 
     static Bool_t entered_inside     = kFALSE;
     static Int_t  entered_track_id   = -1;
@@ -296,7 +297,7 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
     {
         if(current_track!=gMC->GetStack()->GetCurrentTrackNumber())
         {
-            fLogger->GetLogger()->Warning(MESSAGE_ORIGIN, "LOGIC ERROR: ProcessHits called with track (%d) that has not entered the volume!", gMC->GetStack()->GetCurrentTrackNumber());
+            LOG(WARNING) << "LOGIC ERROR: ProcessHits called with track (%d) that has not entered the volume!" << gMC->GetStack()->GetCurrentTrackNumber();
         }
     }
 
@@ -324,8 +325,8 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
                 internal_reflection_angle_of_photons.insert(std::pair<int,double>(current_track, internal_reflection_angle));
             }
         }
-        else if(volume_id == prism_a_volume_id || 
-                volume_id == prism_b_volume_id || 
+        else if(volume_id == prism_a_volume_id ||
+                volume_id == prism_b_volume_id ||
                 volume_id == prism_c_volume_id)
         {
             std::map<int, std::pair<TLorentzVector,TLorentzVector> >::iterator it = photons_entering_optics.find(current_track);
@@ -369,18 +370,16 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
 
             // Verbose output
             if(fVerboseLevel > 0)
-                fLogger->GetLogger()->Info(MESSAGE_ORIGIN,
-                                           "track->T(): %g\tgMC->TrackTime(): %g\tev_header->GetT(): %g\n",
-                                           track->T(), gMC->TrackTime(), ev_header->GetT());
+                LOG(INFO) <<
+                  "track->T(): "<<track->T()<<"\tgMC->TrackTime(): "<<gMC->TrackTime()<<"\tev_header->GetT(): "
+                  <<ev_header->GetT()<<"\n";
 
             //double internal_reflection_angle = 0.0; //[R.K. 01/2017] unused variable
             std::map<int, double>::iterator it = internal_reflection_angle_of_photons.find(current_track);
 
             if(it == internal_reflection_angle_of_photons.end())
             {
-                fLogger->GetLogger()->Warning(MESSAGE_ORIGIN,
-                        "No registered total internal reflection angle for photon track id %d\n",
-                        current_track);
+                LOG(WARNING) << "No registered total internal reflection angle for photon track id "<<current_track<<"\n";
             } else {
                 //internal_reflection_angle = it->second; //[R.K. 01/2017] unused variable
                 internal_reflection_angle_of_photons.erase(it);
@@ -409,8 +408,7 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
 
             std::map<int, std::pair<TLorentzVector,TLorentzVector> >::iterator it_optics = photons_entering_optics.find(current_track);
             if(it_optics == photons_entering_optics.end()) {
-                fLogger->GetLogger()->Warning(MESSAGE_ORIGIN,
-                                              "No registered optics entrance data for photon track id %d\n", current_track);
+                LOG(WARNING) << "No registered optics entrance data for photon track id "<<current_track<<"\n";
             } else {
                 pt->photon_entering_pos      = it_optics->second.first.Vect();
                 pt->photon_entering_momentum = it_optics->second.second.Vect();
@@ -429,13 +427,13 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
         gMC->TrackMomentum(mom);
 
         if(gMC->IsTrackEntering() || (!gMC->IsTrackEntering() && entered_track_id<0))
-        { 
+        {
             if(entered_track_id >= 0)
-                fLogger->Fatal(MESSAGE_ORIGIN, "Track entering but processing of preceding track was not finished !!!");
+                LOG(FATAL) << "Track entering but processing of preceding track was not finished !!!";
 
             entered_track_id = gMC->GetStack()->GetCurrentTrackNumber();
-            if(entered_track_id<0) 
-                fLogger->Fatal(MESSAGE_ORIGIN, "Track entering has neg id !!!");
+            if(entered_track_id<0)
+                LOG(FATAL) << "Track entering has neg id !!!";
 
             std::map<int, std::pair<int, double> >::iterator it = last_track_occurence.find(entered_track_id);
 
@@ -446,7 +444,7 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
                     continued_track = it->second.first;
                     integrated_energy_deposit = ((PndDiscParticleMCPoint*)clarr_particle_tracks->At(continued_track))->GetEnergyLoss();
 
-                    if(fVerboseLevel > 0) fLogger->Info(MESSAGE_ORIGIN, "Continued: Track id %d, (vol %d, cpn %d, z=%f, T=%g, pdg %d)", entered_track_id, volume_id, copy_no, pos.Z(), gMC->TrackTime(), gMC->TrackPid());
+                    if(fVerboseLevel > 0) LOG(INFO) << Form("Continued: Track id %d, (vol %d, cpn %d, z=%f, T=%g, pdg %d)", entered_track_id, volume_id, copy_no, pos.Z(), gMC->TrackTime(), gMC->TrackPid());
                 }
             }
 
@@ -456,15 +454,15 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
                 mom_in = mom.Vect();
                 integrated_energy_deposit = 0.0;
                 entered_inside = gMC->IsNewTrack();
-                if(fVerboseLevel > 0) fLogger->Info(MESSAGE_ORIGIN, "Entered: Track id %d, (vol %d, cpn %d, z=%f, T=%g, pdg %d)", entered_track_id, volume_id, copy_no, pos.Z(), gMC->TrackTime() ,gMC->TrackPid());
+                if(fVerboseLevel > 0) LOG(INFO) << Form("Entered: Track id %d, (vol %d, cpn %d, z=%f, T=%g, pdg %d)", entered_track_id, volume_id, copy_no, pos.Z(), gMC->TrackTime() ,gMC->TrackPid());
             }
         }
 
         if(entered_track_id >= 0) {
             if(entered_track_id != gMC->GetStack()->GetCurrentTrackNumber() )
-                fLogger->Fatal(MESSAGE_ORIGIN, "Track id changed !!! Need a stack !!!");
+                LOG(FATAL) << "Track id changed !!! Need a stack !!!";
             integrated_energy_deposit += gMC->Edep();
-            if(fVerboseLevel > 0) fLogger->Info(MESSAGE_ORIGIN, "Add eloss for: Track id %d", entered_track_id);
+            if(fVerboseLevel > 0) LOG(INFO) << "Add eloss for: Track id " << entered_track_id;
         }
 
 
@@ -473,9 +471,9 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
         {
             // sanity check:
             if(entered_track_id != gMC->GetStack()->GetCurrentTrackNumber() )
-                fLogger->Fatal(MESSAGE_ORIGIN,"Track exiting without having entered (entered id = %d)", entered_track_id);
+                LOG(FATAL) <<"Track exiting without having entered (entered id = "<< entered_track_id<<")";
 
-            if(fVerboseLevel > 0) fLogger->Info(MESSAGE_ORIGIN, "Exiting: Track id %d (vol %d, cpn %d, Inside = %d, stop = %d, alive = %d, z=%f, T=%g)", entered_track_id, volume_id, copy_no, gMC->IsTrackInside(), gMC->IsTrackStop(), gMC->IsTrackAlive(), pos.Z(), gMC->TrackTime());
+            if(fVerboseLevel > 0) LOG(INFO) << Form("Exiting: Track id %d (vol %d, cpn %d, Inside = %d, stop = %d, alive = %d, z=%f, T=%g)", entered_track_id, volume_id, copy_no, gMC->IsTrackInside(), gMC->IsTrackStop(), gMC->IsTrackAlive(), pos.Z(), gMC->TrackTime());
 
             if(gMC->IsTrackStop() || !gMC->IsTrackInside() || gMC->IsTrackDisappeared() || !gMC->IsTrackAlive())
             {
@@ -521,14 +519,14 @@ Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s
                                     gMC->GetStack()->GetCurrentTrack()->IsPrimary()
                                 );
 
-                        
+
 
                 }
                 entered_track_id = -1;
             }
             else
             {
-                fLogger->Info(MESSAGE_ORIGIN, "Veto: Track id %d (Inside = %d)", entered_track_id, gMC->IsTrackInside());
+                LOG(INFO) << Form("Veto: Track id %d (Inside = %d)", entered_track_id, gMC->IsTrackInside());
             }
         }
     }

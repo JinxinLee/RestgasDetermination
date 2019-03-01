@@ -16,10 +16,10 @@ using std::ios;
 
 #include <string>
 using std::string;
-         
+
 #include <vector>
 using std::vector;
-         
+
 #include <map>
 using std::map;
 
@@ -37,6 +37,7 @@ struct PndCAEfficiencies: public TEfficiencies
     AddCounter("total"         ,"Allset    efficiency");
     AddCounter("rest"          ,"Rest      efficiency");
   }
+  virtual ~PndCAEfficiencies(){};
 
   virtual void AddCounter(string shortname, string name){
     TEfficiencies::AddCounter(shortname, name);
@@ -90,7 +91,7 @@ struct PndCAEfficiencies: public TEfficiencies
     for (int iC = 0; iC < NCounters; iC++){
       if (( names[iC] != "D0        efficiency") || (mc.counters[iC] != 0))
         std::cout << names[iC]  << "   : "
-             << ratio_reco.counters[iC]              
+             << ratio_reco.counters[iC]
              //<< "  / " << ratio_killed.counters[iC]  // tracks with aren't reco because other tracks takes their hit(-s)
              << "  / " << ratio_length.counters[iC]  // nRecoMCHits/nMCHits
              << "  / " << ratio_fakes.counters[iC]   // nFakeHits/nRecoAllHits
@@ -101,7 +102,7 @@ struct PndCAEfficiencies: public TEfficiencies
     std::cout << "Ghost     probability  : " << ratio_ghosts <<" | "<< double(ghosts)/double(nEvents) << std::endl;
     std::cout << "All reco tracks/ev : " << int(double(reco.counters[indices["total"]])/double(nEvents)+.5)  << endl;
   }
-  
+
   TTracksCatCounters<double> ratio_killed;
   TTracksCatCounters<double> ratio_clone;
   TTracksCatCounters<double> ratio_length;

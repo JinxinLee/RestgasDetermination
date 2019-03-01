@@ -36,10 +36,10 @@ using namespace std;
 	double
 		dis2,
 		x[NUMBER_STRAWS],
-		//Xwiredirection[NUMBER_STRAWS], // [R.K. 03/2017] Unused variables
+		//Xwiredirection[NUMBER_STRAWS], //[R.K. 9/2018] unused
 		y[NUMBER_STRAWS],
-		//Ywiredirection[NUMBER_STRAWS], // [R.K. 03/2017] Unused variables
-		//z[NUMBER_STRAWS], // [R.K. 03/2017] Unused variables
+		//Ywiredirection[NUMBER_STRAWS], //[R.K. 9/2018] unused
+		//z[NUMBER_STRAWS], //[R.K. 9/2018] unused
 		Zwiredirection[NUMBER_STRAWS];
 
 	PndSttTube *pSttTube;
@@ -49,9 +49,9 @@ using namespace std;
 		pSttTube = (PndSttTube *) SttTubeArray->At(i);
 		x[i-1] = pSttTube->GetPosition().X();
 		y[i-1] = pSttTube->GetPosition().Y();
-		//z[i-1] = pSttTube->GetPosition().Z(); // [R.K. 03/2017] Unused variables
-		//Xwiredirection[i-1] = pSttTube->GetWireDirection().X(); // [R.K. 03/2017] Unused variables
-		//Ywiredirection[i-1] = pSttTube->GetWireDirection().Y(); // [R.K. 03/2017] Unused variables
+		//z[i-1] = pSttTube->GetPosition().Z(); //[R.K. 9/2018] unused
+		//Xwiredirection[i-1] = pSttTube->GetWireDirection().X(); //[R.K. 9/2018] unused
+		//Ywiredirection[i-1] = pSttTube->GetWireDirection().Y(); //[R.K. 9/2018] unused
 		Zwiredirection[i-1] = pSttTube->GetWireDirection().Z();
 	}
 
@@ -105,8 +105,8 @@ using namespace std;
 
 	double
 		dis2,
-		//Xwiredirection[NUMBER_STRAWS], // [R.K. 03/2017] Unused variables
-		//Ywiredirection[NUMBER_STRAWS], // [R.K. 03/2017] Unused variables
+		//Xwiredirection[NUMBER_STRAWS], //[R.K. 9/2018] unused
+		//Ywiredirection[NUMBER_STRAWS], //[R.K. 9/2018] unused
 		Zwiredirection[NUMBER_STRAWS];
 
 	PndSttTube *pSttTube;
@@ -118,8 +118,8 @@ using namespace std;
 		y[i-1] = pSttTube->GetPosition().Y();
 		z[i-1] = pSttTube->GetPosition().Z();
 		rxy2[i-1]= x[i-1]*x[i-1]+y[i-1]*y[i-1];
-		//Xwiredirection[i-1] = pSttTube->GetWireDirection().X(); // [R.K. 03/2017] Unused variables
-		//Ywiredirection[i-1] = pSttTube->GetWireDirection().Y(); // [R.K. 03/2017] Unused variables
+		//Xwiredirection[i-1] = pSttTube->GetWireDirection().X(); //[R.K. 9/2018] unused
+		//Ywiredirection[i-1] = pSttTube->GetWireDirection().Y(); //[R.K. 9/2018] unused
 		Zwiredirection[i-1] = pSttTube->GetWireDirection().Z();
 	}
 

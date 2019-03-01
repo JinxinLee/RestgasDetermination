@@ -44,7 +44,7 @@ template <class hit_T,class measurement_T>
 template <class hit_T,class measurement_T>
   genfit::AbsMeasurement* PndSttRecoHitProducer2<hit_T,measurement_T>::produce(int index, const genfit::TrackCandHit* hit) {
   assert(hitArrayTClones!=NULL);
-  assert(tubeArrayTClones!=NULL);
+  //assert(tubeArrayTClones!=NULL);
   if(hitArrayTClones->At(index) == 0) {
     genfit::Exception e("In PndSttRecoHitProducer2: index for hit in TClonesArray out of bounds",__LINE__,__FILE__);
     e.setFatal();

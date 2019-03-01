@@ -17,7 +17,7 @@
 #include "RhoBase/RhoCandidate.h"
 #include "RhoBase/RhoCandList.h"
 
-#include "PndRecoCandidate.h"
+#include "PndPidCandidate.h"
 
 #include "TClonesArray.h"
 #include "TPRegexp.h"
@@ -28,12 +28,13 @@
 ClassImp ( PndAnaPidCombiner )
 
 PndAnaPidCombiner::PndAnaPidCombiner ( const char* name, TString tcanames ) :
-    TNamed ( name,"Panda PID Combiner" ) ,
-    fRootManager ( 0 ),
-    fPidArrays(),//FIXME: What should the initializing constructor contain here?
-    fPidResult ( 0 ),
-    fInitialized ( kFALSE )
+  TNamed ( name,"Panda PID Combiner" ) ,
+  fRootManager ( 0 ),
+  fPidArrays(),//FIXME: What should the initializing constructor contain here?
+  fPidResult ( 0 ),
+  fInitialized ( kFALSE )
 {
+  //  std::cout<< "PndAnaPidCombiner created with tcanames: "<<tcanames.Data()<<std::endl;
   if ( tcanames=="" ) {
     SetDefaults();
   } else {
@@ -45,44 +46,14 @@ PndAnaPidCombiner::PndAnaPidCombiner ( const char* name, TString tcanames ) :
   fPidResult = new PndPidProbability();
 }
 
-void PndAnaPidCombiner::Init()
-{
-  // Initialize the TClonesArray lists
-  if ( fInitialized ) {
-    return;
-  } //if we did initilize, don't do it again.
-
-  for ( std::vector<TString>::iterator iter=fCurrentPidArrays.begin();
-        iter!=fCurrentPidArrays.end()&&fCurrentPidArrays.size()>0; iter++ )
-    {
-    //std::cout<<"Init: Item name is \""<<(*iter).Data()<<"\" with array size "<<fCurrentPidArrays.size()<<std::endl;
-    if (!fPidArrays[*iter]){
-      TClonesArray * tmpar = ReadTCA((*iter).Data());
-      if(tmpar) {
-        fPidArrays[*iter]=tmpar;
-        fRootManager->ReadBranchEvent((*iter).Data());
-      } else {
-        fCurrentPidArrays.erase(iter);
-      }
-    }
-  }
-  //std::cout<<"PidCombiner initialized."<<std::endl;
-  fInitialized=kTRUE;
-}
-
 Bool_t PndAnaPidCombiner::Apply ( RhoCandList& tcl )
 {
-  if ( !fInitialized ) {
-    Init();
-  }
-
   Bool_t check = kTRUE;
   Bool_t chack = kTRUE;
   for ( int j=0; j<tcl.GetLength(); j++ ) {
     chack = Apply( tcl[j] );
     check = check && chack;
   }
-
   return check;
 }
 
@@ -90,11 +61,6 @@ Bool_t PndAnaPidCombiner::Apply ( RhoCandidate* tc )
 {
   // Apply the multiplied pdf's to the RhoCandidate
   // If on of the pdf's is not available, it is skipped
-
-  if ( !fInitialized ) {
-    Init();
-  }
-
   Bool_t check=kTRUE;
 
   //TODO: Merge PID info now.
@@ -112,7 +78,7 @@ Bool_t PndAnaPidCombiner::Apply ( RhoCandidate* tc )
   }
 
   for ( std::vector<TString>::iterator iter=fCurrentPidArrays.begin();
-  iter!=fCurrentPidArrays.end(); iter++ ){
+        iter!=fCurrentPidArrays.end(); iter++ ) {
     aTca=fPidArrays[*iter];
     //Info ( "Apply","try tca %s at %p",*iter.Data(),aTca );
 
@@ -184,7 +150,6 @@ void PndAnaPidCombiner::ApplyFlat ( RhoCandidate* tc )
   return;
 }
 
-
 void PndAnaPidCombiner::SetDefaults()
 {
   // Set list of names and weights to the default PANDA
@@ -193,23 +158,63 @@ void PndAnaPidCombiner::SetDefaults()
   //TString names = "PidMvaChargedProbability";
   //SetTcaNames ( names );
 
-  fCurrentPidArrays.clear();
-  fInitialized=kFALSE;
+  TString dummy("");
+  SetTcaNames(dummy,dummy);
   return;
 }
 
-void PndAnaPidCombiner::SetTcaNames ( TString& names )
+void PndAnaPidCombiner::SetTcaNames ( TString& names, TString postfix )
 {
   fCurrentPidArrays.clear();
   // Tokenizer, cool thingy!
   TStringToken list ( names,";" );
   //use TString class part (inherited, Tokenizer stores data there)
-  while ( list.NextToken() ) {
-    if ((TString) list == "") continue;
-    fCurrentPidArrays.push_back ( ( TString ) list );
+  while ( list.NextToken() )
+  {
+    TString branch=(TString)list;
+    if (branch == "") continue;
+    TString full=branch+postfix;
+    if (!fPidArrays[full])
+    {
+      //std::cout<<" -I- PndAnaPidCombiner::SetTcaNames(): try finding \""<<full.Data()<<"\""<<std::endl;
+      TClonesArray * tmpar = ReadTCA(full.Data());
+      if(tmpar) {
+        fPidArrays[full]=tmpar;
+        fRootManager->ReadBranchEvent(full.Data());
+        // we have the branch now, lets use it
+        fCurrentPidArrays.push_back (full);
+        //std::cout<<" -I- PndAnaPidCombiner::SetTcaNames(): \""<<branch.Data()<<"\" + \""<<postfix.Data()<<"\" = \""<<full.Data()<<"\""<<std::endl;
+      } else {
+        // now there is no branch with the full name, let's try without the PID postfix
+        // TODO here we would need to select one other branch, if available, before going to fallback
+        // Users may use Multikalman for protons and pions only, but want to reconstruct muons
+        if (!fPidArrays[branch])
+        {
+          TClonesArray * tmpar2 = ReadTCA(branch.Data());
+          if(tmpar2)
+          {
+            fPidArrays[branch]=tmpar;
+            fRootManager->ReadBranchEvent(branch.Data());
+            // we have the backup branch now, lets use it
+            fCurrentPidArrays.push_back (branch);
+            std::cout<<" WARNING TO ANALYST: PndAnaPidCombiner::Init() could not find "<< full.Data()<<" we use a backup branch: "<<branch.Data()<<std::endl;
+          } else {
+            // now we even don't have a backup
+            std::cout<<" WARNING TO ANALYST: PndAnaPidCombiner::Init() could not find "<< full.Data()<<" nor a backup branch "<<branch.Data()<<std::endl;
+          }
+        } else {
+          // we have the backup branch already loaded, lets use it
+          fCurrentPidArrays.push_back (branch);
+        }
+      }
+    } else {
+      //std::cout<<" -I- PndAnaPidCombiner::SetTcaNames(): we have alreasy a cached TClonesArray named \""<<full.Data()<<"\""<<std::endl;
+      // we have the branch already loaded, lets use it
+      fCurrentPidArrays.push_back(full);
+    }
   }
-  fInitialized=kFALSE;
-  return;
+
+  //std::cout<<"PidCombiner initialized."<<std::endl;
 }
 
 TClonesArray* PndAnaPidCombiner::ReadTCA ( const TString& tcaname )
@@ -219,12 +224,14 @@ TClonesArray* PndAnaPidCombiner::ReadTCA ( const TString& tcaname )
     Warning ( "PndAnaPidCombiner::ReadTCA()","Empty TCA name." );
     return NULL;
   }
+  //std::cout<<" -I- PndAnaPidCombiner::ReadTCA(): Try fetching branch "<<tcaname.Data()<<" rootmanager="<<fRootManager<<std::endl;
   TClonesArray* tca = ( TClonesArray* ) fRootManager->GetObject ( tcaname.Data() );
 
-  if ( ! tca ) {
-    Warning ( "PndAnaPidCombiner::ReadTCA()","No \"%s\" array found.",tcaname.Data() );
+  if ( ! tca ) { // this information is already provoded by the RootManager
+    //Warning ( "PndAnaPidCombiner::ReadTCA()","No \"%s\" array found.",tcaname.Data() );
     return NULL;
   }
 
   return tca;
 }
+

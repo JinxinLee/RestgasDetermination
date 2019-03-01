@@ -17,44 +17,44 @@ using std::pair;
 #include "FTSCANPletsV.h"
 
 class FTSCANPlet {
-  
+
   //* Parameters of N-plet
-  
+
  public:
   FTSCANPlet(): fParam(), fLevel(-1), fChi2Level(0), fNeighbours(){}
   FTSCANPlet( const vector<TESV>& ih, const int iV, const PndFTSCATrackParam& param ):
     fParam(param), fLevel(0), fChi2Level(0), fNeighbours() {
     fIHit.resize( ih.size() );
-    
+
     for( int i=0; i < N(); i++)
       fIHit[i] = ih[i][iV];
   }
 
   int N() const { return fIHit.size(); }
-  
+
   const TES& IHit( int IH ) const { return fIHit[IH]; }
   int ISta( int IH ) const { return fIHit[IH].s; }
-  
+
   const PndFTSCATrackParam& Param() const { return fParam; }
 //  PndFTSCATrackParam&       Param()       { return fParam; }
 
   float QMomentum() const { return fParam.QMomentum(); }
   float QMomentumErr() const { return sqrt( fParam.Err2QMomentum() ); } // qp err
   float QMomentumErr2() const { return fParam.Err2QMomentum(); } // qp err^2
-  
+
   char&       Level()       { return fLevel; };
   const char& Level() const { return fLevel; };
-  
+
   float&       Chi2Level()       { return fChi2Level; };
   const float& Chi2Level() const { return fChi2Level; };
-  
+
   const unsigned int& INeighbours( int i ) const { return fNeighbours[i].second; };
   const float& Chi2Neighbours( int i ) const { return fNeighbours[i].first; };
   unsigned int NNeighbours() const { return fNeighbours.size(); };
   vector< pair<float,unsigned int> >& Neighbours() { return fNeighbours; }
-  
+
     // check wether a is neighbour from the right to this
-  bool IsRightNeighbour( float pick, const FTSCANPlet& a, float& chi2 ){
+  bool IsRightNeighbour( float /*pick*/, const FTSCANPlet& a, float& chi2 ){ //[R.K. 9/2018] unused
     int start = (N() - a.N() < 0) ? 0 : N() - a.N();
     for( int i = start; i < N() - 1; i++)
       if ( IHit(i+1) != a.IHit(i) )

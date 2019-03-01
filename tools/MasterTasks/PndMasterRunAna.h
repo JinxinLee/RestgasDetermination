@@ -130,6 +130,8 @@ class PndMasterRunAna : public FairRunAna
    * "day1+GEM" -> Setup for day1 experimentent, 3 GEM planes
    */
   void SetOptions(TString par) { fOptions = par; fOptions.ToLower();}
+  TString GetOptions() { return fOptions;}
+  void PrintListOftTasks();
 
   /**
    * @brief Setter of the event counter rate

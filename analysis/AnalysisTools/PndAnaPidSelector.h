@@ -15,7 +15,7 @@
 #include "RhoBase/RhoParticleSelectorBase.h"
 
 class RhoCandidate;
-class PndRecoCandidate;
+class PndPidCandidate;
 class PndAnaSelectorPar;
 
 class PndAnaPidSelector : public RhoParticleSelectorBase
@@ -29,7 +29,7 @@ class PndAnaPidSelector : public RhoParticleSelectorBase
 
     //operations
     virtual Bool_t Accept(RhoCandidate* b);
-    virtual Bool_t Accept(PndRecoCandidate* b);
+    virtual Bool_t Accept(PndPidCandidate* b);
     Bool_t SetCriterion(TString& crit) {return SetSelection(crit);};
     Bool_t SetSelection(TString& crit);
 

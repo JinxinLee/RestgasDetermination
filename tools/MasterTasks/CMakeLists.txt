@@ -66,7 +66,15 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/fts/FtsTracking
   ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
   ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recotasks
+  ${CMAKE_SOURCE_DIR}/tracking/GenfitTools/recotasks2
   ${CMAKE_SOURCE_DIR}/genfit
+  ${CMAKE_SOURCE_DIR}/genfit2
+  ${CMAKE_SOURCE_DIR}/genfit2/core/include
+  ${CMAKE_SOURCE_DIR}/genfit2/measurements/include
+  ${CMAKE_SOURCE_DIR}/genfit2/fitters/include
+  ${CMAKE_SOURCE_DIR}/genfit2/finitePlanes/include
+  ${CMAKE_SOURCE_DIR}/genfit2/trackReps/include
+  ${CMAKE_SOURCE_DIR}/genfit2/fields/include
   ${CMAKE_SOURCE_DIR}/pid/PidCorr
   ${CMAKE_SOURCE_DIR}/pid/PidClassifier
   
@@ -96,6 +104,7 @@ PndMasterRecoTask.cxx
 PndMasterLocalRecoTask.cxx
 PndMasterRecoIdealTask.cxx
 PndMasterPidTask.cxx
+PndMasterMultiPidTask.cxx
 PndMasterRunSim.cxx
 PndMasterRunAna.cxx
 )
@@ -104,6 +113,6 @@ set(LINKDEF  MasterLinkDef.h)
 set(LIBRARY_NAME Master)
 
 # set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
-set(DEPENDENCIES Base generalTools MvdReco CentralTracking TrackingTools IdealTrackFinder SttMvdTracking MCMatchNewLinks RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
+set(DEPENDENCIES Base generalTools MvdReco CentralTracking TrackingTools IdealTrackFinder SttMvdTracking MCMatchNewLinks RecoTasks RecoTasks2 Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
 
 GENERATE_LIBRARY() 

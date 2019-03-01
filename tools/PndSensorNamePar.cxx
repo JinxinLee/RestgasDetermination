@@ -52,6 +52,16 @@ Int_t  PndSensorNamePar::AddSensorName(TObjString* name)
 
 }
 
+std::vector<TString> PndSensorNamePar::GetSensorNamesWithString(TString identifier){
+    std::vector<TString> result;
+    for (auto& value : fMapOfSensorNames){
+        if (value.first.Contains(identifier)){
+            result.push_back(value.first);
+        }
+    }
+    return result;
+}
+
 ClassImp(PndSensorNamePar);
 
 void PndSensorNamePar::Print()

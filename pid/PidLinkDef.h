@@ -20,6 +20,7 @@
 #pragma link C++ class  PndPidDiscAssociatorTask+;
 #pragma link C++ class  PndPidRichAssociatorTask+;
 #pragma link C++ class  PndPidContFact+;
+#pragma link C++ class  PndPidTestTask+;
 #pragma link C++ class  PndPidMvaAssociatorTask+;
 #pragma link C++ class  PndPidEmcAssociatorTask+;
 #pragma link C++ class  PndPidSttAssociatorTask+;

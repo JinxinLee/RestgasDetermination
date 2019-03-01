@@ -36,14 +36,12 @@ int QAmacro_mvd_ana()
 
   PndGeoHandling* fGeoH = new PndGeoHandling(inFile,parFile);
 
-  TGeoManager *geoMan;
   if (!gGeoManager) {
     dbfile->Get("FairBaseParSet");
-    geoMan = gGeoManager;
-    if(!geoMan) {
+    gGeoManager = gGeoManager;
+    if(!gGeoManager) {
       dbfile->Get("FairGeoParSet");
-      geoMan = gGeoManager;
-      if(!geoMan) {
+      if(!gGeoManager) {
         std::cout<<"Could not find valid GeoManager. Abort now!"<<std::endl;
         return 1;
       }
@@ -149,8 +147,8 @@ int QAmacro_mvd_ana()
       PndSdsHit *hit=(PndSdsHit*)pixhit_array->At(ii);
       if(verbose) cout <<ii<< ".";
       detname = fGeoH->GetPath( hit->GetSensorID());
-      geoMan->cd( detname.Data() );
-      currentTransMat = geoMan->GetCurrentMatrix();
+      gGeoManager->cd( detname.Data() );
+      currentTransMat = gGeoManager->GetCurrentMatrix();
       vecs.SetXYZ(hit->GetX(), hit->GetY(), hit->GetZ());
       Int_t mcid = hit->GetRefIndex();
       if(verbose)cout<<mcid<<"  ";
@@ -191,8 +189,8 @@ int QAmacro_mvd_ana()
     {
       PndSdsHit *hit=(PndSdsHit*)strhit_array->At(iii);
       detname = fGeoH->GetPath( hit->GetSensorID());
-      geoMan->cd( detname.Data() );
-      currentTransMat = geoMan->GetCurrentMatrix();
+      gGeoManager->cd( detname.Data() );
+      currentTransMat = gGeoManager->GetCurrentMatrix();
 
       vecs.SetXYZ(hit->GetX(), hit->GetY(), hit->GetZ());
 

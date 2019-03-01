@@ -151,7 +151,7 @@ bool SensorGridPhotodetector::GetNoiseHit(int & pixel_number, double & hit_time_
         while(noisegen_n_hits == 0);
 
         noisegen_current_hit = 0;
-        FairLogger::GetLogger()->Info(MESSAGE_ORIGIN, "Number of generated hits on pixel %d are: %d\n", noisegen_pixel_number, noisegen_n_hits);
+        LOG(INFO) << Form("Number of generated hits on pixel %d are: %d\n", noisegen_pixel_number, noisegen_n_hits);
     }
 
     pixel_number = noisegen_pixel_number;

@@ -84,6 +84,7 @@ class PndSttHitProducerRealFast : public PndPersistencyTask
   Bool_t fOverlap; //!
   /** from parameters array of PndSttTube **/ //  CHECK added
   TClonesArray* fTubeArray;
+  Int_t fGeoType;   //< Distinguishes between old geometry description (1) and new, root-based one (2)
 
  ClassDef(PndSttHitProducerRealFast,1);
 

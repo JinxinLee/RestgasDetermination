@@ -51,6 +51,7 @@
 #include <iostream>
 #include <cmath>
 
+// the following include file contains all the constants used here;
 #include "PndTrkConstants.h"
 
   static const Double_t
@@ -585,7 +586,7 @@ gGeoManager->SetTopVisible();
     return kFATAL;
  }
 //  -----   maps of STT tubes
- // CHECK added 
+ // CHECK added
  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
  fSttTubeArray = mapper->FillTubeArray();
  //----------------------------------------------------  end map
@@ -829,12 +830,10 @@ void PndTrkTracking2::Exec(Option_t*) {
  bool
 	accepted,
 	flag,
-	//intersect, //[R.K. 01/2017] unused variable?
 	outcome,
 	GoodSkewFit[MAXTRACKSPEREVENT],
 	keepit[MAXTRACKSPEREVENT],
 	Mvdhits[MAXTRACKSPEREVENT],
-	//status[MAXTRACKSPEREVENT], //[R.K. 01/2017] unused variable?
 	SttSZfit[MAXTRACKSPEREVENT];
 
 
@@ -853,9 +852,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 	RConformalIndex[MAXSTTHITS],
 	//  given a Hit number it gives its azimuthal box number
 	FiConformalIndex[MAXSTTHITS],
-	//tempore[MAXSTTHITS], //[R.K. 01/2017] unused variable?
 	CandidateSkewList[2*MAXSTTHITS][2],
-	//BigList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
 	// nBoxConformal,  first index -> radial divisions,
 	// 2nd index -> azimuthal divisions; n. of hits falling in this cell.
 	nBoxConformal[NRDIVCONFORMAL*NFIDIVCONFORMAL],
@@ -894,29 +891,20 @@ void PndTrkTracking2::Exec(Option_t*) {
 
 
  Short_t
-	//nalone, //[R.K. 01/2017] unused variable?
 	ncand,
 	nhitsinfit,
 	nMvdMCPoint,
-	//Nint, //[R.K. 01/2017] unused variable?
-	//NNN, //[R.K. 01/2017] unused variable?
 	nRemainingCandidates,
-	//npixelhitsintrack, //[R.K. 01/2017] unused variable?
-	//nstriphitsintrack, //[R.K. 01/2017] unused variable?
 	nTotalCandidates,
 	nXYZhits,
 	i,
 	iCluster,
-	//iexcl, //[R.K. 01/2017] unused variable?
-	//iParHit, //[R.K. 01/2017] unused variable?
 	ipunto,
 	j,
 	k,
-	//kall, //[R.K. 01/2017] unused variable?
-	//l, //[R.K. 01/2017] unused variable?
-	oldPixel, //FIXME [R.K. 01/2017] Used without Initialization below
-	oldSkew,  //FIXME [R.K. 01/2017] Used without Initialization below
-	oldStrip, //FIXME [R.K. 01/2017] Used without Initialization below
+	oldPixel=0,
+	oldSkew=0,
+	oldStrip=0,
 	save_ListMvdPixelHitsinTrack[MAXMVDPIXELHITSINTRACK],
 	save_ListSttSkewHitsinTrack[MAXSTTHITSINTRACK],
 	save_ListSttSkewHitsinTrackSolution[MAXSTTHITSINTRACK],
@@ -926,7 +914,9 @@ void PndTrkTracking2::Exec(Option_t*) {
 	save_nMvdStripHitsinTrack
 	;
 
- //int	oldistampa; //[R.K. 01/2017] unused variable?
+
+
+
 
  Int_t
 	iaccept,
@@ -940,9 +930,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 
  PndSdsMCPoint * pMvdMCPoint;
 
- Int_t	//nrounds0, //[R.K. 01/2017] unused variable?
-	//nrounds1, //[R.K. 01/2017] unused variable?
-	tListHits[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
+ Int_t	tListHits[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
 
 
 
@@ -958,30 +946,10 @@ void PndTrkTracking2::Exec(Option_t*) {
 
  Double_t
 	Distance,
-	//Fi, //[R.K. 01/2017] unused variable?
-	//Ptras, //[R.K. 01/2017] unused variable?
-	//ddd, //[R.K. 01/2017] unused variable?
-	//delta, //[R.K. 01/2017] unused variable?
 	dis,
-	//dista, //[R.K. 01/2017] unused variable?
-	//dista0, //[R.K. 01/2017] unused variable?
-	//dista1, //[R.K. 01/2017] unused variable?
 	emme,
 	gap,
-	//highqualitycut, //[R.K. 01/2017] unused variable?
-	//Pxini, //[R.K. 01/2017] unused variable?
-	//px, //[R.K. 01/2017] unused variable?
-	//Pyini, //[R.K. 01/2017] unused variable?
-	//py, //[R.K. 01/2017] unused variable?
-	//Pzini, //[R.K. 01/2017] unused variable?
-	//qop, //[R.K. 01/2017] unused variable?
-	//rotationangle, //[R.K. 01/2017] unused variable?
 	signPz,
-	//x, //[R.K. 01/2017] unused variable?
-	//y, //[R.K. 01/2017] unused variable?
-//
-	//AloneX[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//AloneY[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK], //[R.K. 01/2017] unused variable?
 	DriftRadiusbis[2*MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+
 		MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK],// all skew hits have double
 	ErrorchosenPixel[MAXMVDPIXELHITS],
@@ -995,9 +963,6 @@ void PndTrkTracking2::Exec(Option_t*) {
 	Fi_low_limit[MAXTRACKSPEREVENT],
 	Fi_up_limit[MAXTRACKSPEREVENT],
 	KAPPA[MAXTRACKSPEREVENT],
-	//Posiz1[3], //[R.K. 01/2017] unused variable?
-	//primoangolo[MAXTRACKSPEREVENT], //[R.K. 01/2017] unused variable?
-	//s[2], //[R.K. 01/2017] unused variable?
 	Sbis[2*MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK
 		+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK], // multiplication by 2 in the
 	SchosenPixel[MAXTRACKSPEREVENT][MAXMVDPIXELHITS],
@@ -1007,46 +972,19 @@ void PndTrkTracking2::Exec(Option_t*) {
 					// solution is selected.
 	Start[3],
 
-	//S_Skew[MAXSTTHITS], //[R.K. 01/2017] unused variable?
-	//temporeZError[MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//temporeS[MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//temporeZ[MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//temporeZDrift[MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//tmpErrorZDrift[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//tmpS[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//tmpZ[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//tmpZDrift[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
 	trajectory_vertex[2],
 	Trajectory_Start[MAXTRACKSPEREVENT][2],
-	//ultimoangolo[MAXTRACKSPEREVENT], //[R.K. 01/2017] unused variable?
-	//versor[2], //[R.K. 01/2017] unused variable?
 	WDX[MAXSTTHITS],
 	WDY[MAXSTTHITS],
 	WDZ[MAXSTTHITS],
-	//X[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//XintersectionList[2], //[R.K. 01/2017] unused variable?
-	//Y[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//YintersectionList[2], //[R.K. 01/2017] unused variable?
-	//z[2], //[R.K. 01/2017] unused variable?
 	ZEDbis[2*MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK
 		+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK], // rather improbable chance that
-	//zdrift[2], //[R.K. 01/2017] unused variable?
-	//zerror[2], //[R.K. 01/2017] unused variable?
-	//ZDrift[2*MAXSTTHITS], //[R.K. 01/2017] unused variable?
-	//ZError[2*MAXSTTHITS], //[R.K. 01/2017] unused variable?
-	//zeta0, //[R.K. 01/2017] unused variable?
-	//zeta1, //[R.K. 01/2017] unused variable?
 //
 	info[MAXSTTHITS][7],
 	infoparalConformal[MAXSTTHITS][5],
-	//Sfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//XY[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK][2], //[R.K. 01/2017] unused variable?
 	ZchosenPixel[MAXTRACKSPEREVENT][MAXMVDPIXELHITS],
 	ZchosenStrip[MAXTRACKSPEREVENT][MAXMVDSTRIPHITS],
 	ZchosenSkew[MAXTRACKSPEREVENT][MAXSTTHITS];
-	//Zfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//ZDriftfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
-	//ZErrorfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK]; //[R.K. 01/2017] unused variable?
 
 
 //--------------------
@@ -1079,7 +1017,6 @@ void PndTrkTracking2::Exec(Option_t*) {
 
  FairMCPoint *puntator;
 
- //PndMCTrack* pMCtr; //[R.K. 01/2017] unused variable?
 
  PndSttHit *pSttHit;
 
@@ -1097,7 +1034,6 @@ void PndTrkTracking2::Exec(Option_t*) {
 
 
  // the class with all the fits. This is used for the SZ fit.
- //bool YesGLPKfitSZ = false; //[R.K. 01/2017] unused variable?
 // PndTrkGlpkFits fit;  YesGLPKfitSZ=true;
 // PndTrkLegendreFits fit;
  PndTrkChi2Fits fit;
@@ -1153,7 +1089,7 @@ void PndTrkTracking2::Exec(Option_t*) {
  }
 
   if(nMvdMCPoint>MAXMVDMCPOINTS) {
-	cout<<"from tracking, nMvdMCPoint = "<<nMvdMCPoint
+	cout<<"from PndTracking, nMvdMCPoint = "<<nMvdMCPoint
 	<<" and it is > the maximum number allowed ("<<MAXMVDMCPOINTS<<
 	")"<<
 	", setting nMvdMCPoint to "<<MAXMVDMCPOINTS<<endl;
@@ -1195,7 +1131,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 				(MCposition.Y()-fYMvdPixel[i])*(MCposition.Y()-fYMvdPixel[i])+
 				(MCposition.Z()- fZMvdPixel[i])*(MCposition.Z() - fZMvdPixel[i]);
 			if( Distance<dis){
-				fMCtrack_of_Pixel[i] =pMvdMCPoint->GetTrackID(); 
+				fMCtrack_of_Pixel[i] =pMvdMCPoint->GetTrackID();
 				dis=Distance;
 			}
 	}	// end of for(j=0;j<nMvdMCPoint;j++)
@@ -1230,7 +1166,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 				(MCposition.Y()-fYMvdStrip[i])*(MCposition.Y()-fYMvdStrip[i])+
 				(MCposition.Z()- fZMvdStrip[i])*(MCposition.Z() - fZMvdStrip[i]);
 			if( Distance<dis){
-				fMCtrack_of_Strip[i] =pMvdMCPoint->GetTrackID(); 
+				fMCtrack_of_Strip[i] =pMvdMCPoint->GetTrackID();
 				dis=Distance;
 			}
 	}	// end of for(j=0;j<nMvdMCPoint;j++)
@@ -1270,7 +1206,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 //---------------------------------------------   fetching the STT  MC points
  nSttMCPoint = fSttPointArray->GetEntriesFast();
  if (nSttMCPoint ==0){
-	if(istampa>0) cout<<"from PndTrkTracking2  :  N. di Stt MC points = 0"<<endl<<endl;
+	if(istampa>1) cout<<"from PndTrkTracking2  :  N. di Stt MC points = 0"<<endl<<endl;
  } else  if( nSttMCPoint>MAXSTTHITS){
 	cout<<"from PndTrkTracking2  :  N. di Stt MC points = "<<nSttMCPoint
 	<<" and it is > MAXSTTHITS ("<<MAXSTTHITS
@@ -1296,7 +1232,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 	cout<<"from PndTrkTracking2  :  total # Hits in STT  : "<<nSttHit<<endl;
  }
 
- nSttParHit=0; 
+ nSttParHit=0;
  nSttSkewHit=0;
 
  for( i= 0; i< nSttHit; i++){
@@ -1354,7 +1290,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 
 //   reordering the list of parallel hits ( fListSttParHits) by decreasing spatial radius;
 //   first the outermost then the innermost. This is necessary because later the search
-//   must starts from the outer hits. 
+//   must starts from the outer hits.
 
  Initial_SttParHits_DecreasingR_Ordering( info, fListSttParHits,nSttParHit );
 
@@ -1423,7 +1359,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 	// of the (first) SciTil Hit inside the Sci Tile.
 	pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(0);
 	posiz = pPndSciTHit->GetPosition();
-	if(istampa>0)cout<<"from PndTrkTracking2 SciTil n. "<<0<<
+	if(istampa>1)cout<<"from PndTrkTracking2 SciTil n. "<<0<<
 	" not purged, Xpos "<<
 			posiz.X()<<", Ypos "<<
 			posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
@@ -1441,7 +1377,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 	for(j=1; j<fnSciTilHits; j++){
 		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(j);
 		posiz = pPndSciTHit->GetPosition();
-		if(istampa>0)cout<<"from PndTrkTracking2 SciTil n. "<<j<<" not purged, Xpos "
+		if(istampa>1)cout<<"from PndTrkTracking2 SciTil n. "<<j<<" not purged, Xpos "
 			<<posiz.X()<<", Ypos "<<posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
 
 	// purging the duplicate SciTil hits.
@@ -1479,7 +1415,7 @@ void PndTrkTracking2::Exec(Option_t*) {
 	}
 
 //-----------stampe.
-if(istampa>0){
+if(istampa>1){
   cout<<"from PndTrkTracking2, after purging  SciTil; # hits = "<<fnSciTilHits<<endl;
   for(j=0; j<fnSciTilHits; j++){
 	cout<<"from PndTrkTracking2 SciTil n. "<<j<<"Xpos "<<fposizSciTil[j][0]<<", Ypos "<<
@@ -1605,7 +1541,7 @@ if(istampa>=2){
  InOut.maxmvdpixelhitsintrack = MAXMVDPIXELHITSINTRACK;
  InOut.maxmvdstriphitsintrack = MAXMVDSTRIPHITSINTRACK;
  InOut.maxstthitsintrack = MAXSTTHITSINTRACK;
- InOut.minimumhitspertrack = MINIMUMHITSPERTRACK;
+ InOut.minimumhitspertrack = MINIMUMSTTMHITSPERTRACK;
  InOut.nMvdPixelHit = fnMvdPixelHit;
  InOut.nMvdStripHit = fnMvdStripHit;
  InOut.nParContiguous = fnParContiguous; // array NUMBER_STRAWS large; nParContiguous[i] --> number of
@@ -1614,8 +1550,8 @@ if(istampa>=2){
 // r_stt_inner_par_max ==> radius of the circumscribed circumference to the
 					//; outer hexagon defining THE INNER axial Stt straw region;
  InOut.r_stt_inner_par_max = APOTEMAMAXINNERPARSTRAW *2./sqrt(3.) ;
- InOut.StrawCode = fStrawCode; // Short_t array NUMBER_STRAWS large; 
- InOut.StrawCode2 = fStrawCode2; // Short_t array NUMBER_STRAWS large; 
+ InOut.StrawCode = fStrawCode; // Short_t array NUMBER_STRAWS large;
+ InOut.StrawCode2 = fStrawCode2; // Short_t array NUMBER_STRAWS large;
  InOut.SttStrawOn = SttStrawOn;  //  tSttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
 				// i-th Tube ID; tSttStrawOn[i] == -1 --> i-th Stt straw NOT hit;
  InOut.TubeID = fTubeID;  // list of Tube ID; fTubeID[i] is Tube Id of i-th Stt hit;
@@ -1704,7 +1640,7 @@ int iconta=0;
 	InOut.Oyy = &fOy[nSttTrackCand];
 	InOut.Rr = &fR[nSttTrackCand];
 
-	// StrawCode convention (in the following left or right is looking to the beam from downstream) :
+	// StrawCode convention (in the following left or right is looking at the beam from downstream) :
 	//   -1 = not a boundary straw;
 	//   10= inner axial boundary left;
 	//   20= inner axial boundary right;
@@ -1719,12 +1655,15 @@ int iconta=0;
 	// a straw can belong to 2 boundary at most, that's why there are two flags, StrawCode andStrawCode2;
 
 
-	if( nHitsinCluster[ iCluster ] < MINIMUMHITSPERTRACK )
+
+	// check that from the start there are at least 2 (usually MINIMUMSTTMHITSPERTRACK=2) axial
+	// Stt hits;
+	if( nHitsinCluster[ iCluster ] < MINIMUMSTTMHITSPERTRACK )
 	{
 		if(istampa>=2){  cout<<" Loop of Clusters; this cluster (n. "<<iCluster<<
 		") has nHitsinCluster = "<<nHitsinCluster[ iCluster ]
-		<<" which is < MINIMUMHITSPERTRACK (= "<<
-		MINIMUMHITSPERTRACK<<"), no further processing.\n";}
+		<<" which is < MINIMUMSTTMHITSPERTRACK (= "<<
+		MINIMUMSTTMHITSPERTRACK<<"), no further processing.\n";}
 		continue;
 	}
 	if( nSttTrackCand >= MAXTRACKSPEREVENT) {
@@ -1779,14 +1718,21 @@ int iconta=0;
 
 	if(!outcome)  continue;
 
-	// at this point the track candidate has the number of STT hits <= MAXSTTHITSINTRACK (it is checked in FindTrackInXYProjection);
+	// at this point the track candidate has the number of STT hits >= MINIMUMSTTHITSINTRACK,
+	// it is checked in FindTrackInXYProjection; usually MINIMUMSTTHITSINTRACK=2,
+	// see MINIMUMSTTHITSINTRACK defined in PndTrkConstants.h
+
+	// at this point the track candidate has the number of STT hits <= MAXSTTHITSINTRACK
+	// it is checked in FindTrackInXYProjection; MAXSTTHITSINTRACK is defined in
+	// PndTrkConstants.h
+
+	// check that there is AT LEAST 1 Mvd hit (usually MINIMUMMVDHITSPERTRACK=1);
+	// this is requested in order to have an initial  good fit in SZ space;
+	// MINIMUMMVDHITSPERTRACK is defined in PndTrkConstants.h;
 
 	if( fnMvdPixelHitsinTrack[nSttTrackCand]+
-		fnMvdStripHitsinTrack[nSttTrackCand]+
-		fnSttParHitsinTrack[nSttTrackCand]<2)
+		fnMvdStripHitsinTrack[nSttTrackCand] < MINIMUMMVDHITSPERTRACK)
 	{
-		if(istampa>=2){  cout<<" Loop of Clusters; this cluster (n. "<<iCluster<<
-		") generated a track having nPixel+nStrip+nSttParallel<2; no further processing.\n";}
 		continue;
 	}
 
@@ -1828,23 +1774,6 @@ int iconta=0;
 
 
  nTotalCandidates = nSttTrackCand;  // nSttTrackCand is already <= MAXTRACKSPEREVENT.
-
-
-//-------------- stampa
- if(istampa>=2){
-cout<<"\tstampa dopo FindTrackInXYProjection di tutte le trackCand rimaste :\n";
-//fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
-fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
-&fListMvdStripHitsinTrack[0][0],&fListSttParHitsinTrack[0][0],
-&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,
-fnSttSkewHitsinTrack,fnSciTilHitsinTrack,nSttTrackCand,
--1, // print all candidates;
-MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
- }
-//-------------- fine stampa
-
-
 
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
@@ -1899,8 +1828,14 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 
 	// limit the total # Stt hits to MAXSTTHITSINTRACK
 	if( fnSttSkewHitsinTrack[ncand]+fnSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
+
 	  if(MAXSTTHITSINTRACK > fnSttParHitsinTrack[ncand])
+		// in case the # of axial Stt hits is NOT grater than MAXSTTHITSINTRACK eliminate
+		// some SKEW Stt hits in order to have again a total # of axial+skew Stt hits
+		// equal to MAXSTTHITSINTRACK;
 		fnSttSkewHitsinTrack[ncand]=MAXSTTHITSINTRACK-fnSttParHitsinTrack[ncand];
+
+	  // otherwise simply ELIMINATE the SKEW Stt hits;
 	  else fnSttSkewHitsinTrack[ncand]=0;
 	}
 	for(j=0;j<fnSttSkewHitsinTrack[ncand];j++)
@@ -1913,7 +1848,6 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 	// store S and Z of all Mvd hits and of the SciTil; ------------------------
 	StoreSZ_MvdScitil(ncand);
 	//--------------------------------------------------------------------------
-
 
 	// save the list of the Skew, Pixel, Strip hits for the last passage of this loop when the
 	// EliminateSpuriousSZ_bis action will be reapplied with better track SZ parameters;
@@ -1937,19 +1871,6 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 
 
 //-------------------------------------------  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//-------------- stampa
- if(istampa>=2){
-cout<<"\tstampa dopo AssociateSkewHitsToXYTrack di solo la Traccia n. "<<ncand<<endl;
-//fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
-fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
-&fListMvdStripHitsinTrack[0][0],&fListSttParHitsinTrack[0][0],
-&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,
-fnSttSkewHitsinTrack,fnSciTilHitsinTrack,nSttTrackCand,
-ncand, // print the candidate  ncand;
-MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
- }
-//-------------- fine stampa
 
 
 // calculate the number of hits to use in the SZ fit later;
@@ -1971,8 +1892,8 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 	  nhitsinfit = nXYZhits + fnSttSkewHitsinTrack[ncand];
 
 	// the following is a protection against declaration of 0 dimension array;
-	//int dime ; //[R.K. 02/2017] unused variable?
-	//if(nhitsinfit>0) dime = nhitsinfit ; else dime=1; //[R.K. 02/2017] unused variable?
+	//int dime ; //[R.K. 9/2018] unused
+	//if(nhitsinfit>0) dime = nhitsinfit ; else dime=1; //[R.K. 9/2018] unused
 
 if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 //---------------------   here calculate the S and Z values of Mvd Pixels, Mvd Strips,
@@ -2026,6 +1947,8 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 //-------------------------------------------------------- first SZ fit -------------------------------------------------------
 //-------------------------------------------------------- first SZ fit -------------------------------------------------------
 //-------------------------------------------------------- first SZ fit -------------------------------------------------------
+
+
 	if(nhitsinfit>0){
 		resultFitSZagain[ncand] = fit.FitSZspace_Chi2_AnnealingtheMvdOnly(
 				nhitsinfit,	// n. hits to be fitted
@@ -2066,7 +1989,8 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 //-------------------------------------------
 
 //	use the result just obtained from the fit in SZ to reject the spurious
-//	Mvd hits; the Skew Stt are NOT purged here! Also in this function there is the calculation of the Z position
+//	Mvd hits; the Skew Stt are NOT purged here! Also in this function there is
+//      the calculation of the Z position
 //	of the SKEW hits and the MVD hits, for a given track candidate (ie for a given Helix
 //	circle in the XY plane)
 
@@ -2078,19 +2002,22 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 	    signPz = -Charge[ncand]*KAPPA[ncand];
 	    if(fR[ncand] < RSTRAWDETECTORMAX/2.){
 		if(signPz>0.){	// this means Pz>0.
-//		  Turns= 0.5*(ZCENTER_STRAIGHT+SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI;
 		  Turns= fabs( 0.5*(ZCENTER_STRAIGHT+SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI ) ; // Turns must be always>=0;
-//		  if( fabs(Turns)<10.) { MaxTurns=(Short_t) Turns ;} else { if(Turns>0) MaxTurns=10; else MaxTurns=-10;}
 		  if( Turns<10.) { MaxTurns=(Short_t) Turns ;} else {  MaxTurns=10; }
 		} else {
-//		  Turns= 0.5*(ZCENTER_STRAIGHT-SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI;
 		  Turns= fabs( 0.5*(ZCENTER_STRAIGHT-SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI );
-//		  if( fabs(Turns)<10.) { MaxTurns=(Short_t) Turns ;} else { if(Turns>0) MaxTurns=10; else MaxTurns=-10;}
 		  if( Turns<10.) { MaxTurns=(Short_t) Turns ;} else { MaxTurns=10;}
 		}
 	    } else {
 		MaxTurns=0;
 	    }
+
+
+
+	    oldPixel = fnMvdPixelHitsinTrack[ncand] ;
+	    oldStrip = fnMvdStripHitsinTrack[ncand] ;
+	    oldSkew  = fnSttSkewHitsinTrack[ncand]  ;
+
 
 	    EliminateSpuriousSZ_bis(
 	    	ncand,
@@ -2125,21 +2052,27 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 		fR[ncand]
 		    );
 
+	// Since after  EliminateSpuriousSZ_bis the number of Mvd hits may be changed
+	// check again that there is AT LEAST 1 Mvd hit (usually MINIMUMMVDHITSPERTRACK=1);
+	// this is requested in order to have an initial  good fit in SZ space;
+	// MINIMUMMVDHITSPERTRACK is defined in PndTrkConstants.h;
 
-
-
-	  // eliminate those tracks that does not have any hit giving information on Pz :
-	  if( fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+fnSttSkewHitsinTrack[ncand]==0)
+	  if( fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]<MINIMUMMVDHITSPERTRACK)
 	  		{ keepit[ncand]=false; continue; }
 
 
 	  // in case some hits were eliminated by EliminateSpuriousSZ redo the SZ fit;
 
-	  if(	fnMvdPixelHitsinTrack[ncand] != oldPixel || //FIXME [R.K. 03/2017] not initialized variable! oldPixel
-	  	fnMvdStripHitsinTrack[ncand] != oldStrip || //FIXME [R.K. 03/2017] not initialized variable! oldStrip
-		fnSttSkewHitsinTrack[ncand]  != oldSkew ) { //FIXME [R.K. 03/2017] not initialized variable! oldSkew
+	  if(	fnMvdPixelHitsinTrack[ncand] != oldPixel ||
+	  	fnMvdStripHitsinTrack[ncand] != oldStrip ||
+		fnSttSkewHitsinTrack[ncand]  != oldSkew ) {
 		nhitsinfit = fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+
-				fnSttSkewHitsinTrack[ncand]+fnSciTilHitsinTrack[ncand];
+				fnSttSkewHitsinTrack[ncand];
+		if( fnSciTilHitsinTrack[ncand] == 2) { // if there are 2 SciTil hits, count them as one;
+			nhitsinfit ++;
+		}else{   // in this case fnSciTilHitsinTrack[ncand] is 0 or 1;
+			nhitsinfit += fnSciTilHitsinTrack[ncand];
+		}
 		// load the quantities needed for the SZ fit;
 		LoadSZetc_forSZfit(
 		ncand,	// input
@@ -2154,7 +2087,6 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 		ZED,			 // output
 		ZEDbis		 // output
 		);
-
 
 //  finding if there are discontinuity at 0 for fi value of the Mvd Hit.
 //  In case of discontinuity at 0, add 2*PI to fi of those hits with fi in the 1st quadrant.
@@ -2173,6 +2105,7 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 //-------------------------------------------------------- second SZ fit -------------------------------------------------------
 //-------------------------------------------------------- second SZ fit -------------------------------------------------------
 
+
 		resultFitSZagain[ncand] = fit.FitSZspace_Chi2_AnnealingtheMvdOnly(
 				nhitsinfit,	// n. hits to be fitted
 				tS,
@@ -2189,9 +2122,6 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------
 
-
-
-
 		if( resultFitSZagain[ncand]==1 && fabs(emme) > 1.e-10 ){
 			KAPPA[ncand] = emme;
 			GoodSkewFit[ncand] = true;
@@ -2206,7 +2136,9 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 	signPz = -Charge[ncand]*KAPPA[ncand];
 
 
-		//------------------------------------------- end of the refit;
+	//------------------------------------------- end of the refit;
+
+
 
 //                                    LAST ITERATION
 
@@ -2252,15 +2184,37 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 
 
 
+	// Since after  EliminateSpuriousSZ_bis the number of Mvd hits may be changed
+	// check again that there is AT LEAST 1 Mvd hit (usually MINIMUMMVDHITSPERTRACK=1);
+	// this is requested in order to have an initial  good fit in SZ space;
+	// MINIMUMMVDHITSPERTRACK is defined in PndTrkConstants.h;
+	  if( fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]<MINIMUMMVDHITSPERTRACK)
+	  		{ keepit[ncand]=false; continue; }
+
+
 //                                   END OF LAST ITERATION
 //---------------------------------------------------------------------------
 
 
-	  }  // end of    if(   fnMvdPixelHitsinTrack[ncand].....
+	  }  // end of    if(   fnMvdPixelHitsinTrack[ncand] != oldPixel ||   .....
 
 
 
 //--------------------------------------------------------------------------
+
+//-------------- debug printout
+ if(istampa>=1){
+	cout<<"printout after SZ section "<<nTotalCandidates<<" found tracks:"<<endl;
+	fPrint.stampetta(
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,
+ncand,
+MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
+	}
+//------end debug printout
 
 
 
@@ -2274,24 +2228,6 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 		// reject the candidate if it is NOT contained in the pipe and
 		// therefore it should have at least 1 Mvd hit but it has none.
 
-//------------------------------------------------------------------------------
-if(istampa>1){
-cout<<"--------------------------Before Mvd cleaner, n. total candidates "<<nTotalCandidates<<
-", this is ncand = "<<ncand ;
-if(!keepit[ncand]){ cout<<" , its keepit is false therefore no printout;\n";}
-else{ cout<<" , its keepit is true so now print it out :\n";
-	fPrint.stampetta(
-//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,
-ncand,
-MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-	}
-}  // end of if(istampa>1)
-//------------------------------------------
 
 		    accepted = Cleaner.MvdCleanup(
 			fOx[ncand],
@@ -2307,7 +2243,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			fZMvdPixel,
 			fZMvdStrip,
 			fnMvdPixelHitsinTrack[ncand],
-			&fListMvdPixelHitsinTrack[ncand][0],	
+			&fListMvdPixelHitsinTrack[ncand][0],
 			fnMvdStripHitsinTrack[ncand],
 			&fListMvdStripHitsinTrack[ncand][0],
 			0.1,	// uncertainty allowed in the X and Y position of the crossing point of the found
@@ -2317,7 +2253,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 				// of the uncertainty on the found trajectory parameters;
 			&GeomCalculator
 					);
-
 
 		if( !accepted ) {keepit[ncand]=false; continue;}
 
@@ -2335,7 +2270,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 //--------
 
-//-------------- stampa
+//-------------- debug printout
  if(istampa>=1){
 	cout<<"printout after Mvd cleanup e before EliminateClones of all the "<<nTotalCandidates<<" found tracks:"<<endl;
 	fPrint.stampetta(
@@ -2347,9 +2282,7 @@ fnSciTilHitsinTrack,nSttTrackCand,
 MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
 MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	}
-
-
-//---------------------------------------------------------------------------
+//------end debug printout
 
 //------------------------
 
@@ -2362,22 +2295,10 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //--------------------------------------------------------------------------
 
 
+
 //-------------------------------
 // reject tracks with too few or too many hits;
 
-  for(ncand=0; ncand< nTotalCandidates; ncand++){
-	// check if the track candidate has still at least 2 axial hits;
-	if( fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+fnSttParHitsinTrack[ncand]<2){
-		keepit[ncand]=false;
-		continue;
-	}
-	// limit the total # Stt hits to MAXSTTHITSINTRACK
-	if( fnSttSkewHitsinTrack[ncand]+fnSttParHitsinTrack[ncand] > MAXSTTHITSINTRACK ) {
-	  if(MAXSTTHITSINTRACK > fnSttSkewHitsinTrack[ncand])
-		fnSttParHitsinTrack[ncand]=MAXSTTHITSINTRACK-fnSttSkewHitsinTrack[ncand];
-	  else fnSttParHitsinTrack[ncand]=0;
-	}
-  }  // end of  for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 
 
@@ -2390,6 +2311,22 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
     for(ncand=0, nRemainingCandidates=0; ncand< nTotalCandidates; ncand++){
+//------------------------------------------------------------------------------
+if(istampa>=1){
+cout<<"--------------------------in the STT cleanup loop,before cleaning, this is ncand = "<<ncand ;
+if(!keepit[ncand]){ cout<<" , its keepit is false therefore no printout;\n";}
+else{ cout<<"\n\tits keepit is true, its charge is "<<Charge[ncand]<<";  print it out :\n";
+	fPrint.stampetta(
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,
+ncand,
+MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
+	}
+}  // end of if(istampa>1)
+//------------------------------------------
 	if(!keepit[ncand]) continue;
 	Short_t &nHitsPar = fnSttParHitsinTrack[ncand];
 	Short_t &nHitsSkew = fnSttSkewHitsinTrack[ncand];
@@ -2400,6 +2337,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	for(i=0;i<nHitsSkew;i++){
 		auxS[i] = SchosenSkew[ncand][fListSttSkewHitsinTrack[ncand][i]];
 	}
+
 
 	if(fYesCleanStt ){
 		if ( !Cleaner.TrackCleanup(
@@ -2439,7 +2377,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
     }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 //---------------------------------------------------------- end of the cleanup section;
-
 
 //---------------
 
@@ -2864,7 +2801,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
     Short_t NAssociated;
     Short_t  sign;
-    Int_t i; //, j, i1, ii, iii,  Kincl, nlow, nup; //[R.K. 01/2017] unused variable
+    Int_t i;
 
     Double_t bbb,
              tempZ[2],
@@ -2926,7 +2863,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //----------begin of function PndTrkTracking2::AssociateSkewHitsToXYTrack
 
 Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
-	bool *, // InclusionListSkew //[R.K.03/2017] unused variable(s)
+	bool */*InclusionListSkew*/, //[R.K. 9/2018] unused
 	Short_t NSkewhits,
 	Short_t *infoskew,  // from skew numbering to original Stt hit numbering;
 	Double_t Oxx,
@@ -2938,7 +2875,7 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 	Double_t *WDZ,
 	Double_t Fi_low_limit,
 	Double_t Fi_up_limit,
-	Short_t  , // Charge //[R.K.03/2017] unused variable(s)
+	Short_t  /*Charge*/, //[R.K. 9/2018] unused
 	Short_t SkewList[][2], // output,list of selected skew hits (original numbering)
 	Double_t *S,       //  output,  S coordinate of selected Skew hit
 	Double_t *Z,       //  output,  Z coordinate of selected Skew hit
@@ -2953,29 +2890,12 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 	iii,
 	location,
 	NAssociated;
-	//STATUS; //[R.K. 01/2017] unused variable
 
  Double_t
 	auxS[2],		// output;
 	auxZ[2],		// output, Zcoordinate of the central wire.
 	auxZDrift[2],		// output, drift radius projected onto the Helix.
 	auxZError[2];	// output, 150 micron projected onto the Helix.
-	//xmin , xmax, ymin, ymax, //[R.K. 01/2017] unused variable
-           //dx, dy, diff, dista, d1, d2, //[R.K. 01/2017] unused variable
-           //delta, deltax, deltay, deltaz, deltaS, //[R.K. 01/2017] unused variable
-           //factor, //[R.K. 01/2017] unused variable
-           //zmin, zmax, Smin, Smax, S1, S2, //[R.K. 01/2017] unused variable
-           //z1, z2, y1, y2, //[R.K. 01/2017] unused variable
-           //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable
-           //aaa, bbb, ccc, angle, minor, major, //[R.K. 01/2017] unused variable
-           //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable
-           //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable
-           //fmin, fmax, offset, step, //[R.K. 01/2017] unused variable
-	//Tilted_Radius, //[R.K. 01/2017] unused variable
-	//zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable
-           //Tiltdirection1[2], //[R.K. 01/2017] unused variable
-           //zl[200],zu[200], //[R.K. 01/2017] unused variable
-           //POINTS1[6]; //[R.K. 01/2017] unused variable
 
 
  PndTrkCTGeometryCalculations GeomCalculator;
@@ -3078,11 +2998,8 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 
  Short_t i,
 	itrack,
-	ihit;
-	//j, //[R.K. 01/2017] unused variable
-	//k, //[R.K. 01/2017] unused variable
-	//ntot, //[R.K. 01/2017] unused variable
-	//nadd; //[R.K. 02/2017] unused variable?
+	ihit/*,
+	nadd*/; //[R.K. 9/2018] unused
 
  Double_t angle,
 	deltaZ,
@@ -3105,7 +3022,7 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 //	way in one shot I collect also the previously non collected hits and I remove the
 //	spurious hits.
 
-	//nadd=0; //[R.K. 02/2017] unused variable?
+	//nadd=0;
 	for(i=0; i<nSttParHit; i++){
 		ihit = fListSttParHits[i];
 
@@ -3172,7 +3089,7 @@ Short_t PndTrkTracking2::CompareTracks(
 		Short_t second_track
 					)
 {
-	Short_t	
+	Short_t
 		i,
 		j,
 		nCommon = 0;
@@ -3306,7 +3223,6 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		 j,
 		 k,
 		 m,
-		 //Kmin, //[R.K. 01/2017] unused variable
 		 auxnMvdPixel,
 		 auxListMvdPixel[MAXMVDPIXELHITS],
 		 auxnMvdStrip,
@@ -3330,13 +3246,11 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		 chosenS2,
 		 ddd,
 		 dista,
-		 //dista1, //[R.K. 02/2017] unused variable?
-		 //dista0, //[R.K. 02/2017] unused variable?
+		 //dista1, //[R.K. 9/2018] unused
+		 //dista0, //[R.K. 9/2018] unused
 		 Drift,
-		 //d_min, //[R.K. 01/2017] unused variable
 		 error,
 		 Fi,
-		 //zeta1, //[R.K. 01/2017] unused variable
 		 distance_RS,
 		 distance_Z,
 		 dista_storage[MAXSTTHITS],
@@ -3459,7 +3373,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 				ErrorchosenSkew[ fListSttSkewHitsinTrack[ncand][j] ]=error;
 				auxnSttSkew++;
 			  }
-			} else {  // continuation of  if( already[ ListSkewHitsinTrack[j] ] 
+			} else {  // continuation of  if( already[ ListSkewHitsinTrack[j] ]
 
 
 			  already[ fListSttSkewHitsinTrack[ncand][j] ] = true;
@@ -3513,8 +3427,8 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 				} else {
 					inclusion[i]=false;
 				}
-				//dista0 = Pix_distance[i]; //[R.K. 02/2017] unused variable?
- 				//dista1 =Pix_distance[j]; //[R.K. 02/2017] unused variable?
+				//dista0 = Pix_distance[i]; //[R.K. 9/2018] unused
+ 				//dista1 =Pix_distance[j]; //[R.K. 9/2018] unused
 			}
 		}   // end of for(i=0;i<auxnMvdPixel;i++)
 	}	// end of  for(i=0;i<auxnMvdPixel;i++)
@@ -3548,8 +3462,8 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 				} else {
 					inclusion2[i]=false;
 				}
-				//dista0 = Strip_distance[i]; //[R.K. 02/2017] unused variable?
- 				//dista1 = Strip_distance[j]; //[R.K. 02/2017] unused variable?
+				//dista0 = Strip_distance[i]; //[R.K. 9/2018] unused
+ 				//dista1 = Strip_distance[j]; //[R.K. 9/2018] unused
 			}
 		}   // end of for(i=0;i<auxnMvdStrip;i++)
 	}	// end of  for(i=0;i<auxnMvdStrip;i++)
@@ -3601,8 +3515,6 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 	Short_t	 i,
 		 j,
 		 k,
-		 //m, //[R.K. 01/2017] unused variable
-		 //Kmin, //[R.K. 01/2017] unused variable
 		 auxnMvdPixel,
 		 auxListMvdPixel[MAXMVDPIXELHITS],
 		 auxnMvdStrip,
@@ -3633,15 +3545,9 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 		 chosenS2,
 		 ddd,
 		 dista,
-		 //dista1, //[R.K. 01/2017] unused variable
-		 //dista0, //[R.K. 01/2017] unused variable
 		 Drift,
-		 //d_min, //[R.K. 01/2017] unused variable
 		 error,
 		 Fi,
-		 //zeta1, //[R.K. 01/2017] unused variable
-		 //distance_RS, //[R.K. 01/2017] unused variable
-		 //distance_Z, //[R.K. 01/2017] unused variable
 		 dista_storage[MAXSTTHITS],
 		 Z;
 
@@ -3654,7 +3560,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 	auxnMvdStrip=0;
 	auxnSttSkew=0;
 
-	//Double_t	Pix_distance[fnMvdPixelHitsinTrack[ncand]]; //[R.K. 02/2017] unused variable?
+	//Double_t	Pix_distance[fnMvdPixelHitsinTrack[ncand]]; //[R.K. 9/2018] unused
 
 
 	for(i=0;i< fnMvdPixelHitsinTrack[ncand] ;i++){
@@ -3673,7 +3579,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 			SchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]= chosenS;
 			ZchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]=Z;
 			ErrorchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]=ERRORPIXEL;
-			//Pix_distance[auxnMvdPixel] = dista; //[R.K. 02/2017] unused variable?
+			//Pix_distance[auxnMvdPixel] = dista; //[R.K. 9/2018] unused
 			auxnMvdPixel++;
 			if(istampa>=2){ cout<<", chosen. "<<endl;}
 		} else {
@@ -3682,7 +3588,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 	}	// end of  for(i=0;i<*nPixelHitsinTrack;i++)
 
 
-	//Double_t	Strip_distance[fnMvdStripHitsinTrack[ncand]]; //[R.K. 02/2017] unused variable?
+	//Double_t	Strip_distance[fnMvdStripHitsinTrack[ncand]]; //[R.K. 9/2018] unused
 	for(j=0;j<fnMvdStripHitsinTrack[ncand];j++){
 		i=j+fnMvdPixelHitsinTrack[ncand] ;
 		k = fListMvdStripHitsinTrack[ncand][j];
@@ -3698,7 +3604,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 			SchosenStrip[fListMvdStripHitsinTrack[ncand][j]]= chosenS ;
 			ZchosenStrip[fListMvdStripHitsinTrack[ncand][j]]=Z;
 			ErrorchosenStrip[fListMvdStripHitsinTrack[ncand][j]]=ERRORSTRIP;
-			//Strip_distance[auxnMvdStrip] = dista; //[R.K. 02/2017] unused variable?
+			//Strip_distance[auxnMvdStrip] = dista; //[R.K. 9/2018] unused
 			auxnMvdStrip++;
 			if(istampa>=2){ cout<<", chosen. "<<endl;}
 		} else {
@@ -3759,7 +3665,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 				ErrorchosenSkew[ fListSttSkewHitsinTrack[ncand][j] ]=error;
 				auxnSttSkew++;
 			  }
-			} else {  // continuation of  if( already[ ListSkewHitsinTrack[j] ] 
+			} else {  // continuation of  if( already[ ListSkewHitsinTrack[j] ]
 
 
 			  already[ fListSttSkewHitsinTrack[ncand][j] ] = true;
@@ -3821,7 +3727,7 @@ void PndTrkTracking2::FindCharge(
 		nright;
 
 	Double_t cross,
-		 //disq, //[R.K. 02/2017] unused variable?
+		 //disq, //[R.K. 9/2018] unused
 		 minl,
 		 minr;
 
@@ -3829,7 +3735,7 @@ void PndTrkTracking2::FindCharge(
 	// this methods works with the hypothesis that this track comes
 	//  from (0,0)
 
-	for(ihit=0, nleft=0, nright=0, minr = 9999999., minl = 9999999.; ihit<nParallelHits; ihit++){ 
+	for(ihit=0, nleft=0, nright=0, minr = 9999999., minl = 9999999.; ihit<nParallelHits; ihit++){
 	// find the Z component of the cross product between the vector from (0,0) to center of
 	// circular trajectory [namely, (oX,oY) ]  and the Position vector of the center of the
 	// parallel Hits [namely, (x,y)].
@@ -3841,7 +3747,7 @@ void PndTrkTracking2::FindCharge(
 	// to the hit following the smaller path) otherwise it stays 'on the right'.
 
 		if (cross>0.) {
-			//disq =	X[ihit]*X[ihit]+Y[ihit]*Y[ihit]; //[R.K. 02/2017] unused variable?
+			//disq =	X[ihit]*X[ihit]+Y[ihit]*Y[ihit]; //[R.K. 9/2018] unused
 			nleft++;
 		} else {
 			nright++;
@@ -3877,7 +3783,6 @@ void PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane(
 {
 
  Short_t i;
- //Double_t max, min; //[R.K. 01/2017] unused variable
 
  if( Charge >0 )
  {
@@ -3896,8 +3801,8 @@ void PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane(
 //----------end of function PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane
 
 //---------- begin of function PndTrkTracking2::GetVolumeCharacteristics
-void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatrix *,
-		Double_t GlobalScal[3],  Double_t GlobalTrans[3],  Double_t  GlobalRot[9]  ) // gmat //[R.K.03/2017] unused variable(s)
+void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatrix */*gmat*/, //[R.K. 9/2018] unused
+		Double_t GlobalScal[3],  Double_t GlobalTrans[3],  Double_t  GlobalRot[9]  )
 {
 
 	//  tgeovol ==  input TGeoVolume  class;
@@ -3923,7 +3828,7 @@ void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatri
 		if( strstr(tgeovol->GetName(),"Active") == NULL
 				||
 	(strstr(tgeovol->GetName(),"Pixel") == NULL && strstr(tgeovol->GetName(),"Strip") == NULL )
-			) return;	// condition failed; 
+			) return;	// condition failed;
 
 
  cout<<"-----------------------------------------------\n";
@@ -3933,13 +3838,6 @@ void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatri
 //		cout<<"\tora il print della matrice da MARS to local 4x4 con la funzione print :\n";
 //		gmat->Print();
 		TGeoShape * shape = tgeovol->GetShape();
-/*
- cout<<"nome della shape del volume "<<shape->GetName()   <<endl;
- cout<<"questa shape e' assembly?    :"<<shape->IsAssembly()<<endl;
- cout<<"questa shape e' valid box?    :"<<shape->IsValidBox()<<endl;
- cout<<"questa shape e' Cyl Type?    :"<<shape->IsCylType()<<endl;
- cout<<"ID di questa shape    :"<<shape->GetId()<<" con codice : "<<shape->GetByteCount()<< endl;
-*/
 		if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
 			TGeoBBox *p;
 			p = (TGeoBBox *) shape;
@@ -3954,14 +3852,6 @@ void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatri
 		} else {
 			cout<<"anomalous case, not a box nor a TGeoArb8 !\n";
 		}
-// cout<<"-----------------------------------------------\n";
-		//const Double_t * Scal = gmat->GetScale(); //[R.K. 01/2017] unused variable
-//		cout<<"\til suo fattore di scala rispetto a Master : X "<<Scal[0]<<", Y "<<Scal[1]
-//		<<", Z "<<Scal[2]<<endl;
-		//const Double_t * Tras = gmat->GetTranslation(); //[R.K. 01/2017] unused variable
-//		cout<<"\tla sua traslazione rispetto a Master : X "<<Tras[0]<<", Y "<<
-//		Tras[1]<<", Z "<<Tras[2]<<endl;
-		//const Double_t * Rot = gmat->GetRotationMatrix(); //[R.K. 01/2017] unused variable
 
 
 
@@ -3989,17 +3879,17 @@ cout<<"-------------------------------\n\n";
 			TGeoNode * geonode = (TGeoNode *) tobjnodes->At(ino);
 			// in the following   vol  is the TGeoVolume corresponding to the geonode node;
 			TGeoVolume * vol = geonode->GetVolume();
-			TGeoShape * shape = vol->GetShape();
+			//TGeoShape * shape = vol->GetShape(); //[R.K. 9/2018] unused
 
 //cout<<"------------------------------------------- inizio stampa relativa al volume "<<vol->GetName()<<endl;
-			if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
-				//TGeoBBox *p =(TGeoBBox *) shape; // [R.K. 03/2017] Unused variables
-				//const Double_t *Or; // [R.K. 03/2017] Unused variables
-				//Or = p->GetOrigin(); // [R.K. 03/2017] Unused variables
+			//if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
+				//TGeoBBox *p =(TGeoBBox *) shape;
+				//const Double_t *Or;
+				//Or = p->GetOrigin();
 //				cout<<"questo e' una box con OriginX "<<Or[0]<<",OriginY "<<Or[1]
 //				<<",OriginZ "<<Or[2]<<" e Semilato X (= DX) = "<<p->GetDX()
 //				<<", DY "<<p->GetDY()<< ", DZ "<<p->GetDZ()<<endl;
-			}
+			//}
 
 //cout<<"---------- inizio stampa local matrix del volume "<<endl;
 TGeoMatrix * lmatrix =  geonode->GetMatrix();
@@ -4058,7 +3948,7 @@ cout<<"-------------------fine\n";
 		//--------------------------------------------------
 
 		// the following is a way to obtain the transformation matrix from MARS to this node;
-			// mother volume of the volume   vol; 
+			// mother volume of the volume   vol;
 			TGeoVolume * mother = geonode->GetMotherVolume();
 			// the function  FindMatrixOfDaughterVolume(vol) fills the TGeoManager::fHMatrix
 			// with the matrix transforming from MARS to the vol  volume;
@@ -4132,7 +4022,7 @@ void PndTrkTracking2::InfoXYZParal(
      Posiz[0] = -999999999.;
      return;
    }
-   
+
 
 
 
@@ -4252,7 +4142,6 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	ipinco,
 	j,
 	k,
-	//l, //[R.K. 01/2017] unused variable
 	ncand
 	;
 
@@ -4263,8 +4152,8 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	Oxx,
 	Oyy,
 	Ptras,
-	//Pxini, // [R.K. 03/2017] Unused variables
-	//Pyini, // [R.K. 03/2017] Unused variables
+	//Pxini, //[R.K. 9/2018] unused
+	//Pyini, //[R.K. 9/2018] unused
 	Pzini,
 	px,
 	py,
@@ -4293,8 +4182,8 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	dis=sqrt( Oxx*Oxx+Oyy*Oyy );
 	if( dis < 1.e-20)  continue;
 	Ptras = fR[ncand]*0.003*fBFIELD;
-	//Pxini = -Charge[ncand]*Ptras*Oyy/dis; // [R.K. 03/2017] Unused variables
-	//Pyini = Charge[ncand]*Ptras*Oxx/dis; // [R.K. 03/2017] Unused variables
+	//Pxini = -Charge[ncand]*Ptras*Oyy/dis; //[R.K. 9/2018] unused
+	//Pyini = Charge[ncand]*Ptras*Oxx/dis; //[R.K. 9/2018] unused
 
 //   starting point not necessarily at x=0., y=0.
 
@@ -4585,7 +4474,8 @@ void PndTrkTracking2::LoadSZetc_forSZfit(
 	}
 
 	// the SciTil hit ( when they are 2, the fS_SciTilHitsinTrack is already a mean
-	// of the two; then consider only 1 SciTil hit, the first, and make an average
+	// of the two [see the method  PndTrkTracking2::StoreSZ_MvdScitil(Short_t ncand) ; then consider
+	// only 1 SciTil hit, the first, and make an average
 	// of the two Z positions).
 
 	i = fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand];
@@ -4652,7 +4542,7 @@ void PndTrkTracking2::LoadSZetc_forSZfit(
 void PndTrkTracking2::MakeInclusionListStt(
 	Int_t nSttHit,
 	Short_t * TubeID,
-	Double_t (*)[7] // Double_t info[][7] //[R.K.03/2017] unused variable(s)
+	Double_t /*info*/[][7] //[R.K. 9/2018] unused
 	)
 {
 
@@ -4707,7 +4597,7 @@ void PndTrkTracking2::MakeInclusionListStt(
 void PndTrkTracking2::MatchMvdHitsToSttTracks(
 	Vec <bool>& keepit,
 	Double_t delta,
-	Double_t , //  highqualitycut//[R.K.03/2017] unused variable(s)
+	Double_t /*highqualitycut*/, //[R.K. 9/2018] unused
 	Short_t nSttTrackCand,
 	Double_t *FI0,
 	Double_t *Fifirst,
@@ -4718,7 +4608,6 @@ void PndTrkTracking2::MatchMvdHitsToSttTracks(
 	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
 	)
 {
-	//bool specialcase; //[R.K. 01/2017] unused variable
 
 	Short_t i,
 		jmvdhit;
@@ -4830,7 +4719,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracks(
 void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 	Vec <bool>& keepit,
 	Vec <bool>& Mvdhits,
-	Double_t , // delta //[R.K.03/2017] unused variable(s)
+	Double_t /*delta*/, //[R.K. 9/2018] unused
 	Double_t highqualitycut,
 	Short_t nSttTrackCand,
 	Double_t *FI0,
@@ -4844,17 +4733,14 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 	)
 {
 	//bool
-//		flaggo,
-		//specialcase, //[R.K. 01/2017] unused variable
-	     //downstream; // [R.K. 03/2017] Unused variables
-	     //determined; //[R.K. 01/2017] unused variable
+	     //downstream; //[R.K. 9/2018] unused
 
 	Short_t j,
 		itrack,
 		ipix,
 		istr,
 		ndownstream,
-		//ntot, //[R.K.03/2017] unused variable
+		//ntot, //[R.K. 9/2018] unused
 		naddpix,
 		naddstr,
 		List[MAXMVDPIXELHITS+MAXMVDSTRIPHITS];
@@ -4863,17 +4749,12 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 		anglemax,
 		anglemin,
 		dist;
-		//oldtotal, //[R.K. 01/2017] unused variable
-		//oldtotal2, //[R.K. 01/2017] unused variable
-		//total, //[R.K. 01/2017] unused variable
-		//Dist, //[R.K. 01/2017] unused variable
-		//DIST[MAXMVDTRACKSPEREVENT+1]; //[R.K. 01/2017] unused variable
 
 
   for(itrack=0; itrack<nSttTrackCand; itrack++){
 	if( ! keepit[itrack] ) continue;
 //	if( ! Mvdhits[itrack] ) continue;
-	//ntot=nPixelHitsinTrack[itrack]+nStripHitsinTrack[itrack]; //[R.K.03/2017] unused variable
+	//ntot=nPixelHitsinTrack[itrack]+nStripHitsinTrack[itrack]; //[R.K. 9/2018] unused
 	if( Fifirst[itrack] < -99998. ){  // case with Fifirst[i]=-99999.; in this
 					// case the circle is contained
 					// in the Mvd region.
@@ -4907,8 +4788,8 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 			ndownstream++ ;
 		}
 	}
-	//if(ndownstream>ntot-ndownstream) downstream=true; // [R.K. 03/2017] Unused variables
-	//else downstream=false; // [R.K. 03/2017] Unused variables
+	//if(ndownstream>ntot-ndownstream) downstream=true; //[R.K. 9/2018] unused
+	//else downstream=false; //[R.K. 9/2018] unused
 
 //  loop over the Mvd Pixel and try to attach new Pixels to each candidate track
 
@@ -4955,7 +4836,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 			// protection against strange tracks (and also from
 			// out-of-bound indexing of arrays);
 			naddpix=MAXMVDPIXELHITSINTRACK;
-		}  // 
+		}  //
 		for(j=0;j<naddpix;j++){
 			ListPixelHitsinTrack[itrack][j]=List[j];
 		}
@@ -5005,7 +4886,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 			// protection against strange tracks (and also from
 			// out-of-bound indexing of arrays);
 			naddstr=MAXMVDSTRIPHITSINTRACK;
-		}  // 
+		}  //
 		for(j=0;j<naddstr;j++){
 			ListStripHitsinTrack[itrack][j]=List[j];
 		}
@@ -5042,9 +4923,8 @@ void PndTrkTracking2::MatchMvdHitsToSttTracks2(
 	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
 	)
 {
-	//bool specialcase; //[R.K. 01/2017] unused variable
 
-	Short_t i,j,j1, imvdcand, jmvdhit, ncont,// j2, //[R.K. 01/2017] unused variable
+	Short_t i,j,j1, imvdcand, jmvdhit, ncont,
 		chosenmix,
 		chosenmix2,
 		ngoodmix,
@@ -5984,15 +5864,12 @@ void   PndTrkTracking2::OrderingUsingConformal(
 
 
 
-      Short_t	i,j, 
+      Short_t	i,j,
 		tmp[nHits];
       Double_t	aaa,
 		bbb,
 		ccc,
 		b1,
-		//firstR2, //[R.K. 01/2017] unused variable
-		//lastR2, //[R.K. 01/2017] unused variable
-		//aux[nHits], //[R.K. 01/2017] unused variable
 		U[nHits],
 		V[nHits];
 
@@ -6087,7 +5964,7 @@ void   PndTrkTracking2::OrderingUsingConformal(
 
 
 
- return; 
+ return;
 
 
 }
@@ -6232,8 +6109,8 @@ ErrorDriftRadiusconformal[MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHI
 					);
 
 
-	//  existatus > 0, Type= true --> fit ok, it is a Circle in XY; 
-	//  existatus > 0, Type= false --> fit ok, it is a Straigh Line in XY; 
+	//  existatus > 0, Type= true --> fit ok, it is a Circle in XY;
+	//  existatus > 0, Type= false --> fit ok, it is a Straigh Line in XY;
 	//  existatus < 0, fit failed;  Type was set to false in this case;
 	if( exitstatus > 0 && Type)	*status=true;
 	return;

@@ -34,7 +34,7 @@ PndFtsMapCreator::PndFtsMapCreator()
   : fGeoType(0), fFtsParameters(new PndGeoFtsPar()), fTubeInRad(0), fTubeOutRad(0)//, fCopy_Map()
 {
   //fCopy_Map.clear();
-  // Geometry loading                                                                    
+  // Geometry loading
   //FairRootManager* ioman = FairRootManager::Instance(); //[R.K. 01/2017] unused variable?
   //TFile *infile = ioman->GetInFile(); //[R.K. 01/2017] unused variable?
 }
@@ -51,7 +51,7 @@ PndFtsMapCreator::PndFtsMapCreator(Int_t geoType)
 }
 
 // crete geometry from parameters file
-PndFtsMapCreator::PndFtsMapCreator(PndGeoFtsPar *ftsPar) 
+PndFtsMapCreator::PndFtsMapCreator(PndGeoFtsPar *ftsPar)
   : fGeoType(0), fFtsParameters(ftsPar), fTubeInRad(0), fTubeOutRad(0)//, fCopy_Map()
 {
   //fCopy_Map.clear();
@@ -59,7 +59,7 @@ PndFtsMapCreator::PndFtsMapCreator(PndGeoFtsPar *ftsPar)
   SetGeneralParameters();
   // choose geometry type
   fGeoType = ftsPar->GetGeometryType(); // classic, optimized, average, detailed, CAD
-  
+
   if(fGeoType != 1) Info("PndFtsMapCreator","Geometry %i not supported by map", fGeoType); // CHECK
 }
 
@@ -120,7 +120,7 @@ Int_t PndFtsMapCreator::GetChamberIDFromName(TString name){
    //std::cout<<"chamber 6"<<std::endl;
    return 6;
  }
- return -1; 
+ return -1;
 }
 
 Int_t PndFtsMapCreator::GetChamberIDFromPath(TString path){
@@ -167,7 +167,7 @@ Int_t PndFtsMapCreator::GetTubeIDFromNameGeoType1(TString name){
   }
 
   return tmpstring.Atoi();
-}	
+}
 
 // name as in geo file: from path "_" to name "#"
 TString PndFtsMapCreator::GetNameFromPathGeoType1(TString path){
@@ -177,7 +177,7 @@ TString PndFtsMapCreator::GetNameFromPathGeoType1(TString path){
 
 // cut /cave_1/fts01assembly_0/
   TString cavename;
-  cavename = "/cave_1/ftsXXassembly_X/"; 
+  cavename = "/cave_1/ftsXXassembly_X/";
   tmpstring = tmpstring(cavename.Sizeof() - 1, tmpstring.Sizeof());
 
  // cut /fts01gas...
@@ -270,7 +270,7 @@ Int_t PndFtsMapCreator::IsSkew(Int_t layerid){
 }
 
 Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubeid,TString path )
-{  
+{
   Int_t chamber=chamberid;
   Int_t layer=layerid;
   Int_t tubeID=tubeid;
@@ -353,15 +353,15 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
      else{
        if(layer%2!=0){     // odd layers
 	 if(abs(tubeid-(strawCh3))<=81){
-	   totTubeID=tube+shift+16;                                   
-	 }                          
+	   totTubeID=tube+shift+16;
+	 }
 	 else{totTubeID=tube+shift;}
        }
-       else{ 
+       else{
 	 if(abs(tubeid-(strawCh3*2))<=81){
 	   totTubeID=tube+shift+16*2;
 	 }
-	 else{totTubeID=tube+shift+16;} 
+	 else{totTubeID=tube+shift+16;}
        }
      }
    }
@@ -372,7 +372,7 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
    if(tmpstring.Contains("up")){
      if(layer%2!=0){totTubeID=tube+shift;} //odd layer
      else{totTubeID=tube+16+shift;}
-   } 
+   }
  }
 
  //chamber 4
@@ -400,7 +400,7 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
      else{totTubeID=tube+16*2+shift;}
    }
    if(tmpstring.Contains("up")){
-     if(layer%2!=0){totTubeID=tube+shift;} //odd layer                           
+     if(layer%2!=0){totTubeID=tube+shift;} //odd layer
      else{totTubeID=tube+16+shift;}
    }
  }
@@ -420,7 +420,7 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
 	}
       }
     }
-    if(tmpstring.Contains("up")){  
+    if(tmpstring.Contains("up")){
       totTubeID=tube+24*(layer-33)+shift;
     }
     if(tmpstring.Contains("down")){
@@ -442,16 +442,16 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
        }
      }
    }
-   if(tmpstring.Contains("up")){  
+   if(tmpstring.Contains("up")){
      totTubeID=tube+24*(layer-41)+shift;
    }
    if(tmpstring.Contains("down")){
      totTubeID=tube+24*(layer-40)+shift;
    }
- }  
+ }
 
 
- return totTubeID;  
+ return totTubeID;
 
 }
 
@@ -464,7 +464,7 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
 // fill the tube map at the beginning of the run
 TClonesArray * PndFtsMapCreator::FillTubeArray() {
 
-  std::cout<<"#####Mapper:filltubearray######"<<std::endl;
+  std::cout<<"##### PndFtsMapCreator::FillTubeArray() ######"<<std::endl;
   std::cout<<"fGeoType="<<fGeoType<<std::endl;
   if(fGeoType == 1) return FillTubeArrayGeoType1();
   return NULL;
@@ -542,7 +542,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
 }
 
 PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename, Int_t , Int_t ) { // tubeid layerid //[R.K.03/2017] unused variable(s)
-  
+
   TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
   //Bool_t isCopy = kTRUE; //[R.K. 01/2017] unused variable
   // try as if it was a copy stt01tube#XXX
@@ -573,7 +573,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename, I
   //double angle=5*3.14159/180;
   //x=(x+skew*(tra.getY()*sin(angle))/10.1);
   //std::cout<<"tubename="<<tubename<<" tubeid="<<tubeid<<" skew="<<skew<<" newx="<<x<<std::endl;
-  
+
   double r[3][3];
   for(int i = 0; i < 3; i++)for(int j = 0; j < 3; j++) r[i][j] = rot.getElement(i,j);
 
@@ -604,7 +604,7 @@ TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
   for(int i = 0; i < geoPassNodes->GetEntriesFast(); i++) {
     FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->At(i);
     if(!pnode)
-      {	
+      {
 	std::cout<<"PndFtsMapCreator::FillTubeArrayGeoType1 : tubename="<< pnode->GetName() << " not existing!!!" << std::endl;
 	continue;
       }
@@ -628,7 +628,7 @@ TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
     delete (ftstube);
     //myfile <<  tubename << " " << totTubeID << " "<<tempLayer<<endl;
 
-    
+
   }
   //std:cout << "end: " << tubeArray->GetEntriesFast() << std::endl;
   return tubeArray;
