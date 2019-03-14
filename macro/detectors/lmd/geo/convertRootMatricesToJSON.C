@@ -45,6 +45,7 @@ void saveMatricesToJson(std::map<std::string, TGeoHMatrix> matrices, std::string
 	o << std::setw(2) << j << std::endl;
 }
 
+//! main function
 void convertRootMatricesToJSON(std::string filename){
     
     // read root file, this will be a map<TString, TGeoHMatrix>
@@ -54,6 +55,7 @@ void convertRootMatricesToJSON(std::string filename){
     saveMatricesToJson(rootMatrices, filename + ".json");
 }
 
+// dummy function in case someone calls the macro without argument
 void convertRootMatricesToJSON(){
     cout << "You must specify a file name!\n";
     exit(1);
