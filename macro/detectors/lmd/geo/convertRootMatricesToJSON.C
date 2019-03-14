@@ -5,58 +5,57 @@ using std::string;
 using json = nlohmann::json;
 
 std::map<std::string, TGeoHMatrix> *readRootMatrices(std::string filename) {
-
-	TFile *misalignmentMatrixRootfile = new TFile(filename.c_str(), "READ");
-	if (misalignmentMatrixRootfile->IsOpen()) {
-		std::map<std::string, TGeoHMatrix> *matrices;
-		gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
-		misalignmentMatrixRootfile->Close();
-		cout << "read " << matrices->size() << " matrices from file.\n";
-		return matrices;
-	}
-	else {
-		cout << "file could not be read\n";
-		exit(1);
-	}
+    cout << "reding file: " << filename << "\n";
+    TFile *misalignmentMatrixRootfile = new TFile(filename.c_str(), "READ");
+    if (misalignmentMatrixRootfile->IsOpen()) {
+        std::map<std::string, TGeoHMatrix> *matrices;
+        gDirectory->GetObject("PndLmdMisalignMatrices", matrices);
+        misalignmentMatrixRootfile->Close();
+        cout << "read " << matrices->size() << " matrices from file.\n";
+        return matrices;
+    } else {
+        cout << "file could not be read\n";
+        exit(1);
+    }
 }
 
 void saveMatricesToJson(std::map<std::string, TGeoHMatrix> matrices, std::string outfilename) {
-	
     // matrices is a map with string->TGeoHMatrix
-   	json j;
+    json j;
     double thisMatrixDoubles[16];
     TGeoHMatrix thisMatrix;
 
-    for(auto &path : matrices){
+    for (auto &path : matrices) {
         thisMatrix = path.second;
         thisMatrix.GetHomogenousMatrix(thisMatrixDoubles);
-        
-		j[path.first] = {
-			thisMatrixDoubles[0], thisMatrixDoubles[1], thisMatrixDoubles[2], thisMatrixDoubles[12],
-			thisMatrixDoubles[4], thisMatrixDoubles[5], thisMatrixDoubles[6], thisMatrixDoubles[13],
-			thisMatrixDoubles[8], thisMatrixDoubles[9], thisMatrixDoubles[10], thisMatrixDoubles[14],
-			thisMatrixDoubles[3], thisMatrixDoubles[7], thisMatrixDoubles[11], thisMatrixDoubles[15]
-		};
+
+        j[path.first] = {
+            thisMatrixDoubles[0], thisMatrixDoubles[1], thisMatrixDoubles[2], thisMatrixDoubles[12],
+            thisMatrixDoubles[4], thisMatrixDoubles[5], thisMatrixDoubles[6], thisMatrixDoubles[13],
+            thisMatrixDoubles[8], thisMatrixDoubles[9], thisMatrixDoubles[10], thisMatrixDoubles[14],
+            thisMatrixDoubles[3], thisMatrixDoubles[7], thisMatrixDoubles[11], thisMatrixDoubles[15]};
     }
 
     // save!
-	cout << "save " << j.size() << " matrices to json!\n";
-	std::ofstream o(outfilename.c_str());
-	o << std::setw(2) << j << std::endl;
+    cout << "save " << j.size() << " matrices to json!\n";
+    std::ofstream o(outfilename.c_str());
+    o << std::setw(2) << j << std::endl;
 }
 
 //! main function
-void convertRootMatricesToJSON(std::string filename){
-    
+void convertRootMatricesToJSON(std::string filename) {
+    cout << "starting...\n";
+
     // read root file, this will be a map<TString, TGeoHMatrix>
     std::map<std::string, TGeoHMatrix> rootMatrices = *(readRootMatrices(filename));
 
     // save file to json
+    cout << "saving " << filename << " to json file!\n";
     saveMatricesToJson(rootMatrices, filename + ".json");
 }
 
 // dummy function in case someone calls the macro without argument
-void convertRootMatricesToJSON(){
+void convertRootMatricesToJSON() {
     cout << "You must specify a file name!\n";
     exit(1);
 }
