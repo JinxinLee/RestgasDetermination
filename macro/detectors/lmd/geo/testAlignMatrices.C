@@ -606,6 +606,8 @@ void saveMatricesToJson() {
 		j[std::to_string(overlap.overlapID)]["overlapID"] = overlap.overlapID;
 		j[std::to_string(overlap.overlapID)]["id1"] = overlap.id1;
 		j[std::to_string(overlap.overlapID)]["id2"] = overlap.id2;
+		j[std::to_string(overlap.overlapID)]["path1"] = overlap.path1;
+        	j[std::to_string(overlap.overlapID)]["path2"] = overlap.path2;
 		j[std::to_string(overlap.overlapID)]["matrix1"] = {
 			mat1[0], mat1[1], mat1[2], mat1[12],
 			mat1[4], mat1[5], mat1[6], mat1[13],
@@ -638,7 +640,7 @@ void saveDetMatricesToJson() {
 	halfes -> planes
 
 	*/
-	cout << setprecision(16)
+	cout << setprecision(16);
 	gGeoManager->cd("/cave_1/lmd_root_0/");
 	auto mat = gGeoManager->GetCurrentMatrix();
 	mat->Print();
@@ -904,7 +906,7 @@ int testAlignMatrices() {
 //	}
 
 	saveMatricesToJson();
-	saveDetMatricesToJson();
+	//saveDetMatricesToJson();
 
 	// compareMatrices(matrices, "/LMDMatrices/");
 	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
