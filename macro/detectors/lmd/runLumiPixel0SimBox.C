@@ -121,13 +121,6 @@ int runLumiPixel0SimBox(const int nEvents = 100, const int startEv = 0, TString 
 			cout << matrices->size() << " matrices successfully read from file.";
 			Lum->SetMisalignmentMatrices(*matrices);
 			cout << "matrix set!\n";
-			if (true) {
-				// checking for good measure
-				for (auto &i : *matrices) {
-					cout << "\n---\n" << i.first << "\n";
-					i.second.Print();
-				}
-			}
 		}
 
 		// if not, fail violently
