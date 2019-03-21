@@ -9,7 +9,7 @@
 echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
 read mom
 echo "Beam mometum is: $mom!"
-cd ${VMCWORKDIR}/macro/lmd/
+cd ${VMCWORKDIR}/macro/detectors/lmd/
 pbeam=$mom
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
@@ -19,7 +19,7 @@ numTrks=1
 #number of events
 numEv=10000
 
-path=${VMCWORKDIR}/macro/lmd/test/mom_${momStr}/
+path=${VMCWORKDIR}/macro/detectors/lmd/test/mom_${momStr}/
 mkdir -p ${path}
 ##############
 # set flags

@@ -68,6 +68,7 @@ void PndPidMvdAssociatorTask::Exec(Option_t *) {
       PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
       PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(1.,1.,1.,1.,1.,i);// initializes with equal probability
       if (pidcand->GetMvdDEDX()==0) continue;
+      if (pidcand->GetMomentum().Mag() > 1) continue;
       DoPidMatch(pidcand,prob);
     }
  
