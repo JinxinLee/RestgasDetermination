@@ -74,7 +74,7 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 #  root -l -b -q runLumiPixel1cDigiSigNoise.C\(${numEv},0,"\"${path}\"",0\) 
 #exit
 # #hit reconstruction
-     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,false\) 
+     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",\"\",0,false\) 
 
 # ##merge hits
      root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
