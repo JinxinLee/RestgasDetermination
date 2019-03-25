@@ -32,9 +32,10 @@
 #pragma link C++ class PndMvdAnaRadDam+;
 #pragma link C++ class PndMvdRadDamIonizingTask+;
 
-
 #pragma link C++ class PndMvdToPix4ClusterTask;
 
+//QA
+#pragma link C++ class PndMvdQATask;
 
 
 #endif

@@ -29,25 +29,27 @@ fTotDigiPar(totPar)
 
 void PndMvdSimplePixelClusterFinder::SetParameters()
 {
-	if (fDigiPar->GetChargeConvMethod() == 0){
-				if(fVerbose>0) std::cout<<"Info in <PndMvdSimplePixelClusterFinder>: ideal charge conversion"<<std::endl;
-				fChargeConverter = new PndSdsIdealChargeConversion(fDigiPar->GetNoise());
-				}
-			else if (fDigiPar->GetChargeConvMethod() == 1){
-				if(fVerbose>0) std::cout<<"Info in <PndMvdSimplePixelClusterFinder>: TOT charge conversion"<<std::endl;
-				fChargeConverter = new PndSdsTotChargeConversion(
-				fTotDigiPar->GetChargingTime(),
-				fTotDigiPar->GetConstCurrent(),
-				fDigiPar->GetThreshold(),
-				fTotDigiPar->GetClockFrequency(),
-				fVerbose);
-			}
-			else{
-				std::cout<<"Error in <PndMvdSimplePixelClusterFinder>: charge conversion method not defined, use ideal converter..."<<std::endl;
-				fChargeConverter = new PndSdsIdealChargeConversion(fDigiPar->GetNoise());
-			}
-			fcols = fDigiPar->GetFECols();
-			frows = fDigiPar->GetFERows();
-			fradius = fDigiPar->GetClustRadius();
+    if (fDigiPar->GetChargeConvMethod() == 0)
+    {
+        if (fVerbose > 0) std::cout << "Info in <PndMvdSimplePixelClusterFinder>: ideal charge conversion" << std::endl;
+        fChargeConverter = new PndSdsIdealChargeConversion(fDigiPar->GetNoise());
+    } else if (fDigiPar->GetChargeConvMethod() == 1)
+    {
+        if (fVerbose > 0) std::cout << "Info in <PndMvdSimplePixelClusterFinder>: TOT charge conversion" << std::endl;
+        fChargeConverter = new PndSdsTotChargeConversion(fTotDigiPar->GetChargingTime(), fTotDigiPar->GetConstCurrent(),
+                fDigiPar->GetThreshold(), fTotDigiPar->GetClockFrequency(), fVerbose);
+    } else
+    {
+        std::cout
+                << "Error in <PndMvdSimplePixelClusterFinder>: charge conversion method not defined, use ideal converter..."
+                << std::endl;
+        fChargeConverter = new PndSdsIdealChargeConversion(fDigiPar->GetNoise());
+    }
+    fcols = fDigiPar->GetFECols();
+    frows = fDigiPar->GetFERows();
+    fradius = fDigiPar->GetClustRadius();
+
+    if (fVerbose > 1)
+        std::cout << "PndMvdSimplePixelClusterFinder::SetParameters() Cols/Rows " << fcols << "/" << frows << " Radius: " << fradius << std::endl;
 }
 
