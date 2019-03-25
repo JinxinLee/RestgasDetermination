@@ -3,20 +3,20 @@
 
 PndSdsPixelDigiPar::PndSdsPixelDigiPar(const char* name, const char* title, const char* context)
 : FairParGenericSet(name,title,context),
-    fFeCols(0),
-    fFeRows(0),
+    fFeCols(-1),
+    fFeRows(-1),
     fMaxFEperCol(10), // default initialization is 10, which is needed by MVD
     fMaxFEperRow(10),
-    fDimX(0.),
-    fDimY(0.),
-    fRadius(0.),
-    fThreshold(0.),
-    fNoise(0.),
-    fCSigma(0.),
-    fFeBusClock(0.),
-    fChargeConvMethod(0),
-    fPixelSorterCellWidth(0.),
-    fPixelSorterNumberOfCells(0)
+    fDimX(-1.),
+    fDimY(-1.),
+    fRadius(-1.),
+    fThreshold(-1.),
+    fNoise(-1.),
+    fCSigma(-1.),
+    fFeBusClock(-1.),
+    fChargeConvMethod(-1),
+    fPixelSorterCellWidth(-1.),
+    fPixelSorterNumberOfCells(-1)
 {
   clear();
 }

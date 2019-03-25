@@ -224,8 +224,8 @@ void PndSdsPixelClusterTask::Exec(Option_t*)
 	  entryNumber = FairRootManager::Instance()->GetEntryNr();
   }
 
-//   if(fVerbose>0)
-//	   std::cout << "-I- PndSdsPixelClusterTask::Exec EventNumber: " << fEventNr << " EventTime: " <<  EventTime << std::endl;
+   if(fVerbose>0)
+	   std::cout << "-I- PndSdsPixelClusterTask::Exec EventNumber: " << entryNumber <<  std::endl;
 
     if (FairRunAna::Instance() != 0 && FairRunAna::Instance()->IsTimeStamp()){
     	if(fVerbose>0)  std::cout << "TimeStepPixel: " << fDigiPar->GetTimeStep();
@@ -244,8 +244,8 @@ void PndSdsPixelClusterTask::Exec(Option_t*)
 
   // Retrieve the calculated clusters with the chosen clusterfinder
   std::vector< std::vector< Int_t> > clusters = fClusterFinder->GetClusters(DigiPixelArray);
-//  if(fVerbose>1)
-//	  std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
+  if(fVerbose>1)
+	  std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
 
   // Get rid of noise hits with a single digi in cluster and minimum charge
   if (fUseNoiseSuppression) {

@@ -27,8 +27,8 @@ std::vector< std::vector<Int_t> > PndSdsSimplePixelClusterFinder::GetClusters(st
 				for (Int_t j = 0; j < sizeTempHits; j++){
 					if (fChargeConverter->DigiValueToCharge(fHits[posHits[j]]) == 0){
 								MoveHit(&posHits,j);
-//								if (fVerbose > 1)
-//									std::cout << "Charge too low!" << std::endl;
+								if (fVerbose > 1)
+									std::cout << "Charge too low!" << std::endl;
 								j--;
 					}
 					else{
@@ -36,8 +36,8 @@ std::vector< std::vector<Int_t> > PndSdsSimplePixelClusterFinder::GetClusters(st
 							if (IsInRange(fHits[(*(result.end()-1))[i]], fHits[posHits[j]])) {
 									(result.end()-1)->push_back(MoveHit(&posHits,j));
 									j--;
-//									if (fVerbose > 1)
-//										std::cout << "Hit added to cluster: " << result.size()-1 << std::endl;
+									if (fVerbose > 1)
+										std::cout << "Hit added to cluster: " << result.size()-1 << std::endl;
 							}
 						}
 
@@ -84,6 +84,6 @@ bool PndSdsSimplePixelClusterFinder::IsInRange(PndSdsDigiPixel hit1, PndSdsDigiP
 	result2 *= result2;
 	result1 += result2;
 	if (fVerbose > 2)
-		std::cout << "IsInRange result: " << TMath::Sqrt(result1) << std::endl;
+		std::cout << "IsInRange result: " << TMath::Sqrt(result1) << " Radius " << fradius << std::endl;
 	return (TMath::Sqrt(result1) < fradius);
 }

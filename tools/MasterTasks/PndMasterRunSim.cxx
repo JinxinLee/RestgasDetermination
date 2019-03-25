@@ -462,7 +462,7 @@ void PndMasterRunSim::SetGenerator()
   }
   else
     {
-      LOG(FATAL)<< "Generator could not be identified from input '"<<fInput.Data()<<"'!!" <<  FairLogger::endl;
+      LOG(WARNING)<< "Generator could not be identified from input '"<<fInput.Data()<<"'!!" <<  FairLogger::endl;
     }
 
 }

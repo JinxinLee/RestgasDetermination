@@ -64,7 +64,7 @@ PndSdsHit::~PndSdsHit() {}
 
 // -----   Public method Print   -------------------------------------------
 void PndSdsHit::Print(const Option_t* opt) const {
-  std::cout << *this<<"opt="<<opt<<std::endl;
+  std::cout << *this << std::endl;
 }
 
 void PndSdsHit::SetCov(TMatrixD cov)

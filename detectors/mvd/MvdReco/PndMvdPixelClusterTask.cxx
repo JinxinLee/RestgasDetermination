@@ -45,6 +45,11 @@ void PndMvdPixelClusterTask::SetParContainers()
 	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer(fParName.Data()));
 	fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer(fTotParName.Data()));
 	PndSdsPixelClusterTask::SetParContainers();
+	if(fVerbose > 1) {
+	    std::cout << "PndMvdPixelClusterTask::SetParContainers: " << std::endl;
+	    fDigiPar->Print();
+	    fTotDigiPar->Print();
+	}
 }
 
 void PndMvdPixelClusterTask::SetBackMapping()
@@ -67,7 +72,8 @@ void PndMvdPixelClusterTask::SetBackMappingMQ(TList* tempList)
 
 void PndMvdPixelClusterTask::SetClusterFinder()
 {
-	fClusterFinder = new PndMvdSimplePixelClusterFinder(fParName, fTotParName, fVerbose);
+	fClusterFinder = new PndMvdSimplePixelClusterFinder(fDigiPar, fTotDigiPar);
+	fClusterFinder->SetVerbose(fVerbose);
 }
 
 void PndMvdPixelClusterTask::SetClusterFinderMQ(TList* tempList)

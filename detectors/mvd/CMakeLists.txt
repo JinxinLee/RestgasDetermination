@@ -31,6 +31,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdPid
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTracking
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdTracking/LinFit
+  ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdQA
   ${CMAKE_SOURCE_DIR}/detectors/mvd/transport
   ${CMAKE_SOURCE_DIR}/detectors/mvd
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdOfflineTBAnalysis_Topix4
@@ -151,6 +152,8 @@ MvdTools/PndMvdRadDamList.cxx
 MvdTools/PndMvdRadDamTask.cxx
 MvdTools/PndMvdAnaRadDam.cxx
 MvdTools/PndMvdRadDamIonizingTask.cxx
+
+MvdQA/PndMvdQATask.cxx
 
 )
 
