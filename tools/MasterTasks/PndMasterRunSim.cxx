@@ -112,6 +112,7 @@ Bool_t PndMasterRunSim::Setup(TString outprefix)
   // ---- Defining PANDA particles -----------------------------------------
   Double_t mom = GetBeamMom();
   TLorentzVector fIni(0, 0, mom, sqrt(mom*mom+9.3827203e-01*9.3827203e-01)+9.3827203e-01);
+  TDatabasePDG::Instance()->AddParticle("ppSystem" ,"ppSystem",        fIni.M(), kFALSE, 0.1, 6, "", 98888);
   TDatabasePDG::Instance()->AddParticle("pbarpSystem" ,"pbarpSystem",  fIni.M(), kFALSE, 0.1, 0, "", 88888);
   TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0", fIni.M(), kFALSE, 0.1, 0, "", 88880);
   TDatabasePDG::Instance()->AddParticle("pbarpSystem1","pbarpSystem1", fIni.M(), kFALSE, 0.1, 0, "", 88881);
