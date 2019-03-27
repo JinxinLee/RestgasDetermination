@@ -3,7 +3,6 @@
 // -----                                                          -----
 // -------------------------------------------------------------------------
 
-
 #include <iostream>
 #include "TClonesArray.h"
 #include "TFile.h"
@@ -48,18 +47,19 @@ using std::ofstream;
 using std::cout;
 
 //define class for generating random nubers
-class EvtRootRandomEngine:public EvtRandomEngine{
-public:
-  EvtRootRandomEngine(int s=0) {seed=s;}
-  double random();
-  int seed;
+class EvtRootRandomEngine:public EvtRandomEngine {
+  public:
+    EvtRootRandomEngine(int s=0) {
+      seed=s;
+    }
+    double random();
+    int seed;
 };
 
-double EvtRootRandomEngine::random(){
+double EvtRootRandomEngine::random() {
   static TRandom3 randengine(seed);
   return randengine.Rndm();
 }
-
 
 // -----   Default constructor   ------------------------------------------
 PndEvtGenDirect::PndEvtGenDirect() {
@@ -84,38 +84,36 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom,L
   if (defaultDECAY=="") defaultDECAY = work + "/pgenerators/EvtGen/EvtGen/Private/DECAY.DEC";
   if (defaultPDL=="") defaultPDL = work + "/pgenerators/EvtGen/EvtGen/Private/evt.pdl";
 
-  if (particle.Contains("pbarASystem") && (ATarg<3.||ATarg>238.))
-    {
-      cerr <<"******  FATAL ERROR: nuclear target mass number MUST be between 3 and 238! ******"<<endl;
-      exit(0);
-    }
-
-
+  if ( (particle.Contains("pbarASystem") || particle.Contains("pASystem")) && (ATarg<3.||ATarg>238.))
+  {
+    cerr <<"******  FATAL ERROR: nuclear target mass number MUST be between 3 and 238! ******"<<endl;
+    exit(0);
+  }
 
   //Initialize the generator - read in the decay table and particle properties
-  
+
   EvtRandomEngine* myRandomEngine=0;
 
   // Make sure that the seed is always set if default value (-1) is used, JGM, August 2011
-  if (Seed<0) 
-    {
-      Seed = gRandom->GetSeed();
-      cout << "<I> Rnd Seed changed to " << Seed << endl;
-    } 
+  if (Seed<0)
+  {
+    Seed = gRandom->GetSeed();
+    cout << "<I> Rnd Seed changed to " << Seed << endl;
+  }
   myRandomEngine=new EvtRootRandomEngine(Seed);
 
 
-   // Set up the default external generator list: Photos, Pythia and/or Tauola ONLY if available
+  // Set up the default external generator list: Photos, Pythia and/or Tauola ONLY if available
 #if EVTGEN_EXTERNAL
-   EvtExternalGenList genList;
-   EvtAbsRadCorr* radCorrEngine = genList.getPhotosModel();
-   std::list<EvtDecayBase*> extraModels = genList.getListOfModels();
+  EvtExternalGenList genList;
+  EvtAbsRadCorr* radCorrEngine = genList.getPhotosModel();
+  std::list<EvtDecayBase*> extraModels = genList.getListOfModels();
 
-   // Create the EvtGen generator object
-   myGenerator=new EvtGen(defaultDECAY,defaultPDL,myRandomEngine,
-                     radCorrEngine, &extraModels);
+  // Create the EvtGen generator object
+  myGenerator=new EvtGen(defaultDECAY,defaultPDL,myRandomEngine,
+                         radCorrEngine, &extraModels);
 #else
-   //If you don't want to use external generators, use the following:
+  //If you don't want to use external generators, use the following:
   myGenerator=new EvtGen(defaultDECAY,defaultPDL,myRandomEngine);
 #endif
 
@@ -124,12 +122,6 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom,L
 
   PART=EvtPDL::getId(std::string(particle.Data()));
 
-  if ( (particle.Contains("pbarp") || particle.Contains("pbard") || particle.Contains("pbarA")) && Mom==0)
-    {
-      cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is '" << particle.Data() << "'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
-      exit(0);
-    }
- 
   double val=-3.0969;
   fMomentum = 0.0;
   fEnergy = 0.0;
@@ -138,30 +130,33 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom,L
   double mu=0.931494;
   double mA=ATarg*mu;
 
-  if ( (particle.Contains("pbarp") || particle.Contains("pbard") || particle.Contains("pbarA") ) && Mom!=0){
-    val=Mom;
-  }else{
-    if(PART.getId()==-1){
+  if ( particle.Contains("pbarp") || particle.Contains("pbard") || particle.Contains("pbarA") || particle.Contains("pp") || particle.Contains("pd") || particle.Contains("pA") ) {
+    if (Mom==0) {
+      cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is '" << particle.Data() << "'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
+      exit(0);
+    } else {
+      val=Mom;
+    }
+  } else {
+    if(PART.getId()==-1) {
       cerr << "Particle \""<<particle<<"\" is unknown!!!"<<endl<<"Check your Macro for spelling mistake."<<endl;
       exit(0);
     }
     val=-EvtPDL::getMass(PART);
   }
-  
-  // val is the momentum of the pbar beam
-  if (val>0){  
+
+  // val is the momentum of the beam
+  if (val>0) {
     fMomentum = val;
-    if ( particle.Contains("pbarpSystem") ) fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
-    if ( particle.Contains("pbardSystem") ) fEnergy = md+sqrt(fMomentum*fMomentum+mp*mp);
-    if ( particle.Contains("pbarASystem") ) fEnergy = mA+sqrt(fMomentum*fMomentum+mp*mp);
+    if ( particle.Contains("pbarpSystem") || particle.Contains("ppSystem")) fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
+    if ( particle.Contains("pbardSystem") || particle.Contains("pdSystem")) fEnergy = md+sqrt(fMomentum*fMomentum+mp*mp);
+    if ( particle.Contains("pbarASystem") || particle.Contains("pASystem")) fEnergy = mA+sqrt(fMomentum*fMomentum+mp*mp);
+  } else {  //val is -E_cm
+    val=-val;
+    fEnergy = val*val/(2*mp);
+    fMomentum = sqrt(fEnergy*fEnergy-val*val);
   }
-  else  //val is -E_cm
-    {
-      val=-val;
-      fEnergy = val*val/(2*mp);
-      fMomentum = sqrt(fEnergy*fEnergy-val*val);
-    }
-  
+
   cout <<"\n############# Generating with following conditions:\n\n";
   cout <<"incident 4-mom : ("<<fEnergy<<", 0, 0, "<<fMomentum<<"), m = "<<sqrt(fEnergy*fEnergy-fMomentum*fMomentum)<<endl;
   cout <<"\n######################\n\n"<<endl;
@@ -184,37 +179,36 @@ Bool_t PndEvtGenDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 
   EvtVector4R pInit(fEnergy,  0.0000, -0.0000,  fMomentum);
   parent=EvtParticleFactory::particleFactory(PART,pInit);
-  parent->setDiagonalSpinDensity();  
-
+  parent->setDiagonalSpinDensity();
 
   // Generate the event
   myGenerator->generateDecay(parent);
   // Write out the results
 
-   // we should better use the EvtParticle properties here... and kick the evtstd structure!!!!
+  // we should better use the EvtParticle properties here... and kick the evtstd structure!!!!
   evtstdhep.init();
   parent->makeStdHep(evtstdhep);
 
   Bool_t plotflag;
   plotflag=false;
   //print out some status info
-  if (verbose>1 ||(verbose==1 && (evtnr<10 || ((evtnr+1)%100)==0))){
+  if (verbose>1 ||(verbose==1 && (evtnr<10 || ((evtnr+1)%100)==0))) {
     cout << "PndEvtGenDirect::ReadEvent "<<evtnr <<" "<<fEnergy<<" "<<fMomentum << endl;
     parent->printParticle();
-     // Write out the results
+    // Write out the results
     EvtHepMCEvent theEvent;
     theEvent.constructEvent(parent);
     HepMC::GenEvent* genEvent = theEvent.getEvent();
     genEvent->print(std::cout);
 
-//    report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
-//     cout << evtnr << "\t" << evtstdhep.getNPart();
-//     cout <<evtstdhep<<endl;
+    //    report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
+    //     cout << evtnr << "\t" << evtstdhep.getNPart();
+    //     cout <<evtstdhep<<endl;
 
     cout <<"==== now compare ==="<<endl;
     plotflag=true;
   }
-    
+
   // Write the output
 
   Int_t  npart;
@@ -223,37 +217,37 @@ Bool_t PndEvtGenDirect::ReadEvent(FairPrimaryGenerator* primGen) {
   int Id;
   npart=evtstdhep.getNPart();
   EvtVector4R vxyz,pxyz;
-	
-  for(Int_t i=0; i<npart; i++){
+
+  for(Int_t i=0; i<npart; i++) {
     Int_t nFD, nLD;
     // add track
     nFD=evtstdhep.getFirstDaughter(i);
     nLD=evtstdhep.getLastDaughter(i);
     if(fStoreTree ||(nFD==-1 && nLD==-1))
-      {
-	Id=evtstdhep.getStdHepID(i);
-	vxyz=evtstdhep.getX4(i);
-	pxyz=evtstdhep.getP4(i);
-	fT=vxyz.get(0)/(1000*TMath::C());  //mm - > s conversion
-	fX=vxyz.get(1)/10.; // mm -> cm conversion
-	fY=vxyz.get(2)/10.; // mm -> cm conversion
-	fZ=vxyz.get(3)/10.; // mm -> cm conversion
-	fE=pxyz.get(0);
-	Px=pxyz.get(1);
-	Py=pxyz.get(2);
-	Pz=pxyz.get(3);
-	if(plotflag) printf("- I -: new particle %d at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d Mothers %d %d\n", i,
-    fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD,evtstdhep.getFirstMother(i),evtstdhep.getLastMother(i));
-	if(fStoreTree){
-	  primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i),(nFD==-1 && nLD==-1),fE,fT);
-	}else{
-	  primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ,-1,true,fE,fT);// default -1, true
-	}
+    {
+      Id=evtstdhep.getStdHepID(i);
+      vxyz=evtstdhep.getX4(i);
+      pxyz=evtstdhep.getP4(i);
+      fT=vxyz.get(0)/(1000*TMath::C());  //mm - > s conversion
+      fX=vxyz.get(1)/10.; // mm -> cm conversion
+      fY=vxyz.get(2)/10.; // mm -> cm conversion
+      fZ=vxyz.get(3)/10.; // mm -> cm conversion
+      fE=pxyz.get(0);
+      Px=pxyz.get(1);
+      Py=pxyz.get(2);
+      Pz=pxyz.get(3);
+      if(plotflag) printf("- I -: new particle %d at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d Mothers %d %d\n", i,
+                            fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD,evtstdhep.getFirstMother(i),evtstdhep.getLastMother(i));
+      if(fStoreTree) {
+        primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i),(nFD==-1 && nLD==-1),fE,fT);
+      } else {
+        primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ,-1,true,fE,fT);// default -1, true
       }
+    }
   }
   if(plotflag) cout <<"==== compare end ==="<<endl;
 
-  parent->deleteTree();  
+  parent->deleteTree();
 
   evtnr++;
 
@@ -263,3 +257,6 @@ Bool_t PndEvtGenDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 // ------------------------------------------------------------------------
 
 ClassImp(PndEvtGenDirect)
+
+
+

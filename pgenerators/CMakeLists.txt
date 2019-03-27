@@ -27,6 +27,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
   ${CMAKE_SOURCE_DIR}/pgenerators/particleguns
   ${CMAKE_SOURCE_DIR}/pgenerators/FileReaders
+  ${CMAKE_SOURCE_DIR}/pgenerators/Pythia
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/analysis/rho
   ${CMAKE_SOURCE_DIR}/analysis/rho/RhoBase
@@ -49,7 +50,8 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 PndRestGas.cxx
-PndPythia8Generator.cxx
+Pythia/PndPythia6Direct.cxx
+Pythia/PndPythia8Direct.cxx
 PndGasGenerator.cxx
 particleguns/PndBoxGenerator.cxx
 particleguns/PndFixStepParticleGun.cxx
@@ -79,7 +81,7 @@ eventFilter/PndSmpCand.cxx
 set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
-set(DEPENDENCIES Base pythia8)
+set(DEPENDENCIES Base pythia8 EG EGPythia6)
 
 GENERATE_LIBRARY()
 

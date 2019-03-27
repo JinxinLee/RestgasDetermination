@@ -32,7 +32,7 @@ StrVec SplitString(TString s, TString delim=",")
 	StrVec v;
 	s.ReplaceAll("\t"," ");
 	s += delim;
-		
+
 	while (s.Contains(delim))
 	{
 		TString tok = s(0,s.Index(delim));
@@ -40,16 +40,16 @@ StrVec SplitString(TString s, TString delim=",")
 		tok = (TString)tok.Strip(TString::kBoth);
 		v.push_back(tok);
 	}
-	
+
 	return v;
 }
 
 StrVec ReadModeTab(TString filename)
 {
 	ifstream input(filename.Data(), std::ifstream::in);
-	
+
 	StrVec res;
-	
+
 	for( std::string line; getline( input, line ); )
 	{
 		TString modeline(line);
@@ -57,9 +57,9 @@ StrVec ReadModeTab(TString filename)
 		modeline = modeline.Strip(TString::kBoth);
 		if (modeline!="") res.push_back(TString(modeline));
 	}
-	
+
 	input.close();
-	
+
 	return res;
 }
 
@@ -88,7 +88,7 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	for (int i=0; i<(int)modetab.size(); ++i)
 	{
 		StrVec v = SplitString(modetab[i],"//");
-		
+
 		if (v[0].Atoi() == mode)
 		{
 			Mom      = v[1].Atof();
@@ -132,9 +132,9 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 		cout << "   [mode]     : arbitrary mode number; default: 0\n";
 		cout << "   [nevt]     : number of events; default: 0 = all\n\n";
 		cout << "Example : root -l -b -q 'prod_ana.C(\"mysim\",1,20,10)'\n\n";
-		
+
 		if (modetab.size()>0) cout <<"\nFound "<<modetab.size()<<" analysis modes in "<<modefile<<".\n"<<endl;
-		
+
 		if (modetab.size()>0 && prefix=="!")
 		{
 			for (int i=0;i <(int)modetab.size(); ++i)
@@ -270,6 +270,7 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 
 	// Prevent generator from throwing a lot of warnings
 	//TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
+	TDatabasePDG::Instance()->AddParticle("ppSystem","ppSystem",3,kFALSE,0.1,6, "",98888);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",3,kFALSE,0.1,0, "",88888);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",3,kFALSE,0.1,0, "",88880);
 
