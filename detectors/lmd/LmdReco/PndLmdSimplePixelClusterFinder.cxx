@@ -11,9 +11,9 @@ PndLmdSimplePixelClusterFinder::PndLmdSimplePixelClusterFinder(Int_t verbose)
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb = ana->GetRuntimeDb();
   PndSdsPixelDigiPar* fDigiPar =
-      (PndSdsPixelDigiPar*)(rtdb->getContainer("SDSPixelDigiPar"));
+      (PndSdsPixelDigiPar*)(rtdb->getContainer("LMDPixelDigiPar"));
   PndSdsTotDigiPar* fTotDigiPar =
-      (PndSdsTotDigiPar*)(rtdb->getContainer("SDSPixelTotDigiPar"));
+      (PndSdsTotDigiPar*)(rtdb->getContainer("LMDPixelTotDigiPar"));
   if (fDigiPar->GetChargeConvMethod() == 0) {
     if (fVerbose > 0)
       std::cout

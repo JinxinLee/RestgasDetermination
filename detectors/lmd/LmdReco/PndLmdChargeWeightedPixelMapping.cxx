@@ -11,9 +11,9 @@ PndLmdChargeWeightedPixelMapping::PndLmdChargeWeightedPixelMapping(
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb = ana->GetRuntimeDb();
   PndSdsPixelDigiPar* fDigiPar =
-      (PndSdsPixelDigiPar*)(rtdb->getContainer("SDSPixelDigiPar"));
+      (PndSdsPixelDigiPar*)(rtdb->getContainer("LMDPixelDigiPar"));
   PndSdsTotDigiPar* fTotDigiPar =
-      (PndSdsTotDigiPar*)(rtdb->getContainer("SDSPixelTotDigiPar"));
+      (PndSdsTotDigiPar*)(rtdb->getContainer("LMDPixelTotDigiPar"));
   if (fDigiPar->GetChargeConvMethod() == 0) {
     if (fVerbose > 0)
       Info("PndLmdChargeWeightedPixelMapping", "ideal charge conversion");
@@ -41,9 +41,9 @@ PndLmdChargeWeightedPixelMapping::PndLmdChargeWeightedPixelMapping(
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb = ana->GetRuntimeDb();
   PndSdsPixelDigiPar* fDigiPar =
-      (PndSdsPixelDigiPar*)(rtdb->getContainer("SDSPixelDigiPar"));
+      (PndSdsPixelDigiPar*)(rtdb->getContainer("LMDPixelDigiPar"));
   PndSdsTotDigiPar* fTotDigiPar =
-      (PndSdsTotDigiPar*)(rtdb->getContainer("SDSPixelTotDigiPar"));
+      (PndSdsTotDigiPar*)(rtdb->getContainer("LMDPixelTotDigiPar"));
   if (fDigiPar->GetChargeConvMethod() == 0) {
     if (fVerbose > 0)
       Info("PndLmdChargeWeightedPixelMapping", "ideal charge conversion");

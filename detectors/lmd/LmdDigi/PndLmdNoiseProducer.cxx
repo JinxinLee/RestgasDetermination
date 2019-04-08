@@ -159,10 +159,10 @@ void PndLmdNoiseProducer::SetParContainers()
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   // fDigiParRect = (PndSdsStripDigiPar*)(rtdb->getContainer("SDSStripDigiParRect"));
   // fDigiParTrap = (PndSdsStripDigiPar*)(rtdb->getContainer("SDSStripDigiParTrap"));
-  fDigiParPix  = (PndSdsPixelDigiPar*)(rtdb->getContainer("SDSPixelDigiPar"));
+  fDigiParPix  = (PndSdsPixelDigiPar*)(rtdb->getContainer("LMDPixelDigiPar"));
   // fTotDigiParRect = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSStripTotDigiParRect"));
   // fTotDigiParTrap = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSStripTotDigiParTrap"));
-  fTotDigiParPix  = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSPixelTotDigiPar"));
+  fTotDigiParPix  = (PndSdsTotDigiPar*)(rtdb->getContainer("LMDPixelTotDigiPar"));
 
  if ( fGeoH == NULL ) {
     fGeoH = PndGeoHandling::Instance();
