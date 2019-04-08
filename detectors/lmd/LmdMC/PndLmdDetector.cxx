@@ -62,7 +62,7 @@ void PndLmdDetector::ModifyGeometryByFullPath() {
 		gGeoManager->cd(volPath);
 
 		TGeoNode* n3 = gGeoManager->GetCurrentNode();
-		TGeoMatrix* l3 = n3->GetMatrix();
+		TGeoHMatrix* l3 = (TGeoHMatrix*)n3->GetMatrix();
 
 		TGeoHMatrix nlocal = *l3 * entry.second;
 		TGeoHMatrix* nl3 = new TGeoHMatrix(nlocal);  // new matrix, representing real position
@@ -85,9 +85,9 @@ void PndLmdDetector::ModifyGeometryBySymlink() {
 			node = gGeoManager->MakeAlignablePN(entry);
 		}
 
-		TGeoMatrix* l3 = NULL;
+		TGeoHMatrix* l3 = NULL;
 		if (node) {
-			l3 = node->GetMatrix();
+			l3 = (TGeoHMatrix*)node->GetMatrix();
 		}
 		else {
 			continue;
