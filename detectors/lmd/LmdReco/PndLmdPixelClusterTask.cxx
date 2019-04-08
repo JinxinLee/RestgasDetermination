@@ -90,7 +90,7 @@ void PndLmdPixelClusterTask::SetParContainers() {
 	// Get Base Container
 	ana = FairRun::Instance();
 	rtdb = ana->GetRuntimeDb();
-	fDigiPar = (PndSdsPixelDigiPar*) (rtdb->getContainer("SDSPixelDigiPar"));
+	fDigiPar = (PndSdsPixelDigiPar*) (rtdb->getContainer("LMDPixelDigiPar"));
 	//	rtdb->getContainer("SDSPixelTotDigiPar");
 
 	PndLmdContFact* themvdcontfact = (PndLmdContFact*) rtdb->getContFactory("PndLmdContFact");
