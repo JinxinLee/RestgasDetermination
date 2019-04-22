@@ -203,7 +203,7 @@ Int_t PndGeoHitList::GetNodeId(TGeoHMatrix pos)
 //    std::cout << "NodeMatrix: " << std::endl;
 //    fNodeList[i]->GetMatrix()->Print();
     
-    if (*(fNodeList[i]->GetMatrix()) == pos)
+    if (pos == *(fNodeList[i]->GetMatrix()))
       return i;
   }
   return -1;
