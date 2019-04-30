@@ -6,7 +6,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 		const double beam_width_sigma_Y = 0.0,
 		const double target_width_Z = 0.0, // beam offset and smearing parameters
 		const double beam_grad_X = 0.0, const double beam_grad_Y = 0.0,
-		const double beam_grad_sigma_X = 0.0, const double beam_grad_sigma_Y = 0.0, // beam gradiant parameters
+		const double beam_grad_sigma_X = 0.0, const double beam_grad_sigma_Y = 0.0, // beam gradient parameters
 		const TString lmd_geometry_filename = "Luminosity-Detector.root",
 		std::string misalignment_matrices_path = "",
 		bool use_point_transform_misalignment = false,
