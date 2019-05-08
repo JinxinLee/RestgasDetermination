@@ -1,19 +1,23 @@
 //-----------------------------------------------------------------------
 // File and Version Information:
 // $Id: $
-// Software developed for the PANDA Detector at GSI.		
+// Software developed for the PANDA Detector at GSI.
 // Author List:
-//	Jan Zhong            
+//	Jan Zhong
+//	Marcel Tiemens
+//	Áron Kripkó
 //---------------------------------------------------------------------
 //#pragma once
 #ifndef PNDEMCMAKECLUSTER_H
 #define PNDEMCMAKECLUSTER_H
 
 #include <PndPersistencyTask.h>
-#include <vector>		
+#include <vector>
 
 #include "FairTSBufferFunctional.h"
 #include "TStopwatch.h"
+#include "TCanvas.h"
+#include "TH1.h"
 
 class TClonesArray;
 class TObjectArray;
@@ -23,7 +27,6 @@ class PndEmcGeoPar;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 class BinaryFunctor;
-
 
 /*! 
  * \brief Task to cluster PndEmcDigis
@@ -36,87 +39,97 @@ class BinaryFunctor;
 class PndEmcMakeCluster : public PndPersistencyTask
 {
 public:
-  // Constructors
-  PndEmcMakeCluster(Int_t verbose=0, Bool_t storeclusters=kTRUE);
-  // Destructor
-  virtual ~PndEmcMakeCluster( );
+	// Constructors
+	PndEmcMakeCluster(Int_t verbose = 0, Bool_t storeclusters = kTRUE);
+	// Destructor
+	virtual ~PndEmcMakeCluster();
 
-  virtual InitStatus Init();
-  virtual void Exec(Option_t* opt);
+	virtual InitStatus Init();
+	virtual void Exec(Option_t *opt);
 
-  /// Finish clusters after subtasks have been executed
-  virtual void ExecuteTasks(Option_t* option) {
+	/// Finish clusters after subtasks have been executed
+	virtual void ExecuteTasks(Option_t *option)
+	{
 		PndPersistencyTask::ExecuteTasks(option);
 		FinishClusters();
-  }
+	}
 
-  void SetStorageOfData(Bool_t val); 	//!< Method to specify whether clusters are stored or not.
+	void SetStorageOfData(Bool_t val); //!< Method to specify whether clusters are stored or not.
 
-  /*! 
+	/*! 
    * \brief Method to specify whether underlying digis are stored or not.
    *
    *	Restoring digis makes only sense if reconstruction is done timebased	
    */
-  void StoreClusterBaseDigis(Bool_t val = kTRUE) { fStoreClusterBase = val; }
- 
-  void SetClusterActiveTime(Double_t time) { fClusterActiveTime = time; } //!<  Override EmcRecoPar cluster active time parameter ..to be set in ns!!! 
-  
+	void StoreClusterBaseDigis(Bool_t val = kTRUE) { fStoreClusterBase = val; }
+
+	void SetClusterActiveTime(Double_t time) { fClusterActiveTime = time; } //!<  Override EmcRecoPar cluster active time parameter ..to be set in ns!!!
+
+	/// Set minimum cluster energy
+	void SetClusterMinimumEnergy(Double_t minE) { fClusterEnergyCut = minE; }
+	void EnableRemovalOfLowEnergyClusters(Bool_t enable) { fRemoveLowEclus = enable; }
+	void EnableBetterNeutralReconstruction(Bool_t enable) { fMerge = enable; }
+
 protected:
 	/** Get parameter containers **/
 	virtual void SetParContainers();
 	virtual void FinishClusters();
+	virtual void RemoveLowEnergyClusters();
 
 private:
-	/*! 
-	 * \brief Assign final parameters to cluster
-	 *
-	 * Assign final parameters to cluster. Subtasks might introduce changes in cluster composition. To keep track of them, function is called after subtasks have been executed
-	 */
-	void FinishCluster(PndEmcCluster* tmpcluster);
-	bool HasExpired(PndEmcDigi* latestDigi, PndEmcCluster* theCluster, Int_t clusterIdx);
-	void cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray);
+	void FinishCluster(PndEmcCluster *tmpcluster);
+
+	void cleansortmclist(std::vector<Int_t> &newlist, TClonesArray *mcTrackArray);
 	// don't allow copying (-Weffc++)
-	PndEmcMakeCluster(const PndEmcMakeCluster&);	// no implementation
-	PndEmcMakeCluster& operator= (const PndEmcMakeCluster&);	// no implementation
-  
-private:
-	/** Input array of CbmDigis **/
-	TClonesArray* fDigiArray;
-	
-	/** Input array of Hits and MC Tracks ... needed for MC **/
-	TClonesArray* fHitArray;
-	TClonesArray* fMCTrackArray;
 
-	/** Output array of PndEmcClusters **/
-	TClonesArray* fClusterArray;	//!< active clusters
-	TClonesArray* fWriteOutArray;	//!< expired clusters
-	  
-	BinaryFunctor* fDigiFunctor;
-	std::vector<PndEmcCluster*> fClusterList;
-	
-	Double_t fDigiEnergyTresholdBarrel;
-	Double_t fDigiEnergyTresholdFWD;
-	Double_t fDigiEnergyTresholdBWD;
-	Double_t fDigiEnergyTresholdShashlyk;
-	Double_t fClusterActiveTime; //!< Defines how long clusters are kept open in timebased reconstruction
-	
-	std::vector<Double_t> fClusterPosParam;
-	Int_t fMapVersion;
-	
-	static Int_t fEventCounter;
-	
-	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
-	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
-	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
+	/** Input array of PndEmcDigis */
+	TClonesArray *fDigiArray;
+
+	/** Input array of Hits and MC Tracks ... needed for MC **/
+	TClonesArray *fHitArray;
+	TClonesArray *fMCTrackArray;
+
+	/** Output array of PndEmcClusters */
+	TClonesArray *fClusterArray; //!< active clusters
+
+	PndEmcGeoPar *fGeoPar;   /** Geometry parameter container */
+	PndEmcDigiPar *fDigiPar; /** Digitisation parameter container **/
+	PndEmcRecoPar *fRecoPar; /** Reconstruction parameter container */
 
 	/** Verbosity level **/
 	Int_t fVerbose;
 
+	Double_t fDigiEnergyTresholdBarrel;   /**< Energy threshold for digis from the barrel section */
+	Double_t fDigiEnergyTresholdFWD;	  /**< Energy threshold for digis from the FwEndcap section */
+	Double_t fDigiEnergyTresholdBWD;	  /**< Energy threshold for digis from the BwEndcap section */
+	Double_t fDigiEnergyTresholdShashlyk; /**< Energy threshold for digis from the Shashlyk section */
+	Double_t fClusterEnergyCut;			  /**< Energy threshold for clusters */
+
+	Double_t fMaxECut;
+
+	Double_t fTimebunchCutTime; // Defines how long clusters are kept open in timebased reconstruction
+	Double_t fClusterActiveTime;
+	BinaryFunctor *fDigiFunctor;
+
+	Int_t fNrOfEvents;
+	Int_t fNrOfDigis;
+	Int_t nOnlProg;
+	Int_t digiCounter;
+	Int_t evtCounter;
+
+	std::vector<Double_t> fClusterPosParam;
+
 	Bool_t fStoreClusters;
-	Bool_t fStoreClusterBase; 	//restore digis in case of a timebased run
+	Bool_t fStoreClusterBase; //re-store digis in case of a timebased run
+	Bool_t fMerge;
+	Bool_t fRemoveLowEclus;
+
+	TH1I *hClusMultiplicity;
+	TH1I *hEventsPerCluster;
+	TH1D *hTimeDifference;
 
 	TStopwatch fTimer;
 
-	ClassDef(PndEmcMakeCluster,2)
+	ClassDef(PndEmcMakeCluster, 3)
 };
 #endif // PNDEMCMAKECLUSTER_HH
