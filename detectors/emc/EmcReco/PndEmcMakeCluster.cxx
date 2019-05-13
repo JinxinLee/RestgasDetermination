@@ -49,30 +49,7 @@
 using std::cout;
 using std::endl;
 
-PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters) : PndPersistencyTask("EmcClusteringTask", verbose),
-																			fDigiArray(NULL),
-																			fHitArray(NULL),
-																			fMCTrackArray(NULL),
-																			fClusterArray(NULL),
-																			fGeoPar(new PndEmcGeoPar()),
-																			fDigiPar(new PndEmcDigiPar()),
-																			fRecoPar(new PndEmcRecoPar()),
-																			fVerbose(verbose),
-																			fDigiEnergyTresholdBarrel(0.), fDigiEnergyTresholdFWD(0.), fDigiEnergyTresholdBWD(0.), fDigiEnergyTresholdShashlyk(0.),
-																			fClusterEnergyCut(0.030),
-																			fTimebunchCutTime(0.),
-																			fClusterActiveTime(5.),
-																			fDigiFunctor(NULL),
-																			fNrOfEvents(0),
-																			fNrOfDigis(0),
-																			nOnlProg(0),
-																			digiCounter(0),
-																			evtCounter(0),
-																			fClusterPosParam(),
-																			fStoreClusters(storeclusters),
-																			fStoreClusterBase(kTRUE),
-																			fMerge(kTRUE),
-																			fRemoveLowEclus(kTRUE)
+PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters) : PndPersistencyTask("EmcClusteringTask", verbose), fDigiArray(NULL), fHitArray(NULL), fMCTrackArray(NULL), fClusterArray(NULL), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fDigiEnergyTresholdBarrel(0.), fDigiEnergyTresholdFWD(0.), fDigiEnergyTresholdBWD(0.), fDigiEnergyTresholdShashlyk(0.), fClusterEnergyCut(0.030), fTimebunchCutTime(0.), fClusterActiveTime(5.), fDigiFunctor(NULL), fNrOfEvents(0), fNrOfDigis(0), nOnlProg(0), digiCounter(0), evtCounter(0), fClusterPosParam(), fStoreClusters(storeclusters), fStoreClusterBase(kTRUE), fMerge(kTRUE), fRemoveLowEclus(kTRUE)
 {
 	fClusterPosParam.clear();
 	SetPersistency(storeclusters);
