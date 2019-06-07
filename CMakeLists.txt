@@ -205,18 +205,94 @@ Else(PANDAROOT_MODULAR_BUILD)
 
   SET(SIMPATH $ENV{SIMPATH})
 
-  find_package(ROOT 5.32.00 REQUIRED)
-  #find_package(PLUTO REQUIRED)
-  #find_package(glpk REQUIRED)
-  find_package(Pythia8 REQUIRED)
-  find_package(GENERATORS REQUIRED)
-  find_package(GEANT3 REQUIRED)
-  find_package(GEANT4)
-  find_package(GEANT4DATA)
-  find_package(GEANT4VMC)
-  find_package(CLHEP)
-  find_package(CERNLIB)
-  find_package(HEPMC)
+  if (COMMAND find_package2)
+    # Check if the external packages are installed into a separate install
+    # directory
+    CHECK_EXTERNAL_PACKAGE_INSTALL_DIR()
+
+    # searches for needed packages
+    # REQUIRED means that cmake will stop if this packages are not found
+    # For example the framework can run without GEANT4, but ROOT is
+    # mandatory
+
+    if(SIMPATH)
+      set(CMAKE_PREFIX_PATH ${SIMPATH} ${CMAKE_PREFIX_PATH})
+    endif()
+
+    find_package2(PUBLIC ROOT  VERSION 6.10.00  REQUIRED)
+    find_package2(PUBLIC FairLogger  VERSION 1.2.0 REQUIRED)
+    find_package2(PUBLIC Pythia6)
+    find_package2(PUBLIC Pythia8)
+    find_package2(PUBLIC Protobuf)
+    find_package2(PUBLIC msgpack)
+    find_package2(PUBLIC FlatBuffers)
+
+    find_package2(PUBLIC Geant3)
+    Set(GEANT3_INCLUDE_DIR ${Geant3_INCLUDE_DIRS})
+    if(Geant3_FOUND)
+      list(APPEND PROJECT_PACKAGE_COMPONENTS Geant3)
+      Set(Geant3_LIBRARY_DIR ${Geant3_DIR}/${Geant3_CMAKE_INSTALL_LIBDIR})
+      Set(G3SYS ${Geant3_DIR})
+      SET(LD_LIBRARY_PATH ${LD_LIBRARY_PATH} ${Geant3_LIBRARY_DIR})
+      FIND_PATH(Geant3_SYSTEM_DIR NAMES data PATHS
+        ${Geant3_DIR}/../../share/geant3
+        NO_DEFAULT_PATH)
+    endif()
+
+    find_package2(PUBLIC Geant4)
+    Set(GEANT4_INCLUDE_DIR ${Geant4_INCLUDE_DIRS})
+    Set(GEANT4_LIBRARY_DIR "${Geant4_DIR}/..")
+    
+    Find_Package2(PUBLIC VGM)
+
+    find_package2(PUBLIC Geant4VMC)
+    if(Geant4VMC_FOUND)
+      Set(Geant4VMC_LIBRARY_DIR "${Geant4VMC_DIR}/${Geant4VMC_CMAKE_INSTALL_LIBDIR}")
+      Set(Geant4VMC_SHARE_DIR "${Geant4VMC_DIR}/share")
+      Find_Path(Geant4VMC_MACRO_DIR NAMES g4libs.C PATHS
+	${Geant4VMC_SHARE_DIR}/Geant4VMC-${Geant4VMC_VERSION}/examples/macro
+	NO_DEFAULT_PATH
+	)
+    Endif()
+
+    find_package2( PUBLIC IWYU)
+    if(WITH_GO_EXAMPLE)
+      find_package2(PUBLIC Go VERSION 1.7)
+      if(Go_FOUND)
+	set(Go_VERSION "${GO_VERSION}")
+      endif()
+    endif()
+
+    find_package2(PUBLIC GSL)
+    if(NOT DEFINED GTEST_ROOT)
+      set(GTEST_ROOT ${SIMPATH})
+    endif()
+
+    find_package2(PUBLIC FairMQ VERSION 1.2.3)
+  Else(COMMAND find_package2)
+    find_package(ROOT 5.32.00 REQUIRED)
+    #find_package(PLUTO REQUIRED)
+    #find_package(glpk REQUIRED)
+    find_package(Pythia8 REQUIRED)
+    find_package(GENERATORS REQUIRED)
+    find_package(GEANT3 REQUIRED)
+    find_package(GEANT4)
+    find_package(GEANT4DATA)
+    find_package(GEANT4VMC)
+    find_package(CLHEP)
+    find_package(CERNLIB)
+    find_package(HEPMC)
+  EndIf(COMMAND find_package2)
+
+
+If(FAIRSOFT_EXTERN)
+  set(BOOST_ROOT ${SIMPATH})
+  set(GSL_DIR ${SIMPATH})
+Else(FAIRSOFT_EXTERN)
+  set(BOOST_ROOT ${SIMPATH}/basics/boost)
+  set(GSL_DIR ${SIMPATH}/basics/gsl)
+EndIf(FAIRSOFT_EXTERN)
+
 EndIf(PANDAROOT_MODULAR_BUILD)
 
 SET (PYTHIA8_INCLUDE_DIR
