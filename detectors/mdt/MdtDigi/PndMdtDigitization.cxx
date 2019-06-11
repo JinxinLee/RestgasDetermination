@@ -100,7 +100,7 @@ void PndMdtDigitization::exec_e()
   // Reset output array
   fDigiBoxArray->Delete();
   fDigiStripArray->Delete();
-  Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
+  Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber() - 1;
 
   Int_t nWaveform = fWaveformArray->GetEntriesFast();
   PndMdtWaveform* theWf(0);
@@ -135,7 +135,7 @@ void PndMdtDigitization::exec_t()
 {
   // Reset output array
   fDigiArray->Delete();
-  Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
+  Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber() - 1;
 
   Int_t nWaveform = fWaveformArray->GetEntriesFast();
   PndMdtWaveform* theWf(0);

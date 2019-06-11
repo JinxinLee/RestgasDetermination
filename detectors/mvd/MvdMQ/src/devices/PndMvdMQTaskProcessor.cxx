@@ -116,7 +116,7 @@ void PndMvdMQTaskProcessor::Run()
 	  
 	  // Execute hit finder task
 	  fOutput->Clear();
-	  LOG(INFO) << " analyzing event " << fEventHeader->GetMCEntryNumber();
+	  LOG(INFO) << " analyzing event " << fEventHeader->GetMCEntryNumber() - 1;
 	  fFairTask->ExecMQ(fInput,fOutput);
 
 	  TMessage* messageFEH;

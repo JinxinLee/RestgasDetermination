@@ -248,7 +248,7 @@ void PndSttCellTrackFinderAnalysisTask::CheckFirstTracklets() {
 			"MCTrack");
 	PndMCResult myResultHitToPoint = fMCMatch->GetMCInfo("STTHit", "STTPoint");
 
-	eventNumber = myEventHeader->GetMCEntryNumber();
+	eventNumber = myEventHeader->GetMCEntryNumber() - 1;
 
 	if (fVerbose > 2) {
 		cout << "EventNumber: " << eventNumber << endl;
@@ -354,7 +354,7 @@ void PndSttCellTrackFinderAnalysisTask::CheckTrackletCombinations() {
 			"MCTrack");
 	PndMCResult myResultHitToPoint = fMCMatch->GetMCInfo("STTHit", "STTPoint");
 
-	eventNumber = myEventHeader->GetMCEntryNumber();
+	eventNumber = myEventHeader->GetMCEntryNumber() - 1;
 
 	if (fVerbose > 2) {
 		cout << "EventNumber: " << eventNumber << endl;

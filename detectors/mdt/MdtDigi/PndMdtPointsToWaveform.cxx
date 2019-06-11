@@ -149,7 +149,7 @@ void PndMdtPointsToWaveform::exec_e()
 
   Double_t fEventTime = FairRootManager::Instance()->GetEventTime();//nano seconds
   Int_t nHits = fPointArray->GetEntriesFast();
-  Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
+  Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber() - 1;
   if (fVerbose>1){
     cout<<"================PndMdtPointsToWaveform==============================================="<<endl;
     cout<<"Event No.: "<<evtNo<<", Event Time: "<<fEventTime<<", Load in "<<nHits<< " PndMdtPoint."<<endl;
@@ -316,7 +316,7 @@ void PndMdtPointsToWaveform::exec_t()
 
   Double_t fEventTime = FairRootManager::Instance()->GetEventTime();//nano seconds
   Int_t nHits = fPointArray->GetEntriesFast();
-  Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
+  Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber() - 1;
   if (fVerbose>1){
     cout<<"================PndMdtPointsToWaveform==============================================="<<endl;
     cout<<"Event No.: "<<evtNo<<", Event Time: "<<fEventTime<<", Load in "<<nHits<< " PndMdtHit."<<endl;

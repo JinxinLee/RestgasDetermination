@@ -186,7 +186,7 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 void PndSttCellTrackFinderTask::Exec(Option_t*) {
 
 	//FairEventHeader* myEventHeader = (FairEventHeader*) fEventHeader; //[R.K. 01/2017] unused variable?
-	//int eventNumber = myEventHeader->GetMCEntryNumber(); //[R.K. 01/2017] unused variable?
+	//int eventNumber = myEventHeader->GetMCEntryNumber() - 1; //[R.K. 01/2017] unused variable?
 
 	if (fVerbose > 0) {
 		cout

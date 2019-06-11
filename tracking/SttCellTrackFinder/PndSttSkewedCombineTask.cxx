@@ -82,7 +82,7 @@ InitStatus PndSttSkewedCombineTask::Init() {
 void PndSttSkewedCombineTask::Exec(Option_t*) {
 
 	FairEventHeader* myEventHeader = (FairEventHeader*) fEventHeader;
-	int eventNumber = myEventHeader->GetMCEntryNumber();
+	int eventNumber = myEventHeader->GetMCEntryNumber() - 1;
 
 	if (fVerbose > 0) {
 		std::cout << "====================Begin PndSttSkewedCombineTask::Exec=======================" << endl;

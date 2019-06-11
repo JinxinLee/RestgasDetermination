@@ -277,7 +277,7 @@ void PndDrcDigiTask::ActivatePixel(Int_t sensorId, Int_t k, Int_t csflag) {
   FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
   
   digi->SetLink(fPpt->GetLink(0)); // MCTrack
-  digi->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "DrcPDPoint", k));
+  digi->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber() - 1,  "DrcPDPoint", k));
   
   fDataBuffer->FillNewData(digi, timeStamp, timeStamp + fDeadTime);
 

@@ -369,7 +369,7 @@ void PndSdsHybridHitProducer::Exec(Option_t*)
 		FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
 		for (int i = 0; i < (int)indices.size(); i++){
 			tempPixel->SetInsertHistory(true);
-			tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, indices[i]));
+			tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber() - 1,  fInBranchId, indices[i]));
 			PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fPointArray->At(indices[i]);
 			tempPixel->AddLinks(*(myPoint->GetPointerToLinks()));
 		}

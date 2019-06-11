@@ -365,10 +365,10 @@ void PndEmcWaveformToDigi::Exec(Option_t*)
 		std::cout<<"fWaveformArray size #"<<nWaveforms<<std::endl;
 	}
 	//std::cout<<"fEvtHeaderArray size #"<<fEvtHeaderArray->GetEntriesFast()<<std::endl;
-	//Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
+	//Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber() - 1;
 	//for(Int_t iheader=0;iheader<fEvtHeaderArray->GetEntriesFast();++iheader){
 	//	FairEventHeader* evtHeader= (FairEventHeader*) fEvtHeaderArray->At(iheader);
-	//	cout<<"===> Event NO. #"<<evtHeader->GetMCEntryNumber()<<", event time#"<<evtHeader->GetEventTime()<<endl;
+	//	cout<<"===> Event NO. #"<<evtHeader->GetMCEntryNumber() - 1<<", event time#"<<evtHeader->GetEventTime()<<endl;
 	//}
 
 

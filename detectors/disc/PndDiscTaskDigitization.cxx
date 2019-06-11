@@ -354,7 +354,7 @@ void PndDiscTaskDigitization::Exec(Option_t*)
             LOG(FATAL) << "gGeoManager is NULL - cannot retrieve geo information !!!";
         }
 
-        PndDiscDigitizedHit * digit = new PndDiscDigitizedHit(FairLink(input_file_id, event_header->GetMCEntryNumber(), mc_point_branch_id, i),
+        PndDiscDigitizedHit * digit = new PndDiscDigitizedHit(FairLink(input_file_id, event_header->GetMCEntryNumber() - 1, mc_point_branch_id, i),
                                                                   detector_id, readout_id, readout_id*3 + 3-pixel_info.column_on_grid, pixel_info.pixel_number,
                                                                   pixel_info.row_on_grid, hit_z, tdc_time_ns, absolute_time, classifier);
 

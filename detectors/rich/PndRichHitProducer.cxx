@@ -299,7 +299,7 @@ PndRichDigi* PndRichHitProducer::AddDigi(Int_t detID, Int_t sensorId,
    if (fTimeOrderedDigi){
       hitnew->ResetLinks();
       FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
-      hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "RichPDPoint", index));
+      hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber() - 1,  "RichPDPoint", index));
       hitnew->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EventHeader.", -1));
       PndRichPDPoint* point  = (PndRichPDPoint*) fPDPointArray->At(index);
       if (point) hitnew->AddLinks(*(point->GetPointerToLinks()));

@@ -159,7 +159,7 @@ void PndEmcWaveformWriteoutBuffer::WriteToFile( PndEmcWaveform* theWaveform)
 {
 	TGraphErrors* gr = theWaveform->ToTGraph();
 	TString name("evt");
-	Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
+	Int_t evtNo = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber() - 1;
 	name += evtNo;
 	name += "_e";
 	std::vector<Int_t> evtList = theWaveform->GetEvtList();

@@ -253,7 +253,7 @@ PndFtsHit* PndFtsHitProducerRealFull::AddHit(Int_t detID, Int_t tubeID, Int_t ch
   if (fTimeOrderedDigi){
     hitnew->ResetLinks();
     FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
-    hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "FTSPoint", iPoint));
+    hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber() - 1,  "FTSPoint", iPoint));
     hitnew->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EventHeader.", -1));
   }
   fDataBuffer->FillNewData(hitnew, p+EventTime+timeOfFlight, timeOfFlight+EventTime);

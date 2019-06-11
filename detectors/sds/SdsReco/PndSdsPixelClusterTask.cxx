@@ -217,7 +217,7 @@ void PndSdsPixelClusterTask::Exec(Option_t*)
   Int_t entryNumber = -1;
   if (fEventHeader != 0){
 	  //eventTime = fEventHeader->GetEventTime(); //[R.K. 01/2017] unused variable
-	  entryNumber = fEventHeader->GetMCEntryNumber();
+	  entryNumber = fEventHeader->GetMCEntryNumber() - 1;
   }
   else {
 	  //eventTime = FairRootManager::Instance()->GetEventTime(); //[R.K. 01/2017] unused variable

@@ -270,7 +270,7 @@ void PndEmcHitsToWaveform::Exec(Option_t*)
 
 	Double_t EventTime = FairRootManager::Instance()->GetEventTime();//nano seconds
 	Int_t nHits = fHitArray->GetEntriesFast();
-	Int_t evtNo = FairRun::Instance()->GetEventHeader()->GetMCEntryNumber();
+	Int_t evtNo = FairRun::Instance()->GetEventHeader()->GetMCEntryNumber() - 1;
 	if (fVerbose>1){
 		cout<<"**************************************"<<endl;
 		cout<<"Event No. #"<<evtNo<<", EvtTime #"<<EventTime<<std::endl;
