@@ -49,9 +49,9 @@ else
 fi
 #Replace space with -
 OS_String="${OS// /-}"
-
+MYBUILDDIR="$PWD/../build_$CI_JOB_NAME"
 echo "export LINUX_FLAVOUR=$OS_String-$VER"
-echo "export BUILDDIR=$PWD/../build"
+echo "export BUILDDIR=$MYBUILDDIR"
 echo "export SOURCEDIR=$PWD"
 echo "export SIMPATH=$SIMPATH"
 echo "export FAIRROOTPATH=$FAIRROOTPATH"
@@ -59,7 +59,7 @@ echo "export FAIRSOFT_VERSION=$FAIRSOFT_VERSION"
 echo "export FAIRROOT_VERSION=$FAIRROOT_VERSION"
 echo "#!/bin/bash" > Dart.cfg
 echo "export LINUX_FLAVOUR=$OS_String-$VER" >> Dart.cfg
-echo "export BUILDDIR=$PWD/../build" >> Dart.cfg
+echo "export BUILDDIR=$MYBUILDDIR" >> Dart.cfg
 echo "export SOURCEDIR=$PWD" >> Dart.cfg
 echo "export SIMPATH=$SIMPATH" >> Dart.cfg
 echo "export FAIRROOTPATH=$FAIRROOTPATH" >> Dart.cfg
