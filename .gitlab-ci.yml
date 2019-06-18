@@ -1,9 +1,6 @@
 stages:
  - CDASH
 
-cache:
-  untracked: true
-
 before_script:
   - source generateDartConfig.sh
 
