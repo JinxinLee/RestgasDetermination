@@ -36,20 +36,20 @@ void PndLmdDetector::SetDefaultSensorNames() {
 }
 
 void PndLmdDetector::ModifyGeometry() {
-	LOG(INFO) << "Modifying the geometry for the Lmd detector." << FairLogger::endl;
+	LOG(INFO) << "Modifying the geometry for the Lmd detector.";
 
 	TString detStr = "lmd_root";
 
 	TGeoPNEntry* entry = gGeoManager->GetAlignableEntry(detStr.Data());
 	if (entry) {
-		LOG(INFO) << "Modifying using symlinks." << FairLogger::endl;
+		LOG(INFO) << "Modifying using symlinks.";
 		ModifyGeometryBySymlink();
 	}
 	else {
-		LOG(INFO) << "Modifying using full path." << FairLogger::endl;
+		LOG(INFO) << "Modifying using full path.";
 		ModifyGeometryByFullPath();
 	}
-	LOG(DEBUG) << "Align in total " << fAlignmentMatrices.size() << " detectors." << FairLogger::endl;
+	LOG(DEBUG) << "Align in total " << fAlignmentMatrices.size() << " detectors.";
 	std::cout << "PndLmdDetector:modifyGeometry: success!\n";
 }
 

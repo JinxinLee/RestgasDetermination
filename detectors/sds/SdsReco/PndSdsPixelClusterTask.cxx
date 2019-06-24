@@ -92,7 +92,7 @@ PndSdsPixelClusterTask::~PndSdsPixelClusterTask()
 
 // -------------------------------------------------------------------------
 void   PndSdsPixelClusterTask::InitMQ(TList* tempList) {
-  LOG(INFO) << "********************************************** PixelFindHits::InitMQ()" << FairLogger::endl;
+  LOG(INFO) << "********************************************** PixelFindHits::InitMQ()";
 //  fDigiPar = (PndSdsPixelDigiPar*)tempList->FindObject(fParName.Data());
 
   fHitArray = new TClonesArray("PndSdsHit",10000);
@@ -109,12 +109,12 @@ void   PndSdsPixelClusterTask::InitMQ(TList* tempList) {
 
 // -------------------------------------------------------------------------
 void   PndSdsPixelClusterTask::ExecMQ(TList* inputList,TList* outputList) {
-  //  LOG(INFO) << "********************************************** PixelFindHits::ExecMQ(" << inputList->GetName() << "," << outputList->GetName() << "), Event " << fTNofEvents << FairLogger::endl;
-  //  LOG(INFO) << "********************************************** PixelFindHits::ExecMQ(), Event " << fTNofEvents << FairLogger::endl;
+  //  LOG(INFO) << "********************************************** PixelFindHits::ExecMQ(" << inputList->GetName() << "," << outputList->GetName() << "), Event " << fTNofEvents;
+  //  LOG(INFO) << "********************************************** PixelFindHits::ExecMQ(), Event " << fTNofEvents;
 //  inputList->Print();
   fDigiArray = (TClonesArray*) inputList->FindObject("PndSdsDigiPixels");
   fEventHeader = (FairEventHeader*) inputList->FindObject("EventHeader.");
-  LOG(INFO) << "DigiArray: " << fDigiArray->GetEntriesFast() << FairLogger::endl;
+  LOG(INFO) << "DigiArray: " << fDigiArray->GetEntriesFast();
 
 
   outputList->Add(fClusterArray);
