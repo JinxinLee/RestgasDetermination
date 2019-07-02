@@ -9,26 +9,26 @@ before_script:
 .current:
   stage: CDASH
   variables:
-    FAIRSOFT_VERSION: may16p1
-    FAIRROOT_VERSION: v-17.10b
-  tags:
-    - may16p1
-    - v-17.10
-
-.future:
-  stage: CDASH
-  variables:
     FAIRSOFT_VERSION: may18
     FAIRROOT_VERSION: v18.0.4
   tags:
    - may18
    - v18.0.4
 
+.future:
+  stage: CDASH
+  variables:
+    FAIRSOFT_VERSION: jul19
+    FAIRROOT_VERSION: v18.0.7
+  tags:
+   - jul19
+   - v18.0.7
+
 # Experimental build, including tests, mostly upon finished merge
 current:full:
   extends: .current
   script:
-    - source Dart.sh Experimental Dart.cfg
+    - source Dart.sh Experimental Dart-$CI_JOB_NAME.cfg
   only:
     - branches@PandaRootGroup/PandaRoot
   except:
@@ -37,7 +37,7 @@ current:full:
 future:full:
   extends: .future
   script:
-    - source Dart.sh Experimental Dart.cfg
+    - source Dart.sh Experimental Dart-$CI_JOB_NAME.cfg
   only:
     - branches@PandaRootGroup/PandaRoot
   except:
@@ -47,7 +47,7 @@ future:full:
 current:continuous:
   extends: .current
   script:
-    - source Dart.sh Continuous Dart.cfg
+    - source Dart.sh Continuous Dart-$CI_JOB_NAME.cfg
   except:
     - branches@PandaRootGroup/PandaRoot
     - schedules
@@ -55,7 +55,7 @@ current:continuous:
 future:continuous:
   extends: .future
   script:
-    - source Dart.sh Continuous Dart.cfg
+    - source Dart.sh Continuous Dart-$CI_JOB_NAME.cfg
   except:
     - branches@PandaRootGroup/PandaRoot
     - schedules
@@ -64,7 +64,7 @@ future:continuous:
 current:nightly:
   extends: .current
   script:
-    - source Dart.sh Nightly Dart.cfg
+    - source Dart.sh Nightly Dart-$CI_JOB_NAME.cfg
   only:
     # refs: is needed here to work with varables
     refs:
@@ -75,7 +75,7 @@ current:nightly:
 future:nightly:
   extends: .future
   script:
-    - source Dart.sh Nightly Dart.cfg
+    - source Dart.sh Nightly Dart-$CI_JOB_NAME.cfg
   only:
     # refs: is needed here to work with varables
     refs:
@@ -87,7 +87,7 @@ future:nightly:
 current:profile:
   extends: .current
   script:
-    - source Dart.sh Profile Dart.cfg
+    - source Dart.sh Profile Dart-$CI_JOB_NAME.cfg
   only:
     # refs: is needed here to work with varables
     refs:
@@ -98,7 +98,7 @@ current:profile:
 future:profile:
   extends: .future
   script:
-    - source Dart.sh Profile Dart.cfg
+    - source Dart.sh Profile Dart-$CI_JOB_NAME.cfg
   only:
     # refs: is needed here to work with varables
     refs:
