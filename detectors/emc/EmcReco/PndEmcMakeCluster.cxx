@@ -121,10 +121,8 @@ InitStatus PndEmcMakeCluster::Init()
 	}
 
 	// Create and register output array
-	if (FairRunAna::Instance()->IsTimeStamp())
-		fClusterArray = ioman->Register("EmcClusterTemp", "PndEmcCluster", "Emc", fStoreClusters);
-	else
-		fClusterArray = ioman->Register("EmcCluster", "PndEmcCluster", "Emc", fStoreClusters);
+
+	fClusterArray = ioman->Register("EmcCluster", "PndEmcCluster", "Emc", fStoreClusters);
 
 	// for subsequent methods we need the "event grouping" as given by the TS buffer
 	// --> fDigiArray becomes an output array.
