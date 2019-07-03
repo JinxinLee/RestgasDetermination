@@ -2,7 +2,7 @@
 # test for architecture
 arch=$(uname -s | tr '[A-Z]' '[a-z]')
 chip=$(uname -m | tr '[A-Z]' '[a-z]')
-echo "Generating Dart-$CI_JOB_NAME.cfg file"
+echo "Generating Dart-${CI_JOB_NAME//:/_}.cfg file"
 echo ~
 source ~/.bashrc
 echo "PANDAROOT_SETTINGS=$PANDAROOT_SETTINGS"
@@ -49,7 +49,8 @@ else
 fi
 #Replace space with -
 OS_String="${OS// /-}"
-MYBUILDDIR="$PWD/../build_$CI_JOB_NAME"
+MYJOBTAG=${CI_JOB_NAME//:/_}
+MYBUILDDIR="$PWD/../build_$MYJOBTAG"
 echo "export LINUX_FLAVOUR=$OS_String-$VER"
 echo "export BUILDDIR=$MYBUILDDIR"
 echo "export SOURCEDIR=$PWD"
@@ -57,11 +58,11 @@ echo "export SIMPATH=$SIMPATH"
 echo "export FAIRROOTPATH=$FAIRROOTPATH"
 echo "export FAIRSOFT_VERSION=$FAIRSOFT_VERSION"
 echo "export FAIRROOT_VERSION=$FAIRROOT_VERSION"
-echo "#!/bin/bash" > Dart-$CI_JOB_NAME.cfg
-echo "export LINUX_FLAVOUR=$OS_String-$VER" >> Dart-$CI_JOB_NAME.cfg
-echo "export BUILDDIR=$MYBUILDDIR" >> Dart-$CI_JOB_NAME.cfg
-echo "export SOURCEDIR=$PWD" >> Dart-$CI_JOB_NAME.cfg
-echo "export SIMPATH=$SIMPATH" >> Dart-$CI_JOB_NAME.cfg
-echo "export FAIRROOTPATH=$FAIRROOTPATH" >> Dart-$CI_JOB_NAME.cfg
-echo "export FAIRSOFT_VERSION=$FAIRSOFT_VERSION" >> Dart-$CI_JOB_NAME.cfg
-echo "export FAIRROOT_VERSION=$FAIRROOT_VERSION" >> Dart-$CI_JOB_NAME.cfg
+echo "#!/bin/bash" > Dart-$MYJOBTAG.cfg
+echo "export LINUX_FLAVOUR=$OS_String-$VER" >> Dart-$MYJOBTAG.cfg
+echo "export BUILDDIR=$MYBUILDDIR" >> Dart-$MYJOBTAG.cfg
+echo "export SOURCEDIR=$PWD" >> Dart-$MYJOBTAG.cfg
+echo "export SIMPATH=$SIMPATH" >> Dart-$MYJOBTAG.cfg
+echo "export FAIRROOTPATH=$FAIRROOTPATH" >> Dart-$MYJOBTAG.cfg
+echo "export FAIRSOFT_VERSION=$FAIRSOFT_VERSION" >> Dart-$MYJOBTAG.cfg
+echo "export FAIRROOT_VERSION=$FAIRROOT_VERSION" >> Dart-$MYJOBTAG.cfg

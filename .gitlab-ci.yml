@@ -3,6 +3,7 @@ stages:
 
 before_script:
   - source generateDartConfig.sh
+  - export MYJOBTAG=${CI_JOB_NAME//:/_}
 
 # Templates for various FAIR versions
 # If a machine has all tags it can run
@@ -28,7 +29,7 @@ before_script:
 current:full:
   extends: .current
   script:
-    - source Dart.sh Experimental Dart-$CI_JOB_NAME.cfg
+    - source Dart.sh Experimental Dart-$MYJOBTAG.cfg
   only:
     - branches@PandaRootGroup/PandaRoot
   except:
@@ -37,7 +38,7 @@ current:full:
 future:full:
   extends: .future
   script:
-    - source Dart.sh Experimental Dart-$CI_JOB_NAME.cfg
+    - source Dart.sh Experimental Dart-$MYJOBTAG.cfg
   only:
     - branches@PandaRootGroup/PandaRoot
   except:
@@ -47,7 +48,7 @@ future:full:
 current:continuous:
   extends: .current
   script:
-    - source Dart.sh Continuous Dart-$CI_JOB_NAME.cfg
+    - source Dart.sh Continuous Dart-$MYJOBTAG.cfg
   except:
     - branches@PandaRootGroup/PandaRoot
     - schedules
@@ -55,7 +56,7 @@ current:continuous:
 future:continuous:
   extends: .future
   script:
-    - source Dart.sh Continuous Dart-$CI_JOB_NAME.cfg
+    - source Dart.sh Continuous Dart-$MYJOBTAG.cfg
   except:
     - branches@PandaRootGroup/PandaRoot
     - schedules
@@ -64,7 +65,7 @@ future:continuous:
 current:nightly:
   extends: .current
   script:
-    - source Dart.sh Nightly Dart-$CI_JOB_NAME.cfg
+    - source Dart.sh Nightly Dart-$MYJOBTAG.cfg
   only:
     # refs: is needed here to work with varables
     refs:
@@ -75,7 +76,7 @@ current:nightly:
 future:nightly:
   extends: .future
   script:
-    - source Dart.sh Nightly Dart-$CI_JOB_NAME.cfg
+    - source Dart.sh Nightly Dart-$MYJOBTAG.cfg
   only:
     # refs: is needed here to work with varables
     refs:
@@ -87,7 +88,7 @@ future:nightly:
 current:profile:
   extends: .current
   script:
-    - source Dart.sh Profile Dart-$CI_JOB_NAME.cfg
+    - source Dart.sh Profile Dart-$MYJOBTAG.cfg
   only:
     # refs: is needed here to work with varables
     refs:
@@ -98,7 +99,7 @@ current:profile:
 future:profile:
   extends: .future
   script:
-    - source Dart.sh Profile Dart-$CI_JOB_NAME.cfg
+    - source Dart.sh Profile Dart-$MYJOBTAG.cfg
   only:
     # refs: is needed here to work with varables
     refs:
