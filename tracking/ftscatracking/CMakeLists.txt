@@ -3,15 +3,8 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${BASE_INCLUDE_DIRECTORIES}
 )
 
-
-If(NOT ${ROOT_HAS_VC})
-  set(SYSTEM_INCLUDE_DIRECTORIES
-      ${SYSTEM_INCLUDE_DIRECTORIES}
-      ${VC_INCLUDE_DIRS}
-  )
-EndIf()
-
 set(INCLUDE_DIRECTORIES
+${VCLEGACY_INCLUDE_DIRS}
 ${ROOT_INCLUDE_DIR}
 ${BASE_INCLUDE_DIRECTORIES}
 ${CMAKE_SOURCE_DIR}/pnddata
@@ -92,9 +85,6 @@ EndIf()
 set(LINKDEF  FtsCATrackingLinkDef.h)
 set(LIBRARY_NAME CAFtsTracking)
 
-set(DEPENDENCIES PndData Vc)
+set(DEPENDENCIES PndData VcLegacy)
 
 GENERATE_LIBRARY()
-
-# help to find the "external" vc
-#Add_Dependencies(CAFtsTracking Vc)

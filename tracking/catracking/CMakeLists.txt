@@ -8,15 +8,8 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${BASE_INCLUDE_DIRECTORIES}
 )
 
-
-If(NOT ${ROOT_HAS_VC})
-  set(SYSTEM_INCLUDE_DIRECTORIES
-      ${SYSTEM_INCLUDE_DIRECTORIES}
-      ${VC_INCLUDE_DIRS}
-  )
-EndIf()
-
 set(INCLUDE_DIRECTORIES
+${VCLEGACY_INCLUDE_DIRS}
 ${ROOT_INCLUDE_DIR}
 ${BASE_INCLUDE_DIRECTORIES}
 ${CMAKE_SOURCE_DIR}/pnddata
@@ -84,10 +77,6 @@ code/Performance/PndCADisplay.cxx
 set(LINKDEF  CATrackingLinkDef.h)
 set(LIBRARY_NAME CATracking)
 
-set(DEPENDENCIES PndData Stt Vc Base IdealTrackFinder Rho TrackingQA)
+set(DEPENDENCIES PndData Stt VcLegacy Base IdealTrackFinder Rho TrackingQA)
 
 GENERATE_LIBRARY()
-
-# help to find the "external" vc
-#Add_Dependencies(CATracking Vc)
-
