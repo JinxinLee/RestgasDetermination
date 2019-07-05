@@ -27,7 +27,7 @@
 #include "PndEventCounterTask.h"
 #include "PndFileNameCreator.h"
 #include "PndFilteredPrimaryGenerator.h"
-
+#include "FairAsciiGenerator.h"
 #include "FairFileSource.h"
 #include "FairFileHeader.h"
 #include "FairParRootFileIo.h"
@@ -445,6 +445,10 @@ void PndMasterRunSim::SetGenerator()
     {
       UseEvtGenGenerator(fInput);
     }
+  else if (input.EndsWith(".asc") || input.Contains(".asc:"))
+    {
+      UseAsciiGenerator(fInput);
+    }
   else if (input.BeginsWith("dpm"))
     {
       UseDpmGenerator();
@@ -644,6 +648,16 @@ void PndMasterRunSim::UseDpmGenerator()
   LOG(INFO) << "Using PndDpmDirect(" << GetBeamMom() << ", " << fDpmFlag << ") generator" << FairLogger::endl;
   PndDpmDirect *Dpm= new PndDpmDirect(GetBeamMom(), fDpmFlag);
   fGen->AddGenerator(Dpm);
+}
+
+
+
+void PndMasterRunSim::UseAsciiGenerator(TString AsciiFile)
+{
+  LOG(INFO) << "Using Asciigenerator" << FairLogger::endl;
+  FairAsciiGenerator *ascGen = new FairAsciiGenerator(AsciiFile);
+  fGen->AddGenerator(ascGen);
+
 }
 
 // -----   UseFtfGenerator   -----------------------------------------------

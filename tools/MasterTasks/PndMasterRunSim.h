@@ -207,7 +207,9 @@ class PndMasterRunSim : public FairRunSim
    *  @param leplepConfig configuration string of the LepLep generator
    */
   void UseLepLepGenerator(TString leplepConfig);
-
+  void UseAsciiGenerator(TString AsciiFile);
+  
+  
   /**
    * @brief Input of the simulation
    * @detail This string can be:
