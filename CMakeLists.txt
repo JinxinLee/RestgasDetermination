@@ -73,7 +73,6 @@ if(FAIRROOTPATH)
   find_package(FairRoot)
 endif(FAIRROOTPATH)
 
-
 # Load some basic macros which are needed later on
 include(FairMacros)
 include(WriteConfigFile)
@@ -205,6 +204,11 @@ Else(PANDAROOT_MODULAR_BUILD)
 
   SET(SIMPATH $ENV{SIMPATH})
 
+  if(SIMPATH)
+    set(CMAKE_PREFIX_PATH ${SIMPATH} ${CMAKE_PREFIX_PATH})
+    set(LD_LIBRARY_PATH ${LD_LIBRARY_PATH} ${SIMPATH}/lib)
+  endif()
+
   if (COMMAND find_package2)
     # Check if the external packages are installed into a separate install
     # directory
@@ -214,10 +218,6 @@ Else(PANDAROOT_MODULAR_BUILD)
     # REQUIRED means that cmake will stop if this packages are not found
     # For example the framework can run without GEANT4, but ROOT is
     # mandatory
-
-    if(SIMPATH)
-      set(CMAKE_PREFIX_PATH ${SIMPATH} ${CMAKE_PREFIX_PATH})
-    endif()
 
     find_package2(PUBLIC ROOT  VERSION 6.10.00  REQUIRED)
     find_package2(PUBLIC FairLogger  VERSION 1.2.0 REQUIRED)
@@ -255,18 +255,7 @@ Else(PANDAROOT_MODULAR_BUILD)
 	)
     Endif()
 
-    find_package2( PUBLIC IWYU)
-    if(WITH_GO_EXAMPLE)
-      find_package2(PUBLIC Go VERSION 1.7)
-      if(Go_FOUND)
-	set(Go_VERSION "${GO_VERSION}")
-      endif()
-    endif()
-
     find_package2(PUBLIC GSL)
-    if(NOT DEFINED GTEST_ROOT)
-      set(GTEST_ROOT ${SIMPATH})
-    endif()
 
     find_package2(PUBLIC FairMQ VERSION 1.2.3)
   Else(COMMAND find_package2)
