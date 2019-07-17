@@ -209,7 +209,13 @@ Else(PANDAROOT_MODULAR_BUILD)
     set(LD_LIBRARY_PATH ${LD_LIBRARY_PATH} ${SIMPATH}/lib)
   endif()
 
-  if (COMMAND find_package2)
+  if(NOT DEFINED FairRoot_VERSION)
+    execute_process(COMMAND ${FAIRROOTPATH}/bin/fairroot-config --version
+      OUTPUT_VARIABLE FairRoot_VERSION)
+    string(SUBSTRING "${FairRoot_VERSION}" 1 -1 FairRoot_VERSION)
+  endif()
+
+  if(FairRoot_VERSION VERSION_GREATER_EQUAL 18.2)
     # Check if the external packages are installed into a separate install
     # directory
     CHECK_EXTERNAL_PACKAGE_INSTALL_DIR()
@@ -258,7 +264,7 @@ Else(PANDAROOT_MODULAR_BUILD)
     find_package2(PUBLIC GSL)
 
     find_package2(PUBLIC FairMQ VERSION 1.2.3)
-  Else(COMMAND find_package2)
+  else()
     find_package(ROOT 5.32.00 REQUIRED)
     #find_package(PLUTO REQUIRED)
     #find_package(glpk REQUIRED)
@@ -271,7 +277,7 @@ Else(PANDAROOT_MODULAR_BUILD)
     find_package(CLHEP)
     find_package(CERNLIB)
     find_package(HEPMC)
-  EndIf(COMMAND find_package2)
+  endif()
 
 
 If(FAIRSOFT_EXTERN)
