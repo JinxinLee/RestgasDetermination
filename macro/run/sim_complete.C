@@ -5,13 +5,11 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 1.5)
+int sim_complete(Int_t nEvents = 1000, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552, TString prefix="../data/evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
 //  gDebug=5;
   TString parAsciiFile   = "all.par";
-
-  TString prefix         = "evtcomplete";     // prefix string for output files
 
   // TString inputGenerator =
   // EvtGen -> "xxxxxxxx.dec" (parses dec-file for initial particle) or "xxxxxxx.dec:initial_particle"
@@ -21,9 +19,9 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t Be
   // PIPI   -> "pipi:cosTheta(min,max)"
   // LEP    -> "leplep:pid(value):gegm(value):cosTheta(min,max)"
 
-  //TString inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
+  TString inputGenerator = "psi2s_JpsiEta_Jpsi_mumu_eta_3pi.dec";
   //TString inputGenerator = "dpm";
-  TString inputGenerator = "ftf";
+  //TString inputGenerator = "ftf";
   //TString inputGenerator = "box:type(211,1):p(1,1):tht(10,120):phi(0,360)";
 
   //-------------------------------------------------------------------------
@@ -34,7 +32,7 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t Be
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->SetNumberOfEvents(nEvents);
   fRun->SetBeamMom(BeamMomentum);
-  fRun->SetStoreTraj(kFALSE);
+  fRun->SetStoreTraj(kTRUE);
   // -----  Initialization   ------------------------------------------------
   fRun->Setup(prefix);
   // -----   Geometry   -----------------------------------------------------

@@ -1,11 +1,10 @@
 // Macro for running Panda local reconstruction tasks
 // to run the macro:
 // root  recolocal_complete.C  or in root session root>.x  reco_complete.C
-int recolocal_complete(Int_t nEvents = 0)
+int recolocal_complete(Int_t nEvents = 0, TString  prefix = "../data/evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "digi";
   TString  friend1        = "digionly";

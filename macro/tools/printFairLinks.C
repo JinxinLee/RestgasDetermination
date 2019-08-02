@@ -1,11 +1,10 @@
-int printFairLinks(Int_t nEvents = 0)
+int printFairLinks(Int_t nEvents = 0, TString prefix="../data/evtcomplete")
 {
 
 	// Number of events to process
 //  Int_t nEvents = 0;  // if 0 all the vents will be processed
 
 	 TString  parAsciiFile   = "all.par";
-	  TString  prefix         = "./data/evtcomplete_15G";
 	  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
 	  TString  output         = "digionly";
 	  TString  friend1        = "digi";

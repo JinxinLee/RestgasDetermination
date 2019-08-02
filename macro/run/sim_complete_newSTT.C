@@ -5,13 +5,11 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-int sim_complete_newSTT(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 1.5)
+int sim_complete_newSTT(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 1.5, TString prefix="../data/evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
 //  gDebug=5;
   TString parAsciiFile   = "all.par";
-
-  TString prefix         = "evtcomplete";     // prefix string for output files
 
   // TString inputGenerator =
   // EvtGen -> "xxxxxxxx.dec" (parses dec-file for initial particle) or "xxxxxxx.dec:initial_particle"

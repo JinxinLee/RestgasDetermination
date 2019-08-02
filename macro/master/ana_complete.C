@@ -53,7 +53,7 @@ void countDoubles(RhoCandList &l, int &n1, int &n2, int &n3)
 	n3 = n_both;
 }
 
-int ana_complete(int nevts=0, TString  prefix = "evtcomplete")
+int ana_complete(int nevts=0, TString  prefix = "../data/evtcomplete")
 {
     //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";

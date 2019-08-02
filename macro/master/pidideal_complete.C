@@ -1,11 +1,10 @@
 // Macro for running Panda pid tasks
 // to run the macro:
 // root  pid_complete.C  or in root session root>.x  pid_complete.C
-int pidideal_complete(Int_t nEvents = 0)
+int pidideal_complete(Int_t nEvents = 0, TString  prefix = "../data/evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "pidideal";
   TString  friend1        = "digi";

@@ -1,7 +1,7 @@
 // Macro for running Panda pid tasks
 // to run the macro:
 // root  pid_complete.C  or in root session root>.x  pid_complete.C
-int pidTest_complete(Int_t nEvents = 0, TString  prefix = "evtcomplete")
+int pidTest_complete(Int_t nEvents = 0, TString  prefix = "../data/evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";

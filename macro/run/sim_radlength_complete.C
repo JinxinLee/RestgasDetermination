@@ -4,14 +4,12 @@
 // to run the macro:
 // root  sim_radlength_complete.C  or in root session root>.x  sim_radlength_complete.C
 
-int sim_radlength_complete(TString  SimEngine ="TGeant3", Double_t BeamMomentum = 15)
+int sim_radlength_complete(Int_t nEvents=0, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 15, TString prefix="../data/radLength_geantinos")
 {
   //-----User Settings:------------------------------------------------------
 //  gDebug=5;
   TString parAsciiFile   = "all.par";
-
-  TString prefix         = "radLength_geantinos";     // prefix string for output files
-  Int_t nEvents = 0; //Automatically set by PndFixStepParticleGun
+//  Int_t nEvents = 0; //Automatically set by PndFixStepParticleGun
   TString inputGenerator = "PndFixStepParticleGun";
   
 

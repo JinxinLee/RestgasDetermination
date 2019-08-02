@@ -1,11 +1,10 @@
 // Macro for running Panda digitization, reconstruction and pid tasks
 // to run the macro:
 // root  full_complete.C  or in root session root>.x  full_complete.C
-int full_complete(Int_t nEvents = 0)
+int full_complete(Int_t nEvents = 0, TString  prefix = "../data/evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "pid";
   TString  friend1        = "";

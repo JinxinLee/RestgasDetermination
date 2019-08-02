@@ -1,11 +1,10 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
 // root  digi_complete.C  or in root session root>.x  digi_complete.C
-int pid_complete(Int_t nEvents = 0)
+int pid_complete(Int_t nEvents = 0, TString prefix="../data/evtcomplete")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  output         = "pid";
   TString  friend1        = "sim";

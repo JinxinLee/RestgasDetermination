@@ -55,12 +55,11 @@ void countDoubles(RhoCandList &l, int &n1, int &n2, int &n3)
 	n3 = n_both;
 }
 
-int ana_multikalman(int nevts=0)
+int ana_multikalman(int nevts=0, TString  prefix = "../data/evtcomplete")
 {
     //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
 
-  TString  prefix         = "jpsi";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString  output         = "ana";
   TString  friend1        = "reco";
