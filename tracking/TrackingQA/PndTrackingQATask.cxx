@@ -176,6 +176,7 @@ void PndTrackingQATask::LabelQualyHistogram(TH1 * hist) {
 	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kPartiallyFound), "Partially found");
 	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kSpuriousFound), "Spurious found");
 	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kGhost), "Ghosts");
+	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kClone), "Clones");
 	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kNotFound), "Total not found");
 	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kFound), "Total found");
 	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kPossibleSec), "Possible, Sec.");
@@ -224,7 +225,7 @@ void PndTrackingQATask::Exec(Option_t*) {
 //	std::map<Int_t, Double_t> recoPtMap = qaAna.GetPt();
 
 
-	FillQualyHisto(qualiMap, qaAna.GetNGhosts());
+	FillQualyHisto(qualiMap, qaAna.GetNGhosts(), qaAna.GetNClones());
 	FillMCStatus(mcStatusMap);
 	fIdealTracksPerEvent->Fill(fIdealTrack->GetEntries());
 	for (int i = 0; i < fIdealTrack->GetEntries(); i++){
@@ -363,10 +364,11 @@ Int_t PndTrackingQATask::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
 }
 
 
-void PndTrackingQATask::FillQualyHisto(std::map<Int_t, Int_t> trackQualifikation, Int_t nGhosts)
+void PndTrackingQATask::FillQualyHisto(std::map<Int_t, Int_t> trackQualifikation, Int_t nGhosts, Int_t nClones)
 {
 
 	fQualyHisto->Fill(qualityNumbers::kGhost, nGhosts);
+	fQualyHisto->Fill(qualityNumbers::kClone, nClones);
 	for(std::map<Int_t, Int_t>::iterator iter = trackQualifikation.begin(); iter != trackQualifikation.end(); iter++){
 		fQualyHisto->Fill(iter->second);
 		if (iter->second > 0){
@@ -609,7 +611,9 @@ void PndTrackingQATask::Finish() {
 
 			  << " Ghosts: "	<< ghosts		<< " "
 			  << ghosts / allTracksWithHits * 100.0 << "% "
-			  << ghosts / allPossibleTracksWithHits * 100.0 << "% " << std::endl;
+			  << ghosts / allPossibleTracksWithHits * 100.0 << "% "
+
+			  << " Copies: "	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kClone))		<<std::endl;
 
 	SetQualyHisto(fQualyHisto_rel_all, kTRUE, allTracksWithHits);
 	SetQualyHisto(fQualyHisto_rel_possible, kTRUE, allPossibleTracksWithHits);

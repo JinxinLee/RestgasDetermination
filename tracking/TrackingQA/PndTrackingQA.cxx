@@ -13,7 +13,7 @@
 ClassImp(PndTrackingQA);
 
 PndTrackingQA::PndTrackingQA (TString trackBranchName, TString idealTrackName, Bool_t pndTrackData):
-       fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(0)
+       fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fCleanFunctor(kFALSE), fNGhosts(0), fNClones(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(0)
 {
 	if(fPossibleTrack == 0){
 		std::cout << "-I- PndTrackingQA::PndTrackingQA no PossibleTrackFunctor given. Taking Standard!" << std::endl;
@@ -29,7 +29,7 @@ PndTrackingQA::PndTrackingQA (TString trackBranchName, TString idealTrackName, B
 }
 
 PndTrackingQA::PndTrackingQA (TString trackBranchName, TString idealTrackName, PndTrackFunctor* posTrack, Bool_t pndTrackData):
-	fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(0)
+	fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fCleanFunctor(kFALSE), fNGhosts(0), fNClones(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(0)
 {
 	if(fPossibleTrack == 0){
 		std::cout << "-I- PndTrackingQA::PndTrackingQA no PossibleTrackFunctor given. Taking Standard!" << std::endl;
@@ -123,6 +123,14 @@ void PndTrackingQA::AnalyseEvent(TClonesArray *recoTrackInfo)
 		recoinfo.SetNofMCTracks(nof_asso_mctracks);
 		int size = recoTrackInfo->GetEntriesFast();
 		new((*recoTrackInfo)[size]) PndTrackingQualityRecoInfo(recoinfo);
+	}
+
+	//Walter, get nr copious tracks
+	for (std::map<Int_t, Int_t>::iterator iter = fMCTrackFound.begin(); iter != fMCTrackFound.end(); iter++){
+		//std::cout<<"Copious track: "<<fMCTrackFound[iter->first]-1<<std::endl;
+		if (fMCTrackFound[iter->first] > 1) {
+			fNClones = fNClones + fMCTrackFound[iter->first]-1;
+		}
 	}
 
 	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackQualification.begin(); iter != fMapTrackQualification.end(); iter++) {

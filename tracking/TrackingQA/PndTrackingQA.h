@@ -61,6 +61,7 @@ struct qualityNumbers {
 		kFullyFound = 3,  // fullyFound: all hits of reco'd track come from one single MC track; all hits of MC track have been found in reco'd track
 
 		kGhost = 5,  // ghost: less than 70% of hits of reco'd track come from one MC track ('mostProbableTrack')
+		kClone = 6,  // clone: sum of (number of times one mc track was found -1) over all mc tracks
 
 		kNotFound = 7,  // notFound: total number of not reco'd tracks
 		kFound = 8;  // found: total number of reco'd tracks; the sum of fullyFound, partiallyFound, spuriousFound
@@ -82,6 +83,7 @@ struct qualityNumbers {
 		  if (qNumber == kPartiallyFound) 		return "PartiallyFound";
 		  if (qNumber == kFullyFound) 			return "FullyFound";
 		  if (qNumber == kGhost) 				return "Ghost";
+		  if (qNumber == kClone) 				return "Clone";
 		  if (qNumber == kNotFound) 			return "NotFound";
 		  if (qNumber == kFound) 				return "Found";
 		  return std::to_string(qNumber);
@@ -121,6 +123,7 @@ public:
 	std::map<Int_t, Double_t> GetPlResolutionRel()					{return fMapPlResolutionRel;}
 	std::map<Int_t, Int_t> GetTrackIdMCId()							{return fTrackIdMCId;}
 	Int_t GetNGhosts()												{return fNGhosts;}
+	Int_t GetNClones()												{return fNClones;}
 
 
 
@@ -169,6 +172,7 @@ private:
 	PndTrackFunctor* fPossibleTrack;
 	Bool_t fCleanFunctor;
 	Int_t fNGhosts;
+	Int_t fNClones;
 
 	Bool_t fUseCorrectedSkewedHits;
 	Int_t fVerbose;
