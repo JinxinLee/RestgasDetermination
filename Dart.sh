@@ -105,7 +105,7 @@ then
 fi
 
 #if FairSoft installed a newer cmake/ctest we want to use it
-export PATH=$SIMPATH:$PATH
+export PATH=$SIMPATH/bin:$PATH
 
 echo "************************"
 date
