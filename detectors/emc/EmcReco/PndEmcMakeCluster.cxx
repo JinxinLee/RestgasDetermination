@@ -49,7 +49,7 @@
 using std::cout;
 using std::endl;
 
-PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters) : PndPersistencyTask("EmcClusteringTask", verbose), fDigiArray(NULL), fHitArray(NULL), fMCTrackArray(NULL), fClusterArray(NULL), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fDigiEnergyTresholdBarrel(0.), fDigiEnergyTresholdFWD(0.), fDigiEnergyTresholdBWD(0.), fDigiEnergyTresholdShashlyk(0.), fClusterEnergyCut(0.030), fTimebunchCutTime(0.), fClusterActiveTime(5.), fDigiFunctor(NULL), fNrOfEvents(0), fNrOfDigis(0), nOnlProg(0), digiCounter(0), evtCounter(0), fClusterPosParam(), fStoreClusters(storeclusters), fStoreClusterBase(kTRUE), fMerge(kTRUE), fRemoveLowEclus(kTRUE)
+PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters) : PndPersistencyTask("EmcClusteringTask", verbose), fDigiArray(NULL), fHitArray(NULL), fMCTrackArray(NULL), fClusterArray(NULL), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fDigiEnergyTresholdBarrel(0.), fDigiEnergyTresholdFWD(0.), fDigiEnergyTresholdBWD(0.), fDigiEnergyTresholdShashlyk(0.), fClusterEnergyCut(0.030), fTimebunchCutTime(0.), fClusterActiveTime(20.), fDigiFunctor(NULL), fNrOfEvents(0), fNrOfDigis(0), nOnlProg(0), digiCounter(0), evtCounter(0), fClusterPosParam(), fStoreClusters(storeclusters), fStoreClusterBase(kTRUE), fMerge(kTRUE), fRemoveLowEclus(kTRUE)
 {
 	fClusterPosParam.clear();
 	SetPersistency(storeclusters);
@@ -305,7 +305,7 @@ void PndEmcMakeCluster::Exec(Option_t *)
 			if (FairRunAna::Instance()->IsTimeStamp())
 				dt = TMath::Abs(TPassed[e] - TPassed[d]); // also take into account that non-consecutive digi pairs may differ in time more than dtau ns
 
-			if (static_cast<PndEmcDigi *>(fDigiArray->At(DigiPassed[e]))->isNeighbour(static_cast<PndEmcDigi *>(fDigiArray->At(DigiPassed[d]))) && dt <= deltaT)
+			if (dt <= deltaT && static_cast<PndEmcDigi *>(fDigiArray->At(DigiPassed[e]))->isNeighbour(static_cast<PndEmcDigi *>(fDigiArray->At(DigiPassed[d]))))
 			{							 // BUILT-IN PandaRoot VERSION. Check which digis are neighbours
 				neighbours.push_back(e); // construct array containing neighbouring digis
 				nNeighbours++;			 // keep track of nr of neighbours
@@ -387,9 +387,17 @@ void PndEmcMakeCluster::Exec(Option_t *)
 				if (isAdded[m] == similarities[i])
 					isAdded[m] = similarities[i + 1];
 			}
-			for (Int_t j = i + 2; j < simLength; j++)
-				if (similarities[j] == similarities[i])
-					similarities[j] = similarities[i + 1];
+			for (Int_t j = i + 2; j < simLength; j++)  
+			{
+                if (similarities[j] == similarities[i])
+				{
+                	similarities[j] = similarities[i + 1];
+				}
+				if (similarities[j+1] == similarities[i]) 
+				{
+            		similarities[j+1] = similarities[i + 1];
+				}
+			}
 		}
 	}
 	for (Int_t i = 0; i < nClusters; i++)
@@ -466,7 +474,7 @@ void PndEmcMakeCluster::Exec(Option_t *)
 
 	//cluster merging
 
-	if (fMerge)
+	if (fMerge && !(FairRunAna::Instance()->IsTimeStamp()))
 	{
 
 		Int_t clustLength = fClusterArray->GetEntriesFast();
@@ -489,14 +497,17 @@ void PndEmcMakeCluster::Exec(Option_t *)
 					{
 						PndEmcCluster *othercluster = (PndEmcCluster *)fClusterArray->At(j);
 
-						FinishCluster(othercluster);
+						if(!FairRunAna::Instance()->IsTimeStamp() || std::fabs(cluster->GetTimeStamp() - othercluster->GetTimeStamp()) < fClusterActiveTime * 2.)
+							{
+							FinishCluster(othercluster);
 
-						Double_t angle = cluster->where().Angle(othercluster->where());
+							Double_t angle = cluster->where().Angle(othercluster->where());
 
-						if (angle < smallestAngle)
-						{
-							smallestAngle = angle;
-							nearestCluster = othercluster;
+							if (angle < smallestAngle)
+							{
+								smallestAngle = angle;
+								nearestCluster = othercluster;
+							}
 						}
 					}
 				}
@@ -504,7 +515,7 @@ void PndEmcMakeCluster::Exec(Option_t *)
 				if (!nearestCluster)
 					continue;
 
-				cluster->addCluster(nearestCluster, fDigiArray);
+				nearestCluster->addCluster(cluster, fDigiArray);
 				fClusterArray->RemoveAt(i);
 				fClusterArray->Compress();
 				clustLength--;
