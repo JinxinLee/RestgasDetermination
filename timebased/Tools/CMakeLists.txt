@@ -42,6 +42,7 @@ PndTimeStructureAnaTask.cxx
 PndSolCorrTask.cxx
 PndT0CandidateTask.cxx
 PndT0CandidateDetermination.cxx
+PndEventBuilderAnaTask.cxx
 
 )
 

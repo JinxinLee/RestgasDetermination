@@ -15,6 +15,7 @@
 
 #include "FairTask.h"                   // for FairTask, InitStatus
 #include "FairTSBufferFunctional.h"
+#include "FairEventHeader.h"
 
 #include "TH1.h"
 #include "TGraph.h"
@@ -27,9 +28,9 @@ class TClonesArray;
 
 struct DataObject
 {
-	DataObject():fBranchName(""), fBranch(0), fTimeHisto(0), fEventHisto(0), fOldEventNr(-1), fOldTimeStamp(0), fEventMixture(kFALSE){};
+	DataObject():fBranchName(""), fBranch(0), fTimeHisto(0), fEventHisto(0), fOldEventNr(-1), fOldTimeStamp(0), fEventMixture(kFALSE), fTimeGap(0.), fNEventsInSelection(0){};
 
-	DataObject(TString branchName): fBranchName(branchName), fBranch(0), fOldEventNr(-1), fOldTimeStamp(0), fEventMixture(kFALSE)
+	DataObject(TString branchName, Double_t timeGap): fBranchName(branchName), fBranch(0), fOldEventNr(-1), fOldTimeStamp(0), fEventMixture(kFALSE), fTimeGap(timeGap), fNEventsInSelection(0)
 	{
 		TString histoName("hBetweenEvents");
 		histoName += fBranchName;
@@ -37,9 +38,13 @@ struct DataObject
 		eventHistoName += fBranchName;
 		TString eventDiffHistoName("hEventLength");
 		eventDiffHistoName += fBranchName;
+		TString eventsInSelection("hEventsInSelection");
+		eventsInSelection += fBranchName;
 		fTimeHisto = new TH1D(histoName, histoName, 10000, 0, 10000);
 		fEventHisto = new TH1D(eventHistoName, eventHistoName, 100, 0, 100);
 		fEventDiffHisto = new TH1D(eventDiffHistoName, eventDiffHistoName, 1000, 0, 1000);
+		fEventsInSelection = new TH1D(eventsInSelection, eventsInSelection, 100, 0, 100);
+
 	}
 	std::vector<Double_t> CalcIntegral(TH1* h1){
 		std::vector<Double_t> result;
@@ -98,11 +103,14 @@ struct DataObject
 	TH1D* fEventDiffHisto;
 	TH1D* fEventGap;
 	TH1D* fEventGapPerc;
+	TH1D* fEventsInSelection;
 	TH1D* fOverlap;
 	TH1D* fOverlapPerc;
 	Int_t fOldEventNr;
 	Double_t fOldTimeStamp;
 	Bool_t fEventMixture;
+	Double_t fTimeGap;
+	Int_t fNEventsInSelection;
 	std::map<Int_t, std::pair<Double_t, Double_t> > fEventStartStopMap;
 };
 
@@ -112,7 +120,7 @@ class PndTimeStructureAnaTask : public FairTask
 
     /** Default constructor **/
     PndTimeStructureAnaTask():
-      FairTask("TimeStructureAnaTask"), fEntryNr(0)
+      FairTask("TimeStructureAnaTask"), fEntryNr(0), fTimeOfPreviousEvent(0.)
 	{
     	SetVerbose(0);
     }
@@ -139,19 +147,24 @@ class PndTimeStructureAnaTask : public FairTask
 
     virtual void SetParContainers() {};
 
-    void AddBranchName(TString name){
-    	fData.push_back(DataObject(name));
+    void AddBranchName(TString name, Double_t gap){
+    	fData.push_back(DataObject(name, gap));
     	name += "Prim";
-    	fDataPrim.push_back(DataObject(name));
+    	fDataPrim.push_back(DataObject(name, gap));
     }
 
-
   protected:
+    void FillTimeGapsEvent();
+
+  private:
 
     std::vector<DataObject> fData;		//data for all type of particles
     std::vector<DataObject> fDataPrim;	//data for primary particles
     TH1D* fHistoMixedEvents;
     TH1D* fHistoMixedEventsPrim;
+    TH1D* fHistoTimeGapsEvents;
+    FairEventHeader* fEventHeader;
+    double fTimeOfPreviousEvent;
 
     Int_t fEntryNr;
 

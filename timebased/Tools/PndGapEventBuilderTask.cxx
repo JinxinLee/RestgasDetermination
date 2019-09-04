@@ -84,7 +84,7 @@ void PndGapEventBuilderTask::Exec(Option_t*)
 
 	fMainHitArray = FairRootManager::Instance()->GetData(fMainBranchName, fTimeGapFunctor, fTimeGap);
 
-	if (++fEntryNr % 1000 == 0 && fVerbose > 0) {
+	if ((++fEntryNr % 1000 == 0 && fVerbose > 0) || (fVerbose > 1)) {
 		std::cout << "-I- PndGapEventBuilderTask:Exec " << fEntryNr << std::endl;
 	}
 
@@ -102,7 +102,14 @@ void PndGapEventBuilderTask::Exec(Option_t*)
 		data = (FairTimeStamp*)fMainEventHitArray->At(fMainEventHitArray->GetEntriesFast() - 1);
 		Double_t stopTime  = data->GetTimeStamp();
 
+		if (fVerbose > 1){
+		    std::cout << "TimeGap: " << startTime << " < " << stopTime << std::endl;
+		}
+
 		for (size_t i = 0; i < fAddHitArray.size(); i++){
+		    if (fVerbose > 1){
+                std::cout << fAddBranches[i].first << " : " << startTime << " < " << stopTime + fAddBranches[i].second << std::endl;
+            }
 			TClonesArray* tempArray = FairRootManager::Instance()->GetData(fAddBranches[i].first, fStartFunctor, startTime, fStopFunctor, stopTime + fAddBranches[i].second);
 			fAddEventHitArray[i]->AbsorbObjects(tempArray);
 		}

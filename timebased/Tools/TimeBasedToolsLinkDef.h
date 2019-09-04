@@ -9,5 +9,6 @@
 #pragma link C++ class PndSolCorrTask+;
 #pragma link C++ class PndT0CandidateTask+;
 #pragma link C++ class PndT0CandidateDetermination+;
+#pragma link C++ class PndEventBuilderAnaTask+;
 
 #endif

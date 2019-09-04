@@ -40,6 +40,7 @@
 #include "FairFilteredPrimaryGenerator.h"
 #include "FairGenerator.h"
 #include "FairLogger.h"
+#include "FairRootFileSink.h"
 
 #include "TLorentzVector.h"
 #include "TDatabasePDG.h"
@@ -82,8 +83,8 @@ Bool_t PndMasterRunSim::Setup(TString outprefix)
   inputName.ReplaceAll(":","_");
 
   PndFileNameCreator creator(inputName.Data());
-  SetOutputFile(creator.GetSimFileName().data());
   fOutFile = creator.GetSimFileName().data();
+  SetSink(new FairRootFileSink(fOutFile));
   SetParamRootFile(creator.GetParFileName().data());
   SetMaterials("media_pnd.geo");
   SetGenerateRunInfo(kFALSE);
