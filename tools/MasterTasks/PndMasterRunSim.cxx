@@ -306,14 +306,14 @@ void PndMasterRunSim::CreateGeometryDay1()
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   AddModule(Stt);
   //-------------------------  MVD       -----------------
-  if (fOptions.Contains("strip")||fOptions.Contains("nopixels")){
-	  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-	  Mvd->SetGeometryFileName("Mvd-2.1-Strips.root");
-	  AddModule(Mvd);
+  if (fOptions.Contains("strip")||fOptions.Contains("nopixels")) {
+    FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+    Mvd->SetGeometryFileName("Mvd-2.1-Strips.root");
+    AddModule(Mvd);
   } else {
-	  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-	  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-	  AddModule(Mvd);
+    FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+    Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+    AddModule(Mvd);
   }
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
@@ -349,9 +349,9 @@ void PndMasterRunSim::CreateGeometryDay1()
   }
   else if (fOptions.Contains("gem3")) // GEM 3 Stations
   {
-	  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-	  Gem->SetGeometryFileName("gem_3Stations_realistic_v2.root");
-	  AddModule(Gem);
+    FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+    Gem->SetGeometryFileName("gem_3Stations_realistic_v2.root");
+    AddModule(Gem);
   }
   else   //GEM 2 Stations
   {
@@ -362,19 +362,19 @@ void PndMasterRunSim::CreateGeometryDay1()
   }
 
   if (fOptions.Contains("fts1256"))
-    {
-      //-------------------------  FTS       -----------------
-      FairDetector *Fts= new PndFts("FTS", kTRUE);
-      Fts->SetGeometryFileName("fts_1256.geo");
-      AddModule(Fts);
-    }
+  {
+    //-------------------------  FTS       -----------------
+    FairDetector *Fts= new PndFts("FTS", kTRUE);
+    Fts->SetGeometryFileName("fts_1256.geo");
+    AddModule(Fts);
+  }
   else
-    {
-      //-------------------------  FTS       -----------------
-      FairDetector *Fts= new PndFts("FTS", kTRUE);
-      Fts->SetGeometryFileName("fts_reduced.geo");
-      AddModule(Fts);
-    }
+  {
+    //-------------------------  FTS       -----------------
+    FairDetector *Fts= new PndFts("FTS", kTRUE);
+    Fts->SetGeometryFileName("fts_reduced.geo");
+    AddModule(Fts);
+  }
 }
 
 // -----   AddSimTasks   ---------------------------------------------------
@@ -392,84 +392,81 @@ void PndMasterRunSim::AddSimTasks()
 // -----   SetGenerator   --------------------------------------------------
 void PndMasterRunSim::SetGenerator()
 {
-  if (fOptions.Contains("pndfiltprim"))
-  	fGen = new PndFilteredPrimaryGenerator();
-  else
-  	fGen = new FairFilteredPrimaryGenerator();
+  CreatePrimGen();
 
   switch (fTargetMode)
-    {
-    case 0:
-      LOG(INFO) << "Using no Vertex smearing" << FairLogger::endl;
-      break;
-    case 1:
-      LOG(INFO) << "Using Cluster Jet Target" << FairLogger::endl;
-      // a cluster-jet beam at the interaction zone with a horizontal width
-      // of e.g. dx = 1 mm and a length in accelerator beam direction of dz = 10 mm.
-      // Target TDR, page 44
-      fGen->SetTarget(0., 1./2.355); // From FWHM to sigma
-      fGen->SmearVertexZ(kTRUE);
-      fGen->SmearGausVertexZ(kTRUE);
-      fGen->SetBeam(0., 0., 0.1, 0.1);
-      fGen->SmearVertexXY(kTRUE);
-      break;
-    case 2:
-      LOG(INFO) << "Using Pellet Target" << FairLogger::endl;
-      // At PANDA a beam diameter around 3mm is needed and one may want even
-      // smaller size when PTR is not possible.
-      // Target TDR, page 61
-      fGen->SetTarget(0., 0.3);
-      fGen->SmearVertexZ(kTRUE);
-      fGen->SmearGausVertexZ(kTRUE);
-      fGen->SetBeam(0., 0., 0.3, 0.3);
-      fGen->SmearVertexXY(kTRUE);
-      break;
-    case 3:
-      LOG(INFO) << "Using Pellet Tracking Target" << FairLogger::endl;
-      // A position resolution σ(x, y, z) < 0.2 mm in the in- teraction position
-      // is desirable for event reconstruc- tion.
-      // Target TDR, page 61
-      fGen->SetTarget(0., 0.02);
-      fGen->SmearVertexZ(kTRUE);
-      fGen->SmearGausVertexZ(kTRUE);
-      fGen->SetBeam(0., 0., 0.02, 0.02);
-      fGen->SmearVertexXY(kTRUE);
-      break;
-    default:
-      LOG(INFO) << "Unkwown target mode - Using no vertex smearing" << FairLogger::endl;
-    }
+  {
+  case 0:
+    LOG(INFO) << "Using no Vertex smearing" << FairLogger::endl;
+    break;
+  case 1:
+    LOG(INFO) << "Using Cluster Jet Target" << FairLogger::endl;
+    // a cluster-jet beam at the interaction zone with a horizontal width
+    // of e.g. dx = 1 mm and a length in accelerator beam direction of dz = 10 mm.
+    // Target TDR, page 44
+    fGen->SetTarget(0., 1./2.355); // From FWHM to sigma
+    fGen->SmearVertexZ(kTRUE);
+    fGen->SmearGausVertexZ(kTRUE);
+    fGen->SetBeam(0., 0., 0.1, 0.1);
+    fGen->SmearVertexXY(kTRUE);
+    break;
+  case 2:
+    LOG(INFO) << "Using Pellet Target" << FairLogger::endl;
+    // At PANDA a beam diameter around 3mm is needed and one may want even
+    // smaller size when PTR is not possible.
+    // Target TDR, page 61
+    fGen->SetTarget(0., 0.3);
+    fGen->SmearVertexZ(kTRUE);
+    fGen->SmearGausVertexZ(kTRUE);
+    fGen->SetBeam(0., 0., 0.3, 0.3);
+    fGen->SmearVertexXY(kTRUE);
+    break;
+  case 3:
+    LOG(INFO) << "Using Pellet Tracking Target" << FairLogger::endl;
+    // A position resolution σ(x, y, z) < 0.2 mm in the in- teraction position
+    // is desirable for event reconstruc- tion.
+    // Target TDR, page 61
+    fGen->SetTarget(0., 0.02);
+    fGen->SmearVertexZ(kTRUE);
+    fGen->SmearGausVertexZ(kTRUE);
+    fGen->SetBeam(0., 0., 0.02, 0.02);
+    fGen->SmearVertexXY(kTRUE);
+    break;
+  default:
+    LOG(INFO) << "Unkwown target mode - Using no vertex smearing" << FairLogger::endl;
+  }
 
   TString input = fInput;
   input.ToLower();
 
   if (input.EndsWith(".dec") || input.Contains(".dec:"))
-    {
-      UseEvtGenGenerator(fInput);
-    }
+  {
+    UseEvtGenGenerator(fInput);
+  }
   else if (input.EndsWith(".asc") || input.Contains(".asc:"))
-    {
-      UseAsciiGenerator(fInput);
-    }
+  {
+    UseAsciiGenerator(fInput);
+  }
   else if (input.BeginsWith("dpm"))
-    {
-      UseDpmGenerator();
-    }
+  {
+    UseDpmGenerator();
+  }
   else if (input.BeginsWith("ftf"))
-    {
-      UseFtfGenerator(fInput);
-    }
+  {
+    UseFtfGenerator(fInput);
+  }
   else if (input.BeginsWith("box"))
-    {
-      UseBoxGenerator(fInput);
-    }
+  {
+    UseBoxGenerator(fInput);
+  }
   else if (input.BeginsWith("pipi"))
   {
-	  UsePiPiGenerator(fInput);
+    UsePiPiGenerator(fInput);
   }
   else
-    {
-      LOG(WARNING)<< "Generator could not be identified from input '"<<fInput.Data()<<"'!!" <<  FairLogger::endl;
-    }
+  {
+    LOG(WARNING)<< "Generator could not be identified from input '"<<fInput.Data()<<"'!!" <<  FairLogger::endl;
+  }
 
 }
 
@@ -505,11 +502,21 @@ void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
       curpar.ReplaceAll("[","(");
       curpar.ReplaceAll("]",")");
 
-      if (curpar.BeginsWith("type(")) {GetRange(curpar,type,mult); BoxType = (Int_t)type; BoxMult = (Int_t)mult; }
+      if (curpar.BeginsWith("type(")) {
+        GetRange(curpar,type,mult);
+        BoxType = (Int_t)type;
+        BoxMult = (Int_t)mult;
+      }
       if (curpar.BeginsWith("p("))    GetRange(curpar,BoxMomMin,BoxMomMax);
-      if (curpar.BeginsWith("pt("))    {GetRange(curpar,BoxMomMin,BoxMomMax); BoxPt = true;}
+      if (curpar.BeginsWith("pt("))    {
+        GetRange(curpar,BoxMomMin,BoxMomMax);
+        BoxPt = true;
+      }
       if (curpar.BeginsWith("tht("))   GetRange(curpar,BoxThtMin,BoxThtMax);
-      if (curpar.BeginsWith("ctht(")) {GetRange(curpar,BoxThtMin,BoxThtMax); BoxCosTht=true;}
+      if (curpar.BeginsWith("ctht(")) {
+        GetRange(curpar,BoxThtMin,BoxThtMax);
+        BoxCosTht=true;
+      }
       if (curpar.BeginsWith("phi("))   GetRange(curpar,BoxPhiMin,BoxPhiMax);
     }
   }
@@ -517,10 +524,10 @@ void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
   PndBoxGenerator* boxGen = new PndBoxGenerator(BoxType, BoxMult);
   boxGen->SetDebug(0);
 
-  if (BoxPt == true){
-	  boxGen->SetPtRange(BoxMomMin, BoxMomMax);
+  if (BoxPt == true) {
+    boxGen->SetPtRange(BoxMomMin, BoxMomMax);
   } else {
-	  boxGen->SetPRange(BoxMomMin,BoxMomMax);      // GeV/c
+    boxGen->SetPRange(BoxMomMin,BoxMomMax);      // GeV/c
   }
   boxGen->SetPhiRange(BoxPhiMin, BoxPhiMax);   // Azimuth angle range [degree]
   boxGen->SetThetaRange(BoxThtMin, BoxThtMax); // Polar angle in lab system range [degree]
@@ -530,7 +537,7 @@ void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
   boxGen->SetXYZ(0., 0., 0.); //cm
 
   LOG(INFO) << "Using PndBoxGenerator(" << GetBeamMom() <<", pdg="<<BoxType<<" mult="<<BoxMult
-	    <<" ) generator with range p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]" << FairLogger::endl;
+            <<" ) generator with range p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]" << FairLogger::endl;
 
   //  cout <<"BOX generator range: p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
 
@@ -622,25 +629,22 @@ void PndMasterRunSim::UseLepLepGenerator(TString leplepConfig)
 }
 
 // -----   SetGenerator   --------------------------------------------------
- void PndMasterRunSim::SetGenerator(PndBoxGenerator *boxGen)
+void PndMasterRunSim::AddGenerator(FairGenerator *aGen)
 {
-  LOG(INFO) << "Using PndBoxGenerator generator" << FairLogger::endl;
-  if (fOptions.Contains("PndFiltPrim"))
-  	fGen = new PndFilteredPrimaryGenerator();
-  else
-  	fGen = new FairFilteredPrimaryGenerator();
-  fGen->AddGenerator(boxGen);
+  LOG(INFO) << "Adding a FairGenerator generator: "<< aGen->GetName() << FairLogger::endl;
+  CreatePrimGen();
+  fGen->AddGenerator(aGen);
 }
 
 // -----   SetGenerator   --------------------------------------------------
-void PndMasterRunSim::SetGenerator(FairGenerator *boxGen)
- {
-  LOG(INFO) << "Using FairBoxGenerator generator" << FairLogger::endl;
-  if (fOptions.Contains("PndFiltPrim"))
-  	fGen = new PndFilteredPrimaryGenerator();
-  else
-  	fGen = new FairFilteredPrimaryGenerator();
-  fGen->AddGenerator(boxGen);
+void PndMasterRunSim::SetGenerator(FairGenerator *aGen)
+{
+  LOG(INFO) << "Using only the FairGenerator generator:" << aGen->GetName() << FairLogger::endl;
+  CreatePrimGen();
+  // make sure to set the list to only one generator
+  TObjArray *genList = fGen->GetListOfGenerators();
+  genList->Clear(); // We're not using Delete(), since we don't know what users may still want to do with their generators
+  fGen->AddGenerator(aGen);
 }
 
 // -----   UseDpmGenerator   -----------------------------------------------
@@ -665,14 +669,14 @@ void PndMasterRunSim::UseAsciiGenerator(TString AsciiFile)
 void PndMasterRunSim::UseFtfGenerator(TString ftfData)
 {
   //if ( strncmp(fName,"TGeant4",7 ) == 0 ) LOG(FATAL) << "FTF does not run with Geant4 !!!"  << FairLogger::endl;
-  if (ftfData.Contains(".root")){
-	  LOG(INFO) << "Using PndFtfGenerator with input file " << ftfData << FairLogger::endl;
-	  PndFtfGenerator* Ftf = new PndFtfGenerator(ftfData);
-	  fGen->AddGenerator(Ftf);
+  if (ftfData.Contains(".root")) {
+    LOG(INFO) << "Using PndFtfGenerator with input file " << ftfData << FairLogger::endl;
+    PndFtfGenerator* Ftf = new PndFtfGenerator(ftfData);
+    fGen->AddGenerator(Ftf);
   } else {
-	  LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() <<", "<<fFtfFlag<< ") generator" << FairLogger::endl;
-	  PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed(), fFtfFlag);
-	  fGen->AddGenerator(Ftf);
+    LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() <<", "<<fFtfFlag<< ") generator" << FairLogger::endl;
+    PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed(), fFtfFlag);
+    fGen->AddGenerator(Ftf);
   }
 }
 
@@ -720,17 +724,17 @@ void PndMasterRunSim::UseEvtGenGenerator(TString EvtGenFile)
   while(fgets(temp, 6, dec) !=NULL)
     {
       if((strstr(temp, "Decay")) != NULL)
-	{
-	  fscanf(dec, "%s",particle);
-	  LOG(INFO) << "It was found a " << particle << " as initial state." << FairLogger::endl;
-	  found = kTRUE;
-	  break;
-	}
+  {
+    fscanf(dec, "%s",particle);
+    LOG(INFO) << "It was found a " << particle << " as initial state." << FairLogger::endl;
+    found = kTRUE;
+    break;
+  }
     }
   */
   if (IniRes=="") LOG(FATAL) << "The input file is not a proper .dec!! " << FairLogger::endl;
 
-    //   TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
+  //   TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
   //   EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
   LOG(INFO) << "Using PndEvtGenDirect(" <<IniRes << ", " << (fInputDir+EvtGenFile).Data() << ", " << GetBeamMom() << ") generator" << FairLogger::endl;
   PndEvtGenDirect *EvtGen = new PndEvtGenDirect(IniRes, (fInputDir+EvtGenFile).Data(), GetBeamMom());
@@ -756,9 +760,9 @@ void PndMasterRunSim::Finish()
 
   // write the summary of event filter to output root file
   if (!strcmp(fGen->ClassName(),"PndFilteredPrimaryGenerator"))
-  	((PndFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
+    ((PndFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
   else
-  	((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
+    ((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile(outfile);
 
   FairFileHeader* outheader=(FairFileHeader*)outfile->Get("FileHeader");
   cout<<"Task tha ran just now:"<<endl;
@@ -799,7 +803,7 @@ void PndMasterRunSim::Finish()
   cout << "Parameter ROOT file is\t" << fParamRootFile << endl;
   cout << "Parameter ASCII file is\t" << fParamAsciiFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime
-	    << "s" << endl;
+       << "s" << endl;
   cout << "CPU usage " << cpuUsage*100. << "%" << endl;
   cout << "Max Memory " << maxMemory << " MB" << endl;
 
@@ -812,21 +816,33 @@ void PndMasterRunSim::Finish()
 
 void PndMasterRunSim::GetRange(TString par, double &min, double &max)
 {
-	par.ReplaceAll(" ","");
-	par = par(par.Index("(")+1, par.Length()-par.Index("(")-2);
+  par.ReplaceAll(" ","");
+  par = par(par.Index("(")+1, par.Length()-par.Index("(")-2);
 
-	TString smin=par, smax=par;
+  TString smin=par, smax=par;
 
-	if (par.Contains(","))
-	{
-		smin = par(0,par.Index(","));
-		smax = par(par.Index(",")+1,1000);
-	}
+  if (par.Contains(","))
+  {
+    smin = par(0,par.Index(","));
+    smax = par(par.Index(",")+1,1000);
+  }
 
-	min = smin.Atof();
-	max = smax.Atof();
+  min = smin.Atof();
+  max = smax.Atof();
+}
+void PndMasterRunSim::CreatePrimGen()
+{
+  if(fGen==NULL) {
+    if (fOptions.Contains("PndFiltPrim"))
+      fGen = new PndFilteredPrimaryGenerator();
+    else
+      fGen = new FairFilteredPrimaryGenerator();
+  }
 }
 
 /** @cond CLASSIMP */
 ClassImp(PndMasterRunSim);
 /** @endcond */
+
+
+
