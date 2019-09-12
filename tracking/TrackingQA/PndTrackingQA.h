@@ -13,6 +13,7 @@
 
 #include "PndTrackCand.h"
 #include "PndTrackingQualityRecoInfo.h"
+#include "PndTrackingCloneInfo.h"
 
 #include <TObject.h>
 #include <TString.h>
@@ -63,6 +64,7 @@ struct qualityNumbers {
 		kGhost = 5,  // ghost: less than 70% of hits of reco'd track come from one MC track ('mostProbableTrack')
 		kClone = 6,  // clone: sum of (number of times one mc track was found -1) over all mc tracks
 
+
 		kNotFound = 7,  // notFound: total number of not reco'd tracks
 		kFound = 8;  // found: total number of reco'd tracks; the sum of fullyFound, partiallyFound, spuriousFound
 
@@ -110,20 +112,42 @@ public:
 	Int_t GetNIdealHits(FairMultiLinkedData& track, TString branchName);
 	std::map<Int_t, Int_t> GetMCTrackFound()						{return fMCTrackFound;}
 	std::map<Int_t, Int_t> GetTrackQualification()					{return fMapTrackQualification;}
+	std::map<FairLink, Int_t> GetTrackQualificationTimeBased()			{return fTimeBasedMapTrackQualification;}
 	std::map<Int_t, Int_t> GetTrackMCStatus()						{return fMapTrackMCStatus;}
+	std::map<FairLink, Int_t> GetTrackMCStatusTimeBased()				{return fTimeBasedMapTrackMCStatus;}
 	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > GetEfficiencies()	{return fMapEfficiencies;}
+	std::map<FairLink, std::map<TString, std::pair<Double_t, Int_t > > > GetEfficienciesTimeBased()	{return fMapEfficienciesTimeBased;}
+
+	// Event based
 	std::map<Int_t, Double_t> GetPResolution()						{return fMapPResolution;}
-	std::map<Int_t, TVector3> GetP()								{return fMapP;}
-	std::map<Int_t, Double_t> GetPtResolution()						{return fMapPtResolution;}
+    std::map<Int_t, TVector3> GetP()								{return fMapP;}
+    std::map<Int_t, Double_t> GetPtResolution()						{return fMapPtResolution;}
 	std::map<Int_t, Double_t> GetPt()								{return fMapPt;}
 	std::map<Int_t, Double_t> GetPlResolution()						{return fMapPlResolution;}
 	std::map<Int_t, Double_t> GetPl()								{return fMapPl;}
 	std::map<Int_t, Double_t> GetPResolutionRel()					{return fMapPResolutionRel;}
 	std::map<Int_t, Double_t> GetPtResolutionRel()					{return fMapPtResolutionRel;}
 	std::map<Int_t, Double_t> GetPlResolutionRel()					{return fMapPlResolutionRel;}
+
+	// Time based
+	std::map<FairLink, Double_t> GetTimeBasedPResolution()						{return fTimeBasedMapPResolution;}
+	std::map<FairLink, TVector3> GetTimeBasedP()								    {return fTimeBasedMapP;}
+	std::map<FairLink, Double_t> GetTimeBasedPtResolution()						{return fTimeBasedMapPtResolution;}
+	std::map<FairLink, Double_t> GetTimeBasedPt()								{return fTimeBasedMapPt;}
+	std::map<FairLink, Double_t> GetTimeBasedPlResolution()						{return fTimeBasedMapPlResolution;}
+	std::map<FairLink, Double_t> GetTimeBasedPl()								{return fTimeBasedMapPl;}
+	std::map<FairLink, Double_t> GetTimeBasedPResolutionRel()					{return fTimeBasedMapPResolutionRel;}
+	std::map<FairLink, Double_t> GetTimeBasedPtResolutionRel()					{return fTimeBasedMapPtResolutionRel;}
+	std::map<FairLink, Double_t> GetTimeBasedPlResolutionRel()					{return fTimeBasedMapPlResolutionRel;}
+
+
+
+
+
 	std::map<Int_t, Int_t> GetTrackIdMCId()							{return fTrackIdMCId;}
 	Int_t GetNGhosts()												{return fNGhosts;}
 	Int_t GetNClones()												{return fNClones;}
+
 
 
 
@@ -141,23 +165,35 @@ public:
 		if (fMCIdIdealTrackId.count(mctrackid) == 0) return -1;
 		return fMCIdIdealTrackId[mctrackid];
 	}
+	// Time based verson
+	FairLink GetIdealTrackFairLinkFromMCTrackFairLink(FairLink mctrackFairLink) {
+		//if (fTimeBasedMCIdIdealTrackId.count(mctrackFairLink) == 0) return -1;
+		return fTimeBasedMCIdIdealTrackId[mctrackFairLink];
+	}
 	Int_t GetIdealTrackIdFromRecoTrackId(int trackid) { 
 	  int mctrackid = fTrackIdMCId[trackid];
 	  if (fMCIdIdealTrackId.count(mctrackid) == 0) return -1;
 	  return fMCIdIdealTrackId[mctrackid];
 	}
 	
-	PndTrackingQualityRecoInfo GetRecoInfoFromRecoTrack(Int_t trackId, Int_t mctrackId);
+	void SetRunTimeBased(bool runTimeBased){fRunTimeBased=runTimeBased;}
+
+	PndTrackingQualityRecoInfo GetRecoInfoFromRecoTrack(Int_t trackId, Int_t mctrackId, FairLink mctrackFairLink);
+
+	std::map<FairLink, Int_t> GetCloneInfoforMCTrack(){return fTimeBasedMapTrackMCStatus;};
 
 private:
-
 
 	virtual void FillMapTrackQualifikation();
 	Bool_t IsBetterTrackExisting(Int_t& mcIndex,  int quality);
 //	virtual Bool_t PossibleTrack(FairMultiLinkedData& mcForward);
 	Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
+	// AnalyseTrackInfo used event based, in this case the track id is set to an Int_t
 	virtual Int_t AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo, Int_t trackId);
+	// Analyse track info used time based, in this case the track id is set to a FairLink
+	FairLink AnalyseTrackInfoTimeBased(std::map<TString, FairMultiLinkedData>& trackInfo, FairLink trackId);
 	virtual void CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo);
+	virtual void CalcEfficienciesTimeBased(FairLink mostProbableTrackFairLink, std::map<TString, FairMultiLinkedData>& trackInfo);
 	FairMultiLinkedData GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand); ///< returns which MCTracks and how often (marked by a FairLink) they were seen by the hits of a PndTrackCand
 	std::map<TString, FairMultiLinkedData> AnalyseTrackCand(PndTrackCand* trackCand);	///< returns a map<BranchNameOfHits, MCTrackLinks> which returns the FairLinks to MCTracks grouped by hit branches and all
 
@@ -175,6 +211,7 @@ private:
 	Int_t fNClones;
 
 	Bool_t fUseCorrectedSkewedHits;
+	Bool_t fRunTimeBased;
 	Int_t fVerbose;
 
 	std::vector<TString> fBranchNames;                  //!<! branch names of hits taken into account in the analysis (e.g. MVDHitsPixel, STTHit, ...)
@@ -182,13 +219,26 @@ private:
 	std::map<Int_t, Int_t> fMCIdTrackId;				//!<! map between MC id and track id
 	std::map<Int_t, Int_t> fMCIdIdealTrackId;			//!<! map between MC id and ideal track id
 
+	//////////////// Maps for time based case //////////////////////////////
+	
+	std::map<FairLink, FairLink> fTimeBasedTrackIdMCId;				//!<! map between track FairLink and most probable MC track FairLink
+	std::map<FairLink, FairLink> fTimeBasedMCIdTrackId;				//!<! map between MC FairLink and track FairLink
+	std::map<FairLink, FairLink> fTimeBasedMCIdIdealTrackId;			//!<! map between MC FairLink and ideal track FairLink
+	FairMultiLinkedData linksMCTrack;
+	
 	std::map<Int_t, Int_t> fMCTrackFound;				//!<! How often was a MC Track (key) found
-
-
+	std::map<FairLink, Int_t> fTimeBasedMCTrackFound;		//!<! How often was a MC Track (key) found
 
 	std::map<Int_t, Int_t> fMapTrackMCStatus;			//!<! TrackId vs TrackStatus from MC
-	std::map<Int_t, Int_t> fMapTrackQualification;    		//!<! TrackId vs TrackStatus after analysis of track finding
+	std::map<FairLink, Int_t> fTimeBasedMapTrackMCStatus;
+	// Used event based
+	std::map<Int_t, Int_t> fMapTrackQualification;    		//!<! TrackId vs TrackStatus after analysis of track finding, the track id refers to the MC track
+	std::map<FairLink, Int_t> fTimeBasedMapTrackQualification; // Used time based, the FairLink is that of the MC track
+
 	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficiencies;  //!<! MostProbable TrackId, BranchName, Efficiency (#FoundHits / #MCHits), #MCHits
+	std::map<FairLink, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficienciesTimeBased;  //!<! MostProbable TrackId, BranchName, Efficiency (#FoundHits / #MCHits), #MCHits
+
+	// Event based maps
 	std::map<Int_t, Double_t> fMapPResolution;                      //!
 	std::map<Int_t, TVector3> fMapP;                                //!
 	std::map<Int_t, Double_t> fMapPtResolution;                     //!
@@ -199,11 +249,22 @@ private:
 	std::map<Int_t, Double_t> fMapPl;                               //!
 	std::map<Int_t, Double_t> fMapPlResolutionRel;                  //!
 
+	// Time based maps
+	std::map<FairLink, Double_t> fTimeBasedMapPResolution;                      //!
+	std::map<FairLink, TVector3> fTimeBasedMapP;                                //!
+	std::map<FairLink, Double_t> fTimeBasedMapPtResolution;                     //!
+	std::map<FairLink, Double_t> fTimeBasedMapPt;                               //!
+	std::map<FairLink, Double_t> fTimeBasedMapPResolutionRel;                   //!
+	std::map<FairLink, Double_t> fTimeBasedMapPtResolutionRel;                  //!
+	std::map<FairLink, Double_t> fTimeBasedMapPlResolution;                     //!
+	std::map<FairLink, Double_t> fTimeBasedMapPl;                               //!
+	std::map<FairLink, Double_t> fTimeBasedMapPlResolutionRel;                  //!
+
 	TClonesArray* fTrack;
 	TClonesArray* fMCTrack;
 	TClonesArray* fIdealTrack;
+	TClonesArray* fTrackCand;
 	TClonesArray* fIdealTrackCand;
-
 
 	ClassDef(PndTrackingQA, 1)
 };

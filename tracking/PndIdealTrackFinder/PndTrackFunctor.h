@@ -61,6 +61,21 @@ class OnlySttFunctor : public PndTrackFunctor
 	}
 };
 
+class OnlySttTimeBasedFunctor : public PndTrackFunctor
+{
+	Bool_t Call(FairMultiLinkedData* a, Bool_t ){
+		FairRootManager* ioman = FairRootManager::Instance();
+		Bool_t possibleTrack = kFALSE;
+
+		possibleTrack = (possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("STTSortedHits")).GetNLinks() > 5));
+
+		return possibleTrack;
+	}
+	void Print(){
+		std::cout << "OnlySttTimeBasedFunctor: > 5 Hits in Stt" << std::endl;
+	}
+};
+
 class RiemannMvdSttGemFunctor : public PndTrackFunctor
 {
 	Bool_t Call(FairMultiLinkedData* a, Bool_t ){ // primary //[R.K.03/2017] unused variable(s)

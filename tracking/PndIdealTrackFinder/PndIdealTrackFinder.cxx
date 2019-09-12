@@ -1,5 +1,5 @@
 /*
- * PndIdealTrackFinders.cpp
+  * PndIdealTrackFinders.cpp
  *
  *  Created on: Apr 12, 2010
  *      Author: stockman
@@ -20,8 +20,10 @@
 ClassImp(PndIdealTrackFinder);
 
 PndIdealTrackFinder::PndIdealTrackFinder() :
-  fOutBranchName("IdealTrack"), fTrackCand(0), fTrack(0), fMCTrack(0), fTrackSelector(0), fPdg(0), fHitCount(0), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.)
+  fOutBranchName("IdealTrack"), fTrackCand(0), fTrack(0), fMCTrack(0), fTrackSelector(0), fPdg(0), fHitCount(0), fMomSigma(0,0,0), fDPoP(0.), fRunTimeBased(kFALSE), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.)
 {
+
+	// TODO Replace hard coded names with variable names
 	fPointBranchMap["MVDHitsPixel"] = "MVDPoint";
 	fPointBranchMap["MVDHitsStrip"] = "MVDPoint";
 	fPointBranchMap["STTHit"] = "STTPoint";
@@ -34,6 +36,14 @@ PndIdealTrackFinder::PndIdealTrackFinder() :
 	fPointBranchMap["DircHit"] = "";	 // no FairLinks Provided!
 	fPointBranchMap["FTofHit"] = "";	 // no FairLinks Provided!
 	fPointBranchMap["RichHit"] = "";	 // no FairLinks Provided!
+
+	// Sorted hits for time based simulation
+
+	fPointBranchMap["MVDSortedHitsPixels"] = "MVDPoint";
+	fPointBranchMap["MVDSortedHitsStrips"] = "MVDPoint";
+	fPointBranchMap["STTSortedHits"] = "STTPoint";
+	fPointBranchMap["GEMSortedHits"] = "GEMPoint";
+	fPointBranchMap["FTSSortedHits"] = "FTSPoint";
 
 	SetPersistency(kTRUE);
 }
@@ -66,11 +76,12 @@ InitStatus PndIdealTrackFinder::Init()
 	for (size_t i = 0; i < fBranchNames.size(); i++){
 		if (ioman->GetObject(fBranchNames[i]) != 0){
 			fBranchMap[fBranchNames[i]] = (TClonesArray*)ioman->GetObject(fBranchNames[i]);
-		 	ioman->GetObject(fPointBranchMap[fBranchNames[i]]);  // initialise the used FairMcPoint Branches
+		 	ioman->GetObject(fPointBranchMap[fBranchNames[i]]);  // initialise the used FairMcPoint Branches 		
+
 		}
 	}
   	fMCTrack = (TClonesArray*)ioman->GetObject("MCTrack");
-
+ sum=0;
 
 	fTrackCand = new TClonesArray("PndTrackCand");
  	ioman->Register(fOutBranchName + "Cand", "MC", fTrackCand, GetPersistency());
@@ -80,6 +91,10 @@ InitStatus PndIdealTrackFinder::Init()
 	if (fTrackSelector == 0){
 		std::cout << "-W- PndIdealTrackFinder::Init() no fTrackSelector set! All possible tracks will be taken!" << std::endl;
 	}
+	
+	fStopTimeValue=0.0;
+
+	fFunctor=new StopTime();
  
 	fPdg = new TDatabasePDG();
 
@@ -88,40 +103,105 @@ InitStatus PndIdealTrackFinder::Init()
 
 void PndIdealTrackFinder::Exec(Option_t*)
 {
+	if (fRunTimeBased){
+		for (size_t i = 0; i < fBranchNames.size(); i++){
+		fBranchMap[fBranchNames[i]]->Delete(); // Clear the TClones array for the next time burst
+			fBranchMap.clear();
+		}		
+	}
+
 	fTrackCand->Delete();
 	fTrack->Delete();
 	fTrackCandMap.clear();
 
-//	std::cout << "Event #" << FairRootManager::Instance()->GetEntryNr() << std::endl;
+	//	std::cout << "Event #" << FairRootManager::Instance()->GetEntryNr() << std::endl;
+
+	if (fRunTimeBased){
+
+		fStopTimeValue+=2000.0; // In [ns]
+
+		for (size_t i = 0; i < fBranchNames.size(); i++){
+			// Start and stop functor and condition is needed
+			// This can be used when objects are derived from FairTimeStamp
+			fBranchMap[fBranchNames[i]]=FairRootManager::Instance()->GetData(fBranchNames[i], fFunctor, fStopTimeValue);
+		}	
+
+	}
+
 	CreateTrackCands();
+
+	//J.R.
+	//cout << "Number of track cands: " << fTrackCandMap.size() << endl;
+
 	FilterTrackCands();
 
-//	std::cout << "PndIdealTrackFinder:Found Tracks:" << std::endl;
+	//	std::cout << "PndIdealTrackFinder:Found Tracks:" << std::endl;
 	CreateTracks();
+
+	// The lines below are for testing
+	//std::cout << "Num Track Cands in array: " << fTrackCand->GetEntriesFast() << std::endl;
+	//for(int i=0; i<fTrackCand->GetEntriesFast(); i++){
+
+	//	if(fTrackCand->At(i)==nullptr){
+	//	std::cout << "Track cand found to be nullptr at pos: " << i << std::endl;}
+	//	if(fTrackCand->At(i)!=nullptr){
+	//		std::cout << "Track cand found to NOT be nullptr at pos: " << i << std::endl;}
+	//}
+	//std::cout << "Num Tracks in array: " << fTrack->GetEntriesFast() << std::endl;
+	//for(int i=0; i<fTrack->GetEntriesFast(); i++){
+
+	//	if(fTrack->At(i)==nullptr){
+	//	std::cout << "Track found to be nullptr at pos: " << i << std::endl;}
+	//	if(fTrack->At(i)!=nullptr){
+	//		std::cout << "Track found to NOT be nullptr at pos: " << i << std::endl;}
+	//}
 }
 
 void PndIdealTrackFinder::CreateTrackCands()
 {
+
 	fHitCount = 0;
+
+	// Iterating through the branches, the different hit branches which have been read in
 	for (std::map<TString, TClonesArray*>::iterator iter = fBranchMap.begin(); iter != fBranchMap.end(); iter++){
-		//std::cout << "AddLinks from Branch: " << iter->first << std::endl;
+
+		// Second.GetEntries gives the number of objects in the TClonesArray which are present
+		// This is done for each event separately in the event based case
+		// For the time based case it does this for all hits which were collected within a certain timespan	
+		
 		for (int i = 0; i < iter->second->GetEntriesFast(); i++){
-			
+
+			//FairHit* myFairHit = (FairHit*)  iter->second->At(i);
+			//cout << "Time of Hit: " << myFairHit->GetTimeStamp() << endl;
+
 			FairMultiLinkedData array;
 			FairMultiLinkedData_Interface* links = (FairMultiLinkedData_Interface*)iter->second->At(i);
-			TString hitBranch = iter->first;
 
+			//cout << "Number of links: " << links->GetNLinks() << endl;
+			//cout << "Number of links Array: " << array.GetNLinks() << endl;
+
+			// Get a new hit branch in every iteration
+			TString hitBranch = iter->first;
+			
 			FairMCPoint *point = GetFairMCPoint(hitBranch, links, array);
 			if (point == 0) {
+
+				//cout << "No MC Point" << endl;
 				continue;
 			}
+
 			FairMCPoint firstpoint = *point;
 			FairMCPoint lastpoint = *point;
 
-			double tof = point->GetTime();
+			double tof = point->GetTime();					
+
+			//cout << "Time: " << tof << " from entry: " << i << endl;
+
 			delete(point);
 
-			for (int ipnt = 1; ipnt < array.GetNLinks(); ipnt++){
+			// This loop is only used if hits are created from  several mc points
+			// If hit is created from more than 1 point, the mean time will only be the actual time
+			for (int ipnt = 1; ipnt < array.GetNLinks(); ipnt++){ // Array is over the FairLinks
 			  point = (FairMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(array.GetLink(ipnt));
 			  tof += point->GetTime();
 			  //  std::cout << ipnt << " " << tof << std::endl;
@@ -129,10 +209,16 @@ void PndIdealTrackFinder::CreateTrackCands()
 			  if( point->GetTime() > lastpoint.GetTime()) lastpoint = *point;
 			  delete(point);
 			}
-			tof /= array.GetNLinks();
+			tof /= array.GetNLinks();		
+	
+			//cout << "Point time: " << tof << endl;
+
 			// std::cout << i << " " << tof << std::endl;
 			// .............................................
+
+			// Get the MC track from the fair link from the hit branch
 			FairMultiLinkedData mctracks = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
+
 			for (int trackIndex = 0; trackIndex < mctracks.GetNLinks(); trackIndex++){
 				if (!fTrackCandMap.count(mctracks.GetLink(trackIndex))){
 					fTrackCandMap[mctracks.GetLink(trackIndex)] = PndTrackCand();
@@ -153,6 +239,10 @@ void PndIdealTrackFinder::CreateTrackCands()
 				fTrackCandMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kTRUE);
 				// fTrackCandMap[mctracks.GetLink(trackIndex)].AddHit(link, fHitCount++);			//todo Rho is not properly calculated!
 				fTrackCandMap[mctracks.GetLink(trackIndex)].AddHit(link, tof);
+
+				//sum+=fTrackCandMap[mctracks.GetLink(trackIndex)].GetNHits()
+				//cout << "Antal hits i track: " << fTrackCandMap[mctracks.GetLink(trackIndex)].GetNHits() << endl;
+				//cout << "Kumulativa summan: " << endl;
 			}
 		}
 	}
@@ -174,16 +264,24 @@ void PndIdealTrackFinder::FilterTrackCands()
 
 void PndIdealTrackFinder::CreateTracks()
 {
+
 	for (std::map<FairLink, PndTrackCand>::iterator iter = fTrackCandMap.begin(); iter != fTrackCandMap.end(); iter++){
 		PndTrackCand* myTrackCand = new((*fTrackCand)[fTrackCand->GetEntriesFast()]) PndTrackCand(iter->second);
 		myTrackCand->setMcTrackId(iter->first.GetIndex());
 		myTrackCand->AddLink(iter->first);
 		myTrackCand->SetTimeStamp(FairRootManager::Instance()->GetEventTime());
+
+		myTrackCand->SetEntryNr(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName+"Cand"),fTrackCand->GetEntriesFast()));
+		Int_t nhits = myTrackCand->GetNHits();
+
+		cout << "Num hits in track: " << nhits << endl;
+		myTrackCand->AddLink(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName+"Cand"),fTrackCand->GetEntriesFast()));
 		//std::cout << myTrackCand->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")) << " : " << std::endl;
 		//myTrackCand->Print();
 		//std::cout << *myTrackCand << std::endl;
 
 		// ....... track
+
 		PndMCTrack *mc = (PndMCTrack *) FairRootManager::Instance()->GetCloneOfLinkData(iter->first);
 		int charge = 0;
 		if (mc->GetPdgCode()<100000000) charge = (Int_t)TMath::Sign(1.0, ((TParticlePDG*) fPdg->GetParticle(mc->GetPdgCode()))->Charge());
@@ -248,7 +346,11 @@ void PndIdealTrackFinder::CreateTracks()
 
 
 
-		new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(firstPar, lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), -1,-1);
+		PndTrack* myTrack =
+				new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(firstPar, lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), -1,-1);
+		myTrack->SetEntryNr(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName),fTrack->GetEntriesFast()));
+		myTrack->AddLink(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName),fTrack->GetEntriesFast()));
+
 	}
 }
 
@@ -256,7 +358,7 @@ FairMCPoint* PndIdealTrackFinder::GetFairMCPoint(TString hitBranch, FairMultiLin
 {
 	// get the mc point(s) from each reco hit ......
 	FairMultiLinkedData mcpoints = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId(fPointBranchMap[hitBranch]));
-	// std::cout << "hit " << i << " connected to points " << mvdpoints.GetNLinks() << " " << sttpoints.GetNLinks() << " " << gempoints.GetNLinks() << std::endl;
+	 //std::cout << "-I- PndIDealTrackFinder::GetFairMCPoint hit " << hitBranch << " connected to points " << mcpoints << std::endl;
 
 	// There seems to be a bug with ghost hits from the GEM stations. If more than one
 	// MC point is associated to a hit, there is a good chance for false assignments

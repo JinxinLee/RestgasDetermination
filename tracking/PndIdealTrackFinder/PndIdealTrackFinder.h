@@ -17,6 +17,7 @@
 #include "FairMCPoint.h"
 #include "PndTrackCand.h"
 #include "PndTrackFunctor.h"
+#include "FairTSBufferFunctional.h"
 
 #include "TClonesArray.h"
 #include "TDatabasePDG.h"
@@ -49,6 +50,9 @@ public:
 	    fDPoP=fabs(dpop); 
 	    fRelative=kTRUE;
 	  }; // in GeV
+
+		void SetRunTimeBased(bool valRunTimeBased){fRunTimeBased=valRunTimeBased;};	
+		
 	  void SetVertexSmearing(Double_t sigmax = -1.,Double_t sigmay = -1.,Double_t sigmaz = -1.) { 
 	    fVtxSigma.SetXYZ(fabs(sigmax),fabs(sigmay),fabs(sigmaz)); 
 	  }; // in cm
@@ -72,6 +76,18 @@ protected:
 	  virtual void SmearVector(TVector3 &vec, const TVector3 &sigma);
 
 protected:
+
+      // For time-based data
+	  // Functor for start time
+
+	  Bool_t fRunTimeBased;
+
+	  StopTime* fFunctor;
+
+	  double fStopTimeValue;
+
+	
+
 	  TString fOutBranchName;
 	  TClonesArray* fTrackCand;
 	  TClonesArray* fTrack;
@@ -86,6 +102,7 @@ protected:
 
 	  TDatabasePDG *fPdg;            //!<! Particle DB
 
+int sum;
 	  Int_t fHitCount;
 
 	  // Parameters for fake tracking taken from sttmvdtracking/PndSttMvdGemTrackingIdeal.h

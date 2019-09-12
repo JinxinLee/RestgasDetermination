@@ -12,6 +12,8 @@ PndTrackFunctor* PndTrackFunctor::make_PndTrackFunctor(std::string functorName)
 		return new StandardTrackFunctor();
 	if (functorName.compare("OnlySttFunctor") == 0)
 		return new OnlySttFunctor();
+	if (functorName.compare("OnlySttTimeBasedFunctor") == 0)
+			return new OnlySttTimeBasedFunctor();
 	if (functorName.compare("RiemannMvdSttGemFunctor") == 0)
 		return new RiemannMvdSttGemFunctor();
 	if (functorName.compare("CircleHoughTrackFunctor") == 0)

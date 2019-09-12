@@ -86,6 +86,8 @@ class PndTrackingQualityMCInfo : public TObject
 
  protected:
 
+  //PndTrack* fAssociatedIdealTrack; // This pointer is used in the time based simulation in order to connect the MC trackInfo to the ideal track
+
   Int_t fNofMvdPixelPoints,  fNofMvdStripPoints,  fNofSttParalPoints, fNofSttSkewPoints, fNofGemPoints, fNofFtsPoints;
 
   Bool_t fReconstructabilityStatus;

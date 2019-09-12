@@ -27,7 +27,7 @@
 #include "RhoHistogram/RhoTuple.h"
 #include "PndTrackFunctor.h"
 
-
+#include "PndTrackingCloneInfo.h"
 #include <vector>
 #include <map>
 
@@ -69,6 +69,8 @@ class PndTrackingQATask : public FairTask
   void SetFunctorName(TString name){ fPossibleTrackFunctorName = name; }
   void SetFunctor();
 
+  void SetRunTimeBased(bool runTimeBased){fRunTimeBased=runTimeBased;}
+
  private:
 //
 //  virtual void FillMapTrackQualifikation();
@@ -85,9 +87,13 @@ class PndTrackingQATask : public FairTask
 
 
   virtual void FillQualyHisto(std::map<Int_t, Int_t> trackQualifikation, Int_t nGhosts, Int_t nClones);
+  virtual void FillQualyHistoTimeBased(std::map<FairLink, Int_t> trackQualifikation, Int_t nGhosts);
   virtual void FillMCStatus(std::map<Int_t, Int_t> trackMCStatus);
+  virtual void FillMCStatusTimeBased(std::map<FairLink, Int_t> trackMCStatus);
   virtual void FillEfficiencies(std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > efficiencies);
+  virtual void FillEfficienciesTimeBased(std::map<FairLink, std::map<TString, std::pair<Double_t, Int_t > > > efficiencies);
   virtual void MapToHist(std::map<Int_t, Double_t>, TH1*);
+  virtual void MapToHistTimeBased(std::map<FairLink, Double_t>, TH1*);
 
   virtual void SetQualyHisto(TH1* histo, Bool_t relative, Int_t base=1);
 
@@ -111,13 +117,14 @@ class PndTrackingQATask : public FairTask
   std::map<TString, TH2*> fMapEfficiencies;              //!
 
   std::map< int, int > fMCInfoIdIdealId; //!
+  std::map< FairLink, int > fTimeBasedMCInfoIdIdealId; //!
 
   Int_t fNGhosts;
 
   TClonesArray* fTrack;
   TClonesArray* fMCTrack;
   TClonesArray* fTrackCand;
-  //  TClonesArray* fIdealTrackCand;
+  TClonesArray* fIdealTrackCand;
   TClonesArray *fSttHitArray;
   TClonesArray* fMCTrackInfo;
   TClonesArray* fRecoTrackInfo;
@@ -135,8 +142,11 @@ class PndTrackingQATask : public FairTask
 
   TString fPossibleTrackFunctorName;
 
-  PndTrackFunctor* fPossibleTrackFunctor;
+  bool fRunTimeBased; // Set to kTRUE/true to run time based, kFALSE/false is default and makes the task run event based
+  
+  std::map<FairLink, Int_t> fTimeBasedMapTrackMCStatusForCloneCalc;
 
+  PndTrackFunctor* fPossibleTrackFunctor;
 
   RhoTuple * fTuple;
   TH1* fIdealTracksPerEvent;
