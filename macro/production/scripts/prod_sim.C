@@ -36,6 +36,7 @@ int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_
 
   // runsim option 
   TString opt="PndFiltPrim"; // for PndFilteredPrimaryGenerator the options must contain this key word
+  //TString opt="PndFiltPrim : day1+fakeonline"; // for Day-1 Setup
   
   double mp = 0.938272;
 	
@@ -76,6 +77,12 @@ int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_
   fRun->CreateGeometry();
   // -----   Event generator   ----------------------------------------------
   fRun->SetGenerator();
+  //---for proton beam---
+  //if(inputGen=="FTF" || inputGen=="FTF1"){
+  //	PndFtfDirect *Ftf = new PndFtfDirect("proton", "G4_H", 1, "ftfp", fRun->GetBeamMom(), gRandom->GetSeed(), genflag);
+  //	fRun->SetGenerator(Ftf);
+  //}
+
 
   // -----   Event filter setup   -------------------------------------------
   // fetch the PndFilteredPrimaryGenerator (only existing if option contains 'PndFiltPrim')

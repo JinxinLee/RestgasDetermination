@@ -47,6 +47,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	TDatabasePDG *pdg = TDatabasePDG::Instance();
 	pdg->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
 	pdg->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
+	pdg->AddParticle("ppSystem","ppSystem",fIni.M(),kFALSE,0.1,2, "",98888,0);
 
 
 	//----- Switches for Simulation Options ------------------------------

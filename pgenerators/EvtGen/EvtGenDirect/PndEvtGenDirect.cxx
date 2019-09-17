@@ -76,7 +76,7 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom,L
   cout << "<I> PndEvtGenDirect"<<endl;
   cout << "<I> Particle: "<<particle<<endl;
   cout << "<I> decfile: "<<decfile<<endl;
-  if(Mom>0) cout << "<I> pbar-Momentum: "<<Mom<<endl;
+  if(Mom>0) cout << "<I> Beam-Momentum: "<<Mom<<endl;
   if(Mom==0) cout << "<I> Momentum: "<<Mom<<endl;
   if(Mom<0) cout << "<I> CMS energy: "<<Mom<<endl;
   cout << "<I> Rnd Seed: "<<Seed<<endl;

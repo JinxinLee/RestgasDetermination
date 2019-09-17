@@ -81,7 +81,7 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 
 	double   Mom      = 6.569;
 
-	TString  anadecay = "D0 -> K- pi+; pbp->D0 D0_bar";
+	TString  anadecay = "D0 -> K- pi+; pbp->D0 D0_bar"; //add "nocc" when using proton beam
 	TString  anaparms = "fit4cbest:mwin=0.8";
 
 	// we look in the analysis table for analysis mode #mode
@@ -273,6 +273,7 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	TDatabasePDG::Instance()->AddParticle("ppSystem","ppSystem",3,kFALSE,0.1,6, "",98888);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",3,kFALSE,0.1,0, "",88888);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",3,kFALSE,0.1,0, "",88880);
+
 
 	if (anadecay!="")
 	{

@@ -66,6 +66,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	//TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",3,kFALSE,0.1,0, "",88888);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",3,kFALSE,0.1,0, "",88880);
+	TDatabasePDG::Instance()->AddParticle("ppSystem","ppSystem",3,kFALSE,0.1,2, "",98888);
 	
 	// *** set this to your output path
 	TString OutFile = Fname;//(Fname.Last('/')+1,Fname.Length()); // cut away input path
