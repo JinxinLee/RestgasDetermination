@@ -14,6 +14,7 @@
 //#pragma link C++ class PndTrackArrayMerger+;
 #pragma link C++ class PndMcCloner+;
 #pragma link C++ class PndMcCloner2+;
+#pragma link C++ class PndMCTrackInfoTask;
 
 #endif
 

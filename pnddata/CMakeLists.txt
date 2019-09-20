@@ -40,6 +40,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 PndStack.cxx
 PndMCTrack.cxx
+PndMCTrackInfo.cxx
 
 DskData/PndDskCerenkov.cxx
 DskData/PndDskParticle.cxx

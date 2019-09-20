@@ -36,6 +36,7 @@ PndSensorNameContFact.cxx
 PndSensorNamePar.cxx
 PndBlackBoxTask.cxx
 PndEventCounterTask.cxx
+PndMCTrackInfoTask.cxx
 #PndTrackArrayMerger.cxx
 )
 
