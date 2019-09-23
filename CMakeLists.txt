@@ -507,6 +507,8 @@ add_subdirectory (macro)
 add_subdirectory (PndMCMatchNewLinks)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
+  ${SIMPATH}/tools/root6/include
+  ${SIMPATH}/include/root6
   ${SIMPATH}/tools/root/include
   ${SIMPATH}/include/root
   NO_DEFAULT_PATH
