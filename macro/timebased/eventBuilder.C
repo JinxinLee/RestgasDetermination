@@ -31,9 +31,10 @@ int eventBuilder(Int_t nEvents = 0, TString prefix="evtcomplete")
   task->SetTimeGap(20);
   task->AddAdditionalBranches("MVDSortedStripDigis", 10);
   task->AddAdditionalBranches("STTSortedHits", 250);
-  task->AddAdditionalBranches("GEMSortedDigi", 10);
-  task->AddAdditionalBranches("SciTSortedHit", 10);
-  task->AddAdditionalBranches("EmcDigiSorted", 10);
+  task->AddAdditionalBranches("GEMSortedDigi", 20);
+  task->AddAdditionalBranches("SciTSortedHit", 20);
+  task->AddAdditionalBranches("EmcDigiSorted", 20);
+//  task->AddAdditionalBranches("FTSSortedHit", 300);
   task->SetVerbose(2);
   fRun->AddTask(task);
 

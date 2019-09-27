@@ -172,15 +172,15 @@ public:
     virtual void FinishEvent();
     virtual void FinishTask();
 
-    void SetBranchName(TString name) {fMainBranchName = name;};
+    void SetBranchName(TString name) {fMainBranchName = name; fAddHitArray[name] = nullptr;};
 
     void AddAdditionalBranches(TString branchName){
     	fAddHitArray[branchName] = nullptr;
     }
 
 protected:
-    std::set<int> GetMCEventIDs(TClonesArray* array);
-    void AssignHitsToPoints(TString branchName, TClonesArray* hitArray);
+    std::set<int> GetMCEventIDs(TClonesArray* array);                       ///<Which MC event numbers are present in the TClonesArray* array
+    void AssignHitsToPoints(TString branchName, TClonesArray* hitArray);    ///<Check if a hit associated to an MC point is present in the TClonesArray
     MCEvent GetMCInfo(int entryNr);
 
     void FillHistos();
@@ -193,9 +193,7 @@ protected:
         if (hitbranch.Contains("GEM"))
             return "GEMPoint";
         if (hitbranch.Contains("SciT"))
-            return "GEMPoint";
-        if (hitbranch.Contains("SciTPoint"))
-            return "GEMPoint";
+            return "SciTPoint";
         if (hitbranch.Contains("EMC"))
             return "EmcHit";
         if (hitbranch.Contains("FTS"))
@@ -210,7 +208,7 @@ private:
 
 
   TString fMainBranchName;
-  TClonesArray* fMainHitArray;
+//  TClonesArray* fMainHitArray;
 
   std::map<TString, TClonesArray*> fAddHitArray;
   std::map<TString, BranchHistos*> fBranchHistos;

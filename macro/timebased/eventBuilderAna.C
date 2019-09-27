@@ -6,8 +6,8 @@ int eventBuilderAna(Int_t nEvents = 0, TString prefix="evtcomplete", Bool_t time
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  TString  output         = "eventana";
-  TString  friend1        = "event";
+  TString  output         = "eventana_500";
+  TString  friend1        = "event_500";
   TString  friend2        = "sim";
   TString  friend3        = "";
   TString  friend4        = "";
@@ -30,9 +30,10 @@ int eventBuilderAna(Int_t nEvents = 0, TString prefix="evtcomplete", Bool_t time
   task->SetBranchName("MVDSortedPixelDigis_event");
   task->AddAdditionalBranches("MVDSortedStripDigis_event");
   task->AddAdditionalBranches("STTSortedHits_event");
-  task->AddAdditionalBranches("GEMSortedDigi_event");
+//  task->AddAdditionalBranches("GEMSortedDigi_event");
   task->AddAdditionalBranches("SciTSortedHit_event");
-  task->AddAdditionalBranches("EmcDigiSorted_event");
+//  task->AddAdditionalBranches("FtsSortedHit_event");
+//  task->AddAdditionalBranches("EmcDigiSorted_event");
   task->SetVerbose(2);
   fRun->AddTask(task);
 

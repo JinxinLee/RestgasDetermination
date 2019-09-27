@@ -47,7 +47,7 @@ void EventInfo::CalculateBranchInfo(){
 }
 
 PndEventBuilderAnaTask::PndEventBuilderAnaTask() :
-	PndPersistencyTask("Pnd Gap Event Builder"), fMainBranchName(), fEntryNr(0)
+	PndPersistencyTask("Pnd Gap Event Builder"), fEntryNr(0), fMainBranchName()
 {
 }
 
@@ -81,25 +81,30 @@ InitStatus PndEventBuilderAnaTask::Init()
 
   fMCArray = (TClonesArray*) FairRootManager::Instance()->GetObject("MCTrack");
 
-  fMainHitArray = (TClonesArray*) FairRootManager::Instance()->GetObject(fMainBranchName);
-  std::cout << "ClassName of HitArray: " << fMainHitArray->ClassName() << std::endl;
-  fBranchHistos[fMainBranchName] = new BranchHistos(fMainBranchName, fMainHitArray->GetEntries(), fMCArray->GetEntries());
+//  fMainHitArray = (TClonesArray*) FairRootManager::Instance()->GetObject(fMainBranchName);
+//  std::cout << "ClassName of HitArray: " << fMainHitArray->ClassName() << std::endl;
+ // fBranchHistos[fMainBranchName] = new BranchHistos(fMainBranchName, fMainHitArray->GetEntries(), fMCArray->GetEntries());
 
   for (auto & branch :  fAddHitArray){
+
 	  TString outputName = branch.first;
 	  branch.second = ((TClonesArray*)ioman->GetObject(outputName.Data()));
-	  fBranchHistos[GetPointBranch(outputName)] = new BranchHistos(GetPointBranch(outputName), 1000, 1000);
+	  if (fBranchHistos.count(GetPointBranch(outputName)) == 0){                            //necessary for MVD Strips and Pixel because they share the same point array
+	      fBranchHistos[GetPointBranch(outputName)] = new BranchHistos(GetPointBranch(outputName), 1000, 1000);
+	      fMCPointArrays[FairRootManager::Instance()->GetBranchId(GetPointBranch(outputName))] = (TClonesArray*) FairRootManager::Instance()->GetObject(GetPointBranch(outputName));
+	  }
+	  std::cout << "-I- PndEventBuilderAnaTask::Init Hit and Point Array: " << outputName << " " << GetPointBranch(outputName)<< std::endl;
   }
 
 
 
-  fMCPointArrays[FairRootManager::Instance()->GetBranchId("STTPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("STTPoint");
-  fMCPointArrays[FairRootManager::Instance()->GetBranchId("MVDPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("MVDPoint");
-  fMCPointArrays[FairRootManager::Instance()->GetBranchId("GEMPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("GEMPoint");
-  fMCPointArrays[FairRootManager::Instance()->GetBranchId("SciTPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("SciTPoint");
-  fMCPointArrays[FairRootManager::Instance()->GetBranchId("EmcHit")] = (TClonesArray*) FairRootManager::Instance()->GetObject("EmcHit");
-  fMCPointArrays[FairRootManager::Instance()->GetBranchId("FTSPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("FTSPoint");
-  fMCPointArrays[FairRootManager::Instance()->GetBranchId("FtofPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("FtofPoint");
+//  fMCPointArrays[FairRootManager::Instance()->GetBranchId("STTPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("STTPoint");
+//  fMCPointArrays[FairRootManager::Instance()->GetBranchId("MVDPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("MVDPoint");
+//  fMCPointArrays[FairRootManager::Instance()->GetBranchId("GEMPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("GEMPoint");
+//  fMCPointArrays[FairRootManager::Instance()->GetBranchId("SciTPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("SciTPoint");
+//  fMCPointArrays[FairRootManager::Instance()->GetBranchId("EmcHit")] = (TClonesArray*) FairRootManager::Instance()->GetObject("EmcHit");
+//  fMCPointArrays[FairRootManager::Instance()->GetBranchId("FTSPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("FTSPoint");
+//  fMCPointArrays[FairRootManager::Instance()->GetBranchId("FtofPoint")] = (TClonesArray*) FairRootManager::Instance()->GetObject("FtofPoint");
 
   std::cout << "-I- PndEventBuilderAnaTask: Initialisation successfull" << std::endl;
   fInitDone = kTRUE;
@@ -116,9 +121,10 @@ void PndEventBuilderAnaTask::Exec(Option_t*)
     fEntryNr = FairRootManager::Instance()->GetEntryNr();
     fEventInfo.push_back(EventInfo());
 
-    std::set<int> MCEventID = GetMCEventIDs(fMainHitArray);
+//    std::set<int> MCEventID = GetMCEventIDs(fMainHitArray);
+    std::set<int> MCEventID = GetMCEventIDs(fAddHitArray[fMainBranchName]);
 
-    std::cout << "-I- PndEventBuilderAnaTask::Exec " << fMainBranchName << " has: " << fMainHitArray->GetEntriesFast() << std::endl;
+    std::cout << "-I- PndEventBuilderAnaTask::Exec " << fMainBranchName << " has: " << fAddHitArray[fMainBranchName]->GetEntriesFast() << std::endl;
 
 	if (fVerbose > 0){
         std::cout << "MCEvents in Entry: ";
@@ -131,6 +137,7 @@ void PndEventBuilderAnaTask::Exec(Option_t*)
 	for (auto id : MCEventID){
 	    if (fEventInfo[fEntryNr].fMCEvents.count(id) == 0){
 	        fEventInfo[fEntryNr].fMCEvents[id] = GetMCInfo(id);
+	        std::cout << "MCPointBranches for event: " << id << " " << fEventInfo[fEntryNr].fMCEvents[id].fMCPoints.size() << std::endl;
 	    }
 	}
 
@@ -146,8 +153,7 @@ void PndEventBuilderAnaTask::Exec(Option_t*)
 //        }
 //    }
 
-	AssignHitsToPoints(fMainBranchName, fMainHitArray);
-
+//	AssignHitsToPoints(fMainBranchName, fMainHitArray);
 	for (auto branch : fAddHitArray){
 	    AssignHitsToPoints(branch.first, branch.second);
 	}
@@ -200,7 +206,7 @@ std::set<int> PndEventBuilderAnaTask::GetMCEventIDs(TClonesArray* array)
    std::set<int> MCEventID;
 
    for (int i = 0; i < array->GetEntriesFast(); i++){
-       FairMultiLinkedData_Interface* data = (FairMultiLinkedData_Interface*)fMainHitArray->At(i);
+       FairMultiLinkedData_Interface* data = (FairMultiLinkedData_Interface*)fAddHitArray[fMainBranchName]->At(i);
 //       std::cout << "-I- PndEventBuilderAnaTask::GetMCEventIDs full Links: " << *data << std::endl;
        std::vector<FairLink> MCLinks = data->GetSortedMCTracks();
 //       std::cout << "-I- PndEventBuilderAnaTask::GetMCEventIDs MCLinks: ";
@@ -229,6 +235,7 @@ MCEvent PndEventBuilderAnaTask::GetMCInfo(int entryNr){
     mcBranch->GetEntry(oldEntryNr);
 
     for (auto branch : fMCPointArrays){
+
         TBranch* pointBranch = tree->GetBranch(FairRootManager::Instance()->GetBranchName(branch.first));
         pointBranch->GetEntry(entryNr);
         for (int j = 0; j < branch.second->GetEntriesFast(); j++){
