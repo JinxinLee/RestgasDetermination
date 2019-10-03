@@ -100,7 +100,7 @@ PndBarrelTrackFinder::PndBarrelTrackFinder() : PndPersistencyTask("Barrel Track 
 	fDrawDetails = kFALSE;
 	fDrawHistos  = kFALSE;
 
-	fStopTimeValue=500.0;
+	fStopTimeValue=0.0;
 	fFunctor=new StopTime();
 
 	Reset();
@@ -144,7 +144,7 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose)
 	fTubeArray = NULL;
 	fSttParameters = NULL;
 
-	fStopTimeValue=500.0;
+	fStopTimeValue=0.0;
 	fFunctor=new StopTime();
 
 	Reset();
@@ -187,7 +187,7 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(const char* name, Int_t iVerbose)
 	fTubeArray = NULL;
 	fSttParameters = NULL;
 
-	fStopTimeValue=500.0;
+	fStopTimeValue=0.0;
 	fFunctor=new StopTime();
 
 	SetPersistency(kTRUE);
@@ -245,7 +245,7 @@ void PndBarrelTrackFinder::Exec(Option_t*) {
 
 			// If run in time based mode
 			if(fRunTimeBased){
-				fStopTimeValue+=1000.0; // In [ns]
+				fStopTimeValue+=2000.0; // In [ns]
 				fHitArray[idet]=FairRootManager::Instance()->GetData(fHitArrayName[idet], fFunctor, fStopTimeValue);
 			}
 
