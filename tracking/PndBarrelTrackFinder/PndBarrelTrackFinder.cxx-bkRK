@@ -100,11 +100,6 @@ PndBarrelTrackFinder::PndBarrelTrackFinder() : PndPersistencyTask("Barrel Track 
   fDrawDetails = kFALSE;
   fDrawHistos  = kFALSE;
 
-  fStopTimeValue=0.0;
-  fFunctor=new StopTime();
-
-  fRunTimeBased=kFALSE;
-
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -146,11 +141,6 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose)
   fTubeArray = NULL;
   fSttParameters = NULL;
 
-  fStopTimeValue=0.0;
-  fFunctor=new StopTime();
-
-  fRunTimeBased=kFALSE;
-
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -191,15 +181,8 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(const char* name, Int_t iVerbose)
   fTubeArray = NULL;
   fSttParameters = NULL;
 
-  fStopTimeValue=0.0;
-  fFunctor=new StopTime();
-
   SetPersistency(kTRUE);
-
-  fRunTimeBased=kFALSE;
-
   Reset();
-
 }
 // -------------------------------------------------------------------------
 
@@ -228,16 +211,6 @@ void PndBarrelTrackFinder::Exec(Option_t*) {
   fBarrelTrackArray    ->Delete();
   fBarrelTrackCandArray->Delete();
 
-  if(fRunTimeBased) {
-    for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
-      if ( fIncludeDet[idet] == kTRUE ) {
-
-        fHitArray[idet]->Delete();
-
-      }
-    }
-  }
-
   if ( fVerbose > 0 )
     cout << "=============== EVENT " << fTNofEvents << " =================" << endl;
 
@@ -250,13 +223,6 @@ void PndBarrelTrackFinder::Exec(Option_t*) {
   for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
     firstDH[idet] = nofHits;
     if ( fIncludeDet[idet] == kTRUE ) {
-
-      // If run in time based mode
-      if(fRunTimeBased) {
-        fStopTimeValue+=2000.0; // In [ns]
-        fHitArray[idet]=FairRootManager::Instance()->GetData(fHitArrayName[idet], fFunctor, fStopTimeValue);
-      }
-
       nofHits += fHitArray[idet]->GetEntriesFast();
       //      cout << fDetName[idet].Data() << " hits from " << firstDH[idet] << " to " << nofHits << "   ( " << fHitArray[idet]->GetEntriesFast() << " hits )" << endl;
       for ( Int_t ihit = firstDH[idet] ; ihit < nofHits ; ihit++ ) { // hit mixing could go here
@@ -548,7 +514,6 @@ void PndBarrelTrackFinder::Exec(Option_t*) {
   fHitVectHN.clear();
 
   return;
-
 }
 // -------------------------------------------------------------------------
 
@@ -795,7 +760,6 @@ Bool_t PndBarrelTrackFinder::MatchParallelSttHitTT    (FairHit* thisHit, Int_t d
   }
 
   return kTRUE;
-
 }
 // -------------------------------------------------------------------------
 
@@ -961,7 +925,6 @@ Bool_t PndBarrelTrackFinder::MatchHitWithZInfoTT     (FairHit* thisHit, Int_t de
   }
 
   return kTRUE;
-
 }
 // -------------------------------------------------------------------------
 
@@ -1100,7 +1063,6 @@ Bool_t PndBarrelTrackFinder::MatchHitToHit   (FairHit* thisHit, Int_t detId, Int
     }
   }
 
-
   if ( hitsMatched ) RemoveHitFromPreviousHits(prevHNo);
   return hitsMatched;
 }
@@ -1164,7 +1126,6 @@ Bool_t PndBarrelTrackFinder::ExtractMeanRPhiFromTrack     (Int_t trackNo) {
   ExtractMeanZ_PFromTrack(trackNo);
 
   return kTRUE;
-
 }
 // -------------------------------------------------------------------------
 
@@ -1380,7 +1341,6 @@ void   PndBarrelTrackFinder::PrintTracks() {
 
     cout << "          ------------------------------------------------------------" << endl;
   }
-
 }
 // -------------------------------------------------------------------------
 
@@ -1426,7 +1386,6 @@ void   PndBarrelTrackFinder::DrawTracks() {
       fEllipse[itr]->Paint();
     }
   }
-
 }
 // -------------------------------------------------------------------------
 
@@ -1682,7 +1641,6 @@ Bool_t PndBarrelTrackFinder::FindCircPar(Double_t* c1, Double_t* c2, Double_t* c
     return kFALSE;
   }
   return kTRUE;
-
 }
 // -------------------------------------------------------------------------
 
@@ -1829,18 +1787,10 @@ InitStatus PndBarrelTrackFinder::Init() {
   fDetName[2] = "STT";
   fDetName[3] = "GEM";
 
-  if(!fRunTimeBased) {
-    fHitArrayName[0] = "MVDHitsPixel";
-    fHitArrayName[1] = "MVDHitsStrip";
-    fHitArrayName[2] = "STTHit";
-    fHitArrayName[3] = "GEMHit";
-  }
-  if(fRunTimeBased) {
-    fHitArrayName[0] = "MVDSortedHitsPixels";
-    fHitArrayName[1] = "MVDSortedHitsStrips";
-    fHitArrayName[2] = "STTSortedHits";
-    fHitArrayName[3] = "GEMSortedHits";
-  }
+  fHitArrayName[0] = "MVDHitsPixel";
+  fHitArrayName[1] = "MVDHitsStrip";
+  fHitArrayName[2] = "STTHit";
+  fHitArrayName[3] = "GEMHit";
 
   fDetType[0] = kMVDHitsPixel;// FIXME: Use FairRootManager::Instance()->GetBranchId()
   fDetType[1] = kMVDHitsStrip;// FIXME: Use FairRootManager::Instance()->GetBranchId()
@@ -1907,7 +1857,6 @@ InitStatus PndBarrelTrackFinder::Init() {
   fClonesZ_PDiffRel = new TH1F("fClonesZ_PDiffRel","fClonesZ_PDiffRel",20000,-100.,100.);
 
   return kSUCCESS;
-
 }
 // -------------------------------------------------------------------------
 
@@ -1962,6 +1911,5 @@ void PndBarrelTrackFinder::Finish() {
 
 
 ClassImp(PndBarrelTrackFinder)
-
 
 

@@ -82,7 +82,7 @@ RKTrackRep::RKTrackRep(const TVector3& pos,
                        const int& PDGCode) :
                        GFAbsTrackRep(5), fDirection(true), fCachePlane(), fCacheSpu(1), fAuxInfo(1,1) {
   setPDG(PDGCode); // also sets charge and mass
-                         
+
 
   fRefPlane.setO(pos);
   fRefPlane.setNormal(mom);
@@ -111,7 +111,7 @@ RKTrackRep::RKTrackRep(const TVector3& pos,
   fCov[4][4] = poserr.X()*poserr.X() * v.X()*v.X() +
                poserr.Y()*poserr.Y() * v.Y()*v.Y() +
                poserr.Z()*poserr.Z() * v.Z()*v.Z();
-  fCov[0][0] = fCharge*fCharge/pow(mom.Mag(),6.) * 
+  fCov[0][0] = fCharge*fCharge/pow(mom.Mag(),6.) *
                (mom.X()*mom.X() * momerr.X()*momerr.X()+
                 mom.Y()*mom.Y() * momerr.Y()*momerr.Y()+
                 mom.Z()*mom.Z() * momerr.Z()*momerr.Z());
@@ -176,7 +176,7 @@ RKTrackRep::RKTrackRep(const TVector3& pos,
                        const int& PDGCode) :
                        GFAbsTrackRep(5),fDirection(true), fCachePlane(), fCacheSpu(1), fAuxInfo(1,1){
   setPDG(PDGCode); // also sets charge and mass
-                         
+
 
   fRefPlane.setO(pos);
   fRefPlane.setNormal(mom);
@@ -208,7 +208,7 @@ RKTrackRep::RKTrackRep(const TVector3& pos,
   fCov[4][4] = stdPosErr.X()*stdPosErr.X() * v.X()*v.X() +
                stdPosErr.Y()*stdPosErr.Y() * v.Y()*v.Y() +
                stdPosErr.Z()*stdPosErr.Z() * v.Z()*v.Z();
-  fCov[0][0] = fCharge*fCharge/pow(mom.Mag(),6.) * 
+  fCov[0][0] = fCharge*fCharge/pow(mom.Mag(),6.) *
                (mom.X()*mom.X() * stdMomErr.X()*stdMomErr.X()+
                 mom.Y()*mom.Y() * stdMomErr.Y()*stdMomErr.Y()+
                 mom.Z()*mom.Z() * stdMomErr.Z()*stdMomErr.Z());
@@ -226,7 +226,7 @@ RKTrackRep::RKTrackRep(const GFDetPlane& pl,
                        const int& PDGCode) :
                        GFAbsTrackRep(5),fDirection(true), fCachePlane(), fCacheSpu(1), fAuxInfo(1,1){
   setPDG(PDGCode); // also sets charge and mass
-                         
+
 
   fRefPlane = pl;
   TVector3 o=fRefPlane.getO();
@@ -257,7 +257,7 @@ RKTrackRep::RKTrackRep(const GFDetPlane& pl,
   fCov[4][4] = stdPosErr2.X()*stdPosErr2.X() * v.X()*v.X() +
                stdPosErr2.Y()*stdPosErr2.Y() * v.Y()*v.Y() +
                stdPosErr2.Z()*stdPosErr2.Z() * v.Z()*v.Z();
-  fCov[0][0] = fCharge*fCharge/pow(mom.Mag(),6.) * 
+  fCov[0][0] = fCharge*fCharge/pow(mom.Mag(),6.) *
                (mom.X()*mom.X() * stdMomErr2.X()*stdMomErr2.X()+
                 mom.Y()*mom.Y() * stdMomErr2.Y()*stdMomErr2.Y()+
                 mom.Z()*mom.Z() * stdMomErr2.Z()*stdMomErr2.Z());
@@ -275,7 +275,7 @@ void RKTrackRep::setPDG(int i){
   fPdg = i;
   TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(fPdg);
   if(part == 0){
-    std::cerr << "RKTrackRep::setPDG particle " << i 
+    std::cerr << "RKTrackRep::setPDG particle " << i
               << " not known to TDatabasePDG -> abort" << std::endl;
     exit(1);
   }
@@ -374,7 +374,7 @@ void RKTrackRep::extrapolateToPoint(const TVector3& pos,
 
 
 TVector3 RKTrackRep::poca2Line(const TVector3& extr1,const TVector3& extr2,const TVector3& point) const {
-  
+
   TVector3 theWire = extr2-extr1;
   if(theWire.Mag()<1.E-8){
     GFException exc("RKTrackRep::poca2Line ==> try to find poca between line and point, but the line is really just a point",__LINE__,__FILE__);
@@ -439,10 +439,10 @@ void RKTrackRep::extrapolateToLine(const TVector3& point1,
 
 
 
-double RKTrackRep::extrapolate(const GFDetPlane& pl, 
+double RKTrackRep::extrapolate(const GFDetPlane& pl,
                                TMatrixT<double>& statePred,
                                TMatrixT<double>& covPred){
-  
+
   TMatrixT<double> cov7x7(7,7);
   TMatrixT<double> J_pM(7,5);
 
@@ -503,7 +503,7 @@ double RKTrackRep::extrapolate(const GFDetPlane& pl,
   TVector3 A(AX,AY,AZ);
   TVector3 Point(X,Y,Z);
   TMatrixT<double> J_Mp(5,7);
-  
+
   // J_Mp matrix is d(q/p,u',v',u,v) / d(x,y,z,ax,ay,az,q/p)
   J_Mp[0][6] = 1.;
   //du'/da_x
@@ -523,7 +523,7 @@ double RKTrackRep::extrapolate(const GFDetPlane& pl,
   J_Mp[4][0] = V.X();
   J_Mp[4][1] = V.Y();
   J_Mp[4][2] = V.Z();
-  
+
   TMatrixT<double> J_Mp_transp(J_Mp);
   J_Mp_transp.T();
 
@@ -537,7 +537,7 @@ double RKTrackRep::extrapolate(const GFDetPlane& pl,
   statePred[2][0] = (A*V)/(A*W);
   statePred[3][0] = (Point-O)*U;
   statePred[4][0] = (Point-O)*V;
-  
+
   fCachePlane = pl;
   fCacheSpu = (A*W)/fabs(A*W);
 
@@ -547,7 +547,7 @@ double RKTrackRep::extrapolate(const GFDetPlane& pl,
 
 
 
-double RKTrackRep::extrapolate(const GFDetPlane& pl, 
+double RKTrackRep::extrapolate(const GFDetPlane& pl,
                                TMatrixT<double>& statePred){
 
   TVector3 o=fRefPlane.getO();
@@ -601,47 +601,47 @@ double RKTrackRep::extrapolate(const GFDetPlane& pl,
 
 
 //
-// Runge-Kutta method for tracking a particles through a magnetic field.            
-// Uses Nystroem algorithm (See Handbook Nat. Bur. of Standards, procedure 25.5.20)  
-//                                                                                  
-// Input parameters:                                                               
-//    SU     - plane parameters                                                                                                                         
-//    SU[0]  - direction cosines normal to surface Ex                               
-//    SU[1]  -          -------                    Ey                               
-//    SU[2]  -          -------                    Ez; Ex*Ex+Ey*Ey+Ez*Ez=1          
-//    SU[3]  - distance to surface from (0,0,0) > 0 cm                                 
+// Runge-Kutta method for tracking a particles through a magnetic field.
+// Uses Nystroem algorithm (See Handbook Nat. Bur. of Standards, procedure 25.5.20)
 //
-//    ND     - number of variables for derivatives calculation                         
-//    P      - initial parameters (coordinates(cm), direction cosines,              
-//             charge/momentum (Gev-1) and derivatives this parameters  (8x7)            
-//         
-//    X        	Y        	Z        	Ax       	Ay       	Az       	q/P                   
-//    P[ 0]   	P[ 1]   	P[ 2]   	P[ 3]   	P[ 4]   	P[ 5]   	P[ 6]  
+// Input parameters:
+//    SU     - plane parameters
+//    SU[0]  - direction cosines normal to surface Ex
+//    SU[1]  -          -------                    Ey
+//    SU[2]  -          -------                    Ez; Ex*Ex+Ey*Ey+Ez*Ez=1
+//    SU[3]  - distance to surface from (0,0,0) > 0 cm
 //
-//    dX/dp    	dY/dp    	dZ/dp    	dAx/dp   	dAy/dp   	dAz/dp   	d(q/P)/dp*P[6]         
-//    P[ 7]   	P[ 8]   	P[ 9]   	P[10]   	P[11]   	P[12]   	P[13]   			      d()/dp1  
+//    ND     - number of variables for derivatives calculation
+//    P      - initial parameters (coordinates(cm), direction cosines,
+//             charge/momentum (Gev-1) and derivatives this parameters  (8x7)
 //
-//    P[14]   	P[15]   	P[16]   	P[17]   	P[18]   	P[19]   	P[20]   		      	d()/dp2        
-//    ............................................................................		d()/dpND       
-//                                                                                  
-// Output parameters:                                                               
-//                                                                                  
-//    P    -  output parameters and derivatives after propagation in magnetic field 
-//            defined by Mfield (KGauss)                                            
-//    Where a Mfield(R,H) - is interface to magnetic field information              
-//    input  	R[ 0],R[ 1],R[ 2] - X     , Y      and Z  of the track                 
-//    output 	H[ 0],H[ 1],H[ 2] - Hx    , Hy     and Hz of the magnetic field        
-//           	H[ 3],H[ 4],H[ 5] - dHx/dx, dHx/dy and dHx/dz          //                
+//    X        	Y        	Z        	Ax       	Ay       	Az       	q/P
+//    P[ 0]   	P[ 1]   	P[ 2]   	P[ 3]   	P[ 4]   	P[ 5]   	P[ 6]
+//
+//    dX/dp    	dY/dp    	dZ/dp    	dAx/dp   	dAy/dp   	dAz/dp   	d(q/P)/dp*P[6]
+//    P[ 7]   	P[ 8]   	P[ 9]   	P[10]   	P[11]   	P[12]   	P[13]   			      d()/dp1
+//
+//    P[14]   	P[15]   	P[16]   	P[17]   	P[18]   	P[19]   	P[20]   		      	d()/dp2
+//    ............................................................................		d()/dpND
+//
+// Output parameters:
+//
+//    P    -  output parameters and derivatives after propagation in magnetic field
+//            defined by Mfield (KGauss)
+//    Where a Mfield(R,H) - is interface to magnetic field information
+//    input  	R[ 0],R[ 1],R[ 2] - X     , Y      and Z  of the track
+//    output 	H[ 0],H[ 1],H[ 2] - Hx    , Hy     and Hz of the magnetic field
+//           	H[ 3],H[ 4],H[ 5] - dHx/dx, dHx/dy and dHx/dz          //
 //           	H[ 6],H[ 7],H[ 8] - dHy/dx, dHy/dy and dHy/dz          // (not used)
-//           	H[ 9],H[10],H[11] - dHz/dx, dHz/dy and dHz/dz          //                
-//                                                                                  
-// Authors: R.Brun, M.Hansroul, V.Perevoztchikov (Geant3)                           
-//  
+//           	H[ 9],H[10],H[11] - dHz/dx, dHz/dy and dHz/dz          //
+//
+// Authors: R.Brun, M.Hansroul, V.Perevoztchikov (Geant3)
+//
 bool RKTrackRep::RKutta (const GFDetPlane& plane,
-                         double* P, 
-                         double& coveredDistance, 
+                         double* P,
+                         double& coveredDistance,
                          std::vector<TVector3>& points,
-                         std::vector<double>& pointPaths, 
+                         std::vector<double>& pointPaths,
                          const double& ,  // currently not used // maxLen /
                          bool calcCov) const {
 
@@ -649,14 +649,14 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
   static const double DLT    = .0002;           // max. deviation for approximation-quality test
   static const double DLT32  = DLT/32.;         //
   static const double P3     = 1./3.;           // 1/3
-  static const double Smax   = 100.;            // max. step allowed > 0 
+  static const double Smax   = 100.;            // max. step allowed > 0
   static const double Wmax   = 3000.;           // max. way allowed
   static const double Pmin   = 4.E-3;           // minimum momentum for propagation [GeV]
   static const int    ND     = 56;              // number of variables for derivatives calculation
   static const int    ND1    = ND-7;            // = 49
   double* R           = &P[0];                  // Start coordinates  in cm 	( x,  y,  z)
   double* A           = &P[3];                  // Start directions 	      	(ax, ay, az); 	ax^2+ay^2+az^2=1
-  double  SA[3]       = {0.,0.,0.};             // Start directions derivatives 
+  double  SA[3]       = {0.,0.,0.};             // Start directions derivatives
   double  Pinv        = P[6]*EC;                // P[6] is charge/momentum in e/(Gev/c)
   double  Way         = 0.;                     // Total way of the trajectory
   double  Way2        = 0.;                     // Total way of the trajectory with correct signs
@@ -666,16 +666,16 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
   points.clear();
   pointPaths.clear();
   //std::cout<<"coords  "<<R[0]<<"  "<<R[1]<<"   "<<R[2]<<  std::endl;
-  //std::cout<<"R       "<<sqrt(pow(R[0],2)+pow(R[1],2))<<  std::endl;  
+  //std::cout<<"R       "<<sqrt(pow(R[0],2)+pow(R[1],2))<<  std::endl;
   //std::cout<<"momentum "<<fabs(fCharge/P[6])<< std::endl;
   if(fabs(fCharge/P[6])<Pmin){
     std::cerr << "RKTrackRep::RKutta ==> momentum too low: " << fabs(fCharge/P[6])*1000. << " MeV" << std::endl;
     return (false);
   }
-  
+
   double SU[4];
   TVector3 O = plane.getO();
-  TVector3 W = plane.getNormal(); 
+  TVector3 W = plane.getNormal();
   if(W*O > 0){ 		// make SU vector point away from origin
     SU[0] = W.X();
     SU[1] = W.Y();
@@ -709,14 +709,14 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
     if( (O.X()-R[0])*A[0] + (O.Y()-R[1])*A[1] + (O.Z()-R[2])*A[2] >0 ){	  	// if direction A pointing from start coordinates R towards surface
       Dist = sqrt((R[0]-O.X())*(R[0]-O.X())+					 // |R-O|; Distance between start coordinates and origin of surface
                   (R[1]-O.Y())*(R[1]-O.Y())+
-                  (R[2]-O.Z())*(R[2]-O.Z()));      
+                  (R[2]-O.Z())*(R[2]-O.Z()));
     }
     else{									                // if direction pointing away from surface
       Dist = -1.*sqrt((R[0]-O.X())*(R[0]-O.X())+
                       (R[1]-O.Y())*(R[1]-O.Y())+
-                      (R[2]-O.Z())*(R[2]-O.Z()));            
+                      (R[2]-O.Z())*(R[2]-O.Z()));
     }
-    Step=Dist;    
+    Step=Dist;
   }
 
   if(fabs(Step)>Wmax) {
@@ -728,8 +728,8 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
   }
 
   // reduce maximum stepsize S to Smax
-  Step>Smax ? S=Smax : Step<-Smax ? S=-Smax : S=Step;	
-  
+  Step>Smax ? S=Smax : Step<-Smax ? S=-Smax : S=Step;
+
   //
   // Main cycle of Runge-Kutta method
   //
@@ -739,7 +739,7 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
   if(S<0) Ssign = -1;
 
   while(fabs(Step)>MINSTEP && !stopBecauseOfMaterial) {
-    
+
     // call stepper and reduce stepsize
     double stepperLen;
     stepperLen = GFMaterialEffects::getInstance()->stepper(fabs(S),
@@ -753,24 +753,24 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
       stopBecauseOfMaterial = true;
     }
     else if (S < -stepperLen) {
-      S = -stepperLen;	
+      S = -stepperLen;
       stopBecauseOfMaterial = true;
     }
 
     double H0[12],H1[12],H2[12],r[3];
-    double S3=P3*S, S4=.25*S, PS2=Pinv*S; 
-    
+    double S3=P3*S, S4=.25*S, PS2=Pinv*S;
+
     //
     // First point
-    //   
-    r[0]=R[0]      ; r[1]=R[1]      ; r[2]=R[2]      ;  
+    //
+    r[0]=R[0]      ; r[1]=R[1]      ; r[2]=R[2]      ;
     TVector3 pos(r[0],r[1],r[2]);						// vector of start coordinates R0	(x, y, z)
     TVector3 H0vect = GFFieldManager::getFieldVal(pos);				// magnetic field in 10^-4 T = kGauss
     H0[0]=PS2*H0vect.X(); H0[1]=PS2*H0vect.Y(); H0[2]=PS2*H0vect.Z(); 		// H0 is PS2*(Hx, Hy, Hz) @ R0
     double A0=A[1]*H0[2]-A[2]*H0[1], B0=A[2]*H0[0]-A[0]*H0[2], C0=A[0]*H0[1]-A[1]*H0[0]; // (ax, ay, az) x H0
     double A2=A[0]+A0              , B2=A[1]+B0              , C2=A[2]+C0              ; // (A0, B0, C0) + (ax, ay, az)
     double A1=A2+A[0]              , B1=B2+A[1]              , C1=C2+A[2]              ; // (A0, B0, C0) + 2*(ax, ay, az)
-      
+
     //
     // Second point
     //
@@ -797,76 +797,76 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
     //
     double EST = fabs((A1+A6)-(A3+A4))+fabs((B1+B6)-(B3+B4))+fabs((C1+C6)-(C3+C4));  // EST = ||(ABC1+ABC6)-(ABC3+ABC4)||_1  =  ||(axzy x H0 + ABC5 x H2) - (ABC2 x H1 + ABC3 x H1)||_1
     if(EST>DLT) {
-      S*=0.5; 
+      S*=0.5;
       stopBecauseOfMaterial = false;
       continue;
     }
-    
+
     //
     // Derivatives of track parameters in last point
     //
     if(calcCov){
       for(int i=7; i!=ND; i+=7) {				// i = 7, 14, 21, 28, 35, 42, 49;    ND = 56;	ND1 = 49; rows of Jacobian
-	
+
         double* dR = &P[i];			            		// dR = (dX/dpN,  dY/dpN,  dZ/dpN)
         double* dA = &P[i+3];				           	// dA = (dAx/dpN, dAy/dpN, dAz/dpN); N = X,Y,Z,Ax,Ay,Az,q/p
-        
+
         //first point
         double dA0   = H0[ 2]*dA[1]-H0[ 1]*dA[2];		// dA0/dp	}
-        double dB0   = H0[ 0]*dA[2]-H0[ 2]*dA[0];		// dB0/dp	 } = dA x H0	
+        double dB0   = H0[ 0]*dA[2]-H0[ 2]*dA[0];		// dB0/dp	 } = dA x H0
         double dC0   = H0[ 1]*dA[0]-H0[ 0]*dA[1];		// dC0/dp	}
-        
+
         if(i==ND1) {dA0+=A0; dB0+=B0; dC0+=C0;}			// if last row: (dA0, dB0, dC0) := (dA0, dB0, dC0) + (A0, B0, C0)
-        
+
         double dA2   = dA0+dA[0];				// }
         double dB2   = dB0+dA[1]; 			//  } = (dA0, dB0, dC0) + dA
         double dC2   = dC0+dA[2];				// }
-         
+
         //second point
         double dA3   = dA[0]+dB2*H1[2]-dC2*H1[1];		// dA3/dp	}
-        double dB3   = dA[1]+dC2*H1[0]-dA2*H1[2];		// dB3/dp	 } = dA + (dA2, dB2, dC2) x H1	
+        double dB3   = dA[1]+dC2*H1[0]-dA2*H1[2];		// dB3/dp	 } = dA + (dA2, dB2, dC2) x H1
         double dC3   = dA[2]+dA2*H1[1]-dB2*H1[0];		// dC3/dp	}
-        
+
         if(i==ND1) {dA3+=A3-A[0]; dB3+=B3-A[1]; dC3+=C3-A[2];} // if last row: (dA3, dB3, dC3) := (dA3, dB3, dC3) + (A3, B3, C3) - (ax, ay, az)
 
         double dA4   = dA[0]+dB3*H1[2]-dC3*H1[1];		// dA4/dp	}
-        double dB4   = dA[1]+dC3*H1[0]-dA3*H1[2];		// dB4/dp	 } = dA + (dA3, dB3, dC3) x H1	
+        double dB4   = dA[1]+dC3*H1[0]-dA3*H1[2];		// dB4/dp	 } = dA + (dA3, dB3, dC3) x H1
         double dC4   = dA[2]+dA3*H1[1]-dB3*H1[0];		// dC4/dp	}
-        
+
         if(i==ND1) {dA4+=A4-A[0]; dB4+=B4-A[1]; dC4+=C4-A[2];} // if last row: (dA4, dB4, dC4) := (dA4, dB4, dC4) + (A4, B4, C4) - (ax, ay, az)
-        
-        //last point	
+
+        //last point
         double dA5   = dA4+dA4-dA[0];				// }
         double dB5   = dB4+dB4-dA[1];				//  } =  2*(dA4, dB4, dC4) - dA
         double dC5   = dC4+dC4-dA[2]; 			// }
 
         double dA6   = dB5*H2[2]-dC5*H2[1];			// dA6/dp	}
-        double dB6   = dC5*H2[0]-dA5*H2[2];			// dB6/dp	 } = (dA5, dB5, dC5) x H2	
-        double dC6   = dA5*H2[1]-dB5*H2[0];			// dC6/dp	}	
+        double dB6   = dC5*H2[0]-dA5*H2[2];			// dB6/dp	 } = (dA5, dB5, dC5) x H2
+        double dC6   = dA5*H2[1]-dB5*H2[0];			// dC6/dp	}
 
-        if(i==ND1) {dA6+=A6; dB6+=B6; dC6+=C6;}			// if last row: (dA6, dB6, dC6) := (dA6, dB6, dC6) + (A6, B6, C6)                                    
-        
-        dR[0]+=(dA2+dA3+dA4)*S3; dA[0] = (dA0+dA3+dA3+dA5+dA6)*P3;	// dR := dR + S3*[(dA2, dB2, dC2) +   (dA3, dB3, dC3) + (dA4, dB4, dC4)]      
+        if(i==ND1) {dA6+=A6; dB6+=B6; dC6+=C6;}			// if last row: (dA6, dB6, dC6) := (dA6, dB6, dC6) + (A6, B6, C6)
+
+        dR[0]+=(dA2+dA3+dA4)*S3; dA[0] = (dA0+dA3+dA3+dA5+dA6)*P3;	// dR := dR + S3*[(dA2, dB2, dC2) +   (dA3, dB3, dC3) + (dA4, dB4, dC4)]
         dR[1]+=(dB2+dB3+dB4)*S3; dA[1] = (dB0+dB3+dB3+dB5+dB6)*P3;	// dA :=     1/3*[(dA0, dB0, dC0) + 2*(dA3, dB3, dC3) + (dA5, dB5, dC5) + (dA6, dB6, dC6)]
         dR[2]+=(dC2+dC3+dC4)*S3; dA[2] = (dC0+dC3+dC3+dC5+dC6)*P3;
       }
     }
-    
+
     Way2 += S;				// add stepsize to way (signed)
-    if((Way+=fabs(S))>Wmax){ 
+    if((Way+=fabs(S))>Wmax){
       std::cerr<<"RKTrackRep::RKutta ==> Trajectory is longer than length limit : "<<Way<<" cm !"
       << " p/q = "<<1./P[6]<< " GeV"<<std::endl;
       return(false);
     }
-    
+
     //
     // Track parameters in last point
-    //   
-    R[0]+=(A2+A3+A4)*S3; A[0]+=(SA[0]=(A0+A3+A3+A5+A6)*P3-A[0]);  // R  = R0 + S3*[(A2, B2, C2) +   (A3, B3, C3) + (A4, B4, C4)] 
+    //
+    R[0]+=(A2+A3+A4)*S3; A[0]+=(SA[0]=(A0+A3+A3+A5+A6)*P3-A[0]);  // R  = R0 + S3*[(A2, B2, C2) +   (A3, B3, C3) + (A4, B4, C4)]
     R[1]+=(B2+B3+B4)*S3; A[1]+=(SA[1]=(B0+B3+B3+B5+B6)*P3-A[1]);  // A  =     1/3*[(A0, B0, C0) + 2*(A3, B3, C3) + (A5, B5, C5) + (A6, B6, C6)]
     R[2]+=(C2+C3+C4)*S3; A[2]+=(SA[2]=(C0+C3+C3+C5+C6)*P3-A[2]); 	// SA = A_new - A_old
     Sl=S;	// last S used
-    
+
     // if extrapolation has changed direction, delete the last point, because it is
     // not a consecutive point to be used for material estimations
     if(Ssign*S<0.) {
@@ -881,7 +881,7 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
 
     double CBA = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);	// 1/|A|
     A[0]*=CBA; A[1]*=CBA; A[2]*=CBA;				// normalize A
-  
+
     // Step estimation until surface and test conditions for stop of propogation
     if(fabs(Way2)>Wmax) {
       Dis=0.;
@@ -890,37 +890,37 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
       Step=0.;
       break;
     }
-    
+
 
     An=A[0]*SU[0]+A[1]*SU[1]+A[2]*SU[2];
 
     if(fabs(An) < 1.E-6) {
-      error=true; 
-      Step=0; 
+      error=true;
+      Step=0;
       break;
     }
-    
+
     if( plane.inActive(TVector3(R[0],R[1],R[2]),TVector3(A[0],A[1],A[2]))) {
       Dis=SU[3]-R[0]*SU[0]-R[1]*SU[1]-R[2]*SU[2];
-      Step=Dis/An; 
+      Step=Dis/An;
     }
     else{
       if( (O.X()-R[0])*A[0] + (O.Y()-R[1])*A[1] + (O.Z()-R[2])*A[2] >0 ){
         Dis = sqrt((R[0]-O.X())*(R[0]-O.X())+
                    (R[1]-O.Y())*(R[1]-O.Y())+
-                   (R[2]-O.Z())*(R[2]-O.Z()));      
+                   (R[2]-O.Z())*(R[2]-O.Z()));
       }
       else{
         Dis = -1.*sqrt((R[0]-O.X())*(R[0]-O.X())+
                        (R[1]-O.Y())*(R[1]-O.Y())+
-                       (R[2]-O.Z())*(R[2]-O.Z()));            
+                       (R[2]-O.Z())*(R[2]-O.Z()));
       }
       Step = Dis; // signed distance to surface
     }
 
     if (Dis*Dist>0 && fabs(Dis)>fabs(Dist)) { // did not get closer to surface
-      error=true; 
-      Step=0; 
+      error=true;
+      Step=0;
       break;
     }
     Dist=Dis;
@@ -930,49 +930,49 @@ bool RKTrackRep::RKutta (const GFDetPlane& plane,
     //
     // reset S to Step if extrapolation too long or in wrong direction
     if (S*Step<0. || fabs(S)>fabs(Step)) S=Step;
-    else if (EST<DLT32 && fabs(2.*S)<=Smax) S*=2.;     
-    
+    else if (EST<DLT32 && fabs(2.*S)<=Smax) S*=2.;
+
   } //end of main loop
-  
+
   //
   // Output information preparation for main track parameteres
   //
-  
+
   if (!stopBecauseOfMaterial) { // linear extrapolation to surface
     if(fabs(Sl) > 1.E-12) Sl=1./Sl;	      // Sl = inverted last Stepsize Sl
     A [0]+=(SA[0]*=Sl)*Step; 	// Step  = distance to surface
     A [1]+=(SA[1]*=Sl)*Step; 	// SA*Sl = delta A / delta way; local derivative of A with respect to the length of the way
     A [2]+=(SA[2]*=Sl)*Step;	// A = A + Step * SA*Sl
 
-    P[0]      = R[0]+Step*(A[0]-.5*Step*SA[0]);    // P = R + Step*(A - 1/2*Step*SA); approximation for final point on surface                           
+    P[0]      = R[0]+Step*(A[0]-.5*Step*SA[0]);    // P = R + Step*(A - 1/2*Step*SA); approximation for final point on surface
     P[1]      = R[1]+Step*(A[1]-.5*Step*SA[1]);
     P[2]      = R[2]+Step*(A[2]-.5*Step*SA[2]);
-      
+
     points.push_back(TVector3(P[0],P[1],P[2]));
     pointPaths.push_back(Step);
   }
-  
+
   double CBA = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
-  
+
   P[3]      = A[0]*CBA;	// normalize A
   P[4]      = A[1]*CBA;
   P[5]      = A[2]*CBA;
-   
+
   //
-  // Output derivatives of track parameters preparation 
+  // Output derivatives of track parameters preparation
   //
-  An = A[0]*SU[0]+A[1]*SU[1]+A[2]*SU[2]; 
+  An = A[0]*SU[0]+A[1]*SU[1]+A[2]*SU[2];
   fabs(An) < 1.E-6 ? An=1./An : An = 0; // 1/A_normal
-  
+
   if(calcCov && !stopBecauseOfMaterial){
     for(int i=7; i!=ND; i+=7) {
-      double* dR = &P[i];  double* dA = &P[i+3];	
+      double* dR = &P[i];  double* dA = &P[i+3];
       S = (dR[0]*SU[0]+dR[1]*SU[1]+dR[2]*SU[2])*An;	// dR_normal / A_normal
-      dR[0]-=S*A [0];  dR[1]-=S*A [1]; dR[2]-=S*A [2]; 
-      dA[0]-=S*SA[0];  dA[1]-=S*SA[1]; dA[2]-=S*SA[2]; 
+      dR[0]-=S*A [0];  dR[1]-=S*A [1]; dR[2]-=S*A [2];
+      dA[0]-=S*SA[0];  dA[1]-=S*SA[1]; dA[2]-=S*SA[2];
     }
   }
-  
+
   if(error){
     std::cerr << "RKTrackRep::RKutta ==> Do not get closer. Path = " << Way << " cm" << "  p/q = " << 1./P[6] << " GeV" << std::endl;
     return(false);
@@ -993,7 +993,7 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
   static const int maxNumIt(2000);
   int numIt(0);
   bool calcCov(true);
-  if(cov==NULL) calcCov=false;  
+  if(cov==NULL) calcCov=false;
 
   double *P;
   if(calcCov) {P = new double[56]; memset(P,0x00,56*sizeof(double));}
@@ -1002,7 +1002,7 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
   for(int i=0;i<7;++i){
     P[i] = (*state)[i][0];
   }
-  
+
   TMatrixT<double> jac(7,7);
   TMatrixT<double> jacT(7,7);
   TMatrixT<double> oldCov(7,7);
@@ -1037,7 +1037,7 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
 
     TVector3 directionBefore(P[3],P[4],P[5]); // direction before propagation
     directionBefore.SetMag(1.);
-    
+
     // propagation
     std::vector<TVector3> points;
     std::vector<double> pointPaths;
@@ -1050,15 +1050,15 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
 
     TVector3 directionAfter(P[3],P[4],P[5]); // direction after propagation
     directionAfter.SetMag(1.);
-      
+
     sumDistance+=coveredDistance;
-     
+
     // filter Points
     std::vector<TVector3> pointsFilt(1, points.at(0));
     std::vector<double> pointPathsFilt(1, 0.);
     // only if in right direction
-    for(unsigned int i=1;i<points.size();++i){ 
-      if (pointPaths.at(i) * coveredDistance > 0.) { 
+    for(unsigned int i=1;i<points.size();++i){
+      if (pointPaths.at(i) * coveredDistance > 0.) {
         pointsFilt.push_back(points.at(i));
         pointPathsFilt.push_back(pointPaths.at(i));
       }
@@ -1070,12 +1070,12 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
       int position = pointsFilt.size()-1;  // position starts with 0
       if (fabs(pointPathsFilt.back()) < MINSTEP && position > 1) {
         pointsFilt.at(position-1) = pointsFilt.at(position);
-        pointsFilt.pop_back();        
+        pointsFilt.pop_back();
         pointPathsFilt.at(position-1) += pointPathsFilt.at(position);
         pointPathsFilt.pop_back();
       }
     }
-    
+
     //consistency check
     double checkSum(0.);
     for(unsigned int i=0;i<pointPathsFilt.size();++i){
@@ -1087,23 +1087,23 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
       delete[] P;
       throw exc;
     }
-    
+
     if(calcCov){ //calculate Jacobian jac
       for(int i=0;i<7;++i){
 	      for(int j=0;j<7;++j){
 	        if(i<6) jac[i][j] = P[ (i+1)*7+j ];
 	        else jac[i][j] = P[ (i+1)*7+j ]/P[6];
-	      }  
+	      }
       }
       jacT = jac;
       jacT.T();
     }
-    
+
     TMatrixT<double> noise(7,7); // zero everywhere by default
-    
+
     // call MatEffects
     double momLoss; // momLoss has a sign - negative loss means momentum gain
-    
+
     momLoss = GFMaterialEffects::getInstance()->effects(pointsFilt,
                                pointPathsFilt,
                                fabs(fCharge/P[6]), // momentum
@@ -1113,11 +1113,11 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
                                &jac,
                                &directionBefore,
                                &directionAfter);
-  
-    if(fabs(P[6])>1.E-10){ // do momLoss only for defined 1/momentum .ne.0      
+
+    if(fabs(P[6])>1.E-10){ // do momLoss only for defined 1/momentum .ne.0
 	    P[6] = fCharge/(fabs(fCharge/P[6])-momLoss);
     }
-    
+
     if(calcCov){ //propagate cov and add noise
       if(!(oldCov < 1.E200)){
         GFException exc("RKTrackRep::Extrap ==> covariance matrix exceeds numerical limits",__LINE__,__FILE__);
@@ -1128,8 +1128,8 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
       oldCov = *cov;
       *cov = jacT*((oldCov)*jac)+noise;
     }
-    
-    
+
+
     //we arrived at the destination plane, if we point to the active area
     //of the plane (if it is finite), and the distance is below threshold
     if( plane.inActive(TVector3(P[0],P[1],P[2]),TVector3(P[3],P[4],P[5]))) {
@@ -1140,7 +1140,7 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
   (*state)[2][0] = P[2];  (*state)[3][0] = P[3];
   (*state)[4][0] = P[4];  (*state)[5][0] = P[5];
   (*state)[6][0] = P[6];
-    
+
   delete[] P;
   return sumDistance;
 }
@@ -1235,11 +1235,11 @@ double RKTrackRep::stepalong(double h, TVector3& pos, TVector3& dir){
       throw exc;
     }
   }
-  
+
   pos.SetXYZ(state7[0][0], state7[1][0], state7[2][0]);
   dir.SetXYZ(state7[3][0], state7[4][0], state7[5][0]);
-  dir.SetMag(1.);  
-  
+  dir.SetMag(1.);
+
   return coveredDistance;
 
 }

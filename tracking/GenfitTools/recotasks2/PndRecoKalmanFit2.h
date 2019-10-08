@@ -28,51 +28,70 @@
 #include "MeasurementFactory.h"
 // Collaborating Class Declarations --
 
-class PndRecoKalmanFit2 : public TNamed 
+class PndRecoKalmanFit2 : public TNamed
 {
- public:
-  
-  // Constructors/Destructors ---------
-  PndRecoKalmanFit2();
-  ~PndRecoKalmanFit2();
-  
-  // Modifiers -----------------------
-  void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;     }
-  void SetPropagateToIP(Bool_t opt = kTRUE)      { fPropagateToIP = opt;}
-  void SetPropagateDistance(Float_t opt = -1.f)  { fPropagateDistance = opt;}
-  void SetPerpPlane(Bool_t opt = kTRUE)          { fPerpPlane = opt;    }
-  void SetNumIterations(Int_t num)               { fNumIt    = num;     } 
-  void SetVerbose(Int_t verb)                    { fVerbose  = verb;    }
-  void SetMvdBranchName(const TString& name)             { fMvdBranchName = name; }
-  void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
-  // Operations ---------------------- 
-  Bool_t Init();
-  PndTrack*  Fit(PndTrack *tBefore, Int_t PDG);
+  public:
 
-  genfit::MeasurementFactory<genfit::AbsMeasurement>* GetRecoHitFactory() { return fTheRecoHitFactory;};
-  
-private:
-  
-  // Private Data Members ------------
+    // Constructors/Destructors ---------
+    PndRecoKalmanFit2();
+    ~PndRecoKalmanFit2();
+
+    // Modifiers -----------------------
+    void SetGeane(Bool_t opt = kTRUE)              {
+      fUseGeane = opt;
+    }
+    void SetPropagateToIP(Bool_t opt = kTRUE)      {
+      fPropagateToIP = opt;
+    }
+    void SetPropagateDistance(Float_t opt = -1.f)  {
+      fPropagateDistance = opt;
+    }
+    void SetPerpPlane(Bool_t opt = kTRUE)          {
+      fPerpPlane = opt;
+    }
+    void SetNumIterations(Int_t num)               {
+      fNumIt    = num;
+    }
+    void SetVerbose(Int_t verb)                    {
+      fVerbose  = verb;
+    }
+    void SetMvdBranchName(const TString& name)             {
+      fMvdBranchName = name;
+    }
+    void SetCentralTrackerBranchName(const TString& name)  {
+      fCentralTrackerBranchName = name;
+    }
+    // Operations ----------------------
+    Bool_t Init();
+    PndTrack*  Fit(PndTrack *tBefore, Int_t PDG);
+
+    genfit::MeasurementFactory<genfit::AbsMeasurement>* GetRecoHitFactory() {
+      return fTheRecoHitFactory;
+    };
+
+  private:
+
+    // Private Data Members ------------
 
 
-  genfit::MeasurementFactory<genfit::AbsMeasurement>* fTheRecoHitFactory;
-  genfit::KalmanFitter fGenFitter;
-  
-  FairGeanePro* fPro;   //! Geane Propagator
- 
-  TString fMvdBranchName;           //! Name of the TCA for MVD
-  TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
-  
-  Bool_t fUseGeane;     //! Flag to use Geane
-  Bool_t fPropagateToIP;//! Flag to propagate to the interaction point
-  Float_t fPropagateDistance; //! Distance in [cm] to back-propagate the parameters, negative number means no backpropagation
-  Bool_t fPerpPlane;    //! Flag to use as initial plane the one perpendicular to the track 
-  Int_t fNumIt;         //! Number of iterations
-  Int_t fVerbose;       //! Verbose level
-  
-  ClassDef(PndRecoKalmanFit2,0);
+    genfit::MeasurementFactory<genfit::AbsMeasurement>* fTheRecoHitFactory;
+    genfit::KalmanFitter fGenFitter;
+
+    FairGeanePro* fPro;   //! Geane Propagator
+
+    TString fMvdBranchName;           //! Name of the TCA for MVD
+    TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
+
+    Bool_t fUseGeane;     //! Flag to use Geane
+    Bool_t fPropagateToIP;//! Flag to propagate to the interaction point
+    Float_t fPropagateDistance; //! Distance in [cm] to back-propagate the parameters, negative number means no backpropagation
+    Bool_t fPerpPlane;    //! Flag to use as initial plane the one perpendicular to the track
+    Int_t fNumIt;         //! Number of iterations
+    Int_t fVerbose;       //! Verbose level
+
+    ClassDef(PndRecoKalmanFit2,0);
 
 };
 
 #endif
+

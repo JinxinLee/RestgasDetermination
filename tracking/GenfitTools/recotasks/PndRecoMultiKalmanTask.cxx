@@ -35,21 +35,19 @@
 PndRecoMultiKalmanTask::PndRecoMultiKalmanTask(const char* name, Int_t iVerbose, TString fithypo)
   : PndPersistencyTask(name, iVerbose), fTrackInBranchName(""),
     fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
-    fFitter(),  fPersistence(kTRUE),
+    fFitWithHypo(fithypo), fFitter(new PndRecoKalmanFit()),
     fUseGeane(kTRUE), fIdealHyp(kFALSE),
     fPropagateToIP(kFALSE), fPropagateDistance(2.f), fPerpPlane(kFALSE),fTrackRep(0),
     fNumIt(1), fBusyCut(20)
 {
-  fFitWithHypo = fithypo;
-  fFitTrackArrayElectron = new TClonesArray("PndTrack");
-  fFitTrackArrayMuon     = new TClonesArray("PndTrack");
-  fFitTrackArrayPion     = new TClonesArray("PndTrack");
-  fFitTrackArrayKaon     = new TClonesArray("PndTrack");
-  fFitTrackArrayProton   = new TClonesArray("PndTrack");
-  fFitter = new PndRecoKalmanFit();
+  for (int i=0; i<5; i++) fFitTrackArrays[i] = new TClonesArray("PndTrack");
   SetPersistency(kTRUE);
+  fPDGs[0]=-11;
+  fPDGs[1]=-13;
+  fPDGs[2]=211;
+  fPDGs[3]=321;
+  fPDGs[4]=2212;
 }
-
 
 PndRecoMultiKalmanTask::~PndRecoMultiKalmanTask()
 {
@@ -58,7 +56,6 @@ PndRecoMultiKalmanTask::~PndRecoMultiKalmanTask()
 InitStatus
 PndRecoMultiKalmanTask::Init()
 {
-
   fFitter->SetGeane(fUseGeane);
   fFitter->SetPropagateToIP(fPropagateToIP);
   fFitter->SetPropagateDistance(fPropagateDistance);
@@ -87,69 +84,73 @@ PndRecoMultiKalmanTask::Init()
     return kERROR;
   }
   unsigned int nfits = 0;
-  fHypoFlag[0] = false;
-  fHypoFlag[1] = false;
-  fHypoFlag[2] = false;
-  fHypoFlag[3] = false;
-  fHypoFlag[4] = false;
-  std::cout<<fFitWithHypo<<std::endl;
+  for (int i=0; i<5; i++) fHypoFlag[i] = false;
+  std::cout<<" -I- PndRecoMultiKalmanTask::Init: \""<<fName.Data()<<"\""<<std::endl;
+  std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis string is \""<<fFitWithHypo<<"\""<<std::endl;
+  std::cout<<" -I- PndRecoMultiKalmanTask::Init: fTrackOutBranchName string is \""<<fTrackOutBranchName<<"\""<<std::endl;
   if (fFitWithHypo.Contains("electron")) {
     nfits++;
     fHypoFlag[0] = true;
-    ioman->Register(fTrackOutBranchName+"Electron","Gen", fFitTrackArrayElectron, GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis electron "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Electron","Gen"+fName, fFitTrackArrays[0], GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis electron registered"<<std::endl;
   }
   if (fFitWithHypo.Contains("muon")) {
     nfits++;
     fHypoFlag[1] = true;
-    ioman->Register(fTrackOutBranchName+"Muon",    "Gen", fFitTrackArrayMuon,     GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis muon "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Muon",    "Gen"+fName, fFitTrackArrays[1],     GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis muon registered"<<std::endl;
   }
   if (fFitWithHypo.Contains("pion")) {
     nfits++;
     fHypoFlag[2] = true;
-    ioman->Register(fTrackOutBranchName+"Pion",    "Gen", fFitTrackArrayPion,     GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis pion "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Pion",    "Gen"+fName, fFitTrackArrays[2],     GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis pion registered"<<std::endl;
   }
   if (fFitWithHypo.Contains("kaon")) {
     nfits++;
     fHypoFlag[3] = true;
-    ioman->Register(fTrackOutBranchName+"Kaon",    "Gen", fFitTrackArrayKaon,     GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis kaon "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Kaon",    "Gen"+fName, fFitTrackArrays[3],     GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis kaon registered"<<std::endl;
   }
   if (fFitWithHypo.Contains("proton")) {
     nfits++;
     fHypoFlag[4] = true;
-    ioman->Register(fTrackOutBranchName+"Proton",  "Gen", fFitTrackArrayProton,   GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis proton "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Proton",  "Gen"+fName, fFitTrackArrays[4],   GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask::Init: Hyopthesis proton registered"<<std::endl;
   }
   if (nfits == 0) {
     std::cout<<" -I- PndRecoMultiKalmanTask::Init: No hypotheses given, running kalman filter with all 5 hypothesis" << std::endl;
-    fHypoFlag[0] = true;
-    fHypoFlag[1] = true;
-    fHypoFlag[2] = true;
-    fHypoFlag[3] = true;
-    fHypoFlag[4] = true;
-    ioman->Register(fTrackOutBranchName+"Electron","Gen", fFitTrackArrayElectron, GetPersistency());
-    ioman->Register(fTrackOutBranchName+"Muon",    "Gen", fFitTrackArrayMuon,     GetPersistency());
-    ioman->Register(fTrackOutBranchName+"Pion",    "Gen", fFitTrackArrayPion,     GetPersistency());
-    ioman->Register(fTrackOutBranchName+"Kaon",    "Gen", fFitTrackArrayKaon,     GetPersistency());
-    ioman->Register(fTrackOutBranchName+"Proton",  "Gen", fFitTrackArrayProton,   GetPersistency());
+    for (int i=0; i<5; i++) fHypoFlag[i] = true;
+    ioman->Register(fTrackOutBranchName+"Electron","Gen"+fName, fFitTrackArrays[0], GetPersistency());
+    ioman->Register(fTrackOutBranchName+"Muon",    "Gen"+fName, fFitTrackArrays[1], GetPersistency());
+    ioman->Register(fTrackOutBranchName+"Pion",    "Gen"+fName, fFitTrackArrays[2], GetPersistency());
+    ioman->Register(fTrackOutBranchName+"Kaon",    "Gen"+fName, fFitTrackArrays[3], GetPersistency());
+    ioman->Register(fTrackOutBranchName+"Proton",  "Gen"+fName, fFitTrackArrays[4], GetPersistency());
   }
+  std::cout << " -I- PndRecoMultiKalmanTask::Init: \""<<fName.Data()<<"\" initilaised well with hypoflags {" <<fHypoFlag[0]<<","  <<fHypoFlag[1]<<","  <<fHypoFlag[2]<<","  <<fHypoFlag[3]<<","  <<fHypoFlag[4]<<","  <<"}" << std::endl;
+
   return kSUCCESS;
 }
 
 void PndRecoMultiKalmanTask::SetParContainers()
 {
+  std::cout << " -I- PndRecoMultiKalmanTask:SetParContainers: \""<<fName.Data()<<"\" "<<std::endl;
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
   fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
+  std::cout << " -I- PndRecoMultiKalmanTask:SetParContainers: done"<<std::endl;
 }
 
 void PndRecoMultiKalmanTask::Exec(Option_t*)
 {
   if (fVerbose>0) std::cout<<"PndRecoMultiKalmanTask::Exec"<<std::endl;
 
-  fFitTrackArrayElectron->Clear();
-  fFitTrackArrayMuon->Clear();
-  fFitTrackArrayPion->Clear();
-  fFitTrackArrayKaon->Clear();
-  fFitTrackArrayProton->Clear();
+  for (int i=0; i<5; i++) fFitTrackArrays[i]->Delete();
 
   Int_t ntracks=fTrackArray->GetEntriesFast();
 
@@ -163,67 +164,27 @@ void PndRecoMultiKalmanTask::Exec(Option_t*)
     return;
   }
 
-
   for(Int_t itr=0; itr<ntracks; ++itr)
   {
     if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
     PndTrack *prefitTrack = (PndTrack*)fTrackArray->At(itr);
     Int_t  fCharge= prefitTrack->GetParamFirst().GetQ();
 
-    if (fHypoFlag[0]) { // Electron
-      Int_t PDGCode = -11*fCharge;
-      PndTrack *fitTrack = new PndTrack();
-      fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-      TClonesArray& trkRef = *fFitTrackArrayElectron;
-      Int_t size = trkRef.GetEntriesFast();
-      new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-                                 fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);//PndTrack* pndTrack =  //[R.K.03/2017] unused variable
-    } // end of electron
-
-    if (fHypoFlag[1]) { // Muon
-      Int_t PDGCode = -13*fCharge;
-      PndTrack *fitTrack = new PndTrack();
-      fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-      TClonesArray& trkRef = *fFitTrackArrayMuon;
-      Int_t size = trkRef.GetEntriesFast();
-      new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-                                 fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);//PndTrack* pndTrack =  //[R.K.03/2017] unused variable
-    } // end of Muon
-
-    if (fHypoFlag[2]) { // Pion
-      Int_t PDGCode = 211*fCharge;
-      PndTrack *fitTrack = new PndTrack();
-      fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-      TClonesArray& trkRef = *fFitTrackArrayPion;
-      Int_t size = trkRef.GetEntriesFast();
-      new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-                                 fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);//PndTrack* pndTrack =  //[R.K.03/2017] unused variable
-    } // end of Pion
-
-    if (fHypoFlag[3]) { // Kaon
-      Int_t PDGCode = 321*fCharge;
-      PndTrack *fitTrack = new PndTrack();
-      fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-      TClonesArray& trkRef = *fFitTrackArrayKaon;
-      Int_t size = trkRef.GetEntriesFast();
-      new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-                                 fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);//PndTrack* pndTrack =  //[R.K.03/2017] unused variable
-    } // end of Kaon
-
-    if (fHypoFlag[4]) { // Proton
-      Int_t PDGCode = 2212*fCharge;
-      PndTrack *fitTrack = new PndTrack();
-      fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-      TClonesArray& trkRef = *fFitTrackArrayProton;
-      Int_t size = trkRef.GetEntriesFast();
-      new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-                                 fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);//PndTrack* pndTrack =  //[R.K.03/2017] unused variable
-    } // end of Proton
+    for (int i=0; i<5; i++) {
+      if (fHypoFlag[i]) {
+        std::cout<<"PndRecoMultiKalmanTask::Exec(): Start Hypothesis "<<fPDGs[i]<<std::endl;
+        Int_t PDGCode = fPDGs[i] * fCharge;
+        PndTrack* fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+        TClonesArray& trkRef = *fFitTrackArrays[i];
+        Int_t size = trkRef.GetEntriesFast();
+        new(trkRef[size]) PndTrack(
+          fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
+          fitTrack->GetTrackCand(), fitTrack->GetFlag(),
+          fitTrack->GetChi2(), fitTrack->GetNDF(),
+          fitTrack->GetPidHypo(), itr,
+          FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
+      }
+    }
 
   } // end of track loop
 
@@ -233,4 +194,8 @@ void PndRecoMultiKalmanTask::Exec(Option_t*)
 }
 
 ClassImp(PndRecoMultiKalmanTask);
+
+
+
+
 

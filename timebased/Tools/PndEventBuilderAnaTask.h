@@ -49,7 +49,7 @@ struct MCEvent {
                 os << link << " ";
             }
             os << std::endl;
-            int branchId = branch.first;
+//            int branchId = branch.first;
 //            std::map<int, std::vector<bool> > foundMap = data.fPointFound;
 //            std::vector<bool> foundArray = foundMap[branchId];
 //            if (foundArray.size() == branch.second.size()){

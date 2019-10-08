@@ -45,23 +45,23 @@ set(SRCS
 PndFtsCATracking.cxx
 
 code/PndFTSCAGBTracker.cxx
-#code/PndFTSCAGBTrack.cxx #
-code/PndFTSCADisplay.cxx
-#code/PndFTSCAClusterData.cxx #
-#code/PndFTSCAParameters.cxx #
+##code/PndFTSCAGBTrack.cxx #
+#code/PndFTSCADisplay.cxx
+##code/PndFTSCAClusterData.cxx #
+##code/PndFTSCAParameters.cxx #
 code/PndFTSCAGBHit.cxx
 code/PndFTSCAParam.cxx
 code/PndFTSCATrackParam.cxx
 code/PndFTSCATrackParamVector.cxx
 code/CAFunctionality.cxx
 
-code/Performance/PndFTSCAPerformance.cxx
-code/Performance/PndFTSPerformanceBase.cxx
-code/Performance/PndFTSCATrackPerformanceBase.cxx
-code/Performance/PndFTSCAGlobalPerformance.cxx
-code/Performance/PndFTSCAMCTrack.cxx
-code/Performance/PndFTSCAMCPoint.cxx
-code/Performance/PndCATrackFtsMCPointContainer.cxx
+#code/Performance/PndFTSCAPerformance.cxx
+#code/Performance/PndFTSPerformanceBase.cxx
+#code/Performance/PndFTSCATrackPerformanceBase.cxx
+#code/Performance/PndFTSCAGlobalPerformance.cxx
+#code/Performance/PndFTSCAMCTrack.cxx
+#code/Performance/PndFTSCAMCPoint.cxx
+#code/Performance/PndCATrackFtsMCPointContainer.cxx
 )
 
 #add_definitions(-DENABLE_VECTORIZATION)
@@ -74,11 +74,11 @@ code/Performance/PndCATrackFtsMCPointContainer.cxx
 #EndIf()
 
 If(APPLE)
-  ADD_DEFINITIONS( -Wall -Wabi -Wsign-promo -Wno-pmf-conversions -Wctor-dtor-privacy -Wreorder -Wno-deprecated -Wstrict-null-sentinel -Wno-parentheses -DUSE_MC_PV -DDRIFT_TUBES
-  -DPANDA_FTS -DKFPARTICLE -DKFPARTICLEFINDER -DDO_TPCCATRACKER_EFF_PERFORMANCE) #-DDRAW -DUSE_IDEAL_TF
+  ADD_DEFINITIONS( -Wall -Wabi -Wsign-promo -Wno-pmf-conversions -Wctor-dtor-privacy -Wreorder -Wno-deprecated -Wstrict-null-sentinel -Wno-parentheses -DDRIFT_TUBES -DPANDA_FTS)
+  #  -DUSE_MC_PV -DKFPARTICLE -DKFPARTICLEFINDER -DDO_TPCCATRACKER_EFF_PERFORMANCE -DDRAW -DUSE_IDEAL_TF
 Else()
-  ADD_DEFINITIONS( -Wall -Wabi -fabi-version=0 -Wsign-promo -Wno-pmf-conversions -Wctor-dtor-privacy -Wreorder -Wno-deprecated -Wstrict-null-sentinel -Wno-parentheses -DUSE_MC_PV -DDRIFT_TUBES
-  -DPANDA_FTS -DKFPARTICLE -DKFPARTICLEFINDER -DDO_TPCCATRACKER_EFF_PERFORMANCE) #-DDRAW -DUSE_IDEAL_TF
+  ADD_DEFINITIONS( -Wall -Wabi -fabi-version=0 -Wsign-promo -Wno-pmf-conversions -Wctor-dtor-privacy -Wreorder -Wno-deprecated -Wstrict-null-sentinel -Wno-parentheses -DDRIFT_TUBES -DPANDA_FTS)
+  #  -DUSE_MC_PV -DKFPARTICLE -DKFPARTICLEFINDER -DDO_TPCCATRACKER_EFF_PERFORMANCE -DDRAW -DUSE_IDEAL_TF
 EndIf()
 
 

@@ -220,7 +220,6 @@ void PndAnalysis::Init()
 
 }
 
-
 void PndAnalysis::Rewind()
 {
   fEvtCount=0;
@@ -275,10 +274,10 @@ Int_t PndAnalysis::GetEvent ( Int_t n )
   if(fVerbose>4)
   {
     std::cout
-      <<"-------->8-------->8-------->8-------->8-------->8-------->8-------->8-------->8"
-      <<"\n"
-      <<" No. -   Name  -    Flag - PidArr  - Trk Arr -Trk Arr2 -     PID -     Brem"
-      <<std::endl;
+        <<"-------->8-------->8-------->8-------->8-------->8-------->8-------->8-------->8"
+        <<"\n"
+        <<" No. -   Name  -    Flag - PidArr  - Trk Arr -Trk Arr2 -     PID -     Brem"
+        <<std::endl;
     for (int i = 0; i < 6 ; i++) // 0-4 for PID hypothesis, 5 for fallback
     {
       std::cout
@@ -293,8 +292,8 @@ Int_t PndAnalysis::GetEvent ( Int_t n )
           <<std::endl;
     }
     std::cout
-      <<"-------->8-------->8-------->8-------->8-------->8-------->8-------->8-------->8"
-      <<std::endl;
+        <<"-------->8-------->8-------->8-------->8-------->8-------->8-------->8-------->8"
+        <<std::endl;
   }
 
   ReadRecoCandidates();
@@ -322,12 +321,14 @@ Bool_t PndAnalysis::FillList ( RhoCandList& resultList, TString listkey, TString
   resultList.Cleanup();
 
   // Select the right tracking hypothesis
-  if(fHypoFlagCharged[fDefaultHypo]) {
-    trackHypothesis=fDefaultHypo; // Pions are default
-  }
 
   TString trkPostfix[6]= {"Electron","Muon","Pion","Kaon","Proton",""};
-  if(0>trackHypothesis || 6<trackHypothesis) { //only for unsupportet track hyp. mumber
+  // No hypothesis number given...
+  if(0>trackHypothesis || 6<trackHypothesis) {
+    if(fHypoFlagCharged[fDefaultHypo]) {
+      trackHypothesis=fDefaultHypo; // Pions are default
+    }
+    // let's find hypothesis from string, starting with light particles
     for(int i=0; i<6; ++i) {
       if (fHypoFlagCharged[i] && listkey.Contains ( trkPostfix[i] ) ) {
         trackHypothesis=i;
@@ -335,6 +336,7 @@ Bool_t PndAnalysis::FillList ( RhoCandList& resultList, TString listkey, TString
       }
     }
   }
+
   if(fVerbose>4) cout<<"PndAnalysis::FillList() listkey=\""<<listkey<<"\" trackhypo="<<trackHypothesis<<" pidTcaNames=\""<<pidTcaNames.Data()<<"\"  trkPostfix=\""<<trkPostfix[trackHypothesis]<<"\""<<endl;
 
   // Set which PID information should be used.
@@ -370,7 +372,7 @@ Bool_t PndAnalysis::FillList ( RhoCandList& resultList, TString listkey, TString
     resultList=fChargedCandList[trackHypothesis];
     fPidCombiner->Apply ( resultList );
     if(fVerbose>4)cout<<"trackhyp="<<trackHypothesis<<" list size after selection="<<resultList.GetLength()<<endl;
-   return kTRUE;
+    return kTRUE;
   }
 
   const bool doBremCorr = listkey.Contains("Brem");
@@ -502,7 +504,9 @@ void PndAnalysis::ReadRecoCandidates()
       PndPidCandidate* mic = ( PndPidCandidate* ) fChargedCands[i]->At ( i2 );
       RhoCandidate tc ( *mic,_uid );
       tc.SetTrackNumber ( i2 ); // Index for PID arrays
-      if(i<5){tc.SetType( tc.Charge()*fHypoPdg[i] );}
+      if(i<5) {
+        tc.SetType( tc.Charge()*fHypoPdg[i] );
+      }
       fChargedCandList[i].Add ( &tc );
       if(fVerbose>4) cout<<"Added Candidate to list i="<<i<<" with i2="<<i2<<" making the list to size "<<fChargedCandList[i].GetLength()<<endl;
     }
@@ -730,12 +734,18 @@ Bool_t PndAnalysis::ResetCandidate ( RhoCandidate* cand )
       err[ii][jj]=globalCov[ii][jj];
     }
 
-  if(fVerbose>3){ std::cout<<"MARS cov (px,py,pz,E,x,y,z): ";err.Print();}
+  if(fVerbose>3) {
+    std::cout<<"MARS cov (px,py,pz,E,x,y,z): ";
+    err.Print();
+  }
   TLorentzVector lv = cand->P4();
 
   TMatrixD covPosMom = RhoCalculationTools::GetConverted7 ( RhoCalculationTools::GetFitError ( lv, err ) );
 
-  if(fVerbose>3){ std::cout<<"covPosMom (x,y,z,px,py,pz,E): ";covPosMom.Print();}
+  if(fVerbose>3) {
+    std::cout<<"covPosMom (x,y,z,px,py,pz,E): ";
+    covPosMom.Print();
+  }
 
   cand->SetPosition ( firstpar.GetPosition() );
 
@@ -921,13 +931,9 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
   return kTRUE;
 }
 
-
-
 //////////////////////////////////////////////////////
 //  MC Truth matching                               //
 //////////////////////////////////////////////////////
-
-
 
 Bool_t PndAnalysis::McTruthMatch(RhoCandidate* cand, Int_t level, bool verbose)
 {
@@ -1088,12 +1094,6 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   if (verbose) cout <<*c->GetMcTruth()<<endl;
   return true;  // c's tree matches!
 }
-
-
-
-
-
-
 
 
 

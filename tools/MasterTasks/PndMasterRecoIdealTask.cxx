@@ -9,10 +9,13 @@
 #include "PndMasterRecoIdealTask.h"
 #include "PndMasterTask.h"
 
-//#include "PndMCTrackAssociator.h"
 #include "PndRecoKalmanTask.h"
+#include "PndRecoKalmanTask2.h"
 #include "PndRecoMultiKalmanTask.h"
+#include "PndRecoMultiKalmanTask2.h"
+
 //#include "PndFtsTrackerIdeal.h"
+#include "PndTrackSmearTask.h"
 
 /**
  * @brief Default Constructor
@@ -21,158 +24,131 @@
  **/
 // -----   Default constructor   -------------------------------------------
 PndMasterRecoIdealTask::PndMasterRecoIdealTask(TString options) :
-PndMasterTask("Master Reconstruction Task"), fOptions(options)
+  PndMasterTask("Master Reconstruction Task"), fOptions(options)
 {
-	reco = {-1, -1, -1, -1};
+  std::array<TString,5> hypoName= {"Electron","Muon","Pion","Kaon","Proton"};
+  // -----  MVD + STT Pattern Recognition -----------------------------------
+  //  use the constructor with input :
+  //      printout flag (int) , plotting flag (bool), MC comparison flag (bool), SciTil.
 
-	// -----  MVD + STT Pattern Recognition -----------------------------------
-	//  use the constructor with input :
-	//      printout flag (int) , plotting flag (bool), MC comparison flag (bool), SciTil.
+  TString brltrkname="SttMvdGemTrack", brltrkgenname="SttMvdGemGenTrack";
+  if (fOptions.Contains("nogem")||fOptions.Contains("gem0")) {
+    brltrkname="SttMvdTrack";
+    brltrkgenname="SttMvdGenTrack";
+  }
 
-	PndIdealTrackFinder* tracking = NULL;
-	this->Add(tracking = new PndIdealTrackFinder()); // 1
-	reco.kPndBarrelIdealTracking = GetListOfTasks()->GetSize()-1;
-	tracking->SetTrackSelector("NoFtsTrackFunctor");
-	tracking->SetRelativeMomentumSmearing(0.05);
-	tracking->SetVertexSmearing(0.05, 0.05, 0.05);
-	tracking->SetTrackingEfficiency(1.);
-	tracking->SetOutputBranchName("SttMvdGemTrack");
-	tracking->SetPersistence(kTRUE);
+  PndIdealTrackFinder* tracking = NULL;
+  fBranchTasks.push_back(tracking = new PndIdealTrackFinder());
+  if (fOptions.Contains("nogem")||fOptions.Contains("gem0")) {
+    tracking->SetTrackSelector("MvdSttTrackFunctor");
+  } else {
+    tracking->SetTrackSelector("NoFtsTrackFunctor");
+  }
+  tracking->SetRelativeMomentumSmearing(0.05);
+  tracking->SetVertexSmearing(0.05, 0.05, 0.05);
+  tracking->SetTrackingEfficiency(1.);
+  tracking->SetOutputBranchName(brltrkname);
+  tracking->SetPersistence(kTRUE);
 
-	// ----- Barrel Kalman Task     ----------------------------
-	if (!fOptions.Contains("multikalman")) {
-		PndRecoKalmanTask* recoKalman = NULL;
-		this->Add(recoKalman = new PndRecoKalmanTask()); // 2
-		reco.kPndRecoKalmanTask1 = GetListOfTasks()->GetSize()-1;
-		if ((!fOptions.Contains("day1")) || (fOptions.Contains("gem"))) {
-			recoKalman->SetTrackInBranchName("SttMvdGemTrack");
-			//      recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
-			recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
-		} else {
-			recoKalman->SetTrackInBranchName("SttMvdTrack");
-			//      recoKalman->SetTrackInIDBranchName("SttMvdTrackID");
-			recoKalman->SetTrackOutBranchName("SttMvdGenTrack");
-		}
-		//recoKalman->SetBusyCut(50); // CHECK to be tuned	//comment out to be consistent with multikalman
-		//recoKalman->SetIdealHyp(kTRUE);
-		//recoKalman->SetNumIterations(3);
-		//recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK	//comment out to be consistent with multikalman
-		//recoKalman->SetPropagateToIP(kFALSE);
-	} else {
-		PndRecoMultiKalmanTask* recoKalman = NULL;
-		this->Add(recoKalman = new PndRecoMultiKalmanTask()); // 2
-		recoKalman->SetFitHypotheses(fOptions);	//Walter added
-		reco.kPndRecoKalmanTask1 = GetListOfTasks()->GetSize()-1;
-		if ((!fOptions.Contains("day1")) || (fOptions.Contains("gem"))) {
-			recoKalman->SetTrackInBranchName("SttMvdGemTrack");
-			//      recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
-			recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
-		} else {
-			recoKalman->SetTrackInBranchName("SttMvdTrack");
-			//      recoKalman->SetTrackInIDBranchName("SttMvdTrackID");
-			recoKalman->SetTrackOutBranchName("SttMvdGenTrack");
-		}
-		//recoKalman->SetBusyCut(50); // CHECK to be tuned
-		//recoKalman->SetIdealHyp(kTRUE);
-		//recoKalman->SetNumIterations(3);
-		//recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
-		//recoKalman->SetPropagateToIP(kFALSE);
-	}
-
-	/*
   // ----- Barrel Kalman Task     ----------------------------
-  PndRecoKalmanTask* recoKalman = NULL;
-  this->Add(recoKalman = new PndRecoKalmanTask()); // 2
-  reco.kPndRecoKalmanTask1 = GetListOfTasks()->GetSize()-1;
+  if (!fOptions.Contains("multikalman"))
+  { //no multikalman
+    if(fOptions.Contains("genfit2")) {
+      PndRecoKalmanTask2* recoKalman = NULL;
+      fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask2()); // 2
+      recoKalman->SetTrackInBranchName(brltrkname);
+      recoKalman->SetTrackOutBranchName(brltrkgenname);
+      recoKalman->SetPropagateToIP(kFALSE);
+      //recoKalman->SetIdealHyp(kTRUE);
+    } else {
+      PndRecoKalmanTask* recoKalman = NULL;
+      fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask()); // 2
+      recoKalman->SetTrackInBranchName(brltrkname);
+      recoKalman->SetTrackOutBranchName(brltrkgenname);
+      recoKalman->SetPropagateToIP(kFALSE);
+      //recoKalman->SetIdealHyp(kTRUE);
+      //recoKalman->SetNumIterations(3);
+    }
+  }
+  else
+  { //yes, multikalman
+    if(fOptions.Contains("genfit2")) {
+      PndRecoMultiKalmanTask2* recoKalman = NULL;
+      fBranchTasks.push_back(recoKalman = new PndRecoMultiKalmanTask2()); // 2
+      recoKalman->SetFitHypotheses(fOptions+";BRL");
+      recoKalman->SetTrackInBranchName(brltrkname);
+      recoKalman->SetTrackOutBranchName(brltrkgenname);
+      recoKalman->SetVerbose(2);
+    } else {
+      PndRecoMultiKalmanTask* recoKalman = NULL;
+      fBranchTasks.push_back(recoKalman = new PndRecoMultiKalmanTask("BrlKalman",6)); // 2
+      recoKalman->SetFitHypotheses(fOptions+";BRL");
+      recoKalman->SetTrackInBranchName(brltrkname);
+      recoKalman->SetTrackOutBranchName(brltrkgenname);
+      recoKalman->SetBusyCut(50); // CHECK to be tuned
+      recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
+      recoKalman->SetPropagateToIP(kFALSE);
+      //recoKalman->SetNumIterations(3);
+    }
+  }
 
-  recoKalman->SetTrackInBranchName("SttMvdGemTrack");
-  recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
+  // -----  FTS Ideal Tracking    ----------------------------
+  TString ftstrkname="FtsIdealTrack", ftstrkgenname="FtsIdealGenTrack";
+  PndIdealTrackFinder* trackFts = NULL;
+  fBranchTasks.push_back(trackFts = new PndIdealTrackFinder());
+  trackFts->SetTrackSelector("FtsTrackFunctor");
+  trackFts->AddBranchName("FTSHit");
+  trackFts->AddBranchName("MVDHitsPixel");
+  trackFts->AddBranchName("MVDHitsStrip");
+  trackFts->SetRelativeMomentumSmearing(0.05);
+  trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
+  trackFts->SetTrackingEfficiency(1.);
+  trackFts->SetOutputBranchName(ftstrkname);
+  fFixedPersistency[trackFts] = kFALSE;
 
-  recoKalman->SetBusyCut(50); // CHECK to be tuned
-  //recoKalman->SetIdealHyp(kTRUE);
-  //recoKalman->SetNumIterations(3);
-  recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
-  //recoKalman->SetPropagateToIP(kFALSE);
-	 */
+  // ----- Forward Kalman Task     ----------------------------
+  if (!fOptions.Contains("multikalman")) { // no multikalman
 
-	// -----  FTS Ideal Tracking    ----------------------------
-	PndIdealTrackFinder* trackFts = NULL;
-	this->Add(trackFts = new PndIdealTrackFinder()); // 3
-	reco.kPndFtsTrackerIdeal = GetListOfTasks()->GetSize()-1;
-	trackFts->SetTrackSelector("FtsTrackFunctor");
-	trackFts->SetRelativeMomentumSmearing(0.05);
-	trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
-	trackFts->SetTrackingEfficiency(1.);
-	trackFts->SetOutputBranchName("FtsIdealTrack");
-	trackFts->SetPersistence(kTRUE);
+    if(fOptions.Contains("genfit2")) {
+      PndRecoKalmanTask2* recoKalman = NULL;
+      fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask2("FwdKalman")); // 2
+      recoKalman->SetTrackInBranchName(ftstrkname);
+      recoKalman->SetTrackOutBranchName(ftstrkgenname);
+      recoKalman->SetPropagateToIP(kFALSE);
+      //recoKalman->SetIdealHyp(kTRUE);
+    } else {
+      PndRecoKalmanTask* recoKalman = NULL;
+      fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask("FwdKalman"));
+      recoKalman->SetTrackInBranchName(ftstrkname);
+      recoKalman->SetTrackOutBranchName(ftstrkgenname);
+      recoKalman->SetPropagateToIP(kFALSE);
+      //recoKalman->SetIdealHyp(kTRUE);
+    }
+  } else { //yes, multikalman!
+    if(fOptions.Contains("genfit2")) {
+      PndRecoMultiKalmanTask2* recoKalman = NULL;
+      fBranchTasks.push_back(recoKalman = new PndRecoMultiKalmanTask2("FwdKalman",2)); // 2
+      recoKalman->SetFitHypotheses(fOptions+";FWD");
+      recoKalman->SetTrackInBranchName(ftstrkname);
+      recoKalman->SetTrackOutBranchName(ftstrkgenname);
+      recoKalman->SetVerbose(2);
+    } else {
+      PndRecoMultiKalmanTask* recoKalman = NULL;
+      fBranchTasks.push_back(recoKalman = new PndRecoMultiKalmanTask("FwdKalman"));
+      recoKalman->SetFitHypotheses(fOptions+";FWD");
+      recoKalman->SetTrackInBranchName(ftstrkname);
+      recoKalman->SetTrackOutBranchName(ftstrkgenname);
+      recoKalman->SetPropagateToIP(kFALSE);
+    }
+  }
 
+  // Now add all cached tasks to this one
+  std::for_each(fBranchTasks.begin(), fBranchTasks.end(),
+  [this](const FairTask* task) {
+    Add((TTask*)task);
+  });
 
-	// ----- Forward Kalman Task     ----------------------------
-//	if (!fOptions.Contains("multikalman")) {
-		PndRecoKalmanTask* recoKalmanFwd = NULL;
-		this->Add(recoKalmanFwd = new PndRecoKalmanTask()); // 2
-		reco.kPndRecoKalmanTask2 = GetListOfTasks()->GetSize()-1;
-
-		recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
-		//recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
-		recoKalmanFwd->SetTrackOutBranchName("FtsIdealGenTrack");
-
-		//recoKalman->SetBusyCut(50); // CHECK to be tuned	//comment out to be consistent with multikalman
-		//recoKalman->SetIdealHyp(kTRUE);
-		//recoKalman->SetNumIterations(3);
-		//recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK	//comment out to be consistent with multikalman
-		//recoKalman->SetPropagateToIP(kFALSE);
-//	} else {
-//		PndRecoMultiKalmanTask* recoKalmanFwd = NULL;
-//		this->Add(recoKalmanFwd = new PndRecoMultiKalmanTask()); // 2
-//		reco.kPndRecoKalmanTask2 = GetListOfTasks()->GetSize()-1;
-
-//		recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
-		//recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
-//		recoKalmanFwd->SetTrackOutBranchName("FtsIdealGenTrack");
-
-		//recoKalman->SetBusyCut(50); // CHECK to be tuned
-		//recoKalman->SetIdealHyp(kTRUE);
-		//recoKalman->SetNumIterations(3);
-		//recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
-		//recoKalman->SetPropagateToIP(kFALSE);
-//	}
-
-
-	SetVerbose(0);
-}
-// -------------------------------------------------------------------------
-
-/** Set the Persistency of all the tasks in the same way **/
-void PndMasterRecoIdealTask::SetPersistency(Bool_t pers)
-{
-	// -----  MVD + STT Pattern Recognition -----------------------------------
-	((PndIdealTrackFinder*)GetListOfTasks()->At(reco.kPndBarrelIdealTracking))->SetPersistence(pers);
-
-
-	// ----- Barrel Kalman Task     ----------------------------
-	if (!fOptions.Contains("multikalman")) {
-		((PndRecoKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask1))->SetPersistence(pers);
-	} else {
-		//((PndRecoMultiKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask1))->SetPersistence(pers); //todo:Implement me!
-	}
-
-
-
-	// -----  FTS Ideal Tracking    ----------------------------
-	((PndIdealTrackFinder*)GetListOfTasks()->At(reco.kPndFtsTrackerIdeal))->SetPersistence(pers);
-
-
-	// ----- Forward Kalman Task     ---------------------------
-	if (!fOptions.Contains("multikalman")) {
-		((PndRecoKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask2))->SetPersistence(pers);
-	} else {
-		//((PndRecoMultiKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask2))->SetPersistence(pers); //todo:implement me!
-	}
-
-
-
-	return;
+  SetVerbose(0);
 }
 
 
@@ -185,3 +161,6 @@ PndMasterRecoIdealTask::~PndMasterRecoIdealTask()
 /** @cond CLASSIMP */
 ClassImp(PndMasterRecoIdealTask);
 /** @endcond */
+
+
+

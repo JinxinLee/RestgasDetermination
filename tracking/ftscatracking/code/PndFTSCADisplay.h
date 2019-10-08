@@ -24,8 +24,8 @@ class PndFTSCATrack;
 class PndFTSCATrackParam;
 class PndFTSCAParam;
 class PndFTSCAPerformance;
-class PndFTSCAMCTrack;
-class PndFTSCALocalMCPoint;
+//class PndFTSCAMCTrack;
+//class PndFTSCALocalMCPoint;
 class TCanvas;
 class TPad;
 class FTSCAHit;
@@ -66,7 +66,7 @@ class PndFTSCADisplay
     void Update();
     void ClearView();
     void Ask();
-    void SetTPC( const PndFTSCAParam& tpcParam);  
+    void SetTPC( const PndFTSCAParam& tpcParam);
     void SetGB( const PndFTSCAGBTracker * GBTracker );
 
     const PndFTSCAGBTracker * GetGB(){return fGB;};
@@ -75,7 +75,7 @@ class PndFTSCADisplay
     int GetColorY( double y ) const ;
     int GetColorK( double k ) const ;
     int GetTrackMC( const PndFTSCADisplayTmpHit *vHits, int NHits );
-  
+
 
     void DrawTPC();
     void DrawSlice( PndFTSCATracker *slice, bool DrawRows = 0, bool DrawGrid = 1 );
@@ -101,17 +101,17 @@ class PndFTSCADisplay
 
     void HitToGlobal( const FTSCAHit& hit, float& x, float& y, float &z );
     void HitToGlobal( const FTSCAHitV& hit, int iV, float& x, float& y, float &z );
-  
+
     void DrawGBHits    (const FTSCAHitsV&     all);
-    
+
     void DrawGBHits(const FTSCAHits& all);
-    
+
     void DrawGBPoints();
     void DrawPVHisto(const vector<float>& pvHist, const PndFTSCAParam& param);
     void DrawGBNPlets(const FTSCANPletsV& all);
-    
+
     void DrawGBNPlets(const FTSCAElementsOnStation<FTSCANPletV>& s);
-    
+
     void DrawGBTracks(const FTSCATracks&  all);
 
 #if !defined(PANDA_FTS)
@@ -120,7 +120,7 @@ class PndFTSCADisplay
     bool DrawTracklet( PndFTSCATrackParam &track, const int *hitstore, int color = -1, int width = -1, bool pPoint = 0 );
 
 //     void DrawGBLinks( const PndFTSCAGBTracker &tracker, int color = -1, Size_t width = -1 );
-    
+
     void DrawGBHit( const PndFTSCAGBTracker &tracker, int iHit, int color = -1, Size_t width = -1 );
     void DrawGBHits( const PndFTSCAGBTracker &tracker, int color = -1, Size_t width = -1, int hitsType = -1 );
 
@@ -129,7 +129,7 @@ class PndFTSCADisplay
 #endif
 
     void SaveCanvasToFile( TString fileName);
-        
+
     TPad *CanvasYX() { return fYX; }
     TPad *CanvasZX() { return fZX; }
 

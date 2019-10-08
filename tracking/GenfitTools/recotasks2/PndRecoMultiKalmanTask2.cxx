@@ -19,6 +19,8 @@
 
 // This Class' Header ------------------
 #include <PndRecoMultiKalmanTask2.h>
+
+// C/C++ Headers ----------------------
 #include <iostream>
 #include <cmath>
 
@@ -30,22 +32,24 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 
-PndRecoMultiKalmanTask2::PndRecoMultiKalmanTask2(const char* name, Int_t iVerbose)
-  : PndPersistencyTask(name, iVerbose)
+PndRecoMultiKalmanTask2::PndRecoMultiKalmanTask2(const char* name, Int_t iVerbose, TString fithypo)
+  : PndPersistencyTask(name, iVerbose), fTrackInBranchName(""),
+    fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
+    fFitWithHypo(fithypo), fFitter(new PndRecoKalmanFit2()),
+    fUseGeane(kTRUE), fIdealHyp(kFALSE),
+    fNumIt(1), fBusyCut(20)
+
 {
-  fTrackInBranchName  = "LheTrack";
-  fTrackOutBranchName = "LheGenTrack";
-  fMvdBranchName = "";
-  fCentralTrackerBranchName = "";
-  fFitTrackArrayElectron = new TClonesArray("PndTrack");
-  fFitTrackArrayMuon     = new TClonesArray("PndTrack");
-  fFitTrackArrayPion     = new TClonesArray("PndTrack");
-  fFitTrackArrayKaon     = new TClonesArray("PndTrack");
-  fFitTrackArrayProton   = new TClonesArray("PndTrack");
-  fUseGeane = kTRUE;
-  fNumIt = 1;
-  fFitter = new PndRecoKalmanFit2();
+  for (int i=0; i<5; i++) fFitTrackArrays[i] = new TClonesArray("PndTrack");
   SetPersistency(kTRUE);
+  fPDGs[0]=-11;
+  fPDGs[1]=-13;
+  fPDGs[2]=211;
+  fPDGs[3]=321;
+  fPDGs[4]=2212;
+  SetVerbose(5); //FIXME
+  fVerbose=5;
+  //fFitter->SetVerbose(5); //FIXME
 }
 
 
@@ -56,148 +60,153 @@ PndRecoMultiKalmanTask2::~PndRecoMultiKalmanTask2()
 InitStatus
 PndRecoMultiKalmanTask2::Init()
 {
-
+  //fFitter->SetGeane(fUseGeane);
+  //fFitter->SetPropagateToIP(fPropagateToIP);
+  //fFitter->SetPropagateDistance(fPropagateDistance);
+  //fFitter->SetPerpPlane(fPerpPlane);
   fFitter->SetNumIterations(fNumIt);
-  fFitter->SetMvdBranchName(fMvdBranchName);
-  fFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
+  //fFitter->SetMvdBranchName(fMvdBranchName);
+  //fFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
+  //fFitter->SetVerbose(fVerbose);
+  //fFitter->SetTrackRep(fTrackRep);
   if (!fFitter->Init()) return kFATAL;
 
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
-    {
-      Error("PndRecoMultiKalmanTask2::Init","RootManager not instantiated!");
-      return kERROR;
-    }
+  {
+    Error("PndRecoMultiKalmanTask2::Init","RootManager not instantiated!");
+    return kERROR;
+  }
 
   // Get input collection
   fTrackArray=(TClonesArray*) ioman->GetObject(fTrackInBranchName);
   if(fTrackArray==0)
-    {
-      Error("PndRecoMultiKalmanTask2::Init","track-array not found!");
-      return kERROR;
-    }
+  {
+    Error("PndRecoMultiKalmanTask2::Init","track-array not found!");
+    return kERROR;
+  }
 
-  ioman->Register(fTrackOutBranchName+"Electron","Gen", fFitTrackArrayElectron, GetPersistency());
-  ioman->Register(fTrackOutBranchName+"Muon",    "Gen", fFitTrackArrayMuon,     GetPersistency());
-  ioman->Register(fTrackOutBranchName+"Pion",    "Gen", fFitTrackArrayPion,     GetPersistency());
-  ioman->Register(fTrackOutBranchName+"Kaon",    "Gen", fFitTrackArrayKaon,     GetPersistency());
-  ioman->Register(fTrackOutBranchName+"Proton",  "Gen", fFitTrackArrayProton,   GetPersistency());
-	return kSUCCESS;
+  unsigned int nfits = 0;
+  for (int i=0; i<5; i++) fHypoFlag[i] = false;
+  std::cout<<" -I- PndRecoMultiKalmanTask2::Init: \""<<fName.Data()<<"\""<<std::endl;
+  std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis string is \""<<fFitWithHypo<<"\""<<std::endl;
+  std::cout<<" -I- PndRecoMultiKalmanTask2::Init: fTrackOutBranchName string is \""<<fTrackOutBranchName<<"\""<<std::endl;
+  if (fFitWithHypo.Contains("electron")) {
+    nfits++;
+    fHypoFlag[0] = true;
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis electron "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Electron","Gen"+fName, fFitTrackArrays[0], GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis electron registered"<<std::endl;
+  }
+  if (fFitWithHypo.Contains("muon")) {
+    nfits++;
+    fHypoFlag[1] = true;
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis muon "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Muon",    "Gen"+fName, fFitTrackArrays[1], GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis muon registered"<<std::endl;
+  }
+  if (fFitWithHypo.Contains("pion")) {
+    nfits++;
+    fHypoFlag[2] = true;
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis pion "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Pion",    "Gen"+fName, fFitTrackArrays[2], GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis pion registered"<<std::endl;
+  }
+  if (fFitWithHypo.Contains("kaon")) {
+    nfits++;
+    fHypoFlag[3] = true;
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis kaon "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Kaon",    "Gen"+fName, fFitTrackArrays[3], GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis kaon registered"<<std::endl;
+  }
+  if (fFitWithHypo.Contains("proton")) {
+    nfits++;
+    fHypoFlag[4] = true;
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis proton "<<std::endl;
+    ioman->Register(fTrackOutBranchName+"Proton",  "Gen"+fName, fFitTrackArrays[4], GetPersistency());
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: Hyopthesis proton registered"<<std::endl;
+  }
+  if (nfits == 0) {
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Init: No hypotheses given, running kalman filter with all 5 hypothesis" << std::endl;
+    for (int i=0; i<5; i++) fHypoFlag[i] = true;
+    ioman->Register(fTrackOutBranchName+"Electron","Gen"+fName, fFitTrackArrays[0], GetPersistency());
+    ioman->Register(fTrackOutBranchName+"Muon",    "Gen"+fName, fFitTrackArrays[1], GetPersistency());
+    ioman->Register(fTrackOutBranchName+"Pion",    "Gen"+fName, fFitTrackArrays[2], GetPersistency());
+    ioman->Register(fTrackOutBranchName+"Kaon",    "Gen"+fName, fFitTrackArrays[3], GetPersistency());
+    ioman->Register(fTrackOutBranchName+"Proton",  "Gen"+fName, fFitTrackArrays[4], GetPersistency());
+  }
+  std::cout << " -I- PndRecoMultiKalmanTask2::Init: \""<<fName.Data()<<"\" initilaised well with hypoflags {" <<fHypoFlag[0]<<","  <<fHypoFlag[1]<<","  <<fHypoFlag[2]<<","  <<fHypoFlag[3]<<","  <<fHypoFlag[4]<<","  <<"}" << std::endl;
+  return kSUCCESS;
 }
 
 void PndRecoMultiKalmanTask2::SetParContainers()
 {
+  std::cout << " -I- PndRecoMultiKalmanTask2:SetParContainers: \""<<fName.Data()<<"\" "<<std::endl;
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+  fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
+  std::cout << " -I- PndRecoMultiKalmanTask2:SetParContainers: done"<<std::endl;
 }
 
 void PndRecoMultiKalmanTask2::Exec(Option_t*)
 {
-  if (fVerbose>0) std::cout<<"PndRecoMultiKalmanTask2::Exec"<<std::endl;
+  //if (fVerbose>0)
+  std::cout<<"PndRecoMultiKalmanTask2::Exec"<<std::endl;
 
-  fFitTrackArrayElectron->Clear();
-  fFitTrackArrayMuon->Clear();
-  fFitTrackArrayPion->Clear();
-  fFitTrackArrayKaon->Clear();
-  fFitTrackArrayProton->Clear();
+  for (int i=0; i<5; i++) fFitTrackArrays[i]->Delete();
 
   Int_t ntracks=fTrackArray->GetEntriesFast();
 
   // Detailed output
-  if (fVerbose>1) std::cout << " -I- PndRecoMultiKalmanTask2: contains " << ntracks << " Tracks."<< std::endl;
+  //if (fVerbose>1)
+  std::cout << " -I- PndRecoMultiKalmanTask2: contains " << ntracks << " Tracks."<< std::endl;
 
   // Cut too busy events TODO
-  if(ntracks>20)
-    {
-      std::cout<<" -I- PndRecoMultiKalmanTask2::Exec: ntracks=" << ntracks << " Evil Event! skipping" << std::endl;
-      return;
+  if(ntracks>fBusyCut)
+  {
+    std::cout<<" -I- PndRecoMultiKalmanTask2::Exec: ntracks=" << ntracks << " Evil Event! skipping" << std::endl;
+    return;
+  }
+
+  for(Int_t itr=0; itr<ntracks; ++itr)
+  {
+    if (fVerbose > 1) std::cout << "starting track" << itr << std::endl;
+    PndTrack *prefitTrack = (PndTrack*) fTrackArray->At(itr);
+    Int_t fCharge = prefitTrack->GetParamFirst().GetQ();
+
+    for (int i=0; i<5; i++) {
+      if (fHypoFlag[i]) {
+        //if (fVerbose>2)
+        std::cout<<"PndRecoMultiKalmanTask2::Exec(): Start Hypothesis "<<fPDGs[i]<<std::endl;
+        Int_t PDGCode = fPDGs[i] * fCharge;
+        PndTrack* fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+        TClonesArray& trkRef = *fFitTrackArrays[i];
+        Int_t size = trkRef.GetEntriesFast();
+        new (trkRef[size]) PndTrack(
+          fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
+          fitTrack->GetTrackCand(), fitTrack->GetFlag(),
+          fitTrack->GetChi2(), fitTrack->GetNDF(),
+          fitTrack->GetPidHypo(), itr,
+          FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
+      }
     }
 
+  } // end of track loop
 
-  for (Int_t itr = 0; itr < ntracks; ++itr) {
-		if (fVerbose > 1)
-			std::cout << "starting track" << itr << std::endl;
-		PndTrack *prefitTrack = (PndTrack*) fTrackArray->At(itr);
-		Int_t fCharge = prefitTrack->GetParamFirst().GetQ();
+  //if (fVerbose > 0)
+  std::cout << "Fitting done" << std::endl;
 
-		{ // Electron
-			Int_t PDGCode = -11 * fCharge;
-			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-			TClonesArray& trkRef = *fFitTrackArrayElectron;
-			Int_t size = trkRef.GetEntriesFast();
-			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
-					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
-					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
-					fitTrack->GetChi2(), fitTrack->GetNDF(),
-					fitTrack->GetPidHypo(), itr, kLheTrack);
-			delete(fitTrack);
-		} // end of electron
-
-		{ // Muon
-			Int_t PDGCode = -13 * fCharge;
-			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-			TClonesArray& trkRef = *fFitTrackArrayMuon;
-			Int_t size = trkRef.GetEntriesFast();
-			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
-					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
-					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
-					fitTrack->GetChi2(), fitTrack->GetNDF(),
-					fitTrack->GetPidHypo(), itr, kLheTrack);
-			delete(fitTrack);
-		} // end of Muon
-
-		{ // Pion
-			Int_t PDGCode = 211 * fCharge;
-			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-			TClonesArray& trkRef = *fFitTrackArrayPion;
-			Int_t size = trkRef.GetEntriesFast();
-			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
-					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
-					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
-					fitTrack->GetChi2(), fitTrack->GetNDF(),
-					fitTrack->GetPidHypo(), itr, kLheTrack);
-			delete(fitTrack);
-		} // end of Pion
-
-		{ // Kaon
-			Int_t PDGCode = 321 * fCharge;
-			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-			TClonesArray& trkRef = *fFitTrackArrayKaon;
-			Int_t size = trkRef.GetEntriesFast();
-			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
-					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
-					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
-					fitTrack->GetChi2(), fitTrack->GetNDF(),
-					fitTrack->GetPidHypo(), itr, kLheTrack);
-			delete(fitTrack);
-		} // end of Kaon
-
-		{ // Proton
-			Int_t PDGCode = 2212 * fCharge;
-			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-
-			TClonesArray& trkRef = *fFitTrackArrayProton;
-			Int_t size = trkRef.GetEntriesFast();
-			/*PndTrack* pndTrack =*/ new (trkRef[size]) PndTrack( //[R.K. 9/2018] unused
-					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
-					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
-					fitTrack->GetChi2(), fitTrack->GetNDF(),
-					fitTrack->GetPidHypo(), itr, kLheTrack);
-			delete(fitTrack);
-		} // end of Proton
-
-	} // end of track loop
-
-	if (fVerbose > 0)
-		std::cout << "Fitting done" << std::endl;
-
-	return;
+  return;
 }
 
 ClassImp(PndRecoMultiKalmanTask2);
+
+
+
+
+
+
+
+

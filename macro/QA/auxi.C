@@ -11,9 +11,11 @@
 void CloseGeoManager()
 {
   if (gROOT->GetVersionInt() >= 60602 && gROOT->GetVersionInt() < 61600) {
-    gGeoManager->GetListOfVolumes()->Delete();
-    gGeoManager->GetListOfShapes()->Delete();
-    delete gGeoManager;
+    if(gGeoManager){
+      gGeoManager->GetListOfVolumes()->Delete();
+      gGeoManager->GetListOfShapes()->Delete();
+      delete gGeoManager;
+    }
   }
 }
 

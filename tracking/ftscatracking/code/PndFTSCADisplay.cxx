@@ -113,7 +113,7 @@ PndFTSCADisplay::PndFTSCADisplay() :
 #endif
     fArc(), fLine(), fPLine(), fMarker(), fBox(), fCrown(), fLatex(), fDrawOnlyRef( 0 ) // iklm. This is just default. If they are not correct SetTPC(...) can and should be used!
 {
-  fPerf = &( PndFTSCAPerformance::Instance() );
+  //fPerf = &( PndFTSCAPerformance::Instance() );
   // constructor
 }
 

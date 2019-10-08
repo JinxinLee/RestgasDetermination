@@ -42,13 +42,13 @@ GeaneTrackRep::GeaneTrackRep()
 
 }
 
-GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane, 
+GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
 			     const GFDetPlane& plane,
 			     const TVector3& mom,
 			     const TVector3& poserr,
 			     const TVector3& momerr,
 			     double q,
-			     int PDGCode) 
+			     int PDGCode)
   : GFAbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0), _spu(1)
 {
   FairTrackParP par(plane.getO(),mom,poserr,momerr,(int)TMath::Sign(1.0, q),plane.getO(),plane.getU(),plane.getV());
@@ -76,13 +76,13 @@ GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
   fRefPlane=plane;
 }
 
-GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane, 
+GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
 			     const GFDetPlane& plane,
 			     const TVector3& mom,
 			     const TVector3& poserr,
 			     const TVector3& momerr,
 			     int q,
-			     int PDGCode) 
+			     int PDGCode)
   : GFAbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0), _spu(1)
 {
   FairTrackParP par(plane.getO(),mom,poserr,momerr,q,plane.getO(),plane.getU(),plane.getV());
@@ -110,7 +110,7 @@ GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
   fRefPlane=plane;
 }
 
-//  GeaneTrackRep::GeaneTrackRep(const GeaneTrackRep& rep) 
+//  GeaneTrackRep::GeaneTrackRep(const GeaneTrackRep& rep)
 //   : GFAbsTrackRep(rep)
 // {
 //   _geane=rep._geane;
@@ -119,14 +119,14 @@ GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
 
 GeaneTrackRep::~GeaneTrackRep()
 {
-  
+
 }
 
 
 
 
 double
-GeaneTrackRep::extrapolate(const GFDetPlane& pl, 
+GeaneTrackRep::extrapolate(const GFDetPlane& pl,
 			   TMatrixT<double>& statePred)
 {
   TMatrixT<double> covPred(5,5);
@@ -136,7 +136,7 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
 
 
 double
-GeaneTrackRep::extrapolate(const GFDetPlane& pl, 
+GeaneTrackRep::extrapolate(const GFDetPlane& pl,
 			   TMatrixT<double>& statePred,
 			   TMatrixT<double>& covPred)
 {
@@ -160,7 +160,7 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
 
   FairTrackParP result;
   FairTrackParH result2;
-  
+
   //std::cout<<"Before prop:"<<std::endl;
   //Print();
 
@@ -181,8 +181,8 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
   }
 
   checkState();
-  
-  
+
+
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,ofrom,ufrom,vfrom,_spu);
   bool backprop=_backw<0;
   if(_backw==0){
@@ -205,17 +205,17 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
     //exc.setFatal();
     throw exc;
   }
-  
+
 
   double l=_geane->GetLengthAtPCA();
- 
+
   statePred[0][0]=result.GetQp();
   statePred[1][0]=result.GetTV();
   statePred[2][0]=result.GetTW();
   statePred[3][0]=result.GetV();
   statePred[4][0]=result.GetW();
 
-  
+
 
   double* rescov=result.GetCov();
   count=0;
@@ -226,7 +226,7 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
       ++count;
     }
   }
-  
+
   //   if(result.GetSPU()!=_spu)std::cout<<"SPU HAS CHANGED! "<<_spu<<" --> "<<result.GetSPU()<<std::endl;
   _spu=result.GetSPU();
 
@@ -235,7 +235,7 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
   //pl.Print();
   //statePred.Print();
   //covPred.Print();
-  
+
 
 
   return l;
@@ -280,7 +280,7 @@ GeaneTrackRep::extrapolateToPoint(const TVector3& pos,
   }
 
   checkState();
-    
+
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,ofrom,ufrom,vfrom,_spu);
   //par.Print();
   bool backprop=_backw<0;
@@ -330,7 +330,7 @@ GeaneTrackRep::extrapolateToPoint(const TVector3& pos,
 }
 
 
-void 
+void
 GeaneTrackRep::extrapolateToLine(const TVector3& point1,
 				 const TVector3& point2,
 				 TVector3& poca,
@@ -343,10 +343,10 @@ GeaneTrackRep::extrapolateToLine(const TVector3& point1,
     throw exc;
   }
 
-  // call propagation to closest approach to a wire 
+  // call propagation to closest approach to a wire
   Int_t pca = 2;
 
-  // calculate a very large track length 
+  // calculate a very large track length
   TVector3 start = getPos(fRefPlane);
   Double_t distance1, distance2;
   distance1 = (point1 - start).Mag();
@@ -354,7 +354,7 @@ GeaneTrackRep::extrapolateToLine(const TVector3& point1,
   Double_t maxdistance;
   if(distance1 < distance2) maxdistance = distance2;
   else maxdistance = distance1;
-  maxdistance *= 2.;  
+  maxdistance *= 2.;
 
   // variables for FindPCA:
   TVector3 point(0,0,0);
@@ -363,34 +363,34 @@ GeaneTrackRep::extrapolateToLine(const TVector3& point1,
   // poca_onwire = vwi = point of closest approach on wire
   Double_t Di = 0.;
   Float_t trklength = 0.;
-  
+
   // covariance matrix
   FairGeaneUtil util;
   Double_t cov55[5][5];
   for(int i = 0; i < 5; i++) for(int j = 0; j < 5; j++) cov55[i][j] = fCov[i][j];
   Double_t cova[15];
   util.FromMat25ToVec15(cov55, cova);
-  
+
   TVector3 o  = fRefPlane.getO();
   TVector3 dj = fRefPlane.getU();
   TVector3 dk = fRefPlane.getV();
-  
+
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,o,dj,dk,_spu);
 
   // get propagation direction
   Int_t direction = getPropDir();
-  
+
   _geane->ActualFindPCA(pca, &par, direction);
   Int_t findpca = _geane->FindPCA(pca, _pdg, point, point1, point2, maxdistance, Rad, poca, poca_onwire, Di, trklength);
-  
+
   if(findpca != 0) {
-    GFException exc("findpca failure", __LINE__,__FILE__);	
-    throw exc;    
+    GFException exc("findpca failure", __LINE__,__FILE__);
+    throw exc;
   }
 
   // dir in poca not filled now
   dirInPoca.SetXYZ(0., 0., 0.);
-  
+
 }
 
 
@@ -398,9 +398,9 @@ GeaneTrackRep::extrapolateToLine(const TVector3& point1,
 
 
 
-TVector3 
+TVector3
 GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
-  
+
   //std::cout<<"GeaneTrackRep::getPocaToWire"<<std::endl;
 
   TVector3 ofrom=fRefPlane.getO();
@@ -424,10 +424,10 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
   }
 
   checkState();
-    
+
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,ofrom,ufrom,vfrom,_spu);
 
-  
+
   if(!back){ // point lies in same direction of flight as momentum
     //std::cout<<" Propagate in flight direction"<<std::endl;
     _geane->PropagateToVirtualPlaneAtPCA(2); // option 2 means wire!
@@ -455,15 +455,15 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
 
 
 
-TVector3 
+TVector3
 GeaneTrackRep::getPos(const GFDetPlane& pl)
 {
   TMatrixT<double> statePred(fState);
   if(pl!=fRefPlane)extrapolate(pl,statePred);
   return pl.getO()+(statePred[3][0]*pl.getU())+(statePred[4][0]*pl.getV());
 }
- 
-TVector3 
+
+TVector3
 GeaneTrackRep::getMom(const GFDetPlane& pl)
 {
   TMatrixT<double> statePred(fState);
@@ -499,7 +499,7 @@ GeaneTrackRep::getPosMomCov(const GFDetPlane& pl,TVector3& pos,TVector3& mom,TMa
   double fSPU  = _spu;
   mom = fSPU*pl.getNormal()+fSPU*statePred[1][0]*pl.getU()+fSPU*statePred[2][0]*pl.getV();
   mom.SetMag(1./fabs(statePred[0][0]));
-  
+
   // covariance matrix
   FairGeaneUtil util;
   // covPred 5 X 5 ==> cov55[5][5]
@@ -508,17 +508,17 @@ GeaneTrackRep::getPosMomCov(const GFDetPlane& pl,TVector3& pos,TVector3& mom,TMa
   // cov55[5][5] ==> cov15[15]
   double cov15[15];
   util.FromMat25ToVec15(cov55, cov15);
-  
-  FairTrackParP parPred(statePred[3][0], 
-			statePred[4][0], statePred[1][0], 
-			statePred[2][0], statePred[0][0], 
-			cov15, 
-			pl.getO(), pl.getU(), pl.getV(), 
+
+  FairTrackParP parPred(statePred[3][0],
+			statePred[4][0], statePred[1][0],
+			statePred[2][0], statePred[0][0],
+			cov15,
+			pl.getO(), pl.getU(), pl.getV(),
 			_spu);
   double cov66[6][6];
   parPred.GetMARSCov(cov66);
   for(int i = 0; i < 6; i++) for(int j = 0; j < 6; j++) cov[i][j] = cov66[i][j];
- 
+
 }
 
 
@@ -526,7 +526,7 @@ void
 GeaneTrackRep::checkState(){
   if(fabs(fState[3][0])<1.E-4)fState[3][0]=1.E-4;
   if(fabs(fState[4][0])<1.E-4)fState[4][0]=1.E-4;
-  
+
   //if (!(fState.Abs()>1.E-15) || !(fState.Abs()<1.E50)){
   //  GFException exc("fState out of numerical bounds",__LINE__,__FILE__);
   //  exc.setFatal();
@@ -534,6 +534,6 @@ GeaneTrackRep::checkState(){
   //}
 }
 
- 
+
 ClassImp(GeaneTrackRep)
 

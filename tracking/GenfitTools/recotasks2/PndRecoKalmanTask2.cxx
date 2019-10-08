@@ -36,12 +36,12 @@
 #include "FairRuntimeDb.h"
 
 PndRecoKalmanTask2::PndRecoKalmanTask2(const char* name, Int_t iVerbose)
-: PndPersistencyTask(name, iVerbose),fFitTrackArray(), fTrackInBranchName(""),
-fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
- fFitter(), fDafFitter(),
-fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE),
-  fPropagateToIP(kFALSE), fPropagateDistance(2.f), fPerpPlane(kFALSE),
-  fNumIt(1), fPDGHyp(-13), fBusyCut(20)
+  : PndPersistencyTask(name, iVerbose),fFitTrackArray(), fTrackInBranchName(""),
+    fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
+    fFitter(), fDafFitter(),
+    fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE),
+    fPropagateToIP(kFALSE), fPropagateDistance(2.f), fPerpPlane(kFALSE),
+    fNumIt(1), fPDGHyp(-13), fBusyCut(20)
 {
   fFitTrackArray = new TClonesArray("PndTrack");
   fFitter = new PndRecoKalmanFit2();
@@ -105,12 +105,12 @@ PndRecoKalmanTask2::Init()
   if (fIdealHyp)
   {
     pdg = new TDatabasePDG();
-//    fTrackIDArray=(TClonesArray*) ioman->GetObject(fTrackInIDBranchName);
-//    if(fTrackIDArray==0)
-//    {
-//      Error("PndRecoKalmanTask2::Init","track ID array not found! It is not possible to run ideal particle hypothesis");
-//      return kERROR;
-//    }
+    //    fTrackIDArray=(TClonesArray*) ioman->GetObject(fTrackInIDBranchName);
+    //    if(fTrackIDArray==0)
+    //    {
+    //      Error("PndRecoKalmanTask2::Init","track ID array not found! It is not possible to run ideal particle hypothesis");
+    //      return kERROR;
+    //    }
 
     fMCTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
     if(fMCTrackArray==0)
@@ -142,12 +142,12 @@ void PndRecoKalmanTask2::Exec(Option_t*) {
   // Detailed output
   if (fVerbose > 1)
     std::cout << " -I- PndRecoKalmanTask2: contains " << ntracks
-        << " Tracks." << std::endl;
+              << " Tracks." << std::endl;
 
   // Cut too busy events TODO
   if (ntracks > fBusyCut) {
     std::cout << " -I- PndRecoKalmanTask2::Exec: ntracks=" << ntracks
-        << " Evil Event! skipping" << std::endl;
+              << " Evil Event! skipping" << std::endl;
     return;
   }
 
@@ -163,18 +163,18 @@ void PndRecoKalmanTask2::Exec(Option_t*) {
     Int_t PDGCode = 0;
     if (fIdealHyp) {
       std::vector<FairLink> mcTrackLinks = prefitTrack->GetSortedMCTracks();
-//      PndTrackID *prefitTrackID = (PndTrackID*) fTrackIDArray->At(itr);
+      //      PndTrackID *prefitTrackID = (PndTrackID*) fTrackIDArray->At(itr);
       if (mcTrackLinks.size() > 0) {
         Int_t mcTrackId = mcTrackLinks[0].GetIndex();
         if (mcTrackId != -1) {
           PndMCTrack *mcTrack = (PndMCTrack*) fMCTrackArray->At(      //TODO: Replace with GetCloneOfLinkData to run time-based
-              mcTrackId);
+                                  mcTrackId);
           if (!mcTrack) {
             PDGCode = 211 * fCharge;
             std::cout << "-I- PndRecoKalmanTask2::Exec: MCTrack #"
-                << mcTrackId
-                << " is not existing!! Trying with pion hyp"
-                << std::endl;
+                      << mcTrackId
+                      << " is not existing!! Trying with pion hyp"
+                      << std::endl;
           } else {
             PDGCode = mcTrack->GetPdgCode();
           }
@@ -184,7 +184,7 @@ void PndRecoKalmanTask2::Exec(Option_t*) {
                 << "-I- PndRecoKalmanTask2::Exec: Track is an ion (PDGCode>100000000)! Trying with pion hyp"
                 << std::endl;
           } else if ((((TParticlePDG*) pdg->GetParticle(PDGCode))->Charge())
-              == 0) {
+                     == 0) {
             PDGCode = 211 * fCharge;
             std::cout
                 << "-E- PndRecoKalmanTask2::Exec: Track MC charge is 0!!!! Trying with pion hyp"
@@ -213,11 +213,11 @@ void PndRecoKalmanTask2::Exec(Option_t*) {
     PndTrack* fitTrackPointer = 0;
     //bool usePrefit = false; //[R.K.03/2017] unused variable
     if (PDGCode != 0) {
-      if (fDaf){
+      if (fDaf) {
         fitTrackPointer = (fDafFitter->Fit(prefitTrack, PDGCode));
         fitTrack = *fitTrackPointer;
       }
-      else{
+      else {
         fitTrackPointer = (fFitter->Fit(prefitTrack, PDGCode));
         fitTrack = *fitTrackPointer;
       }
@@ -231,12 +231,12 @@ void PndRecoKalmanTask2::Exec(Option_t*) {
     }
 
 
-      new (trkRef[size]) PndTrack(
-        fitTrack.GetParamFirst(), fitTrack.GetParamLast(),
-        fitTrack.GetTrackCand(), fitTrack.GetFlag(),
-        fitTrack.GetChi2(), fitTrack.GetNDF(), fitTrack.GetPidHypo(),
-        itr,
-        FairRootManager::Instance()->GetBranchId(fTrackInBranchName));//PndTrack* pndTrack =  //[R.K.03/2017] unused variable
+    new (trkRef[size]) PndTrack(
+      fitTrack.GetParamFirst(), fitTrack.GetParamLast(),
+      fitTrack.GetTrackCand(), fitTrack.GetFlag(),
+      fitTrack.GetChi2(), fitTrack.GetNDF(), fitTrack.GetPidHypo(),
+      itr,
+      FairRootManager::Instance()->GetBranchId(fTrackInBranchName));//PndTrack* pndTrack =  //[R.K.03/2017] unused variable
 
   }
 
@@ -249,17 +249,17 @@ void PndRecoKalmanTask2::Exec(Option_t*) {
 void PndRecoKalmanTask2::SetParticleHypo(TString h)
 {
   // Set the hypothesis for the fit, charge will be applied later
-  if(h.BeginsWith("e") || h.BeginsWith("E")){
+  if(h.BeginsWith("e") || h.BeginsWith("E")) {
     fPDGHyp=-11; //electrons
-  }else if(h.BeginsWith("m") || h.BeginsWith("M")){
+  } else if(h.BeginsWith("m") || h.BeginsWith("M")) {
     fPDGHyp=-13; //muons
-  }else if(h.BeginsWith("pi") || h.BeginsWith("Pi") || h.BeginsWith("PI")){
+  } else if(h.BeginsWith("pi") || h.BeginsWith("Pi") || h.BeginsWith("PI")) {
     fPDGHyp=211; //pions
-  }else if(h.BeginsWith("K") || h.BeginsWith("K")){
+  } else if(h.BeginsWith("K") || h.BeginsWith("K")) {
     fPDGHyp=321; //kaons
-  }else if(h.BeginsWith("p") || h.BeginsWith("P") || h.BeginsWith("antip")){
+  } else if(h.BeginsWith("p") || h.BeginsWith("P") || h.BeginsWith("antip")) {
     fPDGHyp=2212; //protons/antiprotons
-  }else{
+  } else {
     std::cout << "-I- PndRecoKalmanTask2::SetParticleHypo: Not recognised PID set -> Using default MUON hypothesis" << std::endl;
     fPDGHyp=-13; // Muon is default.
   }
@@ -269,25 +269,26 @@ void PndRecoKalmanTask2::SetParticleHypo(Int_t h)
 {
   switch (abs(h))
   {
-    case 11:
-      fPDGHyp = -11;
-      break;
-    case 13:
-      fPDGHyp = -13;
-      break;
-    case 211:
-      fPDGHyp = 211;
-      break;
-    case 321:
-      fPDGHyp = 321;
-      break;
-    case 2212:
-      fPDGHyp = 2212;
-      break;
-    default:
-      std::cout << "-I- PndRecoKalmanTask2::SetParticleHypo: Not recognised PID set -> Using default MUON hypothesis" << std::endl;
-      fPDGHyp = -13;
-      break;
+  case 11:
+    fPDGHyp = -11;
+    break;
+  case 13:
+    fPDGHyp = -13;
+    break;
+  case 211:
+    fPDGHyp = 211;
+    break;
+  case 321:
+    fPDGHyp = 321;
+    break;
+  case 2212:
+    fPDGHyp = 2212;
+    break;
+  default:
+    std::cout << "-I- PndRecoKalmanTask2::SetParticleHypo: Not recognised PID set -> Using default MUON hypothesis" << std::endl;
+    fPDGHyp = -13;
+    break;
   }
 }
-  ClassImp(PndRecoKalmanTask2);
+ClassImp(PndRecoKalmanTask2);
+

@@ -47,7 +47,7 @@ void EventInfo::CalculateBranchInfo(){
 }
 
 PndEventBuilderAnaTask::PndEventBuilderAnaTask() :
-	PndPersistencyTask("Pnd Gap Event Builder"), fEntryNr(0), fMainBranchName()
+	PndPersistencyTask("Pnd Gap Event Builder"), fMainBranchName(), fEntryNr(0)
 {
 }
 

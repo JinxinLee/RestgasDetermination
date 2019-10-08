@@ -11,7 +11,7 @@
 #pragma link C++ class PndMasterRecoTask+;
 #pragma link C++ class PndMasterLocalRecoTask+;
 #pragma link C++ class PndMasterRecoIdealTask+;
-#pragma link C++ class PndMasterPidTask+;
+//#pragma link C++ class PndMasterPidTask+;
 #pragma link C++ class PndMasterMultiPidTask+;
 #pragma link C++ class PndMasterRunSim+;
 #pragma link C++ class PndMasterRunAna+;

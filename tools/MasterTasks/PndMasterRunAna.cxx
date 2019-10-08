@@ -5,7 +5,7 @@
 #include "PndMasterRecoTask.h"
 #include "PndMasterLocalRecoTask.h"
 #include "PndMasterRecoIdealTask.h"
-#include "PndMasterPidTask.h"
+//#include "PndMasterPidTask.h"
 #include "PndMasterMultiPidTask.h"
 #include "PndFileNameCreator.h"
 #include "PndEventCounterTask.h"
@@ -29,7 +29,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
   FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(),
-  fOptions(), fEventCounterRate(100), fNoGeane(kTRUE),
+  fOptions(""), fEventCounterRate(100), fNoGeane(kTRUE),
   fGenerateRunInfo(kFALSE), fUseFairLinks(kTRUE), fTimer()
 {
   fTimer.Start();
@@ -173,18 +173,19 @@ void PndMasterRunAna::AddPidTasks(Bool_t pers)
     AddTask(new FairGeane());
     fNoGeane=false;
   }
-  if (fOptions.Contains("multikalman"))
-  {
+std::cout<<"MasterRunAna: PID Task creation. Options are \""<<fOptions.Data()<<"\""<<std::endl;
+  //if (fOptions.Contains("multikalman"))
+  //{
     PndMasterMultiPidTask *pid = new PndMasterMultiPidTask(fOptions);
     if (!pers) pid->SetPersistency(kFALSE);
     pid->SetPersistency(pers);
     AddTask(pid);
-  } else {
-    PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
-    if (!pers) pid->SetPersistency(kFALSE);
-    pid->SetPersistency(pers);
-    AddTask(pid);
-  }
+  //} else {
+    //PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
+    //if (!pers) pid->SetPersistency(kFALSE);
+    //pid->SetPersistency(pers);
+    //AddTask(pid);
+  //}
 }
 
 void PndMasterRunAna::PrintListOftTasks()

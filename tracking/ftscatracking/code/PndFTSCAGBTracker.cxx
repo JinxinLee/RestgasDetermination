@@ -161,81 +161,81 @@ void PndFTSCAGBTracker::SetNHits( int nHits )
   fNHits = nHits;
 }
 
-void PndFTSCAGBTracker::IdealTrackFinder()
-{
-  //* Creation of ideal tracks based on hits, which correspond to the MC-points.
+//void PndFTSCAGBTracker::IdealTrackFinder()
+//{
+  ////* Creation of ideal tracks based on hits, which correspond to the MC-points.
 
-  PndFTSCAPerformance* perf = &PndFTSCAPerformance::Instance();
+  ////PndFTSCAPerformance* perf = &PndFTSCAPerformance::Instance();
 
-  if (fHits.Size() > 0)
-    sort( &(fHits[0]), &(fHits[fHits.Size()-1]), PndFTSCAGBHit::Compare );
+  //if (fHits.Size() > 0)
+    //sort( &(fHits[0]), &(fHits[fHits.Size()-1]), PndFTSCAGBHit::Compare );
 
-  const int NMCTracks = perf->GetMCTracks()->Size();
-  vector<vector<int> > hits(NMCTracks+1);
+  //const int NMCTracks = perf->GetMCTracks()->Size();
+  //vector<vector<int> > hits(NMCTracks+1);
 
-  for(int iH=0; iH<fHits.Size(); iH++)
-  {
-    int id = fHits[iH].ID();
-    int trackId = perf->HitLabel(id).fLab[0];
-    for( int k = 1; k < 3 && trackId < 0; k++ )
-      trackId = perf->HitLabel(id).fLab[k];
-    if ( trackId < 0 ) continue;
-    hits[trackId].push_back(iH);
-  }
+  //for(int iH=0; iH<fHits.Size(); iH++)
+  //{
+    //int id = fHits[iH].ID();
+    //int trackId = perf->HitLabel(id).fLab[0];
+    //for( int k = 1; k < 3 && trackId < 0; k++ )
+      //trackId = perf->HitLabel(id).fLab[k];
+    //if ( trackId < 0 ) continue;
+    //hits[trackId].push_back(iH);
+  //}
 
-  int nTracks = NMCTracks;
+  //int nTracks = NMCTracks;
 
-  if(fTracks) delete [] fTracks;
-  fTracks = new PndFTSCAGBTrack[nTracks];
-  fNTracks = nTracks;
+  //if(fTracks) delete [] fTracks;
+  //fTracks = new PndFTSCAGBTrack[nTracks];
+  //fNTracks = nTracks;
 
-  if(fTrackHits) delete [] fTrackHits;
-  fTrackHits = new int[fHits.Size()];
+  //if(fTrackHits) delete [] fTrackHits;
+  //fTrackHits = new int[fHits.Size()];
 
-  int curHit = 0;
-  int curTr = 0;
+  //int curHit = 0;
+  //int curTr = 0;
 
-  for(int iT=0; iT<NMCTracks; iT++)
-  {
-    if ( hits[iT].size() < PndFTSCAParameters::MinimumHitsForRecoTrack ) continue;
+  //for(int iT=0; iT<NMCTracks; iT++)
+  //{
+    //if ( hits[iT].size() < PndFTSCAParameters::MinimumHitsForRecoTrack ) continue;
 
-    int nFirstMC = (*perf->GetMCTracks())[iT].FirstMCPointID();
-    //21.03 int nMCPoints = (*perf->GetMCTracks())[iT].NMCPoints();
-    fTracks[curTr].SetFirstHitRef( curHit );
-    //begin:mod
-    //21.03 PndFTSCAMCTrack curMcTrack = perf->MCTrack(curTr);
-    //21.03 int idmcpoint = curMcTrack.FirstMCPointID();
-     PndFTSCALocalMCPoint *points = &((*perf->GetMCPoints()).Data()[nFirstMC]);
-    PndFTSCATrackParam mcTrackParam;
-    // USING AS INITIAL APPROXIMATION MC-INFO
-    mcTrackParam.SetX(points[0].X());
-    mcTrackParam.SetY(points[0].Y());
-    mcTrackParam.SetTX(points[0].Px()/points[0].Pz());
-    mcTrackParam.SetTY(points[0].Py()/points[0].Pz());
-    mcTrackParam.SetQP(points[0].QP()); //(1/abs(curMcTrack.P()));
-    mcTrackParam.SetZ(points[0].Z());
-    fTracks[curTr].SetInnerParam(mcTrackParam);
-    //fTracks[curTr].SetOuterParam(mcTrackParam);
-    //end:mod
-    //fTracks[curTr].SetTrackHitIdsArraySize(hits[iT].size());
-    int curStation = -1;
-    int nHits = 0;
-    for(unsigned int iH=0; iH<hits[iT].size(); iH++)
-    {
-      int iStation = fHits[ hits[iT][iH] ].IRow();
-      if(iStation <= curStation) continue;
+    //int nFirstMC = (*perf->GetMCTracks())[iT].FirstMCPointID();
+    ////21.03 int nMCPoints = (*perf->GetMCTracks())[iT].NMCPoints();
+    //fTracks[curTr].SetFirstHitRef( curHit );
+    ////begin:mod
+    ////21.03 PndFTSCAMCTrack curMcTrack = perf->MCTrack(curTr);
+    ////21.03 int idmcpoint = curMcTrack.FirstMCPointID();
+     //PndFTSCALocalMCPoint *points = &((*perf->GetMCPoints()).Data()[nFirstMC]);
+    //PndFTSCATrackParam mcTrackParam;
+    //// USING AS INITIAL APPROXIMATION MC-INFO
+    //mcTrackParam.SetX(points[0].X());
+    //mcTrackParam.SetY(points[0].Y());
+    //mcTrackParam.SetTX(points[0].Px()/points[0].Pz());
+    //mcTrackParam.SetTY(points[0].Py()/points[0].Pz());
+    //mcTrackParam.SetQP(points[0].QP()); //(1/abs(curMcTrack.P()));
+    //mcTrackParam.SetZ(points[0].Z());
+    //fTracks[curTr].SetInnerParam(mcTrackParam);
+    ////fTracks[curTr].SetOuterParam(mcTrackParam);
+    ////end:mod
+    ////fTracks[curTr].SetTrackHitIdsArraySize(hits[iT].size());
+    //int curStation = -1;
+    //int nHits = 0;
+    //for(unsigned int iH=0; iH<hits[iT].size(); iH++)
+    //{
+      //int iStation = fHits[ hits[iT][iH] ].IRow();
+      //if(iStation <= curStation) continue;
 
-      fTrackHits[curHit] = hits[iT][iH];
-      //fTracks[curTr].SetHitID(iH,hits[iT][iH]);
-      curHit++;
-      nHits++;
-      curStation = iStation;
-    }
-    fTracks[curTr].SetNHits( nHits );
-    curTr++;
-  }
-  fNTracks = curTr;
-}
+      //fTrackHits[curHit] = hits[iT][iH];
+      ////fTracks[curTr].SetHitID(iH,hits[iT][iH]);
+      //curHit++;
+      //nHits++;
+      //curStation = iStation;
+    //}
+    //fTracks[curTr].SetNHits( nHits );
+    //curTr++;
+  //}
+  //fNTracks = curTr;
+//}
 
 void PndFTSCAGBTracker::FitTracks()
 {
@@ -1347,16 +1347,16 @@ void PndFTSCAGBTracker::FindTracks()
 ///coordinates, which is required while neighbours hits are searched and additional
 ///hits are attached to segments.
 
-#ifdef USE_IDEAL_TF
-  IdealTrackFinder();
-#else // USE_IDEAL_TF
+//#ifdef USE_IDEAL_TF
+  //IdealTrackFinder();
+//#else // USE_IDEAL_TF
   CATrackFinder();
   FitTracks();
 #ifndef USE_CA_FIT // fitted in CATrackFinder
   FitTracks();
 #endif
 
-#endif // USE_IDEAL_TF
+//#endif // USE_IDEAL_TF
 
 #ifdef DRAW_CA
 PndFTSCADisplay &disp = PndFTSCADisplay::Instance();

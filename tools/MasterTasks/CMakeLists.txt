@@ -6,7 +6,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES}
   ${GEANT3_INCLUDE_DIR}
   ${GEANT4_INCLUDE_DIR}
-  ${BASE_INCLUDE_DIRECTORIES} 
+  ${BASE_INCLUDE_DIRECTORIES}
   ${CLHEP_INCLUDE_DIR}
 )
 
@@ -15,8 +15,13 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/tools
   ${CMAKE_SOURCE_DIR}/tracking/PndTrackingTools
   ${CMAKE_SOURCE_DIR}/tracking/PndIdealTrackFinder
+  ${CMAKE_SOURCE_DIR}/tracking/PndBarrelTrackFinder
   ${CMAKE_SOURCE_DIR}/tracking/CentralTracking
   ${CMAKE_SOURCE_DIR}/tracking/sttmvdtracking
+  ${CMAKE_SOURCE_DIR}/tracking/ftscatracking
+  ${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code
+  ${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code/Performance
+  ${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code/KFParticle
   ${CMAKE_SOURCE_DIR}/pgenerators
   ${CMAKE_SOURCE_DIR}/pgenerators/Direct
   ${CMAKE_SOURCE_DIR}/pgenerators/FileReaders
@@ -24,7 +29,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
   ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
-  ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00	
+  ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
   ${CMAKE_SOURCE_DIR}/pgenerators/Direct
   ${CMAKE_SOURCE_DIR}/pgenerators/EMFFgenerators
@@ -33,13 +38,13 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdMC
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdDigi
   ${CMAKE_SOURCE_DIR}/detectors/mvd/MvdReco
-  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcMC	
+  ${CMAKE_SOURCE_DIR}/detectors/emc/EmcMC
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcDigi
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcData
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcTools
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcReco
   ${CMAKE_SOURCE_DIR}/detectors/emc/EmcCorr
-  ${CMAKE_SOURCE_DIR}/detectors/scitil/SciTMC		
+  ${CMAKE_SOURCE_DIR}/detectors/scitil/SciTMC
   ${CMAKE_SOURCE_DIR}/detectors/scitil/SciTDigi
   ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtMC
   ${CMAKE_SOURCE_DIR}/detectors/mdt/MdtDigi
@@ -54,7 +59,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/passive
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/SciTData
-  ${CMAKE_SOURCE_DIR}/pnddata/MdtData	
+  ${CMAKE_SOURCE_DIR}/pnddata/MdtData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/pnddata/DrcData
   ${CMAKE_SOURCE_DIR}/pnddata/DskData
@@ -77,7 +82,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/genfit2/fields/include
   ${CMAKE_SOURCE_DIR}/pid/PidCorr
   ${CMAKE_SOURCE_DIR}/pid/PidClassifier
-  
+
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -92,7 +97,7 @@ ${FORTRAN_LIBDIR}
 ${PYTHIA8_LIB_DIR}
 ${HEPMC_LIB_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
@@ -103,7 +108,7 @@ PndMasterDigiOnlyTask.cxx
 PndMasterRecoTask.cxx
 PndMasterLocalRecoTask.cxx
 PndMasterRecoIdealTask.cxx
-PndMasterPidTask.cxx
+#PndMasterPidTask.cxx
 PndMasterMultiPidTask.cxx
 PndMasterRunSim.cxx
 PndMasterRunAna.cxx
@@ -113,6 +118,6 @@ set(LINKDEF  MasterLinkDef.h)
 set(LIBRARY_NAME Master)
 
 # set(DEPENDENCIES Base Gen generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
-set(DEPENDENCIES Base Gen generalTools MvdReco CentralTracking TrackingTools IdealTrackFinder SttMvdTracking MCMatchNewLinks RecoTasks RecoTasks2 Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
+set(DEPENDENCIES Base Gen generalTools MvdReco CentralTracking TrackingTools IdealTrackFinder SttMvdTracking BarrelTrackFinder CAFtsTracking MCMatchNewLinks RecoTasks RecoTasks2 Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
 
-GENERATE_LIBRARY() 
+GENERATE_LIBRARY()

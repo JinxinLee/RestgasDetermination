@@ -53,7 +53,7 @@ class PndFTSCAGBTracker
   void SetNSlices( int N );
   void SetNHits( int nHits );
 
-  //void SetGBHits(); 
+  //void SetGBHits();
 
   const PndFTSCAGBHit *Hits() const { return fHits.Data(); }
   const PndFTSCAGBHit &Hit( int index ) const { return fHits[index]; }
@@ -71,9 +71,9 @@ class PndFTSCAGBTracker
   int TrackHit( int i ) const { return fTrackHits[i]; }
 
   const PndFTSCAParam&  GetParameters() const { return fParameters; }
-  
+
   int NStations() const { return fParameters.NStations(); }
-  
+
   /*
   void WriteSettings( std::ostream &out ) const;
   void WriteEvent( FILE *out ) const;
@@ -87,19 +87,19 @@ class PndFTSCAGBTracker
   void StoreToFile( const char *filename ) const;
   void RestoreFromFile( FILE *f );
   */
-  
+
   bool ReadSettingsFromFile( string prefix );
   void ReadSettings( std::istream &in );
   double SliceTrackerTime() const { return fSliceTrackerTime; }
   double SliceTrackerCpuTime() const { return fSliceTrackerCpuTime; }
-    
-  void SetHits( std::vector<PndFTSCAGBHit> &hits );     
+
+  void SetHits( std::vector<PndFTSCAGBHit> &hits );
   int  GetHitsSize() const {return fHits.Size();}
-  
+
   PndFTSCAParam&  GetParametersNonConst() { return fParameters; }
-  
+
   void FindTracks();
-  void IdealTrackFinder(); // for debug
+  //void IdealTrackFinder(); // for debug
 
   void FitTracks();
   float_m FitTrack( PndFTSCATrackParamVector &t, uint_v &firstHits,
@@ -117,13 +117,13 @@ class PndFTSCAGBTracker
 
   void CreateNPlets( const FTSCATarget& target, const FTSCAHitsV& hits, FTSCANPletsV& singlets );
   void CreateNPlets( const FTSCANPletsV& doublets, FTSCANPletsV& triplets );
-  
+
   //fts--->>>stt import begin
-  void PickUpHits( FTSCAElementsOnStation<FTSCANPletV>& a, FTSCAElementsOnStation<FTSCANPletV>& r, int iS ); 
+  void PickUpHits( FTSCAElementsOnStation<FTSCANPletV>& a, FTSCAElementsOnStation<FTSCANPletV>& r, int iS );
   void Create1Plets( const FTSCATarget& target, const FTSCAHits &hits, FTSCAElementsOnStation<FTSCANPletV>& singlets, int iStation );
   void CreateNPlets( const FTSCATarget& target, const FTSCAHits& hits, FTSCAElementsOnStation<FTSCANPletV>& triplets, int iStation, int cellLength );
   //fts--->>>stt import end
-  
+
   void FindNeighbours( FTSCANPlets& triplets );
   void CreateTracks( const FTSCANPlets& triplets, FTSCATracks& tracks );
 
@@ -136,8 +136,8 @@ class PndFTSCAGBTracker
   //FTSCAElementsOnStation<FTSCANPletV> Combine( const FTSCATarget& t, const FTSCAElementsOnStation<FTSCAHitV>& h);
   //FTSCAElementsOnStation<FTSCANPletV> Combine( const FTSCAElementsOnStation<FTSCANPletV>& a, const FTSCAElementsOnStation<FTSCANPletV>& b );
   float_m Refit( FTSCANPletV& triplet, const FTSCAHits& hits );
-  void Refit_1( FTSCANPletV& triplet, const FTSCAHits& hits ); 
-  
+  void Refit_1( FTSCANPletV& triplet, const FTSCAHits& hits );
+
   void FindBestCandidate(int ista,
                          FTSCATrack &best_tr,
                          int currITrip,
@@ -146,7 +146,7 @@ class PndFTSCAGBTracker
                          const FTSCANPlets& triplets,
                          unsigned int& nCalls);
   float_m IsEqual( const PndFTSCATrackParamVector& p, const FTSCAHit& h);
-      
+
     // private
 
 #if defined( PANDA_STT ) || defined( PANDA_FTS )
@@ -174,7 +174,7 @@ class PndFTSCAGBTracker
   float TRACK_CHI2_CUT; // = 10.0;  // cut for tracks candidates. per one DoF
   float_v TRIPLET_CHI2_CUT; // = 5.0; // cut for selecting triplets before collecting tracks.per one DoF
   float fMaxDX0; // Set correction in order to take into account overlaping
-  
+
       /// Try to group close hits in row formed by one track. After sort hits.
   friend class PndFTSCAPerformance; //dbg
 
@@ -183,8 +183,8 @@ PndFTSResizableArray<PndFTSCAGBHit> fHits;     //* hit array
   protected:
 
 //    PndFTSResizableArray<PndFTSCAGBHit> fHits;     //* hit array
-    PndFTSResizableArray<FTSCAStrip> fFStrips;     //* front strips 
-    PndFTSResizableArray<FTSCAStrip> fBStrips;     //* back strips 
+    PndFTSResizableArray<FTSCAStrip> fFStrips;     //* front strips
+    PndFTSResizableArray<FTSCAStrip> fBStrips;     //* back strips
     int fNHits;                //* N hits in event
     int *fTrackHits;           //* track->hits reference array
     PndFTSCAGBTrack *fTracks; //* array of tracks
@@ -202,9 +202,9 @@ PndFTSResizableArray<PndFTSCAGBHit> fHits;     //* hit array
     L1CATFIterTimerInfo fStatGTi; // global
     L1CATFTimerInfo fStatTi; // for iterations
 
-  
+
     PndFTSCAParam fParameters;
-  
+
   private:
     PndFTSCAGBTracker( const PndFTSCAGBTracker& );
     PndFTSCAGBTracker &operator=( const PndFTSCAGBTracker& );

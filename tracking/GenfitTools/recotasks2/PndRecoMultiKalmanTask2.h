@@ -24,6 +24,7 @@
 #include "TString.h"
 #include "PndRecoKalmanFit2.h"
 #include "PndGeoSttPar.h"
+#include "PndGeoFtsPar.h"
 
 // Collaborating Class Declarations --
 class TClonesArray;
@@ -31,55 +32,74 @@ class MeasurementFactory;
 
 
 class PndRecoMultiKalmanTask2 : public PndPersistencyTask {
-public:
+  public:
 
-  // Constructors/Destructors ---------
-  PndRecoMultiKalmanTask2(const char* name = "Genfit", Int_t iVerbose = 0);
+    // Constructors/Destructors ---------
+    PndRecoMultiKalmanTask2(const char* name = "Genfit", Int_t iVerbose = 0, TString fithypo = "electron;muon;pion;kaon;proton");
     ~PndRecoMultiKalmanTask2();
 
-  // Operators
+    // Operators
 
 
-  // Accessors -----------------------
+    // Accessors -----------------------
 
-  // Modifiers -----------------------
-  void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name; }
-  void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; }
-  void SetMvdBranchName(const TString& name)       { fMvdBranchName = name; }
-  void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
-  void SetNumIterations(Int_t num)               { fNumIt = num;        }
+    // Modifiers -----------------------
+    void SetTrackInBranchName(const TString& name)   {
+      fTrackInBranchName = name;
+    }
+    void SetTrackOutBranchName(const TString& name)  {
+      fTrackOutBranchName = name;
+    }
+    void SetMvdBranchName(const TString& name)       {
+      fMvdBranchName = name;
+    }
+    void SetCentralTrackerBranchName(const TString& name)  {
+      fCentralTrackerBranchName = name;
+    }
+    void SetNumIterations(Int_t num)               {
+      fNumIt = num;
+    }
+    void SetFitHypotheses(const TString& name)   {
+      fFitWithHypo = name;
+    }
 
-  // Operations ----------------------
-  virtual InitStatus Init();
-  virtual void Exec(Option_t* opt);
+    // Operations ----------------------
+    virtual InitStatus Init();
+    virtual void Exec(Option_t* opt);
 
-  void SetParContainers();
+    void SetParContainers();
 
-private:
+  private:
 
-  // Private Data Members ------------
-  TClonesArray* fTrackArray;
-  TClonesArray* fFitTrackArrayElectron; //! Output TCA for track
-  TClonesArray* fFitTrackArrayMuon;     //! Output TCA for track
-  TClonesArray* fFitTrackArrayPion;     //! Output TCA for track
-  TClonesArray* fFitTrackArrayKaon;     //! Output TCA for track
-  TClonesArray* fFitTrackArrayProton;   //! Output TCA for track
+    // Private Data Members ------------
+    TClonesArray* fTrackArray;              //! Input TCA from pattern recognition
+    TClonesArray* fFitTrackArrays[5];       //! Output TCA for track
 
-  TString fTrackInBranchName;      //! Name of the input TCA
-  TString fTrackOutBranchName;     //! Name of the output TCA
+    TString fTrackInBranchName;      //! Name of the input TCA
+    TString fTrackOutBranchName;     //! Name of the output TCA
 
-  TString fMvdBranchName;           //! Name of the TCA for MVD
-  TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
+    TString fMvdBranchName;           //! Name of the TCA for MVD
+    TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
 
-  PndRecoKalmanFit2 *fFitter;
+    TString fFitWithHypo;
+    Bool_t fHypoFlag[5];	    			//! Flag to check which hypotheses to fit with
+    int fPDGs[5] ; //! PDG numbers
 
-  Bool_t fUseGeane;              //! Flag to use Geane
-  Bool_t fSmoothing;             //! Flag to set on smoothing
-  Int_t fNumIt;                  //! Number of iterations
-  PndGeoSttPar *fSttParameters;  //! STT params
+    PndRecoKalmanFit2 *fFitter;
 
-  ClassDef(PndRecoMultiKalmanTask2,1);
+    Bool_t fUseGeane;              //! Flag to use Geane
+    Bool_t fIdealHyp;              //! Flag to use MC particle hypothesis
+    Bool_t fSmoothing;             //! Flag to set on smoothing
+    Int_t fNumIt;                  //! Number of iterations
+    Int_t fBusyCut;                //! Skip too busy events with more tracks
+    PndGeoSttPar *fSttParameters;  //! STT params
+    PndGeoFtsPar *fFtsParameters;  //! FTS params
+
+    ClassDef(PndRecoMultiKalmanTask2,1);
 
 };
 
 #endif
+
+
+

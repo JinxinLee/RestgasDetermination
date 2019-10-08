@@ -1,8 +1,8 @@
 /********************************************************************************
  *    Copyright (C) 2014 GSI Helmholtzzentrum fuer Schwerionenforschung GmbH    *
  *                                                                              *
- *              This software is distributed under the terms of the             * 
- *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
@@ -120,7 +120,7 @@ class PndTimeStructureAnaTask : public FairTask
 
     /** Default constructor **/
     PndTimeStructureAnaTask():
-      FairTask("TimeStructureAnaTask"), fEntryNr(0), fTimeOfPreviousEvent(0.)
+      FairTask("TimeStructureAnaTask"), fTimeOfPreviousEvent(0.), fEntryNr(0)
 	{
     	SetVerbose(0);
     }

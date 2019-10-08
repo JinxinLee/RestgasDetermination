@@ -37,8 +37,8 @@ InitStatus PndMCTrackInfoTask::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMCTrackInfoTask::Init()
 {
-  
-  FairRun* ana = FairRun::Instance();
+
+  //FairRun* ana = FairRun::Instance(); //[R.K. unused]
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman )
   {
@@ -46,7 +46,7 @@ InitStatus PndMCTrackInfoTask::Init()
     << "RootManager not instantiated!" << std::endl;
     return kFATAL;
   }
-  
+
   if (fBranches.size() == 0){
       // Use hits of all tracking subsystems if nothing is given
       AddBranchName("STTPoint");
@@ -54,7 +54,7 @@ InitStatus PndMCTrackInfoTask::Init()
       AddBranchName("GEMPoint");
       AddBranchName("FTSPoint");
   }
-  
+
   for (auto branch : fBranches)
   {
     if (ioman->GetObject(branch.first) != 0)
@@ -70,7 +70,7 @@ InitStatus PndMCTrackInfoTask::Init()
     << "No MCTrack array!" << std::endl;
     return kERROR;
   }
-  
+
   fMCTrackInfo = new TClonesArray("PndMCTrackInfo");
   ioman->Register("MCTrackInfo", "MC", fMCTrackInfo, GetPersistency());
 
@@ -87,7 +87,7 @@ void PndMCTrackInfoTask::Exec(Option_t*)
   for (int i = 0; i < fMCTracks->GetEntriesFast(); i++){
       PndMCTrack* myTrack = (PndMCTrack*)fMCTracks->At(i);
       std::vector<int> pidMothers = GetPIDMothers(myTrack->GetMotherID());
-      if (fMaxStage > -1 && pidMothers.size() > fMaxStage){
+      if (fMaxStage > -1 && (int) pidMothers.size() > fMaxStage){
           fTrackInfo[i];                                            //create empty MCTrackInfo object to keep the index in-line with the MCTracks
           continue;
       }

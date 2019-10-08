@@ -102,7 +102,7 @@ void PndTrackingQA::AnalyseEvent(TClonesArray *recoTrackInfo)
 	for (Int_t i = 0; i < fIdealTrack->GetEntriesFast(); i++){
 		PndTrack *currentTrack = (PndTrack *) fIdealTrack->At(i);
 		std::cout << "EntryNr(): " << currentTrack->GetEntryNr() << std::endl;
-	}  */ 
+	}  */
 
 	for (Int_t i = 0; i < fTrack->GetEntriesFast(); i++){
 		if (fVerbose > 0){
@@ -187,20 +187,20 @@ void PndTrackingQA::AnalyseEvent(TClonesArray *recoTrackInfo)
 
 					TVector3 McMom;
 					if(mcTrack){
-						TVector3 McMom(mcTrack->GetMomentum());
+						TVector3 mcMom(mcTrack->GetMomentum());
 
-						fMapPResolution[iter->first] = (mom.Mag() - McMom.Mag());
+						fMapPResolution[iter->first] = (mom.Mag() - mcMom.Mag());
 						fMapP[iter->first] = mom;
-						fMapPtResolution[iter->first] = (mom.Pt() - McMom.Pt());
+						fMapPtResolution[iter->first] = (mom.Pt() - mcMom.Pt());
 						fMapPt[iter->first] = mom.Pt();
-						fMapPlResolution[iter->first] = (mom.Pz() - McMom.Pz());
+						fMapPlResolution[iter->first] = (mom.Pz() - mcMom.Pz());
 						fMapPl[iter->first] = mom.Pz();
-						fMapPResolutionRel[iter->first] = (mom.Mag() - McMom.Mag())
-																														/ McMom.Mag();
-						fMapPtResolutionRel[iter->first] = (mom.Pt() - McMom.Pt())
-																														/ McMom.Pt();
-						fMapPlResolutionRel[iter->first] = (mom.Pz() - McMom.Pz())
-																														/ McMom.Pz();
+						fMapPResolutionRel[iter->first] = (mom.Mag() - mcMom.Mag())
+																														/ mcMom.Mag();
+						fMapPtResolutionRel[iter->first] = (mom.Pt() - mcMom.Pt())
+																														/ mcMom.Pt();
+						fMapPlResolutionRel[iter->first] = (mom.Pz() - mcMom.Pz())
+																														/ mcMom.Pz();
 
 					}
 				}
@@ -384,7 +384,7 @@ FairLink PndTrackingQA::AnalyseTrackInfoTimeBased(std::map<TString, FairMultiLin
 
 	std::vector<FairLink> sortedMCTracks = trackInfo["AllHits"].GetSortedMCTracks();
 
-	if (sortedMCTracks.size() == 0) {return mostProbableTrackFairLink;} 
+	if (sortedMCTracks.size() == 0) {return mostProbableTrackFairLink;}
 
 	if (sortedMCTracks.size() == 1){
 		mostProbableTrackFairLink = sortedMCTracks[0];
@@ -400,7 +400,7 @@ FairLink PndTrackingQA::AnalyseTrackInfoTimeBased(std::map<TString, FairMultiLin
 			PndTrack *currentTrack = (PndTrack *) fIdealTrack->At(i_IdealTrackArray);
 
 			if(currentTrack!=nullptr){
-				if(currentTrack->GetEntryNr().GetIndex()==myLink.GetIndex()){ 
+				if(currentTrack->GetEntryNr().GetIndex()==myLink.GetIndex()){
 					if(currentTrack->GetEntryNr().GetEntry()==myLink.GetEntry()&&currentTrack->GetEntryNr().GetWeight()==myLink.GetWeight()){
 
 						PndTrack * idealTrack = (PndTrack *) fIdealTrack->At(i_IdealTrackArray);
@@ -429,11 +429,11 @@ FairLink PndTrackingQA::AnalyseTrackInfoTimeBased(std::map<TString, FairMultiLin
 					}
 				}
 			}
-		}  
+		}
 
 	} else {
 		Int_t highestCount = sortedMCTracks[0].GetWeight();
-		FairLink mostProbableTrackFairLink = sortedMCTracks[0];
+    mostProbableTrackFairLink = sortedMCTracks[0];
 		Int_t allCounts = 0;
 		for (size_t i = 0; i < sortedMCTracks.size(); i++){
 			allCounts += sortedMCTracks[i].GetWeight();
@@ -500,7 +500,7 @@ void PndTrackingQA::FillMapTrackQualifikation()
 			mcTrack = (PndMCTrack*)fMCTrack->At(idealTrackCand->getMcTrackId());
 			fMCIdIdealTrackId[idealTrackCand->getMcTrackId()] = i;
 
-			if(mcTrack){			
+			if(mcTrack){
 				primaryTrack = (mcTrack->GetMotherID() < 0);}
 		}
 		if(fRunTimeBased){

@@ -60,7 +60,7 @@ struct TrackBasis{
 	Double_t meanY;
 	Double_t meanR;
 	Double_t meanZ_P;
-}; 
+};
 
 
 class PndBarrelTrackFinder : public PndPersistencyTask
@@ -92,7 +92,7 @@ public:
 	void DrawDetails(Bool_t tb=kTRUE) {fDrawDetails=tb;}
 	void DrawHistos (Bool_t tb=kTRUE) {fDrawHistos =tb;}
 
-	void SetRunTimeBased(Bool_t val=kFALSE) {fRunTimeBased=val;}
+	void SetRunTimeBased(Bool_t val=kTRUE) {fRunTimeBased=val;}
 
 private:
 
