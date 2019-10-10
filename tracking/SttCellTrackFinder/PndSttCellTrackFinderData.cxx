@@ -15,7 +15,6 @@
 #include "PndSttSkewedHit.h"
 #include <cmath>
 #include <stdio.h>
-
 //macro for printing tubes + neighbors to a file called tubeNeighborings.txt
 //#define PRINT_STT_NEIGHBORS
 
@@ -76,8 +75,14 @@ void PndSttCellTrackFinderData::AddHits(TClonesArray* hits, TString branchName) 
 
 	PndSttHit* myHit;
 	FairLink myID;
+
 	Int_t branchId = FairRootManager::Instance()->GetBranchId("STTHit");
-// only STTHits are passed to this functions, but we have to check if SkewedHits are present.
+
+	// J.R. The below is a temporary workaround for being able to use sorted Stt hits
+	if(branchName.CompareTo("STTSortedHits")==0){
+	branchId = FairRootManager::Instance()->GetBranchId("STTSortedHits");}
+
+	// only STTHits are passed to this functions, but we have to check if SkewedHits are present.
 
 	if (branchName.Contains("skewed", TString::kIgnoreCase)){
 		// I'm not sure if this part of the code really does what it should!
@@ -116,6 +121,9 @@ void PndSttCellTrackFinderData::AddHits(TClonesArray* hits, TString branchName) 
 			fHitsOrig.push_back((FairHit*) myHit);
 		}
 	}
+
+	std::cout << "Number of hits in original TClonesArray: " << hits->GetEntries() << std::endl;
+	std::cout << "Number of hits which are added: " << fHitsOrig.size() << std::endl;
 
 }
 

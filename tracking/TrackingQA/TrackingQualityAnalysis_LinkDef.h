@@ -10,6 +10,7 @@
 #pragma link C++ class PndTrackingQualityMCInfo;
 #pragma link C++ class PndTrackingQualityRecoInfo;
 #pragma link C++ class PndTrackingCloneInfo;
+#pragma link C++ class PndTrackingEventInfo;
 #pragma link C++ class OnlineDBuilderTask;
 
 #endif

@@ -25,7 +25,6 @@
 #include <functional>
 #include "PndTrackFunctor.h"
 
-
 /**
  * @brief Holding statically callable quality numbers
  * @details Per event, a track can have a certain quality. On a MC level, it can be below a threshold to be even found. If found, it can be found fully, or partially. 
@@ -39,57 +38,57 @@
 
 struct qualityNumbers {
 	static const int
-		// Following: Default statuses.
-		// Are the 'not found' tracks in the quality histogram of PndTrackingQualityTask.
-		kPossibleSec = -1,  // possible: As defined through the possibleFunctor; secondary: a non-primary particle
-		kPossiblePrim = -2,  // possible: As defined through the possibleFunctor; primary: coming directly from particle generator (e.g. EvtGen)
-		kAtLeastThreeSec = -3,  // atLeastThree: min. 3 hit points in central tracking detectors (MVD, STT, GEM); secondary: a non-primary particle
-		kAtLeastThreePrim = -4,  // atLeastThree: min. 3 hit points in central tracking detectors (MVD, STT, GEM); primary: coming directly from particle generator (e.g. EvtGen)
-		kLessThanThreePrim = -5,  // LessThanThree: fewer than 3 hit points in central tracking detectors (MVD, STT, GEM); primar: coming directly from particle generator (e.g. EvtGen)
+	// Following: Default statuses.
+	// Are the 'not found' tracks in the quality histogram of PndTrackingQualityTask.
+	kPossibleSec = -1,  // possible: As defined through the possibleFunctor; secondary: a non-primary particle
+	kPossiblePrim = -2,  // possible: As defined through the possibleFunctor; primary: coming directly from particle generator (e.g. EvtGen)
+	kAtLeastThreeSec = -3,  // atLeastThree: min. 3 hit points in central tracking detectors (MVD, STT, GEM); secondary: a non-primary particle
+	kAtLeastThreePrim = -4,  // atLeastThree: min. 3 hit points in central tracking detectors (MVD, STT, GEM); primary: coming directly from particle generator (e.g. EvtGen)
+	kLessThanThreePrim = -5,  // LessThanThree: fewer than 3 hit points in central tracking detectors (MVD, STT, GEM); primar: coming directly from particle generator (e.g. EvtGen)
 
-		// Following: MC statuses of all (found+notfound) tracks
-		kMcPossibleSec = -7,  // see above
-		kMcPossiblePrim = -8, 
-		kMcAtLeastThreeSec = -9, 
-		kMcAtLeastThreePrim = -10, 
-		kMcLessThanThreePrim = -11,
-		kMcAllTracksWithHits = -12, // sum of -7 - -10
-		kMcAllTracks = -13, // sum of -11 and -12
+	// Following: MC statuses of all (found+notfound) tracks
+	kMcPossibleSec = -7,  // see above
+	kMcPossiblePrim = -8,
+	kMcAtLeastThreeSec = -9,
+	kMcAtLeastThreePrim = -10,
+	kMcLessThanThreePrim = -11,
+	kMcAllTracksWithHits = -12, // sum of -7 - -10
+	kMcAllTracks = -13, // sum of -11 and -12
 
-		// Following: Status of reconstructed tracks (= created PndTracks)
-		kSpuriousFound = 1,  // spuriousFound: at least 70% of hits of reco'd track come from one MC track ('mostProbableTrack')
-		kPartiallyFound = 2,  // partiallyFound: all hits of reco'd track come from one single MC track; at least 70% of hits of MC track have been found in reco'd track
-		kFullyFound = 3,  // fullyFound: all hits of reco'd track come from one single MC track; all hits of MC track have been found in reco'd track
+	// Following: Status of reconstructed tracks (= created PndTracks)
+	kSpuriousFound = 1,  // spuriousFound: at least 70% of hits of reco'd track come from one MC track ('mostProbableTrack')
+	kPartiallyFound = 2,  // partiallyFound: all hits of reco'd track come from one single MC track; at least 70% of hits of MC track have been found in reco'd track
+	kFullyFound = 3,  // fullyFound: all hits of reco'd track come from one single MC track; all hits of MC track have been found in reco'd track
 
-		kGhost = 5,  // ghost: less than 70% of hits of reco'd track come from one MC track ('mostProbableTrack')
-		kClone = 6,  // clone: sum of (number of times one mc track was found -1) over all mc tracks
+	kGhost = 5,  // ghost: less than 70% of hits of reco'd track come from one MC track ('mostProbableTrack')
+	kClone = 6,  // clone: sum of (number of times one mc track was found -1) over all mc tracks
 
 
-		kNotFound = 7,  // notFound: total number of not reco'd tracks
-		kFound = 8;  // found: total number of reco'd tracks; the sum of fullyFound, partiallyFound, spuriousFound
+	kNotFound = 7,  // notFound: total number of not reco'd tracks
+	kFound = 8;  // found: total number of reco'd tracks; the sum of fullyFound, partiallyFound, spuriousFound
 
-	  static std::string QualityNumberToString(int qNumber)
-	  {
-		  if (qNumber == kPossiblePrim) 		return "PossiblePrimary";
-		  if (qNumber == kPossibleSec) 			return "PossibleSec";
-		  if (qNumber == kAtLeastThreeSec) 		return "AtLeastThreeSec";
-		  if (qNumber == kAtLeastThreePrim) 	return "AtLeastThreePrim";
-		  if (qNumber == kLessThanThreePrim) 	return "LessThanThreePrim";
-		  if (qNumber == kMcPossibleSec) 		return "McPossibleSec";
-		  if (qNumber == kMcAtLeastThreeSec) 	return "McAtLeastThreeSec";
-		  if (qNumber == kMcAtLeastThreePrim) 	return "McAtLeastThreePrim";
-		  if (qNumber == kMcLessThanThreePrim) 	return "McLessThanThreePrim";
-		  if (qNumber == kMcAllTracksWithHits) 	return "McAllTracksWithHits";
-		  if (qNumber == kMcAllTracks) 			return "McAllTracks";
-		  if (qNumber == kSpuriousFound) 		return "SpuriousFound";
-		  if (qNumber == kPartiallyFound) 		return "PartiallyFound";
-		  if (qNumber == kFullyFound) 			return "FullyFound";
-		  if (qNumber == kGhost) 				return "Ghost";
-		  if (qNumber == kClone) 				return "Clone";
-		  if (qNumber == kNotFound) 			return "NotFound";
-		  if (qNumber == kFound) 				return "Found";
-		  return std::to_string(qNumber);
-	  };
+	static std::string QualityNumberToString(int qNumber)
+	{
+		if (qNumber == kPossiblePrim) 		return "PossiblePrimary";
+		if (qNumber == kPossibleSec) 			return "PossibleSec";
+		if (qNumber == kAtLeastThreeSec) 		return "AtLeastThreeSec";
+		if (qNumber == kAtLeastThreePrim) 	return "AtLeastThreePrim";
+		if (qNumber == kLessThanThreePrim) 	return "LessThanThreePrim";
+		if (qNumber == kMcPossibleSec) 		return "McPossibleSec";
+		if (qNumber == kMcAtLeastThreeSec) 	return "McAtLeastThreeSec";
+		if (qNumber == kMcAtLeastThreePrim) 	return "McAtLeastThreePrim";
+		if (qNumber == kMcLessThanThreePrim) 	return "McLessThanThreePrim";
+		if (qNumber == kMcAllTracksWithHits) 	return "McAllTracksWithHits";
+		if (qNumber == kMcAllTracks) 			return "McAllTracks";
+		if (qNumber == kSpuriousFound) 		return "SpuriousFound";
+		if (qNumber == kPartiallyFound) 		return "PartiallyFound";
+		if (qNumber == kFullyFound) 			return "FullyFound";
+		if (qNumber == kGhost) 				return "Ghost";
+		if (qNumber == kClone) 				return "Clone";
+		if (qNumber == kNotFound) 			return "NotFound";
+		if (qNumber == kFound) 				return "Found";
+		return std::to_string(qNumber);
+	};
 };
 
 class PndTrackingQA : public TObject
@@ -108,9 +107,10 @@ public:
 
 	void AnalyseEvent(TClonesArray *recoTrackInfo);
 
-//	Int_t GetNIdealHits(Int_t trackId, TString branchName);
+	//	Int_t GetNIdealHits(Int_t trackId, TString branchName);
 	Int_t GetNIdealHits(FairMultiLinkedData& track, TString branchName);
 	std::map<Int_t, Int_t> GetMCTrackFound()						{return fMCTrackFound;}
+	std::map<FairLink, Int_t> GetMCTrackFoundTimeBased()			{return fTimeBasedMCTrackFound;}
 	std::map<Int_t, Int_t> GetTrackQualification()					{return fMapTrackQualification;}
 	std::map<FairLink, Int_t> GetTrackQualificationTimeBased()			{return fTimeBasedMapTrackQualification;}
 	std::map<Int_t, Int_t> GetTrackMCStatus()						{return fMapTrackMCStatus;}
@@ -120,8 +120,8 @@ public:
 
 	// Event based
 	std::map<Int_t, Double_t> GetPResolution()						{return fMapPResolution;}
-    std::map<Int_t, TVector3> GetP()								{return fMapP;}
-    std::map<Int_t, Double_t> GetPtResolution()						{return fMapPtResolution;}
+	std::map<Int_t, TVector3> GetP()								{return fMapP;}
+	std::map<Int_t, Double_t> GetPtResolution()						{return fMapPtResolution;}
 	std::map<Int_t, Double_t> GetPt()								{return fMapPt;}
 	std::map<Int_t, Double_t> GetPlResolution()						{return fMapPlResolution;}
 	std::map<Int_t, Double_t> GetPl()								{return fMapPl;}
@@ -131,7 +131,7 @@ public:
 
 	// Time based
 	std::map<FairLink, Double_t> GetTimeBasedPResolution()						{return fTimeBasedMapPResolution;}
-	std::map<FairLink, TVector3> GetTimeBasedP()								    {return fTimeBasedMapP;}
+	std::map<FairLink, TVector3> GetTimeBasedP()								{return fTimeBasedMapP;}
 	std::map<FairLink, Double_t> GetTimeBasedPtResolution()						{return fTimeBasedMapPtResolution;}
 	std::map<FairLink, Double_t> GetTimeBasedPt()								{return fTimeBasedMapPt;}
 	std::map<FairLink, Double_t> GetTimeBasedPlResolution()						{return fTimeBasedMapPlResolution;}
@@ -140,16 +140,9 @@ public:
 	std::map<FairLink, Double_t> GetTimeBasedPtResolutionRel()					{return fTimeBasedMapPtResolutionRel;}
 	std::map<FairLink, Double_t> GetTimeBasedPlResolutionRel()					{return fTimeBasedMapPlResolutionRel;}
 
-
-
-
-
 	std::map<Int_t, Int_t> GetTrackIdMCId()							{return fTrackIdMCId;}
 	Int_t GetNGhosts()												{return fNGhosts;}
 	Int_t GetNClones()												{return fNClones;}
-
-
-
 
 	void PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t detailedInfo = kFALSE);
 	void PrintTrackDataSummaryCompare(FairMultiLinkedData& recoTrackData, FairMultiLinkedData& idealTrackData);
@@ -171,22 +164,24 @@ public:
 		return fTimeBasedMCIdIdealTrackId[mctrackFairLink];
 	}
 	Int_t GetIdealTrackIdFromRecoTrackId(int trackid) { 
-	  int mctrackid = fTrackIdMCId[trackid];
-	  if (fMCIdIdealTrackId.count(mctrackid) == 0) return -1;
-	  return fMCIdIdealTrackId[mctrackid];
+		int mctrackid = fTrackIdMCId[trackid];
+		if (fMCIdIdealTrackId.count(mctrackid) == 0) return -1;
+		return fMCIdIdealTrackId[mctrackid];
 	}
-	
+
 	void SetRunTimeBased(bool runTimeBased){fRunTimeBased=runTimeBased;}
 
 	PndTrackingQualityRecoInfo GetRecoInfoFromRecoTrack(Int_t trackId, Int_t mctrackId, FairLink mctrackFairLink);
-
+	PndTrackingQualityRecoInfo GetRecoInfoFromRecoTrackTimeBased(FairLink recoFairLink, Int_t mctrackId, FairLink mctrackFairLink);
 	std::map<FairLink, Int_t> GetCloneInfoforMCTrack(){return fTimeBasedMapTrackMCStatus;};
+
+	std::vector<double> GetEventPurityVector(){return fEventPurityVector;}
 
 private:
 
 	virtual void FillMapTrackQualifikation();
 	Bool_t IsBetterTrackExisting(Int_t& mcIndex,  int quality);
-//	virtual Bool_t PossibleTrack(FairMultiLinkedData& mcForward);
+	//	virtual Bool_t PossibleTrack(FairMultiLinkedData& mcForward);
 	Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
 	// AnalyseTrackInfo used event based, in this case the track id is set to an Int_t
 	virtual Int_t AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo, Int_t trackId);
@@ -197,10 +192,10 @@ private:
 	FairMultiLinkedData GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand); ///< returns which MCTracks and how often (marked by a FairLink) they were seen by the hits of a PndTrackCand
 	std::map<TString, FairMultiLinkedData> AnalyseTrackCand(PndTrackCand* trackCand);	///< returns a map<BranchNameOfHits, MCTrackLinks> which returns the FairLinks to MCTracks grouped by hit branches and all
 
-//	virtual Bool_t IsCorrectGemHit(FairLink& gemLink);
+	//	virtual Bool_t IsCorrectGemHit(FairLink& gemLink);
 
 	FairRootManager* ioman;
-
+	//Double_t fTotClonesTimeBased;
 	TString fTrackBranchName;
 	TString fIdealTrackName;
 	Bool_t fPndTrackOrTrackCand; //kTRUE if track and kFALSE if track cand
@@ -209,7 +204,6 @@ private:
 	Bool_t fCleanFunctor;
 	Int_t fNGhosts;
 	Int_t fNClones;
-
 	Bool_t fUseCorrectedSkewedHits;
 	Bool_t fRunTimeBased;
 	Int_t fVerbose;
@@ -220,12 +214,12 @@ private:
 	std::map<Int_t, Int_t> fMCIdIdealTrackId;			//!<! map between MC id and ideal track id
 
 	//////////////// Maps for time based case //////////////////////////////
-	
+
 	std::map<FairLink, FairLink> fTimeBasedTrackIdMCId;				//!<! map between track FairLink and most probable MC track FairLink
 	std::map<FairLink, FairLink> fTimeBasedMCIdTrackId;				//!<! map between MC FairLink and track FairLink
 	std::map<FairLink, FairLink> fTimeBasedMCIdIdealTrackId;			//!<! map between MC FairLink and ideal track FairLink
 	FairMultiLinkedData linksMCTrack;
-	
+
 	std::map<Int_t, Int_t> fMCTrackFound;				//!<! How often was a MC Track (key) found
 	std::map<FairLink, Int_t> fTimeBasedMCTrackFound;		//!<! How often was a MC Track (key) found
 
@@ -265,6 +259,9 @@ private:
 	TClonesArray* fIdealTrack;
 	TClonesArray* fTrackCand;
 	TClonesArray* fIdealTrackCand;
+
+	double fEventPurity;
+	std::vector<double> fEventPurityVector;
 
 	ClassDef(PndTrackingQA, 1)
 };

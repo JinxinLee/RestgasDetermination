@@ -37,6 +37,7 @@ PndTrackingQATask.cxx
 PndTrackingQualityMCInfo.cxx
 PndTrackingQualityRecoInfo.cxx
 PndTrackingCloneInfo.cxx
+PndTrackingEventInfo.cxx
 OnlineDBuilderTask.cxx
 )
 

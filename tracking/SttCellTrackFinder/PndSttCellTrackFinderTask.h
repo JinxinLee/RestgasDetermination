@@ -6,6 +6,7 @@
 #include "PndSttGeometryMap.h"
 #include "PndSttStrawMap.h"
 #include "PndSttCellTrackFinder.h"
+#include "FairTSBufferFunctional.h"
 
 #include <vector>
 
@@ -59,6 +60,9 @@ public:
 	void SetRunTimeBased(Bool_t val){
 		fRunTimeBased=val;
 	};
+	void SetRunWithSortedHits(Bool_t val){
+		fRunWithSortedHits=val;
+	};
 	void SetClusterTime(double val){
 		fClusterTime = val;
 	}; // J.R. 20/04-2018
@@ -77,12 +81,17 @@ public:
 
 private:
 
+	StopTime* fFunctor;
+
+	double fStopTimeValue;
+
 	double fClusterTime;
 	//for GPU computing
 	Bool_t fUseGPU;
 	int* fDev_tubeNeighborings;
 
 	Bool_t fRunTimeBased;
+	Bool_t fRunWithSortedHits;
 
 	Bool_t fCalcWithCorrectedIsochrones;
 
@@ -121,6 +130,8 @@ private:
 
 	//for runtime analysis: numHits, numHitsWithoutDouble, numUnambiguousHits
 	std::vector<std::vector<int> >  fNumHitsPerEvent;
+
+	int eventNumber; // J.R. For testing purpouses
 
 ClassDef(PndSttCellTrackFinderTask,1)
 	;

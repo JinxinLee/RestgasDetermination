@@ -83,10 +83,7 @@ protected:
 	  Bool_t fRunTimeBased;
 
 	  StopTime* fFunctor;
-
 	  double fStopTimeValue;
-
-	
 
 	  TString fOutBranchName;
 	  TClonesArray* fTrackCand;

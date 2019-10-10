@@ -41,6 +41,11 @@ void PndSttCellTrackFinderTask::SetParContainers() {
 InitStatus PndSttCellTrackFinderTask::Init() {
 	FairRootManager* ioman = FairRootManager::Instance();
 
+
+	fStopTimeValue=0.0;
+	eventNumber=0;
+	fFunctor=new StopTime();
+
 	if (!ioman) {
 		std::cout << "-E- PndSttCellTrackFinderTask::Init: "
 				<< "RootManager not instantiated!" << std::endl;
@@ -65,13 +70,14 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 		fHitBranch.push_back("fInBranchNamePrefix+STTCombinedSkewedHits");
 	}
 
-	for (int i = 0; i < (int) fHitBranch.size(); i++) {
-		InitHitArray(fHitBranch[i]);
-	}
-	if(fSTTHitArray.size()==0) {
-		std::cout << "No InputBranches containing STTHit data are initialised for the PndSttCellTrackFinderTask" << std::endl;
-		return kERROR;
-	}
+		for (int i = 0; i < (int) fHitBranch.size(); i++) {
+			InitHitArray(fHitBranch[i]);
+		}
+
+		if(fSTTHitArray.size()==0) {
+			std::cout << "No InputBranches containing STTHit data are initialised for the PndSttCellTrackFinderTask" << std::endl;
+			return kERROR;
+		}
 
 	FairField* Field = FairRunAna::Instance()->GetField();
 	Double_t po[3], BB[3];
@@ -194,7 +200,8 @@ void PndSttCellTrackFinderTask::Exec(Option_t*) {
 				<< endl;
 
 	}
-	//cout << "Event #" << eventNumber << endl;
+	cout << "Event #" << eventNumber << endl;
+	eventNumber++;
 
 // Reset output array
 	if (!fFirstTrackCandArray)
@@ -202,9 +209,31 @@ void PndSttCellTrackFinderTask::Exec(Option_t*) {
 
 	fTrackFinder->Reset();
 
+	if (fRunWithSortedHits){
 
-	for (int i = 0; i < (int) fSTTHitBranch.size(); i++) {
-		fTrackFinder->AddHits(fSTTHitArray[i], fSTTHitBranch[i]);
+		for (int i = 0; i < (int) fHitBranch.size(); i++){
+
+			fSTTHitBranch[i]=fHitBranch[i];
+
+		}
+
+		fStopTimeValue+=2000.0; // In [ns]
+		//fStopTimeValue+=FairRootManager::Instance()->GetEventTime()+500; // In [ns]
+
+		for (int i = 0; i < (int) fSTTHitBranch.size(); i++){
+			fSTTHitArray[i]=(TClonesArray*)FairRootManager::Instance()->GetData(fSTTHitBranch[i], fFunctor, fStopTimeValue);
+
+		}
+	}
+
+	// J.R. The lines below were used for testing
+	std::cout << "Size of STTHitArray: " << fSTTHitArray.size() << std::endl;
+	std::cout << "Size of STTHitArray: " << fSTTHitArray[0]->GetEntriesFast() << std::endl;
+
+	for (int i = 0; i < (int) fSTTHitArray.size(); i++) {
+
+		fTrackFinder->AddHits((TClonesArray*)fSTTHitArray[i], fSTTHitBranch[i]);
+
 	}
 
 	fTrackFinder->FindTracks();
@@ -231,12 +260,14 @@ void PndSttCellTrackFinderTask::Exec(Option_t*) {
 		myTrack->SetTrackCandRef(myCand);
 		myTrack->SetTrackCand(*myCand);
 
+		myCand->SetEntryNr(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),"PndTrackCand",fCombiTrackCandArray->GetEntriesFast()));
+		myTrack->SetEntryNr(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),"PndTrack",fCombiTrackArray->GetEntriesFast()));
 	}
 
 	for (int i = 0; i < fTrackFinder->NumCombinedRiemannTracks(); ++i) {
 		//PndRiemannTrack* myRiemannTrack = //[R.K.03/2017] unused variable
-				new ((*fCombiRiemannTrackArray)[i]) PndRiemannTrack(
-						fTrackFinder->GetCombiRiemannTrack(i));
+		new ((*fCombiRiemannTrackArray)[i]) PndRiemannTrack(
+				fTrackFinder->GetCombiRiemannTrack(i));
 	}
 
 	if (fCalcWithCorrectedIsochrones) {
@@ -248,28 +279,41 @@ void PndSttCellTrackFinderTask::Exec(Option_t*) {
 				correctedIsochrones.begin(); iter != correctedIsochrones.end();
 				iter++) {
 			//FairHit* myCorrectedHit = //[R.K.03/2017] unused variable
-					new ((*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(*iter->second);
+			new ((*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(*iter->second);
 		}
 	}
 
 	if (fVerbose > 0)
 		cout << "#FirstTracklets: " << fTrackFinder->GetNumPrimaryTracklets()
-				<< ", #CombinedTracklets: " << fTrackFinder->NumCombinedTracks()
-				<< endl;
+		<< ", #CombinedTracklets: " << fTrackFinder->NumCombinedTracks()
+		<< endl;
 
 	//fCombiTrackCandArray->Sort();	//WALTER CHANGED HERE!!!!!!!!!!!!!!!!
 	//fCombiTrackArray->Sort();		//WALTER CHANGED HERE!!!!!!!!!!!!!!!!
 
+	if(fRunWithSortedHits){
+		for (int i = 0; i < (int) fSTTHitBranch.size(); i++){
+			fSTTHitArray[i]->Delete(); // Clear the TClones array for the next time burst
+		    //fSTTHitArray.clear();
+		}
+
+	//fSTTHitBranch.clear();
+
+	}
+
 }
 
 void PndSttCellTrackFinderTask::FinishEvent() {
+
 	if (fAnalyseSteps) {
 		fFirstTrackCandArray->Delete();
 		fFirstRiemannTrackArray->Delete();
 	}
+
 	fCombiTrackCandArray->Delete();
 	fCombiTrackArray->Delete();
 	fCombiRiemannTrackArray->Delete();
+
 	if (fCalcWithCorrectedIsochrones)
 		fCorrectedIsochronesArray->Delete();
 
@@ -323,14 +367,17 @@ void PndSttCellTrackFinderTask::FinishTask() {
 void PndSttCellTrackFinderTask::InitHitArray(TString branchName) {
 	TClonesArray* tempArray =
 			(TClonesArray*) FairRootManager::Instance()->GetObject(branchName);
+
 	if (tempArray == 0) {
 		std::cout << "-W- PndSttCellTrackFinderTask::Init: "
 				<< "No hitArray for BranchName #############################################" << branchName.Data()
 				<< std::endl;
 	}
-	if ( strcmp(tempArray->GetClass()->GetName(), "PndSttHit") == 0){
+	if (strcmp(tempArray->GetClass()->GetName(), "PndSttHit") == 0){
+		// Checks so that the data is of type SttHit, this is the case for time sorted Stt hits as well
 		fSTTHitArray.push_back(tempArray);
 		fSTTHitBranch.push_back(branchName);
 	}
+
 }
 

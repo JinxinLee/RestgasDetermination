@@ -14,7 +14,7 @@
 #include "TVector3.h"
 #include "PndSttGeometryMap.h"
 #include "PndSttStrawMap.h"
-#include  "FairHit.h"
+#include "FairHit.h"
 
 class TClonesArray;
 class PndSttSkewedHit;

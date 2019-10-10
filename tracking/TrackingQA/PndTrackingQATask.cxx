@@ -34,6 +34,8 @@
 #include "PndSttMapCreator.h"
 #include "RhoHistogram/RhoTuple.h"
 
+#include <chrono>
+
 // Class includes
 
 // -----   Default constructor   -------------------------------------------
@@ -48,6 +50,8 @@ PndTrackingQATask::~PndTrackingQATask() {
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndTrackingQATask::Init() {
+
+	fSumTime=0.0;
 
 	InitializeHistograms();
 
@@ -115,6 +119,8 @@ InitStatus PndTrackingQATask::Init() {
 	fSttTubeArray = mapperStt->FillTubeArray();
 	// ----------------------------------------------------  end map
 
+	clonesTimeBasedTotal=0.0;
+	fTotClonesTimeBased=0;
 	//	std::cout << "-I- PndTrackingQATask::Init: Initialization successfull" << std::endl;
 
 	return kSUCCESS;
@@ -171,6 +177,8 @@ void PndTrackingQATask::InitializeHistograms() {
 
 	LabelQualyHistogram(fQualyHisto_rel_all);
 	LabelQualyHistogram(fQualyHisto_rel_possible);
+
+	if(fRunTimeBased){fEventPurityHisto = new TH1D("fEventPurityHisto", "Event Purity of Track", 140, -1.2, 1.2);}
 }
 
 void PndTrackingQATask::LabelQualyHistogram(TH1 * hist) {
@@ -213,20 +221,32 @@ void PndTrackingQATask::Exec(Option_t*) {
 	if (fVerbose > 0 && !fRunTimeBased){
 		std::cout << "----- Running Event Based " << fEventNr << " ------" << std::endl;
 		std::cout << "----- Event " << fEventNr << " ------" << std::endl;}
-	if (fVerbose > 0 && fRunTimeBased)
+	if (fVerbose > 0 && fRunTimeBased){
 		std::cout << "----- Running Time based -----" << std::endl;
+		std::cout << "----- Processing data chunk nr: " << fEventNr << " ------" << std::endl;}
+
+	//auto start_time = std::chrono::system_clock::now();
 
 	PndTrackingQA qaAna(fTrackBranchName, fIdealTrackBranchName, fPossibleTrackFunctor, fPndTrackOrTrackCand);
 	qaAna.SetVerbose(fVerbose);
 	qaAna.SetHitsBranchNames(fBranchNames);
 	qaAna.SetRunTimeBased(fRunTimeBased);
 	qaAna.Init();
+
 	qaAna.AnalyseEvent(fRecoTrackInfo);
 
-	std::map<Int_t, Int_t> mcFoundMap = qaAna.GetMCTrackFound();  // This should work both time based and event base
+	if(fRunTimeBased){
+
+	  std::vector<double> eventPurity = qaAna.GetEventPurityVector();
+
+	  for(int i_eventInfo=0; i_eventInfo<eventPurity.size(); i_eventInfo++){
+	    fEventPurityHisto->Fill(eventPurity[i_eventInfo]);
+	  }
+	}
 
 	if(!fRunTimeBased){
 
+		std::map<Int_t, Int_t> mcFoundMap = qaAna.GetMCTrackFound();
 		std::map<Int_t, TVector3> recoPMap = qaAna.GetP();
 		std::map<Int_t, Int_t> qualiMap = qaAna.GetTrackQualification();
 		std::map<Int_t, Int_t> mcStatusMap = qaAna.GetTrackMCStatus();
@@ -345,7 +365,6 @@ void PndTrackingQATask::Exec(Option_t*) {
 
 		FillEfficiencies(qaAna.GetEfficiencies());
 
-		// This only works event based because the maps used to fill the histograms in the underlying function make use of ids, not fairlinks
 		MapToHist(qaAna.GetPResolution(), fPHisto);
 		MapToHist(qaAna.GetPResolutionRel(), fPRelHisto);
 		MapToHist(qaAna.GetPtResolution(), fPtHisto);
@@ -355,12 +374,14 @@ void PndTrackingQATask::Exec(Option_t*) {
 	}
 
 	if(fRunTimeBased){
-
+		std::map<FairLink, Int_t> mcFoundMap = qaAna.GetMCTrackFoundTimeBased();
 		std::map<FairLink, TVector3> recoPMap = qaAna.GetTimeBasedP();
 		std::map<FairLink, Int_t> qualiMap = qaAna.GetTrackQualificationTimeBased();
 		std::map<FairLink, Int_t> mcStatusMap = qaAna.GetTrackMCStatusTimeBased();
-		fTimeBasedMapTrackMCStatusForCloneCalc = qaAna.GetCloneInfoforMCTrack(); 
-		// The above line takes the map between mc track FairLink and the number of times it was found from QAana
+
+		PndTrackingCloneInfo* cloneInfo = new PndTrackingCloneInfo(mcFoundMap, fMCTrack);
+		cloneInfo->CalcNumClones(mcFoundMap, fMCTrack);
+		fTotClonesTimeBased+=cloneInfo->GetNumClones();
 
 		FillQualyHistoTimeBased(qualiMap, qaAna.GetNGhosts()); 
 		FillMCStatusTimeBased(mcStatusMap);
@@ -371,10 +392,6 @@ void PndTrackingQATask::Exec(Option_t*) {
 
 			FairLink idealTrackId = qaAna.GetIdealTrackFairLinkFromMCTrackFairLink(mcTrackId);
 
-			/*if (!idealTrackId){
-					std::cout << "-W- PndTrackingQATask::Exec no idealTrack for mcTrack " << mcTrackId << std::endl;
-					continue;
-				}*/
 			Int_t trackQuality = iter->second;
 
 			PndMCTrack * myMcTrack = (PndMCTrack *) FairRootManager::Instance()->GetCloneOfLinkData(mcTrackId);
@@ -393,7 +410,7 @@ void PndTrackingQATask::Exec(Option_t*) {
 
 			int size = fMCTrackInfo->GetEntriesFast();
 			PndTrackingQualityMCInfo mctrackinfo = GetMCInfoFromIdealTrack(idealtrack);
-			// TODO The line below might need to be taken back
+			// TODO The line below might need to be taken back for time based case
 			// mctrackinfo.SetMCTrackID(mcTrackId);
 			mctrackinfo.SetQuality(trackQuality);
 			mctrackinfo.SetPDGCode(pdgId);
@@ -419,7 +436,7 @@ void PndTrackingQATask::Exec(Option_t*) {
 
 			PndTrackingQualityMCInfo *mctrackinfo = (PndTrackingQualityMCInfo*) fMCTrackInfo->At(GetMCInfoIdFromIdealTrackId(idealTrackId)); // This function probably need to be replaced all together for the time based reconstruction in trackingQA
 
-			recoinfo->SetMCTrackInfo(mctrackinfo);
+			//recoinfo->SetMCTrackInfo(mctrackinfo);
 		}
 		// associate reconstructed and mc tracks
 		AssociateRecoTracksToMCTracks();
@@ -441,23 +458,25 @@ void PndTrackingQATask::Exec(Option_t*) {
 			TVector3 mcMomentum = myMcTrack->GetMomentum();
 			Int_t pdgId = myMcTrack->GetPdgCode();
 
-								fTuple->Column("EvtNr", (Int_t) fEventNr);  // number of the currently processed event
 
-					//fTuple->Column("McTrackId", (Int_t) mcTrackId);  // id of the currently processed track
-					//fTuple->Column("McTrackFoundNTimes", (Int_t) mcFoundMap[mcTrackId]);  // A given MC track was found N times
-					fTuple->Column("TrackQuality", (Int_t) trackQuality);  // the quality of the current track
-					fTuple->Column("Mc_TrackQuality", (Int_t) mcStatusMap[mcTrackId] - 6);  // the mc quality of the current track, -6 to match the global qualityNumbers
+			fTuple->Column("EvtNr", (Int_t) fEventNr);  // number of the currently processed event
 
-					fTuple->Column("PdgId", (Int_t) pdgId);
-					fTuple->Column("Mc_px", (Double_t) mcMomentum.Px());  // To compare to the additionally saved pt histogram, call Draw("Reco_pt:Mc_pt","TrackQuality > 0") on the Tuple
-					fTuple->Column("Mc_py", (Double_t) mcMomentum.Py());
-					fTuple->Column("Mc_pz", (Double_t) mcMomentum.Pz());
-					fTuple->Column("Mc_pt", (Double_t) mcMomentum.Pt());
-					fTuple->Column("Reco_px", (Double_t) recoMomentum.Px());
-					fTuple->Column("Reco_py", (Double_t) recoMomentum.Py());
-					fTuple->Column("Reco_pz", (Double_t) recoMomentum.Pz());
-					fTuple->Column("Reco_pt", (Double_t) recoMomentum.Pt());
-			//		fTuple->Column("Reco_pt2", (Double_t) recoPtMap[mcTrackId]);  // cross check
+			//fTuple->Column("McTrackId", (Int_t) mcTrackId);  // id of the currently processed track
+			fTuple->Column("McTrackFoundNTimes", (Int_t) mcFoundMap[mcTrackId]);  // A given MC track was found N times
+			//std::cout << "RHO TUPLE: " << mcFoundMap[mcTrackId] << std::endl;
+			fTuple->Column("TrackQuality", (Int_t) trackQuality);  // the quality of the current track
+			fTuple->Column("Mc_TrackQuality", (Int_t) mcStatusMap[mcTrackId] - 6);  // the mc quality of the current track, -6 to match the global qualityNumbers
+
+			fTuple->Column("PdgId", (Int_t) pdgId);
+			fTuple->Column("Mc_px", (Double_t) mcMomentum.Px());  // To compare to the additionally saved pt histogram, call Draw("Reco_pt:Mc_pt","TrackQuality > 0") on the Tuple
+			fTuple->Column("Mc_py", (Double_t) mcMomentum.Py());
+			fTuple->Column("Mc_pz", (Double_t) mcMomentum.Pz());
+			fTuple->Column("Mc_pt", (Double_t) mcMomentum.Pt());
+			fTuple->Column("Reco_px", (Double_t) recoMomentum.Px());
+			fTuple->Column("Reco_py", (Double_t) recoMomentum.Py());
+			fTuple->Column("Reco_pz", (Double_t) recoMomentum.Pz());
+			fTuple->Column("Reco_pt", (Double_t) recoMomentum.Pt());
+			//fTuple->Column("Reco_pt2", (Double_t) recoPtMap[mcTrackId]);  // cross check
 
 			fTuple->DumpData();
 		}
@@ -486,6 +505,11 @@ void PndTrackingQATask::Exec(Option_t*) {
 	fIdealTracksPerEvent->Fill(fIdealTrack->GetEntries()); // Works both time based and event based, in time based case this will correspond to num tracks in bunch
 
 	fEventNr++;
+
+	//auto end_time = std::chrono::system_clock::now();
+	//std::chrono::duration<double> elapsed_seconds = end_time-start_time;
+	//fSumTime+=elapsed_seconds.count();
+	//std::cout << "Sum time [s]: " << fSumTime << std::endl;
 
 }
 
@@ -760,9 +784,10 @@ void PndTrackingQATask::Finish() {
 	Double_t spuriousFound = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound));
 
 	// The three lines below are only used time-based
-	PndTrackingCloneInfo* cloneInfo = new PndTrackingCloneInfo(fTimeBasedMapTrackMCStatusForCloneCalc, fMCTrack);	
+	PndTrackingCloneInfo* cloneInfo = new PndTrackingCloneInfo(fTimeBasedMapTrackMCStatusForCloneCalc, fMCTrack);
 	cloneInfo->CalcNumClones(fTimeBasedMapTrackMCStatusForCloneCalc, fMCTrack);
 	Double_t clonesTimeBased = cloneInfo->GetNumClones();
+	clonesTimeBasedTotal=clonesTimeBasedTotal+clonesTimeBased;
 
 	//Double_t allFound = fullyFound + partiallyFound + spuriousFound; //[R.K.04/2017] unused variable
 	//Double_t notFound = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kNotFound)); //[R.K.03/2017] unused variable
@@ -794,16 +819,16 @@ void PndTrackingQATask::Finish() {
 			<< ghosts / allTracksWithHits * 100.0 << "% "
 			<< ghosts / allPossibleTracksWithHits * 100.0 << "% " << std::endl;
 
-			if(!fRunTimeBased){
-				 std::cout << ghosts / allPossibleTracksWithHits * 100.0 << "% "
-				  << " Copies: "	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kClone))		<<std::endl;
-			}
-			if (fRunTimeBased){
-				// Writes out the time based clones as obtained from PndTrackingCloneInfo.cxx
-				std::cout << "Time based Clones: " << clonesTimeBased << " "
-			<< clonesTimeBased / allTracksWithHits * 100.0 << "% " << std::endl;
-			}
-			
+	if(!fRunTimeBased){
+		std::cout << ghosts / allPossibleTracksWithHits * 100.0 << "% "
+				<< "Copies (event based clones): "	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kClone))		<<std::endl;
+	}
+	if (fRunTimeBased){
+		// Writes out the time based clones as obtained from PndTrackingCloneInfo.cxx
+		std::cout << "Time based clones: " <<  fTotClonesTimeBased << " "
+				<< (Double_t)fTotClonesTimeBased / allTracksWithHits * 100.0 << "% " << std::endl;
+	}
+
 
 	SetQualyHisto(fQualyHisto_rel_all, kTRUE, allTracksWithHits);
 	SetQualyHisto(fQualyHisto_rel_possible, kTRUE, allPossibleTracksWithHits);
@@ -818,6 +843,9 @@ void PndTrackingQATask::Finish() {
 	fQualyHisto_rel_all->Write();
 	fQualyHisto_rel_possible->Write();
 	fQualyHisto->Write();
+
+	if(fRunTimeBased){fEventPurityHisto->Write();}
+	
 	fTuple->GetInternalTree()->Write();
 
 	std::cout << "Finish finished!" << std::endl;
@@ -900,7 +928,7 @@ PndTrackingQualityMCInfo PndTrackingQATask::GetMCInfoFromIdealTrack(PndTrack *id
 		}
 	}
 
-	std::cout << "Number of parallel tubes: " << nofsttparalpoint << " and skewed: " << nofsttskewpoint << std::endl;
+	//std::cout << "Number of parallel tubes: " << nofsttparalpoint << " and skewed: " << nofsttskewpoint << std::endl;
 
 	PndTrackingQualityMCInfo info(nofmvdpixpoint, nofmvdstrpoint, nofsttparalpoint, nofsttskewpoint, nofgempoint, nofftspoint);
 	std::vector<FairLink> mcTracks = idealtrack->GetSortedMCTracks();

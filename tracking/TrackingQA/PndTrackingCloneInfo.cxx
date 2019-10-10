@@ -12,24 +12,18 @@ PndTrackingCloneInfo::PndTrackingCloneInfo(std::map<FairLink, Int_t> currentMap,
 PndTrackingCloneInfo::~PndTrackingCloneInfo() {}
 
 void PndTrackingCloneInfo::CalcNumClones(std::map<FairLink, Int_t> timeBasedMCTrackFound, TClonesArray* mcTrackArray){
+	//std::cout << "PndTrackingCloneInfo() start." << std::endl;
 
-  // GetEntryNumber does not work for MC tracks so one can not loop over these and obtain the FairLink that way. 
+	fNumClonesTimeBased=0;
 
-for (std::map<FairLink, Int_t>::iterator iter = timeBasedMCTrackFound.begin(); iter != timeBasedMCTrackFound.end(); iter++) {
+	for (std::map<FairLink, Int_t>::iterator iter = timeBasedMCTrackFound.begin(); iter != timeBasedMCTrackFound.end(); iter++) {
 
-    FairLink myFairLink = iter->first;
+		FairLink myFairLink = iter->first;
 
-    // It appears as if the number of clones obtained from map currentMap are negative, this is a protection for this case
-    if(timeBasedMCTrackFound[myFairLink]>0)
-    fNumClonesTimeBased = fNumClonesTimeBased + timeBasedMCTrackFound[myFairLink];
+		if(timeBasedMCTrackFound[myFairLink]>0){
+			fNumClonesTimeBased = fNumClonesTimeBased + timeBasedMCTrackFound[myFairLink]-1;}
 
-    if(timeBasedMCTrackFound[myFairLink]<0)
-    fNumClonesTimeBased = fNumClonesTimeBased - timeBasedMCTrackFound[myFairLink];
-  }
-
-  if (fNumClonesTimeBased>0){
-    fNumClonesTimeBased=fNumClonesTimeBased-timeBasedMCTrackFound.size();
-  }
+	}
 
 }
 
