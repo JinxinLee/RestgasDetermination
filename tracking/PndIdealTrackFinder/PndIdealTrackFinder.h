@@ -82,7 +82,7 @@ protected:
 
 	  Bool_t fRunTimeBased;
 
-	  StopTime* fFunctor;
+	  BinaryFunctor* fFunctor;
 	  double fStopTimeValue;
 
 	  TString fOutBranchName;

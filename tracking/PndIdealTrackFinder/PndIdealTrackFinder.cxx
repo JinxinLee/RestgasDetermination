@@ -20,7 +20,7 @@
 ClassImp(PndIdealTrackFinder);
 
 PndIdealTrackFinder::PndIdealTrackFinder() :
-		  fOutBranchName("IdealTrack"), fTrackCand(0), fTrack(0), fMCTrack(0), fTrackSelector(0), fPdg(0), fHitCount(0), fMomSigma(0,0,0), fDPoP(0.), fRunTimeBased(kFALSE), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.)
+		  fOutBranchName("IdealTrack"), fTrackCand(0), fTrack(0), fMCTrack(0), fTrackSelector(0), fPdg(0), fHitCount(0), fMomSigma(0,0,0), fDPoP(0.), fRunTimeBased(kFALSE), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), fFunctor(nullptr)
 {
 
 	//TODO Replace hard coded names with variable names
@@ -105,7 +105,7 @@ void PndIdealTrackFinder::Exec(Option_t*)
 	if (fRunTimeBased){
 		for (size_t i = 0; i < fBranchNames.size(); i++){
 			fBranchMap[fBranchNames[i]]->Delete(); // Clear the TClones array for the next time burst
-			fBranchMap.clear();
+//			fBranchMap.clear();
 		}		
 	}
 
@@ -122,7 +122,7 @@ void PndIdealTrackFinder::Exec(Option_t*)
 		for (size_t i = 0; i < fBranchNames.size(); i++){
 			// Start and stop functor and condition is needed
 			// This can be used when objects are derived from FairTimeStamp
-			fBranchMap[fBranchNames[i]]=FairRootManager::Instance()->GetData(fBranchNames[i], fFunctor, fStopTimeValue);
+			fBranchMap[fBranchNames[i]]=FairRootManager::Instance()->GetData(fBranchNames[i], fFunctor, fStopTimeValue -2000, fFunctor, fStopTimeValue);
 			std::cout << "IdealTrackFinder: " << fBranchMap[fBranchNames[i]]->GetEntriesFast() << std::endl;
 		}	
 	}
@@ -234,6 +234,8 @@ void PndIdealTrackFinder::CreateTrackCands()
 					if(lastpoint.GetTime() > tmplastpoint.GetTime()) fLastPointMap[mctracks.GetLink(trackIndex)] = lastpoint;
 				}
 				FairLink link(-1, FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(iter->first),i);
+				if (fRunTimeBased == kTRUE)
+				    link = links->GetEntryNr();
 				//std::cout << "CreateTrackCands " << mctracks.GetLink(trackIndex) << " : " << link << std::endl;
 				fTrackCandMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kTRUE);
 				// fTrackCandMap[mctracks.GetLink(trackIndex)].AddHit(link, fHitCount++);			//todo Rho is not properly calculated!
@@ -266,27 +268,26 @@ void PndIdealTrackFinder::CreateTracks()
 
 	int sum=0;
 	for (std::map<FairLink, PndTrackCand>::iterator iter = fTrackCandMap.begin(); iter != fTrackCandMap.end(); iter++){
+
+        PndMCTrack *mc = (PndMCTrack *) FairRootManager::Instance()->GetCloneOfLinkData(iter->first);
+        if (mc == nullptr){
+            std::cout << "-E- PndIdealTrackFinder::CreateTracks no mc track for link: " << iter->first << std::endl;
+        }
+
 		PndTrackCand* myTrackCand = new((*fTrackCand)[fTrackCand->GetEntriesFast()]) PndTrackCand(iter->second);
 		myTrackCand->setMcTrackId(iter->first.GetIndex());
 		myTrackCand->AddLink(iter->first);
-		myTrackCand->SetTimeStamp(FairRootManager::Instance()->GetEventTime());
-
-		myTrackCand->SetEntryNr(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName+"Cand"),fTrackCand->GetEntriesFast()));
+//		myTrackCand->SetTimeStamp(FairRootManager::Instance()->GetEventTime());  //this is only correct in the event based case.
+//        myTrackCand->SetTimeStamp(mc->GetStartTime());                         //todo: Add the event time of the MC Event to the MC Track Time
+		myTrackCand->SetEntryNr(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName+"Cand"),fTrackCand->GetEntriesFast() - 1));
 
 		// J.R. The two lines below was for testing
-		Int_t nhits = myTrackCand->GetNHits();
-		sum=sum+nhits;
-		cout << "Num hits in track: " << nhits << " + sum: " << sum << endl;
-
-
-		myTrackCand->AddLink(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName+"Cand"),fTrackCand->GetEntriesFast()));
-		//std::cout << myTrackCand->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")) << " : " << std::endl;
-		//myTrackCand->Print();
-		//std::cout << *myTrackCand << std::endl;
+//		Int_t nhits = myTrackCand->GetNHits();
+//		sum=sum+nhits;
+//		cout << "Num hits in track: " << nhits << " + sum: " << sum << endl;
 
 		// ....... track
 
-		PndMCTrack *mc = (PndMCTrack *) FairRootManager::Instance()->GetCloneOfLinkData(iter->first);
 		int charge = 0;
 		if (mc->GetPdgCode()<100000000) charge = (Int_t)TMath::Sign(1.0, ((TParticlePDG*) fPdg->GetParticle(mc->GetPdgCode()))->Charge());
 		else charge = 1;
@@ -352,8 +353,9 @@ void PndIdealTrackFinder::CreateTracks()
 
 		PndTrack* myTrack =
 				new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(firstPar, lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), -1,-1);
-		myTrack->SetEntryNr(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName),fTrack->GetEntriesFast()));
-		myTrack->AddLink(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName),fTrack->GetEntriesFast()));
+		myTrack->SetEntryNr(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName),fTrack->GetEntriesFast() - 1));
+		myTrack->AddLink(FairLink(-1,FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(fOutBranchName+"Cand"),fTrack->GetEntriesFast() - 1));
+
 
 	}
 }
