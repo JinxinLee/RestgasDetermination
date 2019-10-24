@@ -8,6 +8,7 @@
 #include "TParticlePDG.h"
 #include "TVector.h"
 #include "TH2F.h"
+#include <TFile.h>
 
 // framework includes
 #include "FairRootManager.h"

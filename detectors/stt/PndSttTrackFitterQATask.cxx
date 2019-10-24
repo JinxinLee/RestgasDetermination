@@ -22,6 +22,7 @@
 
 #include "TClonesArray.h"
 #include "TRandom.h"
+#include <TFile.h>
 #include "TH1F.h"
 #include <iostream>
 #include <cmath>

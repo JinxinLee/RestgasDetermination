@@ -7,6 +7,7 @@
 
 #include <PndLineApproximation.h>
 
+#include <FairRootManager.h>
 
 PndLineApproximation::~PndLineApproximation() {
 	// TODO Auto-generated destructor stub

@@ -3,6 +3,7 @@
 // -----                  Created 16/09/19  by T.Stockmanns            -----
 // -------------------------------------------------------------------------
 
+#include <FairRootManager.h>
 
 #include <iostream>
 

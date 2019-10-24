@@ -7,6 +7,7 @@
 #define PNDTRKHITLIST_H 1
 
 #include "TVector3.h"
+#include <TClonesArray.h>
 #include "PndTrkHit.h"
 #include "FairHit.h"
 

@@ -27,6 +27,8 @@
 #include "TLorentzVector.h"
 #include "RhoCalculationTools.h"
 
+#include <FairRootManager.h>
+
 #include "TDatabasePDG.h"
 
 ClassImp ( RhoCandidate )

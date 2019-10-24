@@ -7,6 +7,8 @@
 
 #include "PndTrack.h"
 
+#include <FairRootManager.h>
+
 ClassImp(PndTrack);
 
 PndTrack::PndTrack() :

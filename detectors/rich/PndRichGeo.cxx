@@ -2,6 +2,8 @@
 #include "FairGeoNode.h"
 #include "TRandom.h"
 
+#include <fstream>
+
 ClassImp(PndRichGeo)
 
 // -----   Default constructor   -------------------------------------------

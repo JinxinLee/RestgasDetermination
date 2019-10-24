@@ -19,6 +19,8 @@
 #include "PndEmcMapper.h"
 #include "PndDetectorList.h" 
 
+#include <FairRootManager.h>
+
 #include "TRandom.h"
 #include "TClonesArray.h"
 

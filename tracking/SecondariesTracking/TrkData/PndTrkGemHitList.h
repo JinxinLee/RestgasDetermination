@@ -13,6 +13,8 @@
 #include "PndTrkHit.h"
 #include "PndGemHit.h"
 
+#include <map>
+
 #define MAXNOFGEMHITS 1000  // CHECK consistency
 
 class PndTrkGemHitList : public PndTrkHitList

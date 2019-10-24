@@ -8,6 +8,7 @@
 #include "TMath.h"
 
 #include "FairLink.h"
+#include <FairRootManager.h>
 
 #include <vector>
 #include <map>

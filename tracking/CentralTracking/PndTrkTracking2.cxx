@@ -42,6 +42,7 @@
 #include "TGeoVolume.h"
 #include "TVector3.h"
 #include "TRandom.h"
+#include <TFile.h>
 #include "TH1F.h"
 #include "TMath.h"
 #include "TCanvas.h"

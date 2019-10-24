@@ -20,6 +20,7 @@
 // root Headers ----------------------
 #include "TMatrixT.h"
 #include "TMath.h"
+#include <TFile.h>
 // Collaborating Class Headers --------
 #include "FairMCPoint.h"
 #include "RKTrackRep.h"

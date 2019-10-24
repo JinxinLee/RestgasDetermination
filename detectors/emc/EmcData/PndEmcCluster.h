@@ -12,6 +12,7 @@
 #ifndef PNDEMCCLUSTER_H
 #define PNDEMCCLUSTER_H
 
+#include <TClonesArray.h>
 #include "TObject.h"
 #include "FairTimeStamp.h"
 #include "TMatrixD.h"

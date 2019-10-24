@@ -11,6 +11,8 @@
 
 #include "PndPidCandidate.h"
 
+#include <TBuffer.h>
+
 //class VAbsPidInfo;
 
 //  ========================================================================

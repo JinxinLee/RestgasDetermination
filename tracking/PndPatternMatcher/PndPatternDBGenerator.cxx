@@ -12,6 +12,7 @@
 #include <PndSttTube.h>
 #include <PndTrackCand.h>
 #include <TClonesArray.h>
+#include <TFile.h>
 #include "PndPatternDBGenerator.h"
 
 ClassImp(PndPatternDBGenerator)

@@ -7,6 +7,8 @@
 
 #include <PndFtsLineApproximator.h>
 
+#include <FairRootManager.h>
+
 Double_t PndFtsLineApproximator::compDist = 0.2;
 Double_t PndFtsLineApproximator::compAngle = 0.2;
 

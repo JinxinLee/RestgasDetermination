@@ -29,6 +29,7 @@
 #include "PndDetectorList.h"
 #include <iostream>
 
+#include <FairRootManager.h>
 #include "TClass.h"
 #include "TVector3.h"
 #include "TBuffer.h"

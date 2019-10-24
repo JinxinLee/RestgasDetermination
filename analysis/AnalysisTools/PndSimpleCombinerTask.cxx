@@ -38,6 +38,7 @@
 // ROOT headers
 #include "TClonesArray.h"
 #include "TVector3.h"
+#include <TFile.h>
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TDatabasePDG.h"

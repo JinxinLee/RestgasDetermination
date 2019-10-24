@@ -29,6 +29,7 @@
 // ROOT
 #include "TH2F.h"
 #include "TCanvas.h"
+#include <TStopwatch.h>
 
 
 #define MAXNOFHITS 1000  // CHECK
