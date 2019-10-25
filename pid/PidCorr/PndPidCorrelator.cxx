@@ -936,8 +936,8 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 
   for (Int_t i = 0; i < nBumps; i++)
   {
-    PndPidCandidate* dummyCand =  new PndPidCandidate();
-    dummyCand->SetFitStatus(-99);
+    //PndPidCandidate* dummyCand =  new PndPidCandidate();
+    //dummyCand->SetFitStatus(-99);
     PndEmcBump* bump;
     PndEmcCluster *clu;
     //Float_t quality = -1.;
@@ -968,8 +968,9 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
     TVector3 vertex(0., 0., 0.);
 
     Int_t nTracks = 0;
-    if (bump->GetModule()>5) {
-      AddNeutralCandidate(dummyCand);
+    if (bump->GetModule()<0 || bump->GetModule()>5) {
+      // filter out invalid EMC module numbers
+      //AddNeutralCandidate(dummyCand); // WHY do we do that? I would just skip
       continue; // kick non valid emc modules
     }
     if (bump->GetModule()<5) // barrel
@@ -1059,10 +1060,11 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
         pidCand->SetMcIndex(mclist[0]);
       }
       AddNeutralCandidate(pidCand);
-    } else {
-      AddNeutralCandidate(dummyCand);
+    //} else {
+      //AddNeutralCandidate(dummyCand);
     }
   }
+  return;
 }
 
 
