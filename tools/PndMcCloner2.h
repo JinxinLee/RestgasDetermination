@@ -48,7 +48,7 @@ class PndMcCloner2 : public FairTask
   TClonesArray* fPidChargedArray[5];
 
   /** Input array of PidNeutralCand **/
-  TClonesArray* fPidNeutralArray[5];
+  TClonesArray* fPidNeutralArray;
 
 
   /** Output array of PndMCTrack **/
@@ -60,7 +60,7 @@ class PndMcCloner2 : public FairTask
 
   TString fPidHypoStr[5];
   Bool_t fHypoFlagCharged[5];				//! Flag to check which hypotheses are present
-  Bool_t fHypoFlagNeutral[5];				//! Flag to check which hypotheses are present
+  Bool_t fHypoFlagNeutral;				//! Flag to check which hypotheses are present
 
   TString fTrackBranchNamePidHypo;
 

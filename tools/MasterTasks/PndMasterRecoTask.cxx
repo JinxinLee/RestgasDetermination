@@ -198,8 +198,6 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
     }
   }
 
-  //} // ftsca no geane
-
   // --- Online Emulator smearing
   if(fOptions.Contains("fakeonline"))
   {

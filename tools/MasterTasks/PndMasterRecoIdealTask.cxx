@@ -142,6 +142,23 @@ PndMasterRecoIdealTask::PndMasterRecoIdealTask(TString options) :
     }
   }
 
+  // --- Online Emulator smearing
+  if(fOptions.Contains("fakeonline"))
+  {
+    PndTrackSmearTask* smearer=NULL;
+    fBranchTasks.push_back(smearer=new PndTrackSmearTask());
+    if(fOptions.Contains("filtered")) brltrkgenname+="_filtered";
+    if(fOptions.Contains("multikalman")) { //yes, multikalman
+      for(int k=0; k<5; ++k) {
+        smearer->AddInputTrackBranch(Form("%s%s",brltrkgenname.Data(),hypoName[k].Data()));
+        smearer->AddInputTrackBranch(Form("%s%s",ftstrkgenname.Data(),hypoName[k].Data()));
+      }
+    } else { // no multikalman
+      smearer->AddInputTrackBranch(brltrkgenname);
+      smearer->AddInputTrackBranch(ftstrkgenname);
+    }
+  }
+
   // Now add all cached tasks to this one
   std::for_each(fBranchTasks.begin(), fBranchTasks.end(),
   [this](const FairTask* task) {
