@@ -1,0 +1,45 @@
+//****************************************************************************
+//*                   This file is part of PandaRoot.                        *
+//*                                                                          *
+//*            PandaRoot is distributed under the terms of the               *
+//*              GNU General Public License (GPL) version 3,                 *
+//*                 copied verbatim in the file "LICENSE".                   *
+//*                                                                          *
+//*  Copyright (C) 2006 - 2024 FAIR GmbH and copyright holders of PandaRoot  *
+//*     The copyright holders are listed in the file "COPYRIGHTHOLDERS".     *
+//*               The authors are listed in the file "AUTHORS".              *
+//****************************************************************************
+
+#ifndef PndCAPreselectSttHits_H_
+#define PndCAPreselectSttHits_H_
+
+#include "TClonesArray.h"
+#include "TVector3.h"
+#include <vector>
+#include <iostream>
+
+#include "PndSttHit.h"
+#include "PndPreselectSttHits.h"
+#include "PndSttCAData.h"
+
+
+class PndCAPreselectSttHits : public PndPreselectSttHits{
+ public:
+  PndCAPreselectSttHits(){};
+  // PndPreselectSttHits(){  }
+  virtual ~PndCAPreselectSttHits()
+  {
+	  if (fCADataMap != nullptr)
+		  delete(fCADataMap);
+  };
+
+  std::vector<std::vector<PndSttHit *>> PreselectSttHits();
+
+  void Init(TClonesArray* sttHits, TClonesArray* tubeArray = nullptr);
+
+ private:
+  PndSttCAData* fCADataMap = nullptr;
+
+};
+
+#endif /* PndCAPreselectSttHits_H_ */

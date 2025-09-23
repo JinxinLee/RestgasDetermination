@@ -51,7 +51,7 @@ PndPidCorrelator::~PndPidCorrelator()
 
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator() :
-  FairTask(), fMcTrack(0), fTrack(0), fTrack2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
+  FairTask(), fMcTrack(0), fMcTrackPro(0), fTrack(0), fTrack2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL),
   fDebugMode(kFALSE),
   fMvdMode(-1),
@@ -95,7 +95,8 @@ PndPidCorrelator::PndPidCorrelator() :
   richCorr(0),
   sDir(""),
   sFile(""),
-  fDoNeutralCand(kFALSE)
+  fDoNeutralCand(kFALSE),
+  fUseMcTruthForTarget(kTRUE)
 {
   //---
   sDir = "./";
@@ -123,7 +124,7 @@ PndPidCorrelator::PndPidCorrelator() :
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   FairTask(name),
-  fMcTrack(0), fTrack(0), fTrack2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
+  fMcTrack(0), fMcTrackPro(0), fTrack(0), fTrack2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()),   fDebugMode(kFALSE),
   fMvdMode(-1),
   fSttMode(-1),
@@ -166,7 +167,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   richCorr(0),
   sDir(""),
   sFile(""),
-  fDoNeutralCand(kFALSE)
+  fDoNeutralCand(kFALSE),
+  fUseMcTruthForTarget(kTRUE)
 {
   //---
   sDir = "./";
@@ -203,6 +205,13 @@ InitStatus PndPidCorrelator::Init() {
   if ( ! fTrack ) {
     cout << "-I- PndPidCorrelator::Init: No PndTrack array!" << endl;
     return kERROR;
+  }
+
+  // Get the MCTrack array
+  fMcTrackPro = dynamic_cast<TClonesArray *> (fManager->GetObject("MCTrack"));
+  if (!fMcTrackPro) {
+      cout << "MCTrack branch not found, cannot use MC truth for propagation!" << endl;
+      fUseMcTruthForTarget = kFALSE; // Force the flag to false if data is not available
   }
 
   //  if (fTrackIDBranch!="")
@@ -768,6 +777,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     dummyCand->SetFitStatus(-99);
     Int_t ierr = 0;
     FairTrackParP par = track->GetParamLast();
+    cout << "Processing Track " << i << " with momentum: " << par.GetMomentum().Mag() << " and flag: " << track->GetFlag() << endl;
     if ((par.GetMomentum().Mag()<0.05) || (par.GetMomentum().Mag()>15.) ) {
       AddChargedCandidate(dummyCand);
       continue; // cut low and high momenta
@@ -996,6 +1006,15 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 
       Int_t ierr = 0;
       FairTrackParP par = track->GetParamLast();
+
+    /*  // --- Add check for invalid track parameters before propagation ---
+      if (!std::isfinite(par.GetX()) || !std::isfinite(par.GetY()) || !std::isfinite(par.GetZ()) ||
+          !std::isfinite(par.GetPx()) || !std::isfinite(par.GetPy()) || !std::isfinite(par.GetPz())) {
+        cout << "-W- PndPidCorrelator::ConstructNeutralCandidate: Skipping track #" << tt
+             << " with invalid parameters (NaN or Inf)." << endl;
+        continue;
+      }
+    */
       FairTrackParH *helix = new FairTrackParH(&par, ierr);
 
       if (bump->GetModule()<5) // barrel

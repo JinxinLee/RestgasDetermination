@@ -3,33 +3,29 @@
 // -----               Created 11/04/08  by M.Al-Turany              -----
 // -------------------------------------------------------------------------
 
-/** PndDpmDirect.h
- *@author M.Al-Turany <m.al-turany@gsi.de>
+/**
+ * @class PndDpmDirect
+ * @author M.Al-Turany <m.al-turany@gsi.de>
  *
- The PndDpmDirect generates DPM event using the DPM fortran code
- and inserts the tracks into the PndStack via the FairPrimaryGenerator.
- Derived from FairGenerator.
-**/
+ * The PndDpmDirect generates DPM event using the DPM fortran code
+ * and inserts the tracks into the PndStack via the FairPrimaryGenerator.
+ * Derived from FairGenerator.
+ **/
 
 #ifndef PND_DPMDIRECT_H
 #define PND_DPMDIRECT_H
 
-#include "FairGenerator.h"
+#include "PndTargetGenerator.h"
 #include "TF1.h"
 
 class TVirtualMCStack;
 class FairPrimaryGenerator;
 
+class PndDpmDirect : public PndTargetGenerator {
 
-
-class PndDpmDirect : public FairGenerator
-{
-
- public: 
-
+ public:
   /** Default constructor (should not be used) **/
   PndDpmDirect();
-
 
   /** Standard constructor
    *  @param Mom in GeV/C
@@ -38,8 +34,8 @@ class PndDpmDirect : public FairGenerator
    *  @param Mode = 2. - Only elastic scattering, no inelastic one
    **/
   PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed = -1);
-  PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed, Double_t ThtMin);
-  PndDpmDirect(Double_t Mom, Int_t Mode, Double_t Rsigma, TF1* DensityFunction, Long_t Seed = -1, Double_t ThtMin=0.001);
+  PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed, Double_t ThtMin, Double_t ThtMax = 180.);
+  PndDpmDirect(Double_t Mom, Int_t Mode, Double_t Rsigma, TF1 *DensityFunction, Long_t Seed = -1, Double_t ThtMin = 0. , Double_t ThtMax = 180.);
 
   /** Destructor **/
   virtual ~PndDpmDirect();
@@ -47,33 +43,31 @@ class PndDpmDirect : public FairGenerator
   /** Generate one event using DPM
    ** @param primGen  pointer to the FairPrimaryGenerator
    **/
-  virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
-	
+  virtual Bool_t ReadEvent(FairPrimaryGenerator *primGen);
+
   void SetUnstable(int pdg);
   void SetStable(int pdg);
-  
-  
- private:
 
+ private:
   /**
    * P_lab(GeV/c)
-  */
-  double fMom; 
-  /** 
-  * 0. - No elastic scattering, only inelastic
-  * 1. - Elastic and inelastic interactions
-  * 2. - Only elastic scattering, no inelastic one
-  */
-  double  fMode;    
+   */
+  double fMom;
+  /**
+   * 0. - No elastic scattering, only inelastic
+   * 1. - Elastic and inelastic interactions
+   * 2. - Only elastic scattering, no inelastic one
+   */
+  double fMode;
   double fSeed;
-  int    fGasmode;
-	double fRsigma;
+  int fGasmode;
+  double fRsigma;
   double fThtMin;
-  
-  TF1*   fDensityFunction; //!
-	
-  ClassDef(PndDpmDirect,1);
+  double fThtMax;
 
+  TF1 *fDensityFunction; //!
+
+  ClassDef(PndDpmDirect, 1);
 };
 
 #endif

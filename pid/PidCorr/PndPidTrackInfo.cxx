@@ -10,6 +10,7 @@
 #include "TVector3.h"
 #include "TDatabasePDG.h"
 #include <cmath>
+#include "PndMCTrack.h" 
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
@@ -30,31 +31,88 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
 
   if (fGeanePro && fBackPropagate) // Overwrites vertex if Geane is used and if backpropagation
     {
-    FairTrackParH *helix = new FairTrackParH(&par, ierr);
+    //FairTrackParH *helix = new FairTrackParH(&par, ierr);
     fRes= new FairTrackParH();
 
     // track back to Origin
     // [ralfk: changed to propagate to z axis - 03/2011]
-    //fPro0->SetPoint(TVector3(0,0,0));
-    //fPro0->PropagateToPCA(1, -1);
+    // fGeanePropagator->SetPoint(TVector3(0.,0.,10.));
+    // fGeanePropagator->PropagateToPCA(1, -1);
+    // std::cout << "PndPidCorrelator::GetTrackInfo :: Back propagation to IP: 0, 0, 10" << std::endl;
     // Propagatetrack back to z Axis
-    fGeanePropagator->PropagateToPCA(2, -1);// track back to z axis
-    TVector3 ex1(0.,0.,-50.); // virtual wire, dimensions chosen arbitrarily
-    TVector3 ex2(0.,0.,100.); // we expect fast decaying tracks to be close to that
-    fGeanePropagator->SetWire(ex1,ex2);
+    // fGeanePropagator->PropagateToPCA(2, -1);// track back to z axis
+    // TVector3 ex1(0.,0.,-50.); // virtual wire, dimensions chosen arbitrarily
+    // TVector3 ex2(0.,0.,100.); // we expect fast decaying tracks to be close to that
+    // fGeanePropagator->SetWire(ex1,ex2);
 
-    Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*charge);
-    if (!rc)
-    {
-      std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed backward propagation" << std::endl;
-      if (fVerbose>0) helix->Print();
-      return kFALSE;
+    // --- Two-Step Propagation for Robustness ---
+    TVector3 targetPoint(0.18, 0.29, -4.52);
+
+    //Get MC Vertex as propagation target
+    std::vector<FairLink> mcTrackLinks = track->GetSortedMCTracks();
+    if (mcTrackLinks.size() > 0) {
+      Int_t mcTrackId = mcTrackLinks[0].GetIndex();
+      PndMCTrack *mcTrack = (PndMCTrack*) fMcTrackPro->At(mcTrackId);
+      if (!mcTrack || !fUseMcTruthForTarget) {
+        targetPoint.SetXYZ(0., 0., 0.);
+        std::cout  << "-I- PndPidTrackInfo::GetIP: PndMCTrack does not exist!! ->  set default IP (0,0,0)"
+              << std::endl;
+        } else {
+          TVector3 mcVertex = mcTrack->GetStartVertex();
+          targetPoint.SetXYZ(mcVertex.X(), mcVertex.Y(), mcVertex.Z());
+          std::cout  << "-I- PndPidTrackInfo::GetIP: Using MC vertex as target point: " << targetPoint.X() << ", " << targetPoint.Y() << ", " << targetPoint.Z() << std::endl;
+        }
+      }
+
+
+    targetPoint.SetXYZ(0.18, 0.29, -4.52);
+    std::cout  << "-I- PndPidTrackInfo::GetIP: Using pocavtx as target point: " << targetPoint.X() << ", " << targetPoint.Y() << ", " << targetPoint.Z() << std::endl;
+    // Step 1: Propagate robustly to the plane containing the IP
+    // Define the plane at 1cm before the target point
+    TVector3 p0(0., 0., targetPoint.Z() + 1.);
+    TVector3 p1(1., 0., 0.);
+    TVector3 p2(0., 1., 0.);
+    p1.SetMag(1);
+    p2.SetMag(1);
+    fGeanePropagator->PropagateToPlane(p0, p1, p2);
+    fGeanePropagator->setBackProp();
+
+    FairTrackParP *parAtPlane = new FairTrackParP(); // Create a new object to store the result of step 1
+    // Note: The input is a pointer to the initial 'par' object
+    Bool_t rc_plane = fGeanePropagator->Propagate(&par, parAtPlane, fPidHyp * charge);
+
+    if (!rc_plane) {
+        std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed robust propagation to target plane." << std::endl;
+        delete parAtPlane;
+        return kFALSE;
     }
+
+    // Step 2: From the plane, do a short, precise propagation to the target point.
+    // This step is now numerically stable because the distance is short.
+    FairTrackParH *helixAtPlane = new FairTrackParH(parAtPlane, ierr);
+    fGeanePropagator->SetPoint(targetPoint);
+    fGeanePropagator->PropagateToPCA(1, -1); // Mode 1 for Point
+    Bool_t rc_point = fGeanePropagator->Propagate(helixAtPlane, fRes, fPidHyp * charge);
+
+    if (!rc_point) {
+        std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed final precise propagation to target point." << std::endl;
+        return kFALSE;
+    }
+
+    // Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*charge);
+    // if (!rc)
+    // {
+    //   std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed backward propagation" << std::endl;
+    //   if (fVerbose>0) helix->Print();
+    //   return kFALSE;
+    // }
   }
   else
     {
       // If no backpropagation, use the first params
       fRes = new FairTrackParH(&par, ierr);
+      std::cout << "-I- PndPidTrackInfo::GetTrackInfo :: No backpropagation, using first track parameters:" 
+                << fRes->GetX() << ", " << fRes->GetY() << ", " << fRes->GetZ() << std::endl;
     }
   startpos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ()); //cm
   momentum = fRes->GetMomentum();

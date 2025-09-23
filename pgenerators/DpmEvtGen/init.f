@@ -1,6 +1,6 @@
 
 C-----------------A. Galoyan last edition 2 March 2012 -----
-       SUBROUTINE INIT1(Plab, seed, Elastic, tetmin)
+       SUBROUTINE INIT1(Plab, seed, Elastic, tetmin, tetmax)
       implicit real*8 (a-h,o-z)
       implicit integer (i-n)
 
@@ -28,7 +28,7 @@ C-----------------------------------------------------------------------
       double precision seed
       
 C-----------------------------------------------------------------------
-c aida        print*, plab, seed, Elastic, tetmin
+        print*, plab, seed, Elastic, tetmin, tetmax    ! aida
 
       Elab=sqrt(0.88+Plab**2)
       Etot=Elab+0.938
@@ -41,6 +41,8 @@ c aida        print*, plab, seed, Elastic, tetmin
       Gamma=(Elab+0.938)/SqrtS
 c      write(6,*)'" ',Plab,SqrtS,'Plab,SqrtS'
 c      write(6,*)'" ',Ecms,Pcms ,'Ecms,Pcms '
+      print *,'" ',Plab,SqrtS,'Plab,SqrtS'       ! aida
+      print *,'" ',Ecms,Pcms ,'Ecms,Pcms '       ! aida
 c-----------------------------------------------------------------------
 
       call RNDMSET1(seed)
@@ -136,7 +138,6 @@ C
 C
  280  CONTINUE
 C
-
       CALL TOPITH(0) !*******************************
 C-----------------------------------------------------------------
 C    IF IT IS NEEDED TO POINT OUT THE OTHER STABLE
@@ -151,7 +152,8 @@ ccc aida
 c       IDSTAB(31)=1  ! eta
 c       IDSTAB(35)=1  ! omega
 c        IDSTAB(95)=1  !eta'  
-       CALL DATAR3
+
+       CALL DATAR33              ! Aida 8 April 2021
 C
 C==============================================================
 C         FOR SIMULATION OF PARTICLE DECAYS WE PUT
@@ -223,21 +225,45 @@ C-------------------------------------------------------------
       If(Elastic .gt. 0.) then
  
       Tetmin=tetmin*3.1416/180.
+      Tetmax=tetmax*3.1416/180.
+      print *, Tetmin, Tetmax
       Tantet2=(sin(Tetmin)/cos(Tetmin))**2       !9.06.09
       Plmin=2*0.938*Plab/(2*0.938+Etot*Tantet2)  !9.06.09      
       Ptmin=Plmin*sin(Tetmin)/cos(Tetmin)
       
       sqmin=Plmin**2+Ptmin**2+0.938**2
-      Tmin=2*(Plmin*Plab+0.938**2-Elab*sqrt(sqmin))
+c      Tmin=2*(Plmin*Plab+0.938**2-Elab*sqrt(sqmin))
 
-      Tmax=-4.*Pcms**2
-      tsito=2.*(plab**2)*(1.-cos(tetmin))     !T by Tsito formul
-      bbb=(Plab*sin(Tetmin))**2               !T by approx formul
-caida  bbbmax=(Plab*sin(0.0082))**2              !11.06.09 dlya lumi
+c      tsito=2.*(plab**2)*(1.-cos(tetmin))     !T by Tsito formul
+c      bbb=(Plab*sin(Tetmin))**2               !T by approx formul
+caida      bbbmax=(Plab*sin(0.0082))**2              !11.06.09 dlya lumi
+c      bbbmax=(Plab*sin(Tetmax))**2              
 
-      Tmin=-bbb
-caida  Tmax=-bbbmax
+c      Tmin=-bbb
+c      Tmax=-bbbmax
+      Tmax_tmp=-4.*Pcms**2
+c      Tmax=-4.*Pcms**2
 
+      denominator=Plab*cos(Tetmin)-Vcms*Elab
+      signum=-1.
+      if(0 .gt. denominator) then
+        signum=1.
+      endif
+      tmp=Plab*sin(Tetmin)/(Gamma*denominator)
+      Tmin=-2.*Pcms**2*(1.+signum/sqrt(1.+tmp*tmp))
+
+      denominatormax=Plab*cos(Tetmax)-Vcms*Elab
+      signummax=-1.
+      if(0 .gt. denominatormax) then
+        signummax=1.
+      endif
+      tmpmax=Plab*sin(Tetmax)/(Gamma*denominatormax)
+      Tmax=-2.*Pcms**2*(1.+signummax/sqrt(1.+tmpmax**2))
+      print *, 'Tmin', Tmin, 'Tmax', Tmax, 'Tmax_tmp', Tmax_tmp
+
+      if(abs(Tmax) .gt. abs(Tmax_tmp)) then
+        Tmax=Tmax_tmp
+      endif
 
        Weight1=A3*T2*(exp(Tmin/T2)-exp(Tmax/T2))/(
      & A1*T1*(exp(Tmin/T1)-exp(Tmax/T1))+
@@ -260,7 +286,7 @@ caida       print *, 'sigma_tot',sigma_tot,' B',parB,' ro',rho;
        Ndiv=500000
       dto=(Tmax-Tmin)/float(Ndiv)
        SIG_COL=0.
-caida       print *, 'Tmin=', Tmin, 'Tmax=', Tmax
+       print *, 'Tmin=', Tmin, 'Tmax=', Tmax
       do i=1,Ndiv
        T11=Tmin+(i-1)*dto
        T22=T11+dto
@@ -284,13 +310,13 @@ c       print*, 'dt=', dt
        SIG_IEXACT=SIG_IEXACT+abs(dt)*(1./3.*DSIG_INT_Ex(T11)+
      & 4./3.*DSIG_INT_Ex(T11+dt)+1./3.*DSIG_INT_Ex(T22))     
       enddo
-caida  PRINT *,'sig_inter',sig_inter, 'sig_iexact', sig_iexact
+      PRINT *,'sig_inter',sig_inter, 'sig_iexact', sig_iexact
 !  numerical calculation of SIG_had using form.(1)
       sig_had=dsig_had(0.d0)/parB-dsig_had(Tmax)/parB
       PRINT *,'sig_had_el', sig_had
 !     calculation of sigma_hadron using our parametrization
       sig_had_p=SIG_HADi(Tmin)-SIG_HADi(Tmax)
-caida      PRINT *,'sig_had_p',sig_had_p
+      PRINT *,'sig_had_p',sig_had_p
     
 !       sig_col=0              ! kulon ==0
 !        sig_inter=0             ! inter ==0 
@@ -301,8 +327,8 @@ caida      PRINT *,'sig_had_p',sig_had_p
       SIG_NORM=SIG_COL+SIG_IEXACT+SIG_HAD_p      
 
 caida      print*, 'Xtotal', Xtotal, ' Xelast, hadronic part', Xelast
-caida      PRINT *,'sigma_tot', sigma_tot, 'sig_mag', SIG_MAG
-caida      PRINT *,'sig_iexact ',sig_iexact,'SIGMA_norm ',sig_norm
+      PRINT *,'sigma_tot', sigma_tot, 'sig_mag', SIG_MAG
+      PRINT *,'sig_iexact ',sig_iexact,'SIGMA_norm ',sig_norm
 
 !calculation of probability hadron, colomb, interf- elastic
       prob_col=1./sig_mag * sig_col   
@@ -354,7 +380,7 @@ c ---------------------------- Determination of processes prababilities
       RETURN
       END
 
-      SUBROUTINE DATAR3
+      SUBROUTINE DATAR33           ! Aida 8 April 2021
       implicit real*8 (a-h,o-z)
       implicit integer (i-n)
 

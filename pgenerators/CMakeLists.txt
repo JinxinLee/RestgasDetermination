@@ -2,6 +2,7 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
+add_subdirectory (Target)
 add_subdirectory (DpmEvtGen)
 add_subdirectory (FtfEvtGen)
 add_subdirectory (Direct)
@@ -21,6 +22,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators
+  ${CMAKE_SOURCE_DIR}/pgenerators/Target
   ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
   ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
   ${CMAKE_SOURCE_DIR}/pgenerators/GiBuuReader
@@ -81,7 +83,7 @@ eventFilter/PndSmpCand.cxx
 set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
-set(DEPENDENCIES Base pythia8 EG EGPythia6)
+set(DEPENDENCIES Base pythia8 EG EGPythia6 PGenTarget)
 
 GENERATE_LIBRARY()
 

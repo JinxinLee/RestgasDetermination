@@ -17,6 +17,7 @@
 #ifndef PND_FTFDIRECT_H
 #define PND_FTFDIRECT_H
 
+#include "PndTargetGenerator.h"
 #include "FairGenerator.h"
 #include "TF1.h"
 
@@ -56,7 +57,7 @@ class G4Material;
 class TVirtualMCStack;
 class FairPrimaryGenerator;
 
-class PndFtfDirect : public FairGenerator
+class PndFtfDirect : public PndTargetGenerator
 {
 
 public:

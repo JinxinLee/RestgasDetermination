@@ -15,6 +15,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators/Direct
+  ${CMAKE_SOURCE_DIR}/pgenerators/Target
   ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
   ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter

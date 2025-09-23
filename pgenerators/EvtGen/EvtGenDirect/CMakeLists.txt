@@ -12,6 +12,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
+  ${CMAKE_SOURCE_DIR}/pgenerators/Target
 )
 
 if(EVTGEN_EXTERNAL)
@@ -38,7 +39,7 @@ set(SRCS
 set(LINKDEF  EvtGenDirectLinkDef.h)
 set(LIBRARY_NAME EvtGenDirect)
 
-set(DEPENDENCIES Base EvtGen EvtGenExternal)
+set(DEPENDENCIES Base EvtGen EvtGenExternal PGenTarget)
 
 GENERATE_LIBRARY()
 

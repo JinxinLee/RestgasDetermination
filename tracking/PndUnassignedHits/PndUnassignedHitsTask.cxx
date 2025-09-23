@@ -47,6 +47,14 @@ void PndUnassignedHitsTask::Exec(Option_t *opt)
 //    std::cout << "PndUnassignedHitsTask::Exec TrackCands filled!" << std::endl;
     for(auto branch : fHitBranches){
 //        std::cout << "PndUnassignedHitsTask::Exec Fill unassigned hits: " << branch.first << std::endl;
+        TString unassignedName = branch.first;
+        unassignedName += fUnassignedBranchExtension;
+
+        if (fUnassignedHitBranches[unassignedName] == nullptr) {
+          LOG(error) << "-E- PndUnassignedHitsTask::Exec() Branch does not exist: " << unassignedName;
+        }
+
+        fUnassignedHitBranches[unassignedName]->Delete();
         FillUnassignedHits(branch.first);
     }
 }
@@ -80,9 +88,10 @@ void PndUnassignedHitsTask::RegisterBranches()
     for (auto branch : fHitBranches) {
         branch.second = (TClonesArray*)ioman->GetObject(branch.first);
         TString unassignedName = branch.first;
-        unassignedName += "Unassigned";
+        //unassignedName += "Unassigned";
+        unassignedName += fUnassignedBranchExtension;
         fHitBranches[branch.first] = branch.second;
-        std::cout << "PndUnassignedHitsTask::RegisterBranches " << branch.first << " " << branch.second << std::endl;
+        std::cout << "PndUnassignedHitsTask::RegisterBranches " << branch.first << " " << fUnassignedBranchExtension << std::endl;
         fUnassignedHitBranches[unassignedName] = ioman->Register(unassignedName, branch.second->GetClass()->GetName(), "UnassignedHits", GetPersistency());
     }
 
@@ -126,13 +135,13 @@ void PndUnassignedHitsTask::FillUnassignedHits(TString branchName){
         FillOutputBranch(branchName, unusedHits);
     }
 
-    std::cout << "Size of UnassignedBranch: " << fUnassignedHitBranches[branchName += "Unassigned"]->GetEntries() << std::endl;
+    std::cout << "Size of UnassignedBranch: " << fUnassignedHitBranches[branchName += fUnassignedBranchExtension]->GetEntries() << std::endl;
 }
 
 void PndUnassignedHitsTask::FillOutputBranch(TString branchName, std::vector<int> unusedHits){
 //    std::cout << "FillOutputBranch: " << branchName << std::endl;
     TString outputBranchName = branchName;
-    outputBranchName += "Unassigned";
+    outputBranchName += fUnassignedBranchExtension;
     TClonesArray* outputArray = fUnassignedHitBranches[outputBranchName];
     std::cout << "OutputArray: " << outputArray << std::endl;
     std::cout << "HitBranch size: " << fHitBranches[branchName]->GetEntries() << std::endl;

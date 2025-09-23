@@ -27,13 +27,13 @@ extern "C" struct {
 // k[] - Pythia particle identifiers
 // p[] - kinematical characteristics of particles
 
-extern "C" int init1_(double* Plab, double* seed, double* Elastic, double* tetmin);   // to install DPM generator
+extern "C" int init1_(double* Plab, double* seed, double* Elastic, double* tetmin, double* tetmax);   // to install DPM generator
 extern "C" int dpm_gen_(double* Generator, double* seed);  //to generate events
 extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
  
  int main()
 {
- double Plab, Elastic, tetmin;          // Plab - PBAP momentum in Lab.Sys. 
+ double Plab, Elastic, tetmin, tetmax;          // Plab - PBAP momentum in Lab.Sys. 
  double seed;
  int ntot, Ieven, npart, i;	
  double Px[1000],Py[1000],Pz[1000],E[1000]; //,Pm[1000],Wh[1000]; //[R.K. 01/2017] unused variables
@@ -63,7 +63,7 @@ extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
  std::cout<<" Give as seed a large float number (eg. 123456.): ";
  std::cin>>seed;
  if (!seed){  // if the seed is 0 then take the time
-   Long_t Time = time(NULL);
+   Long_t Time = time(nullptr);
    int a = Time/100000;
    seed = Time - a*100000 + a/100000.;
  }
@@ -80,9 +80,11 @@ extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
  {  
     std::cout << " Teta_min (degree) ";   
     std::cin >> tetmin;    
+    std::cout << " Teta_max (degree) ";
+    std::cin >> tetmax;
   }
  else  {tetmin=0;}
- init1_(&Plab,&seed,&Elastic, &tetmin);  // installation of the DPM generator  
+ init1_(&Plab,&seed,&Elastic, &tetmin, &tetmax);  // installation of the DPM generator  
  
   int iPDG=0, iStatus=0;
  if((Elastic==0.) || (Elastic==1.))

@@ -40,6 +40,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/detectors/ftof
   ${CMAKE_SOURCE_DIR}/detectors/rich
   ${CMAKE_SOURCE_DIR}/pgenerators
+  ${CMAKE_SOURCE_DIR}/pgenerators/Target
   ${CMAKE_SOURCE_DIR}/pgenerators/Direct
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00/

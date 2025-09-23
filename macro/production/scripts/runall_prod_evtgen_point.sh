@@ -1,0 +1,44 @@
+#!/bin/bash
+. /lustre/panda/jili/oct19/build/config.sh -p
+
+prefix=9999
+nEvts=1000
+dec="pp_dd"
+mom=8.9
+
+sig=1
+
+if [ $# -lt 4 ]; then
+  echo -e "\nPerforms simulation of EvtGen/DPM/FTF/BOX events.\n"
+  echo -e "USAGE: ./runall_prod.sh <prefix> <nevts> <gen> <pbeam>\n"
+  echo -e " <prefix>  : Prefix of output files"
+  echo -e " <nevts>   : Number of events to be simulated"
+  echo -e " <gen>     : Name of EvtGen decay file 'xxx.dec:iniRes'. Keyword 'DPM/FTF/BOX' instead runs other generator"
+  echo -e " <pbeam>   : Momentum of pbar-beam.\n"
+  echo -e "Creates output files: <prefix>_sim.root, <prefix>_par.root, <prefix>_pid.root"
+  echo -e "and corresponding log files.\n"
+  exit 1
+fi
+
+if test "$1" != ""; then
+  prefix=$1
+fi
+
+if test "$2" != ""; then
+  nEvts=$2
+fi
+
+if test "$3" != ""; then
+  dec=$3
+fi
+
+if test "$4" != ""; then
+  mom=$4
+fi
+
+outprefix="data/pp_dd/"$prefix"_"$SLURM_ARRAY_TASK_ID
+
+root -l -q -b prod_sim_evtgen_point.C\(\"$outprefix\",$nEvts,\"$dec\",$mom\) &> $outprefix"_sim.log" 
+NUMEV=`grep 'Generated Events' $outprefix"_sim.log"`
+root -l -b -q prod_aod_hvmaps.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
+echo $NUMEV >> $outprefix"_pid.log"

@@ -1,0 +1,18 @@
+noPhotos
+
+Alias   MyD+    D+                                                                                                                                                                                            
+Alias   MyD-    D-
+
+Decay pbarpSystem
+  1.0  MyD+  MyD-     PHSP;
+Enddecay
+
+Decay MyD+
+  1.0   K-  pi+  pi+     D_DALITZ;
+Enddecay
+
+Decay MyD-
+  1.0   K+  pi-  pi-     D_DALITZ;
+Enddecay
+
+End

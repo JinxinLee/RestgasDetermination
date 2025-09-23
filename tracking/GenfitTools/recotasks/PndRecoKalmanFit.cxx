@@ -29,6 +29,7 @@
 #include "FairRootManager.h"
 #include "FairRuntimeDb.h"
 #include "FairRunAna.h"
+#include "FairLogger.h"
 #include "TClonesArray.h"
 
 #include "GFTrack.h"
@@ -208,6 +209,19 @@ PndRecoKalmanFit::~PndRecoKalmanFit() {
 
 PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
 {
+
+/*  // Add check for incoming track parameters
+  FairTrackParP params = tBefore->GetParamFirst();
+  if (!std::isfinite(params.GetX()) || !std::isfinite(params.GetY()) || !std::isfinite(params.GetZ()) ||
+      !std::isfinite(params.GetPx()) || !std::isfinite(params.GetPy()) || !std::isfinite(params.GetPz())) {
+    LOG(ERROR) << "PndRecoKalmanFit::Fit: Input track has invalid parameters (NaN or Inf). Aborting fit." << FairLogger::endl;
+    LOG(ERROR) << "Position: (" << params.GetX() << ", " << params.GetY() << ", " << params.GetZ()  
+               << "), Momentum: (" << params.GetPx() << ", " << params.GetPy() << ", " << params.GetPz() << ")" << FairLogger::endl;
+    PndTrack* tAfter = tBefore;
+    tAfter->SetFlag(-11); // flag -11: invalid input parameters
+    return tAfter;
+  }
+*/
   PndTrack* tAfter = NULL;
   if (fVerbose>0) std::cout<<"PndRecoKalmanFit::Fit"<<std::endl;
   if (fabs(tBefore->GetParamFirst().GetPz())<1e-9) 
@@ -235,8 +249,16 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
       FairGeanePro fPro0;
       if (fVerbose==0) fPro0.SetPrintErrors(kFALSE);
       FairTrackParH fRes;
-      fPro0.SetPoint(TVector3(0,0,0));
+      fPro0.SetPoint(TVector3(0.5,0.5,5.0));
       fPro0.PropagateToPCA(1, -1);
+
+      LOG(INFO) << "back propagation to IP: 0.5, 0.5, 5.0" << FairLogger::endl;
+
+      // Add diagnostic printout before propagation
+      LOG(INFO) << "PndRecoKalmanFit: Before propagation to PCA - Position: ("
+                << helix.GetX() << ", " << helix.GetY() << ", " << helix.GetZ() << "), Momentum: ("
+                << helix.GetPx() << ", " << helix.GetPy() << ", " << helix.GetPz() << ")" << FairLogger::endl;
+
       Bool_t rc =  fPro0.Propagate(&helix, &fRes, PDGCode);
       if (rc)
         {
@@ -256,6 +278,12 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
       if (fVerbose==0) fPro0.SetPrintErrors(kFALSE);
       FairTrackParH fRes;
       fPro0.PropagateToLength(-fPropagateDistance);
+
+      // Add diagnostic printout before propagation
+      LOG(INFO) << "PndRecoKalmanFit: Before propagation to PCA - Position: ("
+                << helix.GetX() << ", " << helix.GetY() << ", " << helix.GetZ() << "), Momentum: ("
+                << helix.GetPx() << ", " << helix.GetPy() << ", " << helix.GetPz() << ")" << FairLogger::endl;
+
       Bool_t rc =  fPro0.Propagate(&helix, &fRes, PDGCode);
       if (rc)
         {

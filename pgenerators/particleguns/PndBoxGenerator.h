@@ -17,12 +17,13 @@
 #ifndef PND_BOXGENERATOR_H
 #define PND_BOXGENERATOR_H
 
+#include "PndTargetGenerator.h"
 #include "FairGenerator.h"
 #include <iostream>
 
 class FairPrimaryGenerator;
 
-class PndBoxGenerator : public FairGenerator
+class PndBoxGenerator : public PndTargetGenerator
 {
 public:
 

@@ -44,6 +44,7 @@ class PndPidCorrelator : public FairTask {
 protected:
 
   TClonesArray* fMcTrack;           //! PndMCTrack TCA
+  TClonesArray* fMcTrackPro;        //! PndMCTrack TCA for propagation
   TClonesArray* fTrack;             //! PndTrack TCA
   TClonesArray* fTrackID;           //! PndTrackID TCA
   TClonesArray* fTrack2;            //! 2nd PndTrack TCA
@@ -136,6 +137,7 @@ protected:
   TNtuple *drcCorr;                  // Debug ntuple for drc correlation
   TNtuple *dskCorr;                  // Debug ntuple for dsk correlation
   TNtuple *richCorr;                 // Debug ntuple for rich correlation
+  Bool_t fUseMcTruthForTarget;      // Use MC vertex for propagation
 
   TString sDir;                      // Ntuple output directory
   TString sFile;                     // Ntuple output file

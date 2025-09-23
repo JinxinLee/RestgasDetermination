@@ -50,6 +50,7 @@
 #include "MeasurementFactory.h"
 #include "DAF.h"
 #include "Exception.h"
+#include "FitStatus.h"
 #include "TLorentzVector.h"
 
 #include "FairTrackParH.h"
@@ -67,7 +68,7 @@
 
 PndRecoDafFit2::PndRecoDafFit2(): TNamed("Genfit", "Fit Tracks"),
                                       fMvdBranchName(""), fCentralTrackerBranchName(""),
-                                      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPerpPlane(kFALSE), fNumIt(1), fVerbose(0)
+                                      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPerpPlane(kFALSE), fNumIt(1), fVerbose(1)
 {
   PndGeoHandling::Instance();
 }
@@ -219,8 +220,11 @@ PndTrack* PndRecoDafFit2::Fit(PndTrack *tBefore, Int_t PDG)
       FairTrackParH *helix = new FairTrackParH(&par, ierr);
       FairGeanePro *fPro0 = new FairGeanePro();
       FairTrackParH *fRes= new FairTrackParH();
-      fPro0->SetPoint(TVector3(0,0,0));
+      fPro0->SetPoint(TVector3(0.5,0.5,5.0));
       fPro0->PropagateToPCA(1, -1);
+
+      std::cout << "PndRecoDafFit2: Propagating to PCA" << std::endl;
+
       Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
       if (rc)
         {
@@ -279,9 +283,45 @@ PndTrack* PndRecoDafFit2::Fit(PndTrack *tBefore, Int_t PDG)
   genfit::AbsTrackRep *rep = new genfit::RKTrackRep(PDGCode);
   // PndTrackCand does not store seed, then PndTrackCand2Genfit2TrackCand cannot convert the seed.
   // You need to set the seed afterwards, taking it from PndTrack (setCovSeed/setPosMomSeedAndPdgCode)
-  genfit::TrackCand* gfCand = PndTrackCand2Genfit2TrackCand(&trackCand);
-  gfCand->setCovSeed(covSeed);
-  genfit::Track* trk= new genfit::Track(*gfCand, *fTheRecoHitFactory, rep);
+  genfit::Track* trk = NULL;
+  try {
+    genfit::TrackCand* gfCand = PndTrackCand2Genfit2TrackCand(&trackCand);
+    gfCand->setCovSeed(covSeed);
+    trk = new genfit::Track(*gfCand, *fTheRecoHitFactory, rep);
+    delete gfCand;
+  } catch (genfit::Exception& e) {
+    std::cout << "*** PndRecoDafFit2::Fit" << "\t" << "Track Creation/Conversion EXCEPTION ***" << std::endl;
+    std::cout << e.what() << std::endl;
+    if (rep) delete rep;
+    tAfter = tBefore;
+    tAfter->SetFlag(-5); // flag -5: track creation failed
+    return tAfter;
+  }
+
+    // 1. Define the known interaction point
+  TVectorD hitPos(3);
+  hitPos(0) = 0.5;
+  hitPos(1) = 0.5;
+  hitPos(2) = 5.0;
+
+  // 2. Define the high-precision covariance matrix (very small errors)
+  TMatrixDSym hitCov(3);
+  hitCov.UnitMatrix();
+  hitCov *= 1e-6; // Small error (e.g., 1 micron squared)
+
+  // 3. Create the spacepoint measurement using the correct constructor
+  genfit::SpacepointMeasurement* vertexMeasurement = new genfit::SpacepointMeasurement(hitPos, hitCov, -1, -1, nullptr);
+
+  std::cout << "PndRecoKalmanFit2: Adding virtual vertex hit with high precision:" << std::endl;
+  vertexMeasurement->Print();
+  // 4. Add the vertex measurement to the track as the first point
+  try {
+    trk->insertMeasurement(vertexMeasurement, 0);
+  } catch (genfit::Exception& e) {
+    std::cerr << "Could not insert vertex measurement: " << e.what() << std::endl;
+    delete vertexMeasurement;
+  }
+  // --- ** End of new code ** ---
   
 
   // Start Fitter
@@ -293,7 +333,20 @@ PndTrack* PndRecoDafFit2::Fit(PndTrack *tBefore, Int_t PDG)
     {
       std::cout<<"*** PndRecoDafFit2::Fit" << "\t" << "FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
+      delete trk;
+      tAfter = tBefore;
+      tAfter->SetFlag(-3); // flag -3: fitter exception
+      return tAfter;
     }
+
+  // Check if the fit was successful before converting
+  if (!trk->getFitStatus()->isFitConverged()) {
+      if (fVerbose > 0) std::cout << "*** PndRecoDafFit2::Fit" << "\t" << "FIT DID NOT CONVERGE! ***" << std::endl;
+      delete trk; // clean up
+      tAfter = tBefore;
+      tAfter->SetFlag(-4); // flag -4: fit did not converge
+      return tAfter;
+  }
 
   if (fVerbose>0) std::cout<<"** PndRecoDafFit2::Fit" << "\t" << "SUCCESSFULL FIT!"<<std::endl;
   
@@ -305,9 +358,13 @@ PndTrack* PndRecoDafFit2::Fit(PndTrack *tBefore, Int_t PDG)
     {
       std::cout<<"*** PndRecoDafFit2::Fit" << "\t" << "CONVERSION EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
+      delete trk; // clean up before returning
       tAfter = tBefore;
       tAfter->SetFlag(-2); // flag -2: conversion failed
+      return tAfter;
     } 
+
+  delete trk;
 
   if (fVerbose>0) std::cout<<"*** PndRecoDafFit2::Fit" << "\t" << "Fitting done"<<std::endl;
 

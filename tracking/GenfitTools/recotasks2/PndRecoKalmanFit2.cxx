@@ -212,6 +212,18 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG) {
   PndTrack* tAfter = NULL;
   if (fVerbose > 0)
     std::cout << "PndRecoKalmanFit2::Fit" << std::endl;
+
+  // Check if the track candidate has any hits. If not, skip the fit.
+  if (tBefore->GetTrackCand().GetNHits() == 0) {
+    if (fVerbose > 0) {
+      std::cout << "*** PndRecoKalmanFit2::Fit" << "\t"
+                << "Track has no hits. Skipping fit. ***" << std::endl;
+    }
+    tAfter = tBefore;
+    tAfter->SetFlag(-3); // Use flag -3 to denote no hits
+    return tAfter;
+  }
+
   if (fabs(tBefore->GetParamFirst().GetPz()) < 1e-9) {
     tAfter = tBefore;
     tAfter->SetFlag(-10);
@@ -253,8 +265,9 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG) {
   if (fPropagateToIP) {
     // Calculating params at PCA to Origin
 
-    fPro0.SetPoint(TVector3(0, 0, 0));
+    fPro0.SetPoint(TVector3(0., 0., 10.));
     fPro0.PropagateToPCA(1, -1);
+    std::cout << "back propagation to IP: 0, 0, 10" << std::endl;
     Bool_t rc = fPro0.Propagate(&helix, &fRes, PDGCode);
     if (rc) {
       StartPos.SetXYZ(fRes.GetX(), fRes.GetY(), fRes.GetZ());
@@ -267,6 +280,9 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG) {
       covSeed(3, 3) = fRes.GetDPx() * fRes.GetDPx();
       covSeed(4, 4) = fRes.GetDPy() * fRes.GetDPy();
       covSeed(5, 5) = fRes.GetDPz() * fRes.GetDPz();
+
+      std::cout << "propagation successful to" << StartPos.X() << " " << StartPos.Y()
+                << " " << StartPos.Z() << std::endl;  
     }
   } else if (fPropagateDistance > 0.f) {
     // Calculating params at fPropagateDistance cm before the first hit
@@ -294,6 +310,9 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG) {
       covSeed(3, 3) = fRes.GetDPx() * fRes.GetDPx();
       covSeed(4, 4) = fRes.GetDPy() * fRes.GetDPy();
       covSeed(5, 5) = fRes.GetDPz() * fRes.GetDPz();
+
+      std::cout << "propagation successful to: " << fPropagateDistance << " before the first hit at" << std::endl
+                << " " << StartPos.X() << " " << StartPos.Y() << " " << StartPos.Z() << std::endl;
     }
   }
 
@@ -324,6 +343,31 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG) {
 
   genfit::Track* trk = new genfit::Track(*gfCand, *fTheRecoHitFactory, rep);
   delete (gfCand);
+
+  //   // 1. Define the known interaction point
+  // TVectorD hitPos(3);
+  // hitPos(0) = 0.;
+  // hitPos(1) = 0.;
+  // hitPos(2) = 5.0;
+
+  // // 2. Define the high-precision covariance matrix (very small errors)
+  // TMatrixDSym hitCov(3);
+  // hitCov.UnitMatrix();
+  // hitCov *= 1e-6; // Small error (e.g., 1 micron squared)
+
+  // // 3. Create the spacepoint measurement using the correct constructor
+  // genfit::SpacepointMeasurement* vertexMeasurement = new genfit::SpacepointMeasurement(hitPos, hitCov, -1, -1, nullptr);
+
+  // std::cout << "PndRecoKalmanFit2: Adding virtual vertex hit with high precision:" << std::endl;
+  // vertexMeasurement->Print();
+  // // 4. Add the vertex measurement to the track as the first point
+  // try {
+  //   trk->insertMeasurement(vertexMeasurement, 0);
+  // } catch (genfit::Exception& e) {
+  //   std::cerr << "Could not insert vertex measurement: " << e.what() << std::endl;
+  //   delete vertexMeasurement;
+  // }
+  // // --- ** End of new code ** ---
 
   // Start Fitter
   try {

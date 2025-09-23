@@ -85,6 +85,8 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
       fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask2()); // 2
       recoKalman->SetTrackInBranchName(brltrkname);
       recoKalman->SetTrackOutBranchName(brltrkgenname);
+      //recoKalman->SetDaf(kTRUE);
+      //recoKalman->SetPropagateToIP(kTRUE);
       recoKalman->SetPropagateToIP(kFALSE);
       //recoKalman->SetIdealHyp(kTRUE);
     } else {
@@ -92,6 +94,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
       fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask()); // 2
       recoKalman->SetTrackInBranchName(brltrkname);
       recoKalman->SetTrackOutBranchName(brltrkgenname);
+      //recoKalman->SetPropagateToIP(kTRUE);
       recoKalman->SetPropagateToIP(kFALSE);
       //recoKalman->SetIdealHyp(kTRUE);
       //recoKalman->SetNumIterations(3);
@@ -114,6 +117,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
       recoKalman->SetTrackOutBranchName(brltrkgenname);
       recoKalman->SetBusyCut(50); // CHECK to be tuned
       recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
+      //recoKalman->SetPropagateToIP(kTRUE);
       recoKalman->SetPropagateToIP(kFALSE);
       //recoKalman->SetNumIterations(3);
     }
@@ -170,6 +174,8 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
       fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask2("FwdKalman")); // 2
       recoKalman->SetTrackInBranchName(ftstrkname);
       recoKalman->SetTrackOutBranchName(ftstrkgenname);
+      //recoKalman->SetPropagateToIP(kTRUE);
+      //recoKalman->SetDaf(kTRUE);
       recoKalman->SetPropagateToIP(kFALSE);
       //recoKalman->SetIdealHyp(kTRUE);
     } else {
@@ -177,6 +183,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
       fBranchTasks.push_back(recoKalman = new PndRecoKalmanTask("FwdKalman"));
       recoKalman->SetTrackInBranchName(ftstrkname);
       recoKalman->SetTrackOutBranchName(ftstrkgenname);
+      //recoKalman->SetPropagateToIP(kTRUE);
       recoKalman->SetPropagateToIP(kFALSE);
       //recoKalman->SetIdealHyp(kTRUE);
     }
@@ -194,6 +201,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
       recoKalman->SetFitHypotheses(fOptions+";FWD");
       recoKalman->SetTrackInBranchName(ftstrkname);
       recoKalman->SetTrackOutBranchName(ftstrkgenname);
+      //recoKalman->SetPropagateToIP(kTRUE);
       recoKalman->SetPropagateToIP(kFALSE);
     }
   }

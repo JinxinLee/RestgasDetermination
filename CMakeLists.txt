@@ -6,7 +6,13 @@
 # and PANDAROOT.
 
 # Check if cmake has the required version
-CMAKE_MINIMUM_REQUIRED(VERSION  2.8.2 FATAL_ERROR)
+#CMAKE_MINIMUM_REQUIRED(VERSION  2.8.2 FATAL_ERROR)
+
+if(${CMAKE_VERSION} VERSION_LESS "3.16.1")
+    message("We need at least CMake version 3.16.1. Please try using $SIMAPTH/bin/cmake")
+endif()
+CMAKE_MINIMUM_REQUIRED(VERSION 3.13.4 FATAL_ERROR)
+
 
 ### CMP0025   Compiler id for Apple Clang is now AppleClang.
 ### CMP0042   MACOSX_RPATH is enabled by default.
@@ -80,7 +86,7 @@ include(CTest)
 include(CheckCompiler)
 include(CheckFortran)
 
-
+set(CMAKE_CXX_STANDARD 14)
 Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wall -Wextra -Wnon-virtual-dtor")
 
 #Check the compiler and set the compile and link flags
@@ -390,11 +396,11 @@ IF(HAS_CXX11_SHAREDPOINTER)
   Add_Definitions(-DHAS_SHAREDPOINTER)
 ENDIF(HAS_CXX11_SHAREDPOINTER)
 
-string(FIND " ${CMAKE_CXX_FLAGS} " "-std=c++11" POS_C++11)
-  if(POS_C++11)
-    Message(STATUS "C++11 support found.")
+string(FIND " ${CMAKE_CXX_FLAGS} " "-std=c++14" POS_C++14)
+  if(POS_C++14)
+    Message(STATUS "C++14 support found.")
   else()
-    Message(STATUS "C++11 not supported.")
+    Message(STATUS "C++14 not supported.")
   endif()
 
 #Test if FairMultiLinkData has the old (2015) version
@@ -481,6 +487,11 @@ add_subdirectory (tracking/riemannfit)
 add_subdirectory (tracking/HelixPropagator)
 add_subdirectory (tracking/PndPatternMatcher)
 add_subdirectory (tracking/PndUnassignedHits)
+add_subdirectory (tracking/PndHoughTrackFinder)
+add_subdirectory (tracking/PndApolloniusTripletTrackFinder)
+add_subdirectory (tracking/PzFinder)
+add_subdirectory (tracking/SttCA)
+add_subdirectory (tracking/PndPreselectSttHits)
 #add_subdirectory(tracking/online/CircleHough)
 
 add_subdirectory (analysis/rho)

@@ -190,6 +190,15 @@ void PndRecoKalmanTask::Exec(Option_t*) {
     Int_t size = trkRef.GetEntriesFast();
 
     PndTrack *prefitTrack = (PndTrack*) fTrackArray->At(itr);
+
+  /*  // --- Add check for invalid parameters in the input track ---
+    FairTrackParP params = prefitTrack->GetParamFirst();
+    if (!std::isfinite(params.GetX()) || !std::isfinite(params.GetY()) || !std::isfinite(params.GetZ()) ||
+        !std::isfinite(params.GetPx()) || !std::isfinite(params.GetPy()) || !std::isfinite(params.GetPz())) {
+      std::cout << "-E- PndRecoKalmanTask::Exec: Input track #" << itr << " from branch '" << fTrackInBranchName << "' has invalid parameters (NaN or Inf)." << std::endl;
+    }
+    // --- End of check ---
+  */
     Int_t fCharge = prefitTrack->GetParamFirst().GetQ();
     Int_t PDGCode = 0;
     if (fIdealHyp) {
@@ -252,13 +261,27 @@ void PndRecoKalmanTask::Exec(Option_t*) {
           << std::endl;
     }
 
+  /*  // --- Final fix: Check for fit failure and handle memory correctly ---
+    bool fit_failed = (fitTrack->GetFlag() < 0);
+    bool is_new_track = (fitTrack != prefitTrack);
+
+    if (fit_failed) {
+      if (is_new_track) {
+        delete fitTrack; // Delete only if it's a newly created track
+      }
+      continue; // Skip failed fits entirely
+    }
+    // --- End of fix ---
+  */
+
     new (trkRef[size]) PndTrack(
       fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
       fitTrack->GetTrackCand(), fitTrack->GetFlag(),
       fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(),
       itr,
       FairRootManager::Instance()->GetBranchId(fTrackInBranchName)); //PndTrack* pndTrack =  //[R.K.03/2017] unused variable
-    delete (fitTrack);
+      delete fitTrack; // Delete only if it's a newly created track
+    
   }
 
   if (fVerbose > 0)

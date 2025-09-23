@@ -10,7 +10,9 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pndbase
   ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/pnddata/SttData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/detectors/stt
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/tracking/PndTrackingTools
 )
@@ -21,6 +23,7 @@ Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
+${SIMPATH}/lib
 )
 
 link_directories( ${LINK_DIRECTORIES})
@@ -28,11 +31,13 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 PndMissingPzCleanerTask.cxx
 PndTrackSmearTask.cxx
+PndTrackEvaluatorDetI.cxx
+PndTrackEvaluatorDetStt.cxx
 )
 
 set(LINKDEF  PndTrackingToolsLinkDef.h)
 set(LIBRARY_NAME TrackingTools)
 
-set(DEPENDENCIES Base ParBase PndData)
+set(DEPENDENCIES Base MathCore ParBase PndData FairTools Stt)
 
 GENERATE_LIBRARY()

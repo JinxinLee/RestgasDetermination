@@ -1,3 +1,15 @@
+//****************************************************************************
+//*                   This file is part of PandaRoot.                        *
+//*                                                                          *
+//*            PandaRoot is distributed under the terms of the               *
+//*              GNU General Public License (GPL) version 3,                 *
+//*                 copied verbatim in the file "LICENSE".                   *
+//*                                                                          *
+//*  Copyright (C) 2006 - 2024 FAIR GmbH and copyright holders of PandaRoot  *
+//*     The copyright holders are listed in the file "COPYRIGHTHOLDERS".     *
+//*               The authors are listed in the file "AUTHORS".              *
+//****************************************************************************
+
 // -------------------------------------------------------------------------
 // -----                 PndEvtGenDirect header file                  -----
 // -----               Created 11/04/08  by M.Al-Turany              -----
@@ -14,7 +26,7 @@
 #ifndef PND_EVTDIRECT_H
 #define PND_EVTDIRECT_H
 
-#include "FairGenerator.h"
+#include "PndTargetGenerator.h"
 #include "TF1.h"
 
 class TVirtualMCStack;
@@ -25,44 +37,42 @@ class FairPrimaryGenerator;
 
 class EvtGen;
 
-class PndEvtGenDirect : public FairGenerator
-{
+// class PndEvtGenDirect : public FairGenerator {
+class PndEvtGenDirect : public PndTargetGenerator {
 
- public: 
-
+ public:
   /** Default constructor (should not be used) **/
   PndEvtGenDirect();
 
-  PndEvtGenDirect(TString particle,TString decfile="",Double_t Mom=0, Long_t Seed=-1,TString defDECAY="",TString defPDL="",Double_t ATarg=0.0); // Mom>0 -> pbar Momentum; Mom<0 -> cms Energy
+  PndEvtGenDirect(TString particle, TString decfile = "", Double_t Mom = 0, Long_t Seed = -1, TString defDECAY = "", TString defPDL = "",
+                  Double_t ATarg = 0.0); // Mom>0 -> pbar Momentum; Mom<0 -> cms Energy
   // ATarg is for nuclear target, value is 0 for p and d, and between 3 and 238 for heavier nuclei
- 
+
   /** Destructor **/
   virtual ~PndEvtGenDirect();
 
   /** Generate one event using EVT
    ** @param primGen  pointer to the FairPrimaryGenerator
    **/
-  virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
+  virtual Bool_t ReadEvent(FairPrimaryGenerator *primGen);
 
-  void SetStoreTree(Bool_t store=true){ fStoreTree=store;};
-  inline void SetVerbose(int v=1){verbose=v;};
+  void SetStoreTree(Bool_t store = true) { fStoreTree = store; };
+  inline void SetVerbose(int v = 1) { verbose = v; };
 
  private:
-
   Bool_t fStoreTree;
   Int_t verbose;
   /**
    * P_lab(GeV/c)
-  */
-  Double_t fEnergy;	//! Energy of System
-  Double_t fMomentum; 	//! Momentum of System
-  
-  EvtGen *myGenerator;	//! Pointer to the actual EvtGen
-  EvtStdHep evtstdhep;  //! The decay tree
-  EvtId PART;		    //! The mother particle
-	
-  ClassDef(PndEvtGenDirect,1);
+   */
+  Double_t fEnergy;   //! Energy of System
+  Double_t fMomentum; //! Momentum of System
 
+  EvtGen *myGenerator; //! Pointer to the actual EvtGen
+  EvtStdHep evtstdhep; //! The decay tree
+  EvtId PART;          //! The mother particle
+
+  ClassDef(PndEvtGenDirect, 2);
 };
 
 #endif

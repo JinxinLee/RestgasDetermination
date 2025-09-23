@@ -90,6 +90,9 @@ PndMasterMultiPidTask::PndMasterMultiPidTask(TString options) :
     {
       brlbranchname="BarrelGenTrack";
     }
+    if(fOptions.Contains("Apo")) {
+      brlbranchname="FinalGenTrack";
+    }
 
     brlbranchname+=hypoName[iHyp];
     if (fOptions.Contains("filtered")) brlbranchname+="_filtered";
@@ -182,9 +185,9 @@ PndMasterMultiPidTask::PndMasterMultiPidTask(TString options) :
     this->Add(clone); // 3
   }
 
-  for (int iHyp=0; iHyp<5; iHyp++) {
+  for (int iHyp=0; iHyp<6; iHyp++) {
     if(!fHypoFlag[iHyp]) continue;
-    PndPidIdealAssociatorTask *PidIdeal = new PndPidIdealAssociatorTask();
+    PndPidIdealAssociatorTask *PidIdeal = new PndPidIdealAssociatorTask("IdealPid_" + hypoName[iHyp]);
     PidIdeal->SetOutputBranch(hypoName[iHyp]);
     this->Add(PidIdeal); // 4
 

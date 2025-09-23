@@ -1,0 +1,6 @@
+/build/
+
+macro/detectors/lmd/**/*.root
+
+**/data/
+

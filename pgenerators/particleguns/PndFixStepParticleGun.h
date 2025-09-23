@@ -10,6 +10,7 @@
 #define Pnd_FLATPARTICLEGENERATOR_H
 
 #include "FairGenerator.h"
+#include "PndTargetGenerator.h"
 
 #include <iostream>
 
@@ -44,7 +45,7 @@ public :
 };
 
 
-class PndFixStepParticleGun : public FairGenerator
+class PndFixStepParticleGun : public PndTargetGenerator
 {
 public:
 

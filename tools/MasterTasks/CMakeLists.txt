@@ -23,6 +23,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code/Performance
   ${CMAKE_SOURCE_DIR}/tracking/ftscatracking/code/KFParticle
   ${CMAKE_SOURCE_DIR}/pgenerators
+  ${CMAKE_SOURCE_DIR}/pgenerators/Target
   ${CMAKE_SOURCE_DIR}/pgenerators/Direct
   ${CMAKE_SOURCE_DIR}/pgenerators/FileReaders
   ${CMAKE_SOURCE_DIR}/pgenerators/particleguns

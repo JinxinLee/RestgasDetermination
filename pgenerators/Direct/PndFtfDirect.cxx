@@ -190,7 +190,7 @@ part(0)
 }
 // ------------------------------------------------------------------------
 PndFtfDirect::PndFtfDirect(const PndFtfDirect& other) :
-FairGenerator(other),
+PndTargetGenerator(other),
 fDoSetup(true),
 fMom(other.fMom),
 fMode(other.fMode),

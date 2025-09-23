@@ -3,6 +3,7 @@
 
 #include "TROOT.h"
 #include "FairGenerator.h"
+#include "PndTargetGenerator.h"
 
 #ifdef __CINT__
 #define _DLFCN_H_
@@ -13,7 +14,7 @@
 #include "TMCParticle.h"
 class FairPrimaryGenerator;
 
-class PndPythia6Direct : public FairGenerator
+class PndPythia6Direct : public PndTargetGenerator
 {
   public:
 

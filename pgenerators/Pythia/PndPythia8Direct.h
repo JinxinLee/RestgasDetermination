@@ -3,6 +3,7 @@
 
 #include "TROOT.h"
 #include "FairGenerator.h"
+#include "PndTargetGenerator.h"
 
 #ifdef __CINT__
 #define _DLFCN_H_
@@ -51,7 +52,7 @@ class PyTr3Rng : public RndmEngine
 
 
 
-class PndPythia8Direct : public FairGenerator
+class PndPythia8Direct : public PndTargetGenerator
 {
   public:
 
