@@ -11,7 +11,7 @@ Features:
 - When sbatch is available, submits the script and prints sbatch output (job id).
 
 Usage examples:
-  python3 submit_prod_hvmaps.py --array 1-10 --prefix 9999 --nevts 1000 --dec pp_dd --pbeam 8.9
+  python3 submit_prod_hvmaps.py --array 1-10 --prefix 9999 --nevts 1000 --dec DPM2 --pbeam 8.9
   python3 submit_prod_hvmaps.py --dry-run --array 1-5
 
 Note: This script expects to be run on a system with `sbatch` available when not in dry-run.
@@ -57,7 +57,8 @@ def build_sbatch_script(call_line, prefix, nevts, dec, pbeam, jobname, time_limi
 
 def write_temp_script(content, keep=False):
     fd, path = tempfile.mkstemp(prefix='sbatch_prod_', suffix='.sh', text=True)
-    with os.fdopen(fd, 'w', encoding='utf-8') as f:
+    # Avoid passing encoding for compatibility with constrained environments
+    with os.fdopen(fd, 'w') as f:
         f.write(content)
     if keep:
         print('Wrote sbatch script to:', path)
@@ -88,11 +89,9 @@ def main(argv=None):
     # Build call line
     # Choose to call Python runner (preferred) or original shell script
     script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), args.script))
-    if args.use_shell:
-        # call the shell script with parameters
-        call_line = './' + os.path.basename(script_path) + ' {prefix} {nevts} {dec} {pbeam} &> data/dpm/${{prefix}}_${{SLURM_ARRAY_TASK_ID}}_sim.log'
-    else:
-        call_line = 'python {script} {prefix} {nevts} {dec} {pbeam}'.format(script=script_path, prefix='${prefix}', nevts='${nEvts}', dec='"${dec}"', pbeam='${mom}')
+    # Always call the shell script to keep the cluster invocation identical to original
+    sh_name = os.path.basename(script_path).replace('.py', '.sh')
+    call_line = './' + sh_name + ' {prefix} {nevts} {dec} {pbeam} &> data/dpm/${{prefix}}_${{SLURM_ARRAY_TASK_ID}}_sim.log'
 
     extra_directives = args.extra_sbatch
 
