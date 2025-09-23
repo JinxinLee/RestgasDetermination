@@ -21,6 +21,14 @@ import sys
 import subprocess
 import argparse
 
+# Compatibility: some older Python builds (or non-Python3 interpreters) may not have
+# FileNotFoundError defined. Ensure a fallback to OSError so except FileNotFoundError
+# works safely.
+try:
+    FileNotFoundError  # noqa: F821
+except NameError:
+    FileNotFoundError = OSError
+
 
 def run_root(invocation, logfile):
     """Run a ROOT macro invocation and write combined stdout/stderr to logfile.
@@ -31,7 +39,8 @@ def run_root(invocation, logfile):
     """
     cmd = ["root", "-l", "-q", "-b", invocation]
     try:
-        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        # universal_newlines is widely supported and returns str output
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         out = proc.stdout
     except FileNotFoundError:
         out = "ERROR: 'root' executable not found in PATH.\n"
