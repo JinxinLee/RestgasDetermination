@@ -105,20 +105,20 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel")
        theAnalysis->FillList(All, "Charged");
 
        // --- START OF CHANGE ---
-       // 1. 创建一个新的 RhoCandList 用于存放合并后的质子和反质子
+       // 1. Create a new RhoCandList to store the combined protons and antiprotons
        RhoCandList ProtonAndPbar;
 
-       // 2. 将 Proton 列表中的所有粒子添加到新列表中
+       // 2. Add all particles from the Proton list to the new list
        for (int p_idx = 0; p_idx < Proton.GetLength(); ++p_idx) {
            ProtonAndPbar.Put(Proton[p_idx]);
        }
 
-       // 3. 将 Pbar 列表中的所有粒子添加到新列表中
+       // 3. Add all particles from the Pbar list to the new list
        for (int pbar_idx = 0; pbar_idx < Pbar.GetLength(); ++pbar_idx) {
            ProtonAndPbar.Put(Pbar[pbar_idx]);
        }
 
-       // 4. 使用合并后的列表计算总的 POCA 顶点
+       // 4. Use the combined list to calculate the total POCA vertex
        if (ProtonAndPbar.GetLength() >= 2) {
            RhoVtxPoca pocaProtonPbar;
            TVector3 vtxProtonPbar;
@@ -151,18 +151,18 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel")
             RhoCandidate* currentPbar = Pbar[pbar_idx];
                 
             // --- START OF CHANGE ---
-            // 创建一个临时的粒子列表
+            // Create a temporary particle list
             RhoCandList pairList;
-            pairList.Put(currentProton); // 将质子放入列表
-            pairList.Put(currentPbar);  // 将反质子放入列表
+            pairList.Put(currentProton); // Put the proton into the list
+            pairList.Put(currentPbar);  // Put the antiproton into the list
 
             TVector3 vtx;
                 
-            // 调用公有的 GetPocaVtx 方法
+            // Call the public GetPocaVtx method
             Double_t doca = pocaVtxCalculator.GetPocaVtx(vtx, pairList);
             // --- END OF CHANGE ---
 
-            // 将结果存入 ntuple
+            // Store the result in the ntuple
             ntpDp->Column("poca_vtx_x", (Float_t)vtx.X(), -999.0f);
             ntpDp->Column("poca_vtx_y", (Float_t)vtx.Y(), -999.0f);
             ntpDp->Column("poca_vtx_z", (Float_t)vtx.Z(), -999.0f);
@@ -629,133 +629,69 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel")
 
   // --- START OF ANALYSIS SCRIPT ---
   TTree *tree = ntpDp->GetInternalTree();
-  TCut valid_data = "proton_pbar_vtx_x != -999.0";
+  // Use "pvx" from the vertex fit as the variable to plot
+  TCut valid_data = "pvx != -999.0";
 
-  // 创建一个 TCanvas 用于显示
-  TCanvas *c1 = new TCanvas("c1", "Vertex Fitting", 1200, 400);
+  // Create a TCanvas for display
+  TCanvas *c1 = new TCanvas("c1", "Vertex Verification", 1200, 400);
   c1->Divide(3, 1);
 
-  // --- 对 X 坐标进行拟合 (Iterative Robust Range) ---
+  // --- Histogram for X coordinate ---
   c1->cd(1);
   TH1F *h_vtx_x = nullptr;
   if (tree->GetEntries(valid_data) > 0) {
-    // 1. 创建一个宽范围的临时直方图以获取统计数据
-    TH1F *htemp_x = new TH1F("htemp_x", "", 200, -50, 50); // 宽范围
-    tree->Draw("proton_pbar_vtx_x>>htemp_x", valid_data, "goff");
+    // 1. Create a temporary histogram with a wide range to get statistics
+    TH1F *htemp_x = new TH1F("htemp_x", "", 200, -5, 5); // Wide range
+    tree->Draw("pvx>>htemp_x", valid_data, "goff");
 
-    // 2. 获取稳健的统计数据 (均值和 RMS)
+    // 2. Get robust statistics (mean and RMS)
     Double_t mean_x_stat = htemp_x->GetMean();
     Double_t rms_x_stat = htemp_x->GetRMS();
-    delete htemp_x; // 清理临时直方图
+    delete htemp_x; // Clean up temporary histogram
 
-    // 3. 定义一个稳健的范围, 例如, mean +/- 3*RMS
-    Double_t min_x_robust = mean_x_stat - 3 * rms_x_stat;
-    Double_t max_x_robust = mean_x_stat + 3 * rms_x_stat;
+    // 3. Define a robust range, e.g., mean +/- 5*RMS
+    Double_t min_x_robust = mean_x_stat - 5 * rms_x_stat;
+    Double_t max_x_robust = mean_x_stat + 5 * rms_x_stat;
 
-    // 4. 使用稳健的范围创建最终的直方图
-    h_vtx_x = new TH1F("h_vtx_x", "Proton-Pbar Vertex X;X (cm);Events", 100, min_x_robust, max_x_robust);
-    tree->Draw("proton_pbar_vtx_x>>h_vtx_x", valid_data, "goff");
-    
-    // 5. 第一次拟合 (范围较宽)
-    double mean_x_h = h_vtx_x->GetMean();
-    double rms_x_h = h_vtx_x->GetRMS();
-    TF1 *fit1_x = new TF1("fit1_x", "gaus", mean_x_h - 2 * rms_x_h, mean_x_h + 2 * rms_x_h);
-    h_vtx_x->Fit(fit1_x, "RQ0"); // "Q" for quiet, "0" to not draw
-
-    // 6. 第二次拟合 (使用二次多项式背景)
-    double mean1_x = fit1_x->GetParameter(1);
-    double sigma1_x = fit1_x->GetParameter(2);
-    TF1 *fit2_x = new TF1("fit2_x", "gaus(0)+pol1(3)", mean1_x - 1 * sigma1_x, mean1_x + 1 * sigma1_x);
-    fit2_x->SetParameters(fit1_x->GetParameter(0), mean1_x, sigma1_x, 1, 0, 0); // 初始化参数
-    h_vtx_x->Fit(fit2_x, "R"); // "R" to fit in range
-
-    h_vtx_x->Draw();
-    fit2_x->Draw("same"); // 在直方图上绘制最终拟合
-
-    if (fit2_x) {
-      cout << "********* Vertex X Fit Result (Iterative) *********" << endl;
-      cout << "Mean: " << fit2_x->GetParameter(1) << " +/- " << fit2_x->GetParError(1) << " cm" << endl;
-      cout << "Sigma: " << fit2_x->GetParameter(2) << " +/- " << fit2_x->GetParError(2) << " cm" << endl;
-      cout << "***************************************************" << endl;
-    }
+    // 4. Create the final histogram using the robust range
+    h_vtx_x = new TH1F("h_vtx_x", "Fitted Vertex X;X (cm);Events", 100, min_x_robust, max_x_robust);
+    tree->Draw("pvx>>h_vtx_x", valid_data, ""); // Draw without fitting
   }
 
-  // --- 对 Y 坐标进行拟合 (Iterative Robust Range) ---
+  // --- Histogram for Y coordinate ---
   c1->cd(2);
   TH1F *h_vtx_y = nullptr;
   if (tree->GetEntries(valid_data) > 0) {
-    TH1F *htemp_y = new TH1F("htemp_y", "", 200, -50, 50);
-    tree->Draw("proton_pbar_vtx_y>>htemp_y", valid_data, "goff");
+    TH1F *htemp_y = new TH1F("htemp_y", "", 200, -5, 5);
+    tree->Draw("pvy>>htemp_y", valid_data, "goff");
     Double_t mean_y_stat = htemp_y->GetMean();
     Double_t rms_y_stat = htemp_y->GetRMS();
     delete htemp_y;
-    Double_t min_y_robust = mean_y_stat - 3 * rms_y_stat;
-    Double_t max_y_robust = mean_y_stat + 3 * rms_y_stat;
+    Double_t min_y_robust = mean_y_stat - 5 * rms_y_stat;
+    Double_t max_y_robust = mean_y_stat + 5 * rms_y_stat;
 
-    h_vtx_y = new TH1F("h_vtx_y", "Proton-Pbar Vertex Y;Y (cm);Events", 100, min_y_robust, max_y_robust);
-    tree->Draw("proton_pbar_vtx_y>>h_vtx_y", valid_data, "goff");
-    
-    double mean_y_h = h_vtx_y->GetMean();
-    double rms_y_h = h_vtx_y->GetRMS();
-    TF1 *fit1_y = new TF1("fit1_y", "gaus", mean_y_h - 2 * rms_y_h, mean_y_h + 2 * rms_y_h);
-    h_vtx_y->Fit(fit1_y, "RQ0");
-
-    // 6. 第二次拟合 (使用二次多项式背景)
-    double mean1_y = fit1_y->GetParameter(1);
-    double sigma1_y = fit1_y->GetParameter(2);
-    TF1 *fit2_y = new TF1("fit2_y", "gaus(0)+pol1(3)", mean1_y - 1 * sigma1_y, mean1_y + 1 * sigma1_y);
-    fit2_y->SetParameters(fit1_y->GetParameter(0), mean1_y, sigma1_y, 1, 0, 0);
-    h_vtx_y->Fit(fit2_y, "R");
-
-    h_vtx_y->Draw();
-    fit2_y->Draw("same");
-
-    if (fit2_y) {
-      cout << "********* Vertex Y Fit Result (Iterative) *********" << endl;
-      cout << "Mean: " << fit2_y->GetParameter(1) << " +/- " << fit2_y->GetParError(1) << " cm" << endl;
-      cout << "Sigma: " << fit2_y->GetParameter(2) << " +/- " << fit2_y->GetParError(2) << " cm" << endl;
-      cout << "***************************************************" << endl;
-    }
+    h_vtx_y = new TH1F("h_vtx_y", "Fitted Vertex Y;Y (cm);Events", 100, min_y_robust, max_y_robust);
+    tree->Draw("pvy>>h_vtx_y", valid_data, ""); // Draw without fitting
   }
 
-  // --- 对 Z 坐标进行拟合 (Iterative Robust Range) ---
+  // --- Histogram for Z coordinate ---
   c1->cd(3);
   TH1F *h_vtx_z = nullptr;
   if (tree->GetEntries(valid_data) > 0) {
     TH1F *htemp_z = new TH1F("htemp_z", "", 200, -50, 50);
-    tree->Draw("proton_pbar_vtx_z>>htemp_z", valid_data, "goff");
+    tree->Draw("pvz>>htemp_z", valid_data, "goff");
     Double_t mean_z_stat = htemp_z->GetMean();
     Double_t rms_z_stat = htemp_z->GetRMS();
     delete htemp_z;
-    Double_t min_z_robust = mean_z_stat - 3 * rms_z_stat;
-    Double_t max_z_robust = mean_z_stat + 3 * rms_z_stat;
+    Double_t min_z_robust = mean_z_stat - 5 * rms_z_stat;
+    Double_t max_z_robust = mean_z_stat + 5 * rms_z_stat;
 
-    h_vtx_z = new TH1F("h_vtx_z", "Proton-Pbar Vertex Z;Z (cm);Events", 100, min_z_robust, max_z_robust);
-    tree->Draw("proton_pbar_vtx_z>>h_vtx_z", valid_data, "goff");
-
-    double mean_z_h = h_vtx_z->GetMean();
-    double rms_z_h = h_vtx_z->GetRMS();
-    TF1 *fit1_z = new TF1("fit1_z", "gaus", mean_z_h - 2 * rms_z_h, mean_z_h + 2 * rms_z_h);
-    h_vtx_z->Fit(fit1_z, "RQ0");
-
-    // 6. 第二次拟合 (使用二次多项式背景)
-    double mean1_z = fit1_z->GetParameter(1);
-    double sigma1_z = fit1_z->GetParameter(2);
-    TF1 *fit2_z = new TF1("fit2_z", "gaus(0)+pol1(3)", mean1_z - 1 * sigma1_z, mean1_z + 1 * sigma1_z);
-    fit2_z->SetParameters(fit1_z->GetParameter(0), mean1_z, sigma1_z, 1, 0, 0);
-    h_vtx_z->Fit(fit2_z, "R");
-
-    h_vtx_z->Draw();
-
-    if (fit2_z) {
-      cout << "********* Vertex Z Fit Result (Iterative) *********" << endl;
-      cout << "Mean: " << fit2_z->GetParameter(1) << " +/- " << fit2_z->GetParError(1) << " cm" << endl;
-      cout << "Sigma: " << fit2_z->GetParameter(2) << " +/- " << fit2_z->GetParError(2) << " cm" << endl;
-      cout << "***************************************************" << endl;
-    }
+    h_vtx_z = new TH1F("h_vtx_z", "Fitted Vertex Z;Z (cm);Events", 100, min_z_robust, max_z_robust);
+    tree->Draw("pvz>>h_vtx_z", valid_data, ""); // Draw without fitting
   }
   
-  c1->SaveAs(prefix + "_vtx_fit.png");
+  c1->SaveAs(prefix + "_vtx_verification.png");
+  std::cout << "Verification histograms saved to " << prefix << "_vtx_verification.png" << std::endl;
   // --- END OF ANALYSIS SCRIPT ---
 
   fRun->Finish();

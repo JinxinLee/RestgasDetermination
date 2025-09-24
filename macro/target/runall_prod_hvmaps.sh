@@ -58,21 +58,16 @@ root -l -b -q reco_complete.C"($nEvts, \"$outprefix\")" &> $outprefix"_reco.log"
 echo $NUMEV >> $outprefix"_reco.log"
 root -l -b -q pid_complete.C"($nEvts, \"$outprefix\")" &> $outprefix"_pid.log"
 echo $NUMEV >> $outprefix"_pid.log"
-#root -l -b -q prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
-#echo $NUMEV >> $outprefix"_pid.log"
 root -l -b -q ana_dpm.C"($nEvts, \"$outprefix\")" &> $outprefix"_ana.log"
 echo $NUMEV >> $outprefix"_ana.log"
-#root -l -b -q prod_aod_complete.C\(\"$outprefix\"\) &> $outprefix"_pid_complete.log"
-#echo $NUMEV >> $outprefix"_pid_complete.log"
-#root -l -b -q ana_complete.C"($nEvts, \"$outprefix\")" &> $outprefix"_ana_complete.log"
-#echo $NUMEV >> $outprefix"_ana_complete.log"
-#root -l -b -q digi_complete.C"($nEvts, \"$outprefix\")" &> $outprefix"_digi.log"
-#echo $NUMEV >> $outprefix"_digi.log"
-#root -l -b -q pid_new.C"($nEvts, \"$outprefix\")" &> $outprefix"_pid.log"
-#echo $NUMEV >> $outprefix"_pid.log"
-#root -l -b -q prod_aod_hvmaps.C\(\"$outprefix\"\) &> $outprefix"_digi.log"
-#echo $NUMEV >> $outprefix"_digi.log"
-#root -l -b -q standardPlusApolloniusTripletTrackFinder.C\($nEvts,\"$outprefix\"\) &> $outprefix"_reco.log"
-#echo $NUMEV >> $outprefix"_reco.log"
-#root -l -b -q houghPlusApolloniusTripletTrackFinder.C\($nEvts,\"$outprefix\"\) &> $outprefix"_reco2.log"
-#echo $NUMEV >> $outprefix"_reco2.log"
+
+# Set the environment variable for the fit result file
+export FIT_RESULT_FILE=${outprefix}_vtx_fit.json
+echo "Fit result file is: $FIT_RESULT_FILE"
+
+# Re-run reco and pid with the fit result
+root -l -b -q reco_complete.C"($nEvts, \"$outprefix\", \"reco_from_fit\")" &> $outprefix"_reco_from_fit.log"
+echo $NUMEV >> $outprefix"_reco_from_fit.log"
+root -l -b -q pid_complete.C"($nEvts, \"$outprefix\", \"pid_from_fit\", \"reco_from_fit\")" &> $outprefix"_pid_from_fit.log"
+echo $NUMEV >> $outprefix"_pid_from_fit.log"
+

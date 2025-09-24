@@ -138,6 +138,7 @@ protected:
   TNtuple *dskCorr;                  // Debug ntuple for dsk correlation
   TNtuple *richCorr;                 // Debug ntuple for rich correlation
   Bool_t fUseMcTruthForTarget;      // Use MC vertex for propagation
+  Bool_t fUseFittedVertex;          // Use fitted vertex information
 
   TString sDir;                      // Ntuple output directory
   TString sFile;                     // Ntuple output file
@@ -199,9 +200,43 @@ public:
   void SetCorrErrProp(Bool_t err)         { fCorrErrorProp = err; };
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
   void SetPidHyp(Int_t pid)               { fPidHyp = pid; };
-  void SetIdealHyp(Bool_t opt = kTRUE)    { fIdealHyp = opt;            }
-  void SetFlagCut(Bool_t opt = kTRUE)     { fFlagCut = opt; };
-  void SetBackPropagate(Bool_t opt =kTRUE){ fBackPropagate = opt; };
+  void SetIdealHyp(Bool_t val=kTRUE) {fIdealHyp=val;};
+  void SetFastMode(Bool_t val=kTRUE) {fFast=val;};
+  void SetFlagCut(Bool_t val) {fFlagCut=val;};
+  void SetBackPropagation(Bool_t val=kTRUE) {fBackPropagate=val;};
+  void SetUseMcTruthForTarget(Bool_t val=kTRUE) {fUseMcTruthForTarget=val;};
+  void SetUseFittedVertex(Bool_t val=kTRUE) {fUseFittedVertex=val;};
+
+ private:
+  //
+  void Register();
+  void Reset();
+  void ResetEmcQ();
+
+  PndPidCorrelator(const char *name, const char *title="Pnd Task");
+  PndPidCorrelator();
+  virtual ~PndPidCorrelator();
+
+  void SetOption(Option_t *option=" ")    {fOption = option;  fOption.ToLower();}
+  void SetDebugMode(Bool_t debug)         { fDebugMode = debug; };
+  void SetDebugFilename(TString filename) { sFile = filename; };
+  void SetMdtRefit(Bool_t mdt)            { fMdtRefit = mdt; };
+  void SetMixMode(Bool_t mix)             { fMixMode = mix; };
+  void SetBarrelTrackBranch(TString branch)     { fTrackBranch = branch; };
+  void SetForwardTrackBranch(TString branch)    { fTrackBranch2 = branch; };
+  void SetOutputBranch(TString branch)    { fTrackOutBranch = branch; };
+  void SetSimulation(Bool_t sim)          { fSimulation = sim; };
+  void SetIdeal(Bool_t id)                { fIdeal = id; };
+  void SetFast(Bool_t fast)               { fFast = fast; };
+  void SetCorrErrProp(Bool_t err)         { fCorrErrorProp = err; };
+  void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
+  void SetPidHyp(Int_t pid)               { fPidHyp = pid; };
+  void SetIdealHyp(Bool_t val=kTRUE) {fIdealHyp=val;};
+  void SetFastMode(Bool_t val=kTRUE) {fFast=val;};
+  void SetFlagCut(Bool_t val) {fFlagCut=val;};
+  void SetBackPropagation(Bool_t val=kTRUE) {fBackPropagate=val;};
+  void SetUseMcTruthForTarget(Bool_t val=kTRUE) {fUseMcTruthForTarget=val;};
+  void SetUseFittedVertex(Bool_t val=kTRUE) {fUseFittedVertex=val;};
 
   void SetMvdMode(Short_t mode)	{ fMvdMode = mode; };                 // MVD Mode: 0 no MVD
   void SetSttMode(Short_t mode)	{ fSttMode = mode; };                 // STT Mode: 0 no STT

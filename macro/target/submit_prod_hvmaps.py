@@ -36,11 +36,32 @@ SBATCH_TEMPLATE = """#!/bin/bash
 #SBATCH -o {outlog}
 {extra_directives}
 
+echo "--- Step 1: Change to project root directory ---"
+cd /lustre/panda/jili/oct19
+echo "Current directory: $(pwd)"
+
+echo "--- Step 2: Set up environment from project root ---"
+source build/config.sh -p
+echo "Environment setup finished."
+
+echo "--- Step 3: Set up ROOT_INCLUDE_PATH from project root ---"
+INCLUDE_DIRS=$(find . -type f -name "*.h" -printf '%h\n' | sort -u | tr '\n' ':')
+export ROOT_INCLUDE_PATH=${{INCLUDE_DIRS}}${{ROOT_INCLUDE_PATH}}
+echo "ROOT_INCLUDE_PATH is now: ${{ROOT_INCLUDE_PATH}}"
+
+echo "--- Step 4: Change to script's working directory ---"
+cd macro/target
+echo "Current directory: $(pwd)"
+
 prefix={prefix}
 nEvts={nevts}
 dec="{dec}"
 mom={pbeam}
 
+echo "--- Step 5: Ensure log directory exists (relative to current dir) ---"
+mkdir -p data/dpm
+
+echo "--- Step 6: Execute the script ---"
 {call_line}
 """
 
@@ -91,7 +112,13 @@ def main(argv=None):
     script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), args.script))
     # Always call the shell script to keep the cluster invocation identical to original
     sh_name = os.path.basename(script_path).replace('.py', '.sh')
-    call_line = './' + sh_name + ' {prefix} {nevts} {dec} {pbeam} &> data/dpm/${{prefix}}_${{SLURM_ARRAY_TASK_ID}}_sim.log'
+    # Use absolute path to the shell script so the sbatch job runs correctly
+    # regardless of the batch job's working directory.
+    sh_abs = os.path.abspath(os.path.join(os.path.dirname(__file__), sh_name))
+    # Use bash variable expansion (single braces) so variables are evaluated at runtime.
+    # Build the call_line by concatenation to avoid Python's str.format interpreting
+    # {prefix}/{nEvts} as Python placeholders.
+    call_line = sh_abs + ' ${prefix} ${nEvts} ${dec} ${mom} &> data/dpm/${prefix}_${SLURM_ARRAY_TASK_ID}_sim.log'
 
     extra_directives = args.extra_sbatch
 

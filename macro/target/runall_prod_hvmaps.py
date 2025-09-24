@@ -1,57 +1,167 @@
 #!/usr/bin/env python3
 """
-Python 3.7.3 port of runall_prod_hvmaps.sh
+Python script to run the complete analysis chain for rest gas determination.
+
+This script orchestrates the simulation, digitization, reconstruction, and analysis workflow.
+It performs an initial analysis to determine the interaction vertex, then re-runs the
+reconstruction and PID steps using this fitted vertex information for improved accuracy.
 
 Usage:
-  python runall_prod_hvmaps.py [prefix] [nevts] [gen] [pbeam]
+  python3 runall_prod_hvmaps.py [prefix] [nevts] [gen] [pbeam]
 
-Behaviour mirrors the original shell script:
-- reads SIMPATH and FAIRROOTPATH from environment and prints them
-- uses SLURM_ARRAY_TASK_ID (defaults to '1' if not set)
-- runs a sequence of ROOT macros and writes their outputs to log files
-- finds the last line containing 'Generated Events' from the sim log and appends it to subsequent logs
+Example:
+  python3 runall_prod_hvmaps.py my_test 10000 pp_dd 8.9
 
-Note: This script calls the `root` binary (ROOT) available on PATH. If ROOT is not
-available, the script will write an error message into the log files instead of macro output.
+Workflow:
+1.  Run simulation (prod_sim_hvmaps.C)
+2.  Run digitization (prod_aod_hvmaps.C)
+3.  Run initial reconstruction (reco_complete.C)
+4.  Run initial PID (pid_complete.C)
+5.  Run analysis to fit the vertex (ana_dpm.C), which generates a JSON file.
+6.  Set the FIT_RESULT_FILE environment variable pointing to the generated JSON.
+7.  Re-run reconstruction with a new suffix "reco_from_fit" (reco_complete.C).
+8.  Re-run PID with the new reco file and a new suffix "pid_from_fit" (pid_complete.C). The back-propagation step inside will use the environment variable.
 """
-
-from __future__ import print_function
 import os
 import sys
 import subprocess
 import argparse
+import shlex
+import json
 
-def main(argv=None):
-    """Thin wrapper that calls the original shell script `runall_prod_hvmaps.sh`.
+def run_command(command, log_file, env=None):
+    """Executes a command and logs its output."""
+    print(f"Executing: {command}")
+    print(f"Logging to: {log_file}")
+    try:
+        # Use the provided environment, or the current one if None
+        current_env = os.environ.copy()
+        if env:
+            current_env.update(env)
+            
+        with open(log_file, 'w') as f:
+            process = subprocess.run(shlex.split(command), stdout=f, stderr=subprocess.STDOUT, check=True, text=True, env=current_env)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing command: {command}", file=sys.stderr)
+        print(f"See log for details: {log_file}", file=sys.stderr)
+        return False
+    except FileNotFoundError:
+        print(f"Error: 'root' command not found. Make sure ROOT is installed and in your PATH.", file=sys.stderr)
+        with open(log_file, 'w') as f:
+            f.write("Error: 'root' command not found. Make sure ROOT is installed and in your PATH.")
+        return False
 
-    This replacement ensures the cluster runs the tested shell pipeline directly.
-    """
-    parser = argparse.ArgumentParser(description='Wrapper to call runall_prod_hvmaps.sh')
-    parser.add_argument('prefix', nargs='?', default='9999')
-    parser.add_argument('nevts', nargs='?', default='1000')
-    parser.add_argument('dec', nargs='?', default='pp_dd')
-    parser.add_argument('pbeam', nargs='?', default='8.9')
-    args = parser.parse_args(argv)
+def get_generated_events(log_file):
+    """Extracts the number of generated events from a log file."""
+    try:
+        with open(log_file, 'r') as f:
+            for line in reversed(list(f)):
+                if 'Generated Events' in line:
+                    return line.strip()
+    except FileNotFoundError:
+        return None
+    return None
 
-    print('SIMPATH is', os.environ.get('SIMPATH', ''))
-    print('FAIRROOTPATH is', os.environ.get('FAIRROOTPATH', ''))
+def main():
+    parser = argparse.ArgumentParser(description='Run the complete analysis chain for rest gas determination.')
+    parser.add_argument('prefix', nargs='?', default='9999', help='Prefix for output files.')
+    parser.add_argument('nevts', nargs='?', type=int, default=1000, help='Number of events to simulate.')
+    parser.add_argument('dec', nargs='?', default='pp_dd', help='Name of EvtGen decay file or generator type (DPM/FTF/BOX).')
+    parser.add_argument('mom', nargs='?', type=float, default=8.9, help='Momentum of the pbar-beam.')
+    args = parser.parse_args()
 
-    # Ensure the shell script exists in the same directory
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    sh_path = os.path.join(script_dir, 'runall_prod_hvmaps.sh')
-    if not os.path.exists(sh_path):
-        print('ERROR: shell script not found at', sh_path)
-        sys.exit(2)
+    # Environment setup
+    print("SIMPATH is", os.environ.get('SIMPATH', 'Not set'))
+    print("FAIRROOTPATH is", os.environ.get('FAIRROOTPATH', 'Not set'))
 
-    cmd = [sh_path, args.prefix, args.nevts, args.dec, args.pbeam]
-    # Ensure it's executable; if not, try to call it with bash
-    if os.access(sh_path, os.X_OK):
-        ret = subprocess.call(cmd)
-    else:
-        ret = subprocess.call(['bash'] + cmd)
+    slurm_id = os.environ.get('SLURM_ARRAY_TASK_ID', '1')
+    out_prefix = f"data/dpm/{args.prefix}_{slurm_id}"
+    
+    os.makedirs(os.path.dirname(out_prefix), exist_ok=True)
 
-    sys.exit(ret)
+    # --- Step 1: Initial Workflow ---
+    print("\n--- Running Initial Workflow ---")
+    
+    # Simulation
+    sim_log = f"{out_prefix}_sim.log"
+    if not run_command(f'root -l -q -b "prod_sim_hvmaps.C(\\"{out_prefix}\\", {args.nevts}, \\"{args.dec}\\", {args.mom})"', sim_log):
+        sys.exit(1)
+    
+    num_ev_line = get_generated_events(sim_log)
 
+    def append_nevents(log_file):
+        if num_ev_line:
+            with open(log_file, 'a') as f:
+                f.write('\n' + num_ev_line)
+
+    # Digitization
+    digi_log = f"{out_prefix}_digi.log"
+    if not run_command(f'root -l -b -q "prod_aod_hvmaps.C(\\"{out_prefix}\\")"', digi_log):
+        sys.exit(1)
+    append_nevents(digi_log)
+
+    # Reconstruction
+    reco_log = f"{out_prefix}_reco.log"
+    if not run_command(f'root -l -b -q "reco_complete.C({args.nevts}, \\"{out_prefix}\\")"', reco_log):
+        sys.exit(1)
+    append_nevents(reco_log)
+
+    # PID
+    pid_log = f"{out_prefix}_pid.log"
+    if not run_command(f'root -l -b -q "pid_complete.C({args.nevts}, \\"{out_prefix}\\")"', pid_log):
+        sys.exit(1)
+    append_nevents(pid_log)
+
+    # Analysis for Vertex Fitting
+    ana_log = f"{out_prefix}_ana.log"
+    if not run_command(f'root -l -b -q "ana_dpm.C({args.nevts}, \\"{out_prefix}\\")"', ana_log):
+        sys.exit(1)
+    append_nevents(ana_log)
+
+    # --- Step 2: Re-run with Fitted Vertex ---
+    print("\n--- Re-running Reco/PID with Fitted Vertex ---")
+    
+    json_fit_file = f"{out_prefix}_vtx_fit.json"
+    
+    # Read vertex from JSON and set environment variables
+    try:
+        with open(json_fit_file, 'r') as f:
+            fit_data = json.load(f)
+        
+        vtx_x = fit_data['vertex_x']['mean']
+        vtx_y = fit_data['vertex_y']['mean']
+        vtx_z = fit_data['vertex_z']['mean']
+
+        print(f"Found fitted vertex: X={vtx_x}, Y={vtx_y}, Z={vtx_z}")
+
+        fit_env = {
+            'FIT_VERTEX_X': str(vtx_x),
+            'FIT_VERTEX_Y': str(vtx_y),
+            'FIT_VERTEX_Z': str(vtx_z)
+        }
+        print(f"Setting environment variables for fitted vertex.")
+
+    except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
+        print(f"Error: Could not read or parse fit results from {json_fit_file}.", file=sys.stderr)
+        print(f"Reason: {e}", file=sys.stderr)
+        print("Skipping re-run of reco and pid.", file=sys.stderr)
+        sys.exit(1)
+
+
+    # Re-run combined Reco and PID
+    aod_complete_log = f"{out_prefix}_aod_complete.log"
+    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{out_prefix}\\", \\"from_fit\\")"', aod_complete_log, env=fit_env):
+        sys.exit(1)
+    append_nevents(aod_complete_log)
+
+    # Re-run final analysis
+    ana_complete_log = f"{out_prefix}_ana_complete.log"
+    if not run_command(f'root -l -b -q "ana_complete.C({args.nevts}, \\"{out_prefix}\\", \\"from_fit\\")"', ana_complete_log, env=fit_env):
+        sys.exit(1)
+    append_nevents(ana_complete_log)
+
+    print("\nWorkflow completed successfully.")
 
 if __name__ == '__main__':
     main()

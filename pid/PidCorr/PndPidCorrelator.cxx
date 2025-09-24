@@ -96,7 +96,8 @@ PndPidCorrelator::PndPidCorrelator() :
   sDir(""),
   sFile(""),
   fDoNeutralCand(kFALSE),
-  fUseMcTruthForTarget(kTRUE)
+  fUseMcTruthForTarget(kTRUE),
+  fUseFittedVertex(kFALSE)
 {
   //---
   sDir = "./";
@@ -168,7 +169,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   sDir(""),
   sFile(""),
   fDoNeutralCand(kFALSE),
-  fUseMcTruthForTarget(kTRUE)
+  fUseMcTruthForTarget(kTRUE),
+  fUseFittedVertex(kFALSE)
 {
   //---
   sDir = "./";
@@ -967,9 +969,8 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
     }
 
     TVector3 vtx(0,0,0);
-    TVector3 v1=bump->where();
     TVector3 p3;
-    p3.SetMagThetaPhi(fEmcCalibrator->Energy(bump), v1.Theta(), v1.Phi());
+    p3.SetMagThetaPhi(fEmcCalibrator->Energy(bump), vtx.Theta(), vtx.Phi());
     TLorentzVector lv(p3,p3.Mag());
     TMatrixD covP4=fEmcErrorMatrix->Get4MomentumErrorMatrix(*clu);
     TMatrixD covP7=fEmcErrorMatrix->GetErrorP7(*clu);
@@ -1030,7 +1031,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 
       if (fGeanePro)
       { // Overwrites vertex if Geane is used
-        fGeanePropagator->SetPoint(v1);
+        fGeanePropagator->SetPoint(vtx);
         fGeanePropagator->PropagateToPCA(1, 1);
         vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
         FairTrackParH *fRes= new FairTrackParH();
@@ -1039,7 +1040,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
         vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
       }
 
-      Float_t dist = (v1-vertex).Mag2();
+      Float_t dist = (vtx-vertex).Mag2();
       if ( emcQuality > dist )
       {
         emcQuality = dist;
@@ -1058,7 +1059,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
       pidCand->SetEmcNumberOfBumps(clu->NBumps());
       pidCand->SetEmcQuality(emcQuality);
-      pidCand->SetLastHit(v1);
+      pidCand->SetLastHit(vtx);
 
       pidCand->SetEmcClusterZ20(bump->Z20());
       pidCand->SetEmcClusterZ53(bump->Z53());

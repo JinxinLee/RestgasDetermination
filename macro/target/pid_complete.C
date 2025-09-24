@@ -13,15 +13,21 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
 // root  digi_complete.C  or in root session root>.x  digi_complete.C
-int pid_complete(Int_t nEvents = 0, TString prefix = "../data/evtcomplete")
+int pid_complete(Int_t nEvents = 0, TString prefix = "../data/evtcomplete", TString outSuffix = "", TString inSuffix = "")
 {
   //-----User Settings:------------------------------------------------------
   //TString parAsciiFile = "all_hvmaps.par";
   TString parAsciiFile   = "all.par";
   //TString input = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString output = "pid";
+  if (outSuffix != "") {
+    output = outSuffix;
+  }
   TString friend1 = "sim";
   TString friend2 = "reco";
+  if (inSuffix != "") {
+    friend2 = inSuffix;
+  }
   TString friend3 = "digi";
   TString friend4 = "";
   TString fOptions = "";
@@ -43,6 +49,12 @@ int pid_complete(Int_t nEvents = 0, TString prefix = "../data/evtcomplete")
 
   PndPidCorrelator *corr = NULL;
   fRun->AddTask(corr = new PndPidCorrelator());
+
+  if (outSuffix.Contains("from_fit")) {
+    corr->SetUseFittedVertex(kTRUE);
+    corr->SetUseMcTruthForTarget(kFALSE); // Don't use MC truth if we have a fit
+    std::cout << "****** PID running with fitted vertex! ******" << std::endl;
+  }
 
   corr->SetBackPropagate(kFALSE);
 

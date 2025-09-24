@@ -11,6 +11,8 @@
 #include "TDatabasePDG.h"
 #include <cmath>
 #include "PndMCTrack.h" 
+#include <cstdlib> // For getenv
+#include <string>
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
@@ -45,28 +47,58 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     // TVector3 ex2(0.,0.,100.); // we expect fast decaying tracks to be close to that
     // fGeanePropagator->SetWire(ex1,ex2);
 
-    // --- Two-Step Propagation for Robustness ---
-    TVector3 targetPoint(0.18, 0.29, -4.52);
+    // --- Propagation Target Logic ---
+    TVector3 targetPoint;
+    bool targetSet = false;
 
-    //Get MC Vertex as propagation target
-    std::vector<FairLink> mcTrackLinks = track->GetSortedMCTracks();
-    if (mcTrackLinks.size() > 0) {
-      Int_t mcTrackId = mcTrackLinks[0].GetIndex();
-      PndMCTrack *mcTrack = (PndMCTrack*) fMcTrackPro->At(mcTrackId);
-      if (!mcTrack || !fUseMcTruthForTarget) {
-        targetPoint.SetXYZ(0., 0., 0.);
-        std::cout  << "-I- PndPidTrackInfo::GetIP: PndMCTrack does not exist!! ->  set default IP (0,0,0)"
-              << std::endl;
+    // 1. Try to get vertex from environment variables if fUseFittedVertex is true
+    if (fUseFittedVertex) {
+        const char* vtx_x_str = std::getenv("FIT_VERTEX_X");
+        const char* vtx_y_str = std::getenv("FIT_VERTEX_Y");
+        const char* vtx_z_str = std::getenv("FIT_VERTEX_Z");
+
+        if (vtx_x_str && vtx_y_str && vtx_z_str) {
+            try {
+                double x = std::stod(vtx_x_str);
+                double y = std::stod(vtx_y_str);
+                double z = std::stod(vtx_z_str);
+                targetPoint.SetXYZ(x, y, z);
+                targetSet = true;
+                std::cout << "-I- PndPidTrackInfo::GetIP: Using fitted vertex from environment as target point: "
+                          << targetPoint.X() << ", " << targetPoint.Y() << ", " << targetPoint.Z() << std::endl;
+            } catch (const std::invalid_argument& e) {
+                std::cerr << "-W- PndPidTrackInfo::GetIP: Invalid argument when converting fitted vertex from environment. " << e.what() << std::endl;
+            } catch (const std::out_of_range& e) {
+                std::cerr << "-W- PndPidTrackInfo::GetIP: Out of range when converting fitted vertex from environment. " << e.what() << std::endl;
+            }
         } else {
-          TVector3 mcVertex = mcTrack->GetStartVertex();
-          targetPoint.SetXYZ(mcVertex.X(), mcVertex.Y(), mcVertex.Z());
-          std::cout  << "-I- PndPidTrackInfo::GetIP: Using MC vertex as target point: " << targetPoint.X() << ", " << targetPoint.Y() << ", " << targetPoint.Z() << std::endl;
+            std::cout << "-W- PndPidTrackInfo::GetIP: fUseFittedVertex is true, but one or more FIT_VERTEX environment variables are not set." << std::endl;
         }
-      }
+    }
 
+    // 2. If not set, fall back to MC truth if fUseMcTruthForTarget is true
+    if (!targetSet && fUseMcTruthForTarget) {
+        std::vector<FairLink> mcTrackLinks = track->GetSortedMCTracks();
+        if (mcTrackLinks.size() > 0) {
+            Int_t mcTrackId = mcTrackLinks[0].GetIndex();
+            PndMCTrack *mcTrack = (PndMCTrack*) fMcTrackPro->At(mcTrackId);
+            if (mcTrack) {
+                TVector3 mcVertex = mcTrack->GetStartVertex();
+                targetPoint.SetXYZ(mcVertex.X(), mcVertex.Y(), mcVertex.Z());
+                targetSet = true;
+                std::cout << "-I- PndPidTrackInfo::GetIP: Using MC vertex as target point: "
+                          << targetPoint.X() << ", " << targetPoint.Y() << ", " << targetPoint.Z() << std::endl;
+            }
+        }
+    }
 
-    targetPoint.SetXYZ(0.18, 0.29, -4.52);
-    std::cout  << "-I- PndPidTrackInfo::GetIP: Using pocavtx as target point: " << targetPoint.X() << ", " << targetPoint.Y() << ", " << targetPoint.Z() << std::endl;
+    // 3. If still not set, use a default point
+    if (!targetSet) {
+        targetPoint.SetXYZ(0., 0., 0.);
+        std::cout << "-I- PndPidTrackInfo::GetIP: Using default IP (0,0,0) as target point." << std::endl;
+    }
+
+    // --- Two-Step Propagation for Robustness ---
     // Step 1: Propagate robustly to the plane containing the IP
     // Define the plane at 1cm before the target point
     TVector3 p0(0., 0., targetPoint.Z() + 1.);
