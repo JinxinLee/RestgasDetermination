@@ -4,4 +4,5 @@ macro/detectors/lmd/**/*.root
 
 **/data/
 
-/.vscode/
+.vscode/**
+.vscode/settings.json

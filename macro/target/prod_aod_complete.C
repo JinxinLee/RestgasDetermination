@@ -27,7 +27,7 @@ int prod_aod_complete(TString prefix="")
   if (opt!="") fRun->SetOptions(opt);
 
   // -----   Add tasks   ----------------------------------------------------
-  //fRun->AddDigiTasks(/*kFALSE*/);
+  fRun->AddDigiTasks(/*kFALSE*/);
   fRun->AddRecoTasks(/*kFALSE*/);
   fRun->AddPidTasks();
 
