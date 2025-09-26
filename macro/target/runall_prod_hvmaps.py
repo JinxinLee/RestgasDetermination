@@ -29,8 +29,13 @@ import argparse
 import shlex
 import json
 
-def run_command(command, log_file, env=None):
-    """Executes a command and logs its output."""
+def run_command(command, log_file, output_file, env=None):
+    """Executes a command and logs its output, skipping if the output file already exists."""
+    if os.path.exists(output_file):
+        print(f"Output file {output_file} already exists. Skipping command.")
+        print(f"Executing: {command}")
+        return True
+        
     print(f"Executing: {command}")
     print(f"Logging to: {log_file}")
     try:
@@ -85,7 +90,8 @@ def main():
     
     # Simulation
     sim_log = f"{out_prefix}_sim.log"
-    if not run_command(f'root -l -q -b "prod_sim_hvmaps.C(\\"{out_prefix}\\", {args.nevts}, \\"{args.dec}\\", {args.mom})"', sim_log):
+    sim_output = f"{out_prefix}_sim.root"
+    if not run_command(f'root -l -q -b "prod_sim_hvmaps.C(\\"{out_prefix}\\", {args.nevts}, \\"{args.dec}\\", {args.mom})"', sim_log, sim_output):
         sys.exit(1)
     
     num_ev_line = get_generated_events(sim_log)
@@ -97,25 +103,29 @@ def main():
 
     # Digitization
     digi_log = f"{out_prefix}_digi.log"
-    if not run_command(f'root -l -b -q "prod_aod_hvmaps.C(\\"{out_prefix}\\")"', digi_log):
+    digi_output = f"{out_prefix}_digi.root"
+    if not run_command(f'root -l -b -q "prod_aod_hvmaps.C(\\"{out_prefix}\\")"', digi_log, digi_output):
         sys.exit(1)
     append_nevents(digi_log)
 
     # Reconstruction
     reco_log = f"{out_prefix}_reco.log"
-    if not run_command(f'root -l -b -q "reco_complete.C({args.nevts}, \\"{out_prefix}\\")"', reco_log):
+    reco_output = f"{out_prefix}_reco.root"
+    if not run_command(f'root -l -b -q "reco_complete.C({args.nevts}, \\"{out_prefix}\\")"', reco_log, reco_output):
         sys.exit(1)
     append_nevents(reco_log)
 
     # PID
     pid_log = f"{out_prefix}_pid.log"
-    if not run_command(f'root -l -b -q "pid_complete.C({args.nevts}, \\"{out_prefix}\\")"', pid_log):
+    pid_output = f"{out_prefix}_pid.root"
+    if not run_command(f'root -l -b -q "pid_complete.C({args.nevts}, \\"{out_prefix}\\")"', pid_log, pid_output):
         sys.exit(1)
     append_nevents(pid_log)
 
     # Analysis for Vertex Fitting
     ana_log = f"{out_prefix}_ana.log"
-    if not run_command(f'root -l -b -q "ana_dpm.C({args.nevts}, \\"{out_prefix}\\")"', ana_log):
+    ana_output = f"{out_prefix}_vtx_fit.json"
+    if not run_command(f'root -l -b -q "ana_dpm.C({args.nevts}, \\"{out_prefix}\\")"', ana_log, ana_output):
         sys.exit(1)
     append_nevents(ana_log)
 
@@ -151,13 +161,15 @@ def main():
 
     # Re-run combined Reco and PID
     aod_complete_log = f"{out_prefix}_aod_complete.log"
-    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{out_prefix}\\", \\"from_fit\\")"', aod_complete_log, env=fit_env):
+    aod_complete_output = f"{out_prefix}_pid_poca.root"
+    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{out_prefix}\\")"', aod_complete_log, aod_complete_output, env=fit_env):
         sys.exit(1)
     append_nevents(aod_complete_log)
 
     # Re-run final analysis
     ana_complete_log = f"{out_prefix}_ana_complete.log"
-    if not run_command(f'root -l -b -q "ana_complete.C({args.nevts}, \\"{out_prefix}\\", \\"from_fit\\")"', ana_complete_log, env=fit_env):
+    ana_complete_output = f"{out_prefix}_poca.root"
+    if not run_command(f'root -l -b -q "ana_complete.C({args.nevts}, \\"{out_prefix}\\")"', ana_complete_log, ana_complete_output, env=fit_env):
         sys.exit(1)
     append_nevents(ana_complete_log)
 
