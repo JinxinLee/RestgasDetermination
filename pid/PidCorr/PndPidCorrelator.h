@@ -203,7 +203,7 @@ public:
   void SetIdealHyp(Bool_t val=kTRUE) {fIdealHyp=val;};
   void SetFastMode(Bool_t val=kTRUE) {fFast=val;};
   void SetFlagCut(Bool_t val) {fFlagCut=val;};
-  void SetBackPropagation(Bool_t val=kTRUE) {fBackPropagate=val;};
+  void SetBackPropagate(Bool_t val=kTRUE) {fBackPropagate=val;};
   void SetUseMcTruthForTarget(Bool_t val=kTRUE) {fUseMcTruthForTarget=val;};
   void SetUseFittedVertex(Bool_t val=kTRUE) {fUseFittedVertex=val;};
 
