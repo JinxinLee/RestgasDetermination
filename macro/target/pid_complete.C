@@ -13,20 +13,14 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
 // root  digi_complete.C  or in root session root>.x  digi_complete.C
-int pid_complete(Int_t nEvents = 0, TString prefix = "../data/evtcomplete", TString outSuffix = "", Bool_t use_mvd_hvmaps = false)
+int pid_complete(Int_t nEvents = 0, TString prefix = "../data/evtcomplete", Bool_t use_mvd_hvmaps = false)
 {
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
   //TString input = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString output = "pid";
-  if (outSuffix != "") {
-    output = outSuffix;
-  }
   TString friend1 = "sim";
   TString friend2 = "reco";
-  if (inSuffix != "") {
-    friend2 = inSuffix;
-  }
   TString friend3 = "digi";
   TString friend4 = "";
   TString fOptions = "";

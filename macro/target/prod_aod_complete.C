@@ -5,7 +5,6 @@ int prod_aod_complete(TString prefix="", Bool_t use_mvd_hvmaps = false)
     cout << "USAGE:\n";
     cout << "prod_aod_complete.C( <pref>, <suffix>, <use_mvd_hvmaps> )\n\n";
     cout << "   <pref>           : input/output file names prefix\n";
-    cout << "   <suffix>         : suffix for output file\n";
     cout << "   <use_mvd_hvmaps> : boolean (true/false) to select all_hvmaps.par\n\n";
     return 0;
   }
