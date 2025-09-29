@@ -14,7 +14,7 @@ int prod_aod_complete(TString prefix="", Bool_t use_mvd_hvmaps = false)
   TString  opt            = "genfit2";
   TString friend1 = "sim";
   TString friend2 = "digi";
-  //TString  opt            = "barreltrack";
+  TString  opt    = "fitvertex";
   
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
@@ -27,7 +27,7 @@ int prod_aod_complete(TString prefix="", Bool_t use_mvd_hvmaps = false)
   if (opt!="") fRun->SetOptions(opt);
 
   // -----   Add tasks   ----------------------------------------------------
-  fRun->AddDigiTasks(/*kFALSE*/);
+  //fRun->AddDigiTasks(/*kFALSE*/);
   fRun->AddRecoTasks(/*kFALSE*/);
   fRun->AddPidTasks();
 

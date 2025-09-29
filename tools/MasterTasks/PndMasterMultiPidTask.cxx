@@ -110,6 +110,15 @@ PndMasterMultiPidTask::PndMasterMultiPidTask(TString options) :
     if (fOptions.Contains("piddebug"))  correlator->SetDebugMode(kTRUE);
     if (fOptions.Contains("pidfast"))   correlator->SetFast(kTRUE);
     if (fOptions.Contains("pidnoswim")) correlator->SetBackPropagate(kFALSE);
+    if (fOptions.Contains("fitvertex")) {
+      correlator->SetUseFittedVertex(kTRUE);
+      correlator->SetUseMcTruthForTarget(kFALSE);
+    }
+    if (fOptions.Contains("mcvertex")) {
+      correlator->SetUseFittedVertex(kFALSE);
+      correlator->SetUseMcTruthForTarget(kTRUE);
+    }
+
 
     // -----   Bremsstrahlung Correction ----------------------
     PndPidBremCorrector *PidBrem = new PndPidBremCorrector();

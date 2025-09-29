@@ -43,12 +43,6 @@ int pid_complete(Int_t nEvents = 0, TString prefix = "../data/evtcomplete", Bool
   PndPidCorrelator *corr = NULL;
   fRun->AddTask(corr = new PndPidCorrelator());
 
-  if (outSuffix.Contains("from_fit")) {
-    corr->SetUseFittedVertex(kTRUE);
-    corr->SetUseMcTruthForTarget(kFALSE); // Don't use MC truth if we have a fit
-    std::cout << "****** PID running with fitted vertex! ******" << std::endl;
-  }
-
   corr->SetBackPropagate(kFALSE);
 
 //  if ((!fOptions.Contains("day1")) || (fOptions.Contains("gem"))) {
