@@ -81,92 +81,92 @@ int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="",
   // -----  Initialization   ------------------------------------------------
   fRun->Setup(prefix);
   // -----   Geometry   -----------------------------------------------------
-  fRun->CreateGeometry();
-  //FairModule *Cave = new PndCave("CAVE");
-  //Cave->SetGeometryFileName("pndcave.geo");
-  //fRun->AddModule(Cave);
+  if (use_mvd_hvmaps)
+  {
+    FairModule *Cave = new PndCave("CAVE");
+    Cave->SetGeometryFileName("pndcave.geo");
+    fRun->AddModule(Cave);
 
-  //-------------------------  Magnet   -----------------
-  //   // This part is commented because the MDT geometry contains the magnet now
-  //      //FairModule *Magnet= new PndMagnet("MAGNET");
-  //         //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
-  //            //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
-  //               //fRun->AddModule(Magnet);
-  //FairModule *Dipole= new PndMagnet("MAGNET");
-  //Dipole->SetGeometryFileName("dipole.geo");
-  //fRun->AddModule(Dipole);
-  //-------------------------  Pipe     -----------------
-  //FairModule *Pipe= new PndPipe("PIPE");
-  //Pipe->SetGeometryFileName("beampipe_201309.root");
-  //fRun->AddModule(Pipe);                                    
+    //-------------------------  Magnet   -----------------
+    //   // This part is commented because the MDT geometry contains the magnet now
+    //      //FairModule *Magnet= new PndMagnet("MAGNET");
+    //         //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+    //            //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+    //               //fRun->AddModule(Magnet);
+    FairModule *Dipole= new PndMagnet("MAGNET");
+    Dipole->SetGeometryFileName("dipole.geo");
+    fRun->AddModule(Dipole);
+    //-------------------------  Pipe     -----------------
+    FairModule *Pipe= new PndPipe("PIPE");
+    Pipe->SetGeometryFileName("beampipe_201309.root");
+    fRun->AddModule(Pipe);                                    
+    //-------------------------  STT       -----------------
+    FairDetector *Stt= new PndStt("STT", kTRUE);
+    Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+    fRun->AddModule(Stt);
+    //-------------------------  MVD       -----------------
+    // FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+    // Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+    // fRun->AddModule(Mvd);
+    FairDetector *Mvd = new PndMvdDetector("MVD1", kTRUE);
+    Mvd->SetGeometryFileName("MVD_HV_MAPS.root");
+    fRun->AddModule(Mvd);
 
-  //FairDetector *Stt= new PndStt("STT", kTRUE);
-  //Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  //fRun->AddModule(Stt);
+    FairDetector *Mvd_S = new PndMvdDetector("MVD2", kTRUE);
+    Mvd_S->SetGeometryFileName("Mvd-2.1-Strips.root");
+    fRun->AddModule(Mvd_S);
+    //-------------------------  GEM       -----------------
+    FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+    Gem->SetGeometryFileName("gem_3Stations_realistic_v2.root");
+    fRun->AddModule(Gem);
+    //-------------------------  EMC       -----------------
+    PndEmc *Emc = new PndEmc("EMC",kTRUE);
+    Emc->SetGeometryVersion(1);
+    Emc->SetStorageOfData(kFALSE);
+    fRun->AddModule(Emc);
+    //-------------------------  SCITIL    -----------------
+    FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+    SciT->SetGeometryFileName("SciTil_201601.root");
+    fRun->AddModule(SciT);
+    //-------------------------  DRC       -----------------
+    PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+    Drc->SetGeometryFileName("dirc_e3_b3_l6_m40.root");
+    Drc->SetRunCherenkov(kFALSE);
+    fRun->AddModule(Drc);
+    //-------------------------  DISC      -----------------
+    PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+    Dsk->SetStoreCerenkovs(kFALSE);
+    Dsk->SetStoreTrackPoints(kFALSE);
+    fRun->AddModule(Dsk);
+    //-------------------------  MDT       -----------------
+    PndMdt *Muo = new PndMdt("MDT",kTRUE);
+    Muo->SetBarrel("fast");
+    Muo->SetEndcap("fast");
+    Muo->SetMuonFilter("fast");
+    Muo->SetForward("fast");
+    Muo->SetMdtMagnet(kTRUE);
+    Muo->SetMdtCoil(kTRUE);
+    Muo->SetMdtMFIron(kTRUE);
+    fRun->AddModule(Muo);
 
-//  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-//  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-//  fRun->AddModule(Mvd);
+    //-------------------------  FTS       -----------------
+    FairDetector *Fts= new PndFts("FTS", kTRUE);
+    Fts->SetGeometryFileName("fts.geo");
+    fRun->AddModule(Fts);
+    //-------------------------  FTOF      -----------------
+    FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+    FTof->SetGeometryFileName("ftofwall.root");
+    fRun->AddModule(FTof);
+    //-------------------------  RICH       ----------------
+    PndRich *Rich= new PndRich("RICH",kTRUE);
+    Rich->SetGeometryFileName("rich_v313.root");
+    fRun->AddModule(Rich);
+  }
+  
+  else fRun->CreateGeometry();
 
-  //FairDetector *Mvd = new PndMvdDetector("MVD1", kTRUE);
-  //Mvd->SetGeometryFileName("MVD_HV_MAPS.root");
-  //fRun->AddModule(Mvd);
-
-  //FairDetector *Mvd_S = new PndMvdDetector("MVD2", kTRUE);
-  //Mvd_S->SetGeometryFileName("Mvd-2.1-Strips.root");
-  //fRun->AddModule(Mvd_S);
-
-   //-------------------------  GEM       -----------------
-   //FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-   //Gem->SetGeometryFileName("gem_3Stations_realistic_v2.root");
-   //fRun->AddModule(Gem);
-   //-------------------------  EMC       -----------------
-   //PndEmc *Emc = new PndEmc("EMC",kTRUE);
-   //Emc->SetGeometryVersion(1);
-   //Emc->SetStorageOfData(kFALSE);
-   //fRun->AddModule(Emc);
-   //-------------------------  SCITIL    -----------------
-   //FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-   //SciT->SetGeometryFileName("SciTil_201601.root");
-   //fRun->AddModule(SciT);
-   //-------------------------  DRC       -----------------
-   //PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-   //Drc->SetGeometryFileName("dirc_e3_b3_l6_m40.root");
-   //Drc->SetRunCherenkov(kFALSE);
-   //fRun->AddModule(Drc);
-   //-------------------------  DISC      -----------------
-   //PndDsk* Dsk = new PndDsk("DSK", kTRUE);
-   //Dsk->SetStoreCerenkovs(kFALSE);
-   //Dsk->SetStoreTrackPoints(kFALSE);
-   //fRun->AddModule(Dsk);
-   //-------------------------  MDT       -----------------
-   //PndMdt *Muo = new PndMdt("MDT",kTRUE);
-   //Muo->SetBarrel("fast");
-   //Muo->SetEndcap("fast");
-   //Muo->SetMuonFilter("fast");
-   //Muo->SetForward("fast");
-   //Muo->SetMdtMagnet(kTRUE);
-   //Muo->SetMdtCoil(kTRUE);
-   //Muo->SetMdtMFIron(kTRUE);
-   //fRun->AddModule(Muo);
-
- //-------------------------  FTS       -----------------
- //FairDetector *Fts= new PndFts("FTS", kTRUE);
- //Fts->SetGeometryFileName("fts.geo");
- //fRun->AddModule(Fts);
- //-------------------------  FTOF      -----------------
- //FairDetector *FTof = new PndFtof("FTOF",kTRUE);
- //FTof->SetGeometryFileName("ftofwall.root");
- //fRun->AddModule(FTof);
- //-------------------------  RICH       ----------------
- //PndRich *Rich= new PndRich("RICH",kTRUE);
- //Rich->SetGeometryFileName("rich_v313.root");
- //fRun->AddModule(Rich);
-
- // -----   Event generator   ----------------------------------------------
-  fRun->SetGenerator();
-
-  // -----   Event filter setup   -------------------------------------------
+  // -----   Event generator   ----------------------------------------------
+  fRun->SetGenerator();  // -----   Event filter setup   -------------------------------------------
   // fetch the PndFilteredPrimaryGenerator (only existing if option contains 'PndFiltPrim')
   PndFilteredPrimaryGenerator *primGen = fRun->GetPndFilteredPrimaryGenerator();
   // ---- Example configuration for the event filter ------------------------
