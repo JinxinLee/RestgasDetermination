@@ -167,14 +167,14 @@ def main():
     # Re-run combined Reco and PID
     aod_complete_log = f"{out_prefix}_aod_complete.log"
     aod_complete_output = f"{out_prefix}_pid_poca.root"
-    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{out_prefix}\\")"', aod_complete_log, aod_complete_output, env=fit_env):
+    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{out_prefix}\\", {use_mvd_str})"', aod_complete_log, aod_complete_output, env=fit_env):
         sys.exit(1)
     append_nevents(aod_complete_log)
 
     # Re-run final analysis
     ana_complete_log = f"{out_prefix}_ana_complete.log"
     ana_complete_output = f"{out_prefix}_poca.root"
-    if not run_command(f'root -l -b -q "ana_complete.C({args.nevts}, \\"{out_prefix}\\")"', ana_complete_log, ana_complete_output, env=fit_env):
+    if not run_command(f'root -l -b -q "ana_complete.C({args.nevts}, \\"{out_prefix}\\", {use_mvd_str})"', ana_complete_log, ana_complete_output, env=fit_env):
         sys.exit(1)
     append_nevents(ana_complete_log)
 
