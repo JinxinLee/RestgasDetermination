@@ -12,11 +12,10 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
 // root  digi_complete.C  or in root session root>.x  digi_complete.C
-int reco_complete(Int_t nEvents = 0, TString prefix = "../data/evtcomplete")
+int reco_complete(Int_t nEvents = 0, TString prefix = "../data/evtcomplete", Bool_t use_mvd_hvmaps = false)
 { 
   //-----User Settings:------------------------------------------------------
-  //TString parAsciiFile = "all_hvmaps.par";
-  TString parAsciiFile   = "all.par";
+  TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
   //TString input = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
   TString output = "reco";
   TString friend1 = "sim";

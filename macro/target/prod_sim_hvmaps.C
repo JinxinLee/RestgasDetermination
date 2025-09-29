@@ -10,23 +10,24 @@
 // root -l -b -q 'prod_sim.C("DpmInel",  100, "DPM",                      12.)'
 // root -l -b -q 'prod_sim.C("Box1Kp",   100, "BOX:type(321,1):p(0.1,10):tht(22,140):phi(0,360)",1.)'
 
-int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0. )
+int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0., Bool_t use_mvd_hvmaps = false)
 {
   if (prefix=="" || inputGen=="" || pbeam==0.) 
   {
     cout << "USAGE:\n";
-    cout << "prod_sim.C( <pref>,  <nevt>, <gen>, <pbeam> )\n\n";
-    cout << "   <pref>     : output file names prefix\n";
-    cout << "   <nevt>     : number of events\n";
-    cout << "   <gen>      : generator input: EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or BOX generator instead\n";
-    cout << "                DPM settings: DPM  = inelastic only,  DPM1 = inel. + elastic, DPM2 = elastic only\n";
-    cout << "                FTF settings: FTF  = inel. + elastic, FTF1 = inelastic only\n";
-    cout << "                BOX settings: type[pdgcode,mult] and optional ranges 'p/tht/phi[min,max]' separated with colon; example: 'BOX:type[211,1]:p[1,5]:tht[45]:phi[90,210]'\n";    
-    cout << "   <pbeam>    : pbar momentum (for BOX generator it still controls the magnetic field) \n\n";
+    cout << "prod_sim_hvmaps.C( <pref>,  <nevt>, <gen>, <pbeam>, <use_mvd_hvmaps> )\n\n";
+    cout << "   <pref>           : output file names prefix\n";
+    cout << "   <nevt>           : number of events\n";
+    cout << "   <gen>            : generator input: EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or BOX generator instead\n";
+    cout << "                      DPM settings: DPM  = inelastic only,  DPM1 = inel. + elastic, DPM2 = elastic only\n";
+    cout << "                      FTF settings: FTF  = inel. + elastic, FTF1 = inelastic only\n";
+    cout << "                      BOX settings: type[pdgcode,mult] and optional ranges 'p/tht/phi[min,max]' separated with colon; example: 'BOX:type[211,1]:p[1,5]:tht[45]:phi[90,210]'\n";    
+    cout << "   <pbeam>          : pbar momentum (for BOX generator it still controls the magnetic field) \n";
+    cout << "   <use_mvd_hvmaps> : boolean (true/false) to select all_hvmaps.par\n\n";
     //    cout << "   <opt>      : option string for PndRunAna (e.g. \"day1\")\n\n";
-    cout << "Example 1 : root -l -b -q 'prod_sim.C(\"EvtD0D0b\", 100, \"D0toKpi.dec:pbarpSystem0\", 12.)'\n";
-    cout << "Example 2 : root -l -b -q 'prod_sim.C(\"DpmInel\",  100, \"DPM\", 12.)'\n";
-    cout << "Example 3 : root -l -b -q 'prod_sim.C(\"SingleK\",  100, \"BOX:type[321,1]:p[0.1,10]:tht[22,140]:phi[0,360]\", 12.)'\n\n";
+    cout << "Example 1 : root -l -b -q 'prod_sim_hvmaps.C(\"EvtD0D0b\", 100, \"D0toKpi.dec:pbarpSystem0\", 12., false)'\n";
+    cout << "Example 2 : root -l -b -q 'prod_sim_hvmaps.C(\"DpmInel\",  100, \"DPM\", 12., true)'\n";
+    cout << "Example 3 : root -l -b -q 'prod_sim_hvmaps.C(\"SingleK\",  100, \"BOX:type[321,1]:p[0.1,10]:tht[22,140]:phi[0,360]\", 12., false)'\n\n";
     
     return 0;
   }
@@ -52,8 +53,7 @@ int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="",
   //-----User Settings:-----------------------------------------------
   TString  SimEngine      = "TGeant4";
   TString  Workdir        = gSystem->Getenv("VMCWORKDIR");
-  //TString  parAsciiFile   = "all_hvmaps.par";
-  TString  parAsciiFile   = "all.par";
+  TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
 
   // ---- check flag for DPM/FTF -------------------------------------
   Int_t    genflag = 0;
@@ -181,5 +181,5 @@ int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="",
   fRun->Finish();
   
   return 0;
-}  
-  
+}
+

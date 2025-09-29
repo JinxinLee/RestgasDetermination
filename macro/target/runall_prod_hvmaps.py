@@ -69,7 +69,12 @@ def main():
     parser.add_argument('nevts', nargs='?', type=int, default=1000, help='Number of events to simulate.')
     parser.add_argument('dec', nargs='?', default='pp_dd', help='Name of EvtGen decay file or generator type (DPM/FTF/BOX).')
     parser.add_argument('mom', nargs='?', type=float, default=8.9, help='Momentum of the pbar-beam.')
+    parser.add_argument('use_mvd_hvmaps', nargs='?', default='false', choices=['true', 'false'], help='Set to "true" to use new MVD with hvmaps, otherwise "false".')
     args = parser.parse_args()
+
+    # The argument is already a string "true" or "false"
+    use_mvd_str = args.use_mvd_hvmaps
+    print(f"use_mvd_hvmaps={use_mvd_str}, so macros will use new MVD with hvmaps")
 
     # Environment setup
     print("SIMPATH is", os.environ.get('SIMPATH', 'Not set'))
@@ -85,7 +90,7 @@ def main():
     
     # Simulation
     sim_log = f"{out_prefix}_sim.log"
-    if not run_command(f'root -l -q -b "prod_sim_hvmaps.C(\\"{out_prefix}\\", {args.nevts}, \\"{args.dec}\\", {args.mom})"', sim_log):
+    if not run_command(f'root -l -q -b "prod_sim_hvmaps.C(\\"{out_prefix}\\", {args.nevts}, \\"{args.dec}\\", {args.mom}, {use_mvd_str})"', sim_log):
         sys.exit(1)
     
     num_ev_line = get_generated_events(sim_log)
@@ -97,25 +102,25 @@ def main():
 
     # Digitization
     digi_log = f"{out_prefix}_digi.log"
-    if not run_command(f'root -l -b -q "prod_aod_hvmaps.C(\\"{out_prefix}\\")"', digi_log):
+    if not run_command(f'root -l -b -q "prod_aod_hvmaps.C(\\"{out_prefix}\\", {use_mvd_str})"', digi_log):
         sys.exit(1)
     append_nevents(digi_log)
 
     # Reconstruction
     reco_log = f"{out_prefix}_reco.log"
-    if not run_command(f'root -l -b -q "reco_complete.C({args.nevts}, \\"{out_prefix}\\")"', reco_log):
+    if not run_command(f'root -l -b -q "reco_complete.C({args.nevts}, \\"{out_prefix}\\", {use_mvd_str})"', reco_log):
         sys.exit(1)
     append_nevents(reco_log)
 
     # PID
     pid_log = f"{out_prefix}_pid.log"
-    if not run_command(f'root -l -b -q "pid_complete.C({args.nevts}, \\"{out_prefix}\\")"', pid_log):
+    if not run_command(f'root -l -b -q "pid_complete.C({args.nevts}, \\"{out_prefix}\\", {use_mvd_str})"', pid_log):
         sys.exit(1)
     append_nevents(pid_log)
 
     # Analysis for Vertex Fitting
     ana_log = f"{out_prefix}_ana.log"
-    if not run_command(f'root -l -b -q "ana_dpm.C({args.nevts}, \\"{out_prefix}\\")"', ana_log):
+    if not run_command(f'root -l -b -q "ana_dpm.C({args.nevts}, \\"{out_prefix}\\", {use_mvd_str})"', ana_log):
         sys.exit(1)
     append_nevents(ana_log)
 
@@ -151,13 +156,13 @@ def main():
 
     # Re-run combined Reco and PID
     aod_complete_log = f"{out_prefix}_aod_complete.log"
-    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{out_prefix}\\", \\"from_fit\\")"', aod_complete_log, env=fit_env):
+    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{out_prefix}\\", {use_mvd_str})"', aod_complete_log, env=fit_env):
         sys.exit(1)
     append_nevents(aod_complete_log)
 
     # Re-run final analysis
     ana_complete_log = f"{out_prefix}_ana_complete.log"
-    if not run_command(f'root -l -b -q "ana_complete.C({args.nevts}, \\"{out_prefix}\\", \\"from_fit\\")"', ana_complete_log, env=fit_env):
+    if not run_command(f'root -l -b -q "ana_complete.C({args.nevts}, \\"{out_prefix}\\", {use_mvd_str})"', ana_complete_log, env=fit_env):
         sys.exit(1)
     append_nevents(ana_complete_log)
 
