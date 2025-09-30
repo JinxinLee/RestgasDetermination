@@ -12,7 +12,7 @@ int prod_aod_complete(TString prefix="", TString suffix = "", Bool_t use_mvd_hvm
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
   TString  output         = "pid_poca";
-  TString  opt            = "genfit2fitvertex";
+  TString  opt            = "genfit2";
   if (suffix != "") opt += suffix;
   TString friend1 = "sim";
   TString friend2 = "digi";
