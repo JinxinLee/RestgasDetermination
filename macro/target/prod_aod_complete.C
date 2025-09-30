@@ -11,10 +11,9 @@ int prod_aod_complete(TString prefix="", Bool_t use_mvd_hvmaps = false)
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
   TString  output         = "pid_poca";
-  TString  opt            = "genfit2";
+  TString  opt            = "genfit2fitvertex";
   TString friend1 = "sim";
   TString friend2 = "digi";
-  TString  opt    = "fitvertex";
   
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
@@ -27,7 +26,7 @@ int prod_aod_complete(TString prefix="", Bool_t use_mvd_hvmaps = false)
   if (opt!="") fRun->SetOptions(opt);
 
   // -----   Add tasks   ----------------------------------------------------
-  //fRun->AddDigiTasks(/*kFALSE*/);
+  fRun->AddDigiTasks(/*kFALSE*/);
   fRun->AddRecoTasks(/*kFALSE*/);
   fRun->AddPidTasks();
 
