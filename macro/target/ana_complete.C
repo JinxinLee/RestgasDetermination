@@ -4,7 +4,7 @@ class PndAnaPidSelector;
 class PndAnaPidCombiner;
 class PndAnalysis;
 
-void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false)
+void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".")
 {
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
@@ -689,8 +689,8 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
     tree->Draw("pvz>>h_vtx_z", valid_data, ""); // Draw without fitting
   }
   
-  c1->SaveAs(prefix + "_vtx_verification.png");
-  std::cout << "Verification histograms saved to " << prefix << "_vtx_verification.png" << std::endl;
+  c1->SaveAs(figure_path + "/" + prefix + "_vtx_verification.png");
+  std::cout << "Verification histograms saved to " << figure_path << "/" << prefix << "_vtx_verification.png" << std::endl;
   // --- END OF ANALYSIS SCRIPT ---
 
   fRun->Finish();

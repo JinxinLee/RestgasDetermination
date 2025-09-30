@@ -10,12 +10,12 @@
 // root -l -b -q 'prod_sim.C("DpmInel",  100, "DPM",                      12.)'
 // root -l -b -q 'prod_sim.C("Box1Kp",   100, "BOX:type(321,1):p(0.1,10):tht(22,140):phi(0,360)",1.)'
 
-int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0., Bool_t use_mvd_hvmaps = false)
+int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0., Bool_t use_mvd_hvmaps = false, Float_t ipx = 0.2, Float_t ipy = 0.3, Float_t ipz = -5.0, Bool_t use_restgas = false, Float_t theta_min = 22.0, Float_t theta_max = 140.0)
 {
   if (prefix=="" || inputGen=="" || pbeam==0.) 
   {
     cout << "USAGE:\n";
-    cout << "prod_sim_hvmaps.C( <pref>,  <nevt>, <gen>, <pbeam>, <use_mvd_hvmaps> )\n\n";
+    cout << "prod_sim_hvmaps.C( <pref>,  <nevt>, <gen>, <pbeam>, <use_mvd_hvmaps>, <ipx>, <ipy>, <ipz>, <use_restgas>, <theta_min>, <theta_max> )\n\n";
     cout << "   <pref>           : output file names prefix\n";
     cout << "   <nevt>           : number of events\n";
     cout << "   <gen>            : generator input: EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or BOX generator instead\n";
@@ -23,10 +23,16 @@ int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="",
     cout << "                      FTF settings: FTF  = inel. + elastic, FTF1 = inelastic only\n";
     cout << "                      BOX settings: type[pdgcode,mult] and optional ranges 'p/tht/phi[min,max]' separated with colon; example: 'BOX:type[211,1]:p[1,5]:tht[45]:phi[90,210]'\n";    
     cout << "   <pbeam>          : pbar momentum (for BOX generator it still controls the magnetic field) \n";
-    cout << "   <use_mvd_hvmaps> : boolean (true/false) to select all_hvmaps.par\n\n";
+    cout << "   <use_mvd_hvmaps> : boolean (true/false) to select all_hvmaps.par\n";
+    cout << "   <ipx>            : IP x coordinate\n";
+    cout << "   <ipy>            : IP y coordinate\n";
+    cout << "   <ipz>            : IP z coordinate\n";
+    cout << "   <use_restgas>    : boolean (true/false) to use restgas generator\n";
+    cout << "   <theta_min>      : theta min for DPM generator\n";
+    cout << "   <theta_max>      : theta max for DPM generator\n\n";
     //    cout << "   <opt>      : option string for PndRunAna (e.g. \"day1\")\n\n";
     cout << "Example 1 : root -l -b -q 'prod_sim_hvmaps.C(\"EvtD0D0b\", 100, \"D0toKpi.dec:pbarpSystem0\", 12., false)'\n";
-    cout << "Example 2 : root -l -b -q 'prod_sim_hvmaps.C(\"DpmInel\",  100, \"DPM\", 12., true)'\n";
+    cout << "Example 2 : root -l -b -q 'prod_sim_hvmaps.C(\"DpmInel\",  100, \"DPM\", 12., true, 0.2, 0.3, -5.0, false, 22.0, 140.0)'\n";
     cout << "Example 3 : root -l -b -q 'prod_sim_hvmaps.C(\"SingleK\",  100, \"BOX:type[321,1]:p[0.1,10]:tht[22,140]:phi[0,360]\", 12., false)'\n\n";
     
     return 0;
@@ -66,14 +72,15 @@ int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="",
   fRun->SetInput(inputGen);
   fRun->SetDpmFlag(genflag);
   fRun->SetFtfFlag(genflag);
-  fRun->SetTargetMode(0);
+  fRun->SetTargetMode(use_restgas ? 6 : 0);
   fRun->SetName(SimEngine);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->SetNumberOfEvents(nEvents);
   fRun->SetBeamMom(pbeam);
   //fRun->SetDpmTheta_min(0.2 / 3.1415926 * 180.);
-  fRun->SetDpmTheta_min(22.);
-  fRun->SetIP(0.2, 0.3, -5.);
+  fRun->SetDpmTheta_min(theta_min);
+  fRun->SetDpmTheta_max(theta_max);
+  fRun->SetIP(ipx, ipy, ipz);
   if (opt!="") fRun->SetOptions(opt);
 
   //fRun->SetStoreTraj(kTRUE);//evtdisplay

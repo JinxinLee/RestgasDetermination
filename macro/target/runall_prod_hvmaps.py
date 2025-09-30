@@ -57,87 +57,81 @@ def run_command(command, log_file, output_file, env=None):
             f.write("Error: 'root' command not found. Make sure ROOT is installed and in your PATH.")
         return False
 
+def load_config(config_file='config.json'):
+    """Loads configuration from a JSON file."""
+    if os.path.exists(config_file):
+        print(f"Loading configuration from {config_file}")
+        with open(config_file, 'r') as f:
+            return json.load(f)
+    print(f"Configuration file {config_file} not found. Using defaults and command-line arguments.")
+    return {}
+
 def get_generated_events(log_file):
     """Extracts the number of generated events from a log file."""
     try:
         with open(log_file, 'r') as f:
-            for line in reversed(list(f)):
-                if 'Generated Events' in line:
+            for line in f:
+                if "Number of events generated" in line:
                     return line.strip()
     except FileNotFoundError:
         return None
     return None
 
-def main():
-    parser = argparse.ArgumentParser(description='Run the complete analysis chain for rest gas determination.')
-    parser.add_argument('prefix', nargs='?', default='9999', help='Prefix for output files.')
-    parser.add_argument('nevts', nargs='?', type=int, default=1000, help='Number of events to simulate.')
-    parser.add_argument('dec', nargs='?', default='pp_dd', help='Name of EvtGen decay file or generator type (DPM/FTF/BOX).')
-    parser.add_argument('mom', nargs='?', type=float, default=8.9, help='Momentum of the pbar-beam.')
-    parser.add_argument('use_mvd_hvmaps', nargs='?', default='false', choices=['true', 'false'], help='Set to "true" to use new MVD with hvmaps, otherwise "false".')
-    args = parser.parse_args()
+def run_poca_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
+    """Runs the full two-pass analysis workflow to fit the vertex."""
+    print("\n--- Running POCA Workflow (Two-Pass Analysis) ---")
 
-    # The argument is already a string "true" or "false"
-    use_mvd_str = args.use_mvd_hvmaps
-    print(f"use_mvd_hvmaps={use_mvd_str}, so macros will use new MVD with hvmaps")
-
-    # Environment setup
-    print("SIMPATH is", os.environ.get('SIMPATH', 'Not set'))
-    print("FAIRROOTPATH is", os.environ.get('FAIRROOTPATH', 'Not set'))
-
-    slurm_id = os.environ.get('SLURM_ARRAY_TASK_ID', '1')
-    out_prefix = f"data/dpm/{args.prefix}_{slurm_id}"
-    
-    os.makedirs(os.path.dirname(out_prefix), exist_ok=True)
-
-    # --- Step 1: Initial Workflow ---
-    print("\n--- Running Initial Workflow ---")
+    # --- Step 1: Initial Workflow for Vertex Fitting ---
     
     # Simulation
-    sim_log = f"{out_prefix}_sim.log"
-    sim_output = f"{out_prefix}_sim.root"
-    if not run_command(f'root -l -q -b "prod_sim_hvmaps.C(\\"{out_prefix}\\", {args.nevts}, \\"{args.dec}\\", {args.mom}, {use_mvd_str})"', sim_log, sim_output):
+    sim_log = os.path.join(log_path, f"{out_prefix}_sim.log")
+    sim_output = os.path.join(reco_path, f"{out_prefix}_sim.root")
+    sim_command = (
+        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
+        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
+    )
+    if not run_command(sim_command, sim_log, sim_output):
         sys.exit(1)
     
     num_ev_line = get_generated_events(sim_log)
-
     def append_nevents(log_file):
         if num_ev_line:
             with open(log_file, 'a') as f:
                 f.write('\n' + num_ev_line)
 
     # Digitization
-    digi_log = f"{out_prefix}_digi.log"
-    digi_output = f"{out_prefix}_digi.root"
-    if not run_command(f'root -l -b -q "prod_aod_hvmaps.C(\\"{out_prefix}\\", {use_mvd_str})"', digi_log, digi_output):
+    digi_log = os.path.join(log_path, f"{out_prefix}_digi.log")
+    digi_output = os.path.join(reco_path, f"{out_prefix}_digi.root")
+    if not run_command(f'root -l -b -q "prod_aod_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str})"', digi_log, digi_output):
         sys.exit(1)
     append_nevents(digi_log)
 
     # Reconstruction
-    reco_log = f"{out_prefix}_reco.log"
-    reco_output = f"{out_prefix}_reco.root"
-    if not run_command(f'root -l -b -q "reco_complete.C({args.nevts}, \\"{out_prefix}\\", {use_mvd_str})"', reco_log, reco_output):
+    reco_log = os.path.join(log_path, f"{out_prefix}_reco.log")
+    reco_output = os.path.join(reco_path, f"{out_prefix}_reco.root")
+    if not run_command(f'root -l -b -q "reco_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str})"', reco_log, reco_output):
         sys.exit(1)
     append_nevents(reco_log)
 
     # PID
-    pid_log = f"{out_prefix}_pid.log"
-    pid_output = f"{out_prefix}_pid.root"
-    if not run_command(f'root -l -b -q "pid_complete.C({args.nevts}, \\"{out_prefix}\\", {use_mvd_str})"', pid_log, pid_output):
+    pid_log = os.path.join(log_path, f"{out_prefix}_pid.log")
+    pid_output = os.path.join(reco_path, f"{out_prefix}_pid.root")
+    if not run_command(f'root -l -b -q "pid_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str})"', pid_log, pid_output):
         sys.exit(1)
     append_nevents(pid_log)
 
     # Analysis for Vertex Fitting
-    ana_log = f"{out_prefix}_ana.log"
-    ana_output = f"{out_prefix}_vtx_fit.json"
-    if not run_command(f'root -l -b -q "ana_dpm.C({args.nevts}, \\"{out_prefix}\\", {use_mvd_str})"', ana_log, ana_output):
+    ana_log = os.path.join(log_path, f"{out_prefix}_ana.log")
+    ana_output = os.path.join(reco_path, f"{out_prefix}_vtx_fit.json")
+    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\")"'
+    if not run_command(ana_dpm_cmd, ana_log, ana_output):
         sys.exit(1)
     append_nevents(ana_log)
 
     # --- Step 2: Re-run with Fitted Vertex ---
     print("\n--- Re-running Reco/PID with Fitted Vertex ---")
     
-    json_fit_file = f"{out_prefix}_vtx_fit.json"
+    json_fit_file = os.path.join(reco_path, f"{out_prefix}_vtx_fit.json")
     
     # Read vertex from JSON and set environment variables
     try:
@@ -163,20 +157,148 @@ def main():
         print("Skipping re-run of reco and pid.", file=sys.stderr)
         sys.exit(1)
 
-
     # Re-run combined Reco and PID
-    aod_complete_log = f"{out_prefix}_aod_complete.log"
-    aod_complete_output = f"{out_prefix}_pid_poca.root"
-    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{out_prefix}\\", {use_mvd_str})"', aod_complete_log, aod_complete_output, env=fit_env):
+    aod_complete_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
+    aod_complete_output = os.path.join(reco_path, f"{out_prefix}_pid_poca.root")
+    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(reco_path, out_prefix)}\\", \\"fitvertex\\", {use_mvd_str})"', aod_complete_log, aod_complete_output, env=fit_env):
         sys.exit(1)
     append_nevents(aod_complete_log)
 
     # Re-run final analysis
-    ana_complete_log = f"{out_prefix}_ana_complete.log"
-    ana_complete_output = f"{out_prefix}_poca.root"
-    if not run_command(f'root -l -b -q "ana_complete.C({args.nevts}, \\"{out_prefix}\\", {use_mvd_str})"', ana_complete_log, ana_complete_output, env=fit_env):
+    ana_complete_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
+    ana_complete_output = os.path.join(reco_path, f"{out_prefix}_poca.root")
+    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\")"'
+    if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output, env=fit_env):
         sys.exit(1)
     append_nevents(ana_complete_log)
+
+def run_mc_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
+    """Runs the simplified workflow using the MC vertex directly."""
+    print("\n--- Running MC Workflow (Single Pass) ---")
+
+    # --- Step 1: Simulation ---
+    sim_log = os.path.join(log_path, f"{out_prefix}_sim.log")
+    sim_output = os.path.join(reco_path, f"{out_prefix}_sim.root")
+    sim_command = (
+        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
+        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
+    )
+    if not run_command(sim_command, sim_log, sim_output):
+        sys.exit(1)
+
+    num_ev_line = get_generated_events(sim_log)
+    def append_nevents(log_file):
+        if num_ev_line:
+            with open(log_file, 'a') as f:
+                f.write('\n' + num_ev_line)
+
+    # --- Step 2: Combined AOD and Final Analysis ---
+    
+    # Run combined Reco and PID using MC vertex
+    aod_complete_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
+    aod_complete_output = os.path.join(reco_path, f"{out_prefix}_pid_poca.root")
+    if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(reco_path, out_prefix)}\\", \\"mcvertex\\", {use_mvd_str})"', aod_complete_log, aod_complete_output):
+        sys.exit(1)
+    append_nevents(aod_complete_log)
+
+    # Run final analysis
+    ana_complete_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
+    ana_complete_output = os.path.join(reco_path, f"{out_prefix}_poca.root")
+    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\")"'
+    if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output):
+        sys.exit(1)
+    append_nevents(ana_complete_log)
+
+def main():
+    # --- Configuration Loading and Argument Parsing ---
+    
+    # Load configuration from file first
+    config = load_config('config.json')
+
+    # Set up parser
+    parser = argparse.ArgumentParser(description='Run the complete analysis chain for rest gas determination.')
+    
+    # Define arguments. The defaults will be overridden by config values,
+    # and then by any command-line arguments provided.
+    parser.add_argument('--prefix', type=str, help='Prefix for output files.')
+    parser.add_argument('--nevts', type=int, help='Number of events to simulate.')
+    parser.add_argument('--dec', type=str, help='Name of EvtGen decay file or generator type (DPM/FTF/BOX).')
+    parser.add_argument('--mom', type=float, help='Momentum of the pbar-beam.')
+    parser.add_argument('--use_mvd_hvmaps', choices=['true', 'false'], help='Set to "true" to use new MVD with hvmaps.')
+    parser.add_argument('--ipx', type=float, help='IP x coordinate.')
+    parser.add_argument('--ipy', type=float, help='IP y coordinate.')
+    parser.add_argument('--ipz', type=float, help='IP z coordinate.')
+    parser.add_argument('--use_restgas', choices=['true', 'false'], help='Set to "true" to use restgas target.')
+    parser.add_argument('--theta_min', type=float, help='Theta min for DPM generator.')
+    parser.add_argument('--theta_max', type=float, help='Theta max for DPM generator.')
+    parser.add_argument('--back_prop_vertex', choices=['poca', 'mc'], help='Vertex source for back propagation.')
+    parser.add_argument('--output_path', type=str, help='Base path for output files.')
+    
+    # Parse command-line arguments
+    args = parser.parse_args()
+
+    # --- Parameter Resolution ---
+    # Create a final parameters object. Start with hardcoded defaults,
+    # update with config file values, then update with command-line arguments.
+    
+    final_params = {
+        'prefix': '9999',
+        'nevts': 1000,
+        'dec': 'pp_dd',
+        'mom': 4.06,
+        'use_mvd_hvmaps': 'false',
+        'ipx': 0.0,
+        'ipy': 0.0,
+        'ipz': 0.0,
+        'use_restgas': 'false',
+        'theta_min': 0.0,
+        'theta_max': 180.0,
+        'back_prop_vertex': 'poca',
+        'output_path': 'data'
+    }
+
+    # Update with config file values
+    final_params.update(config)
+
+    # Update with command-line arguments that were actually provided
+    for key, value in vars(args).items():
+        if value is not None:
+            final_params[key] = value
+            
+    # Use a Namespace for dot notation access, similar to argparse
+    p = argparse.Namespace(**final_params)
+
+    # The argument is already a string "true" or "false"
+    use_mvd_str = p.use_mvd_hvmaps
+    print(f"--- Final Parameters ---")
+    for key, value in final_params.items():
+        print(f"{key}: {value}")
+    print("------------------------")
+
+    # --- Path Setup ---
+    # Construct the base path for this specific job prefix
+    base_path = os.path.join(p.output_path, p.prefix)
+    
+    log_path = os.path.join(base_path, 'log')
+    reco_path = os.path.join(base_path, 'reco')
+    figure_path = os.path.join(base_path, 'figure')
+
+    os.makedirs(log_path, exist_ok=True)
+    os.makedirs(reco_path, exist_ok=True)
+    os.makedirs(figure_path, exist_ok=True)
+
+    slurm_id = os.environ.get('SLURM_ARRAY_TASK_ID', '1')
+    # Note: out_prefix no longer contains the subdirectories
+    out_prefix = f"{p.prefix}_{slurm_id}"
+    
+    # --- Workflow Selection ---
+    if p.back_prop_vertex == 'poca':
+        run_poca_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path)
+    elif p.back_prop_vertex == 'mc':
+        run_mc_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path)
+    else:
+        print(f"Error: Invalid back_prop_vertex option '{p.back_prop_vertex}'. Choose 'poca' or 'mc'.", file=sys.stderr)
+        sys.exit(1)
 
     print("\nWorkflow completed successfully.")
 

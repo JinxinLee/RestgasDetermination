@@ -1,10 +1,11 @@
-int prod_aod_complete(TString prefix="", Bool_t use_mvd_hvmaps = false)
+int prod_aod_complete(TString prefix="", TString suffix = "", Bool_t use_mvd_hvmaps = false)
 {
   if (prefix=="") 
   {
     cout << "USAGE:\n";
     cout << "prod_aod_complete.C( <pref>, <suffix>, <use_mvd_hvmaps> )\n\n";
     cout << "   <pref>           : input/output file names prefix\n";
+    cout << "   <suffix>         : suffix for the option string\n";
     cout << "   <use_mvd_hvmaps> : boolean (true/false) to select all_hvmaps.par\n\n";
     return 0;
   }
@@ -12,6 +13,7 @@ int prod_aod_complete(TString prefix="", Bool_t use_mvd_hvmaps = false)
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
   TString  output         = "pid_poca";
   TString  opt            = "genfit2fitvertex";
+  if (suffix != "") opt += suffix;
   TString friend1 = "sim";
   TString friend2 = "digi";
   

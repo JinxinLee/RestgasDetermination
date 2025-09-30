@@ -1,86 +1,125 @@
-# Two-Pass Vertex-Fitted Analysis Workflow
+# Advanced Analysis Workflow Orchestrator
 
-This document describes a specialized two-pass analysis workflow designed to improve track reconstruction by using a primary vertex fit from an initial analysis pass.
+This document describes a configurable, multi-workflow analysis pipeline managed by the `runall_prod_hvmaps.py` script. It supports different analysis strategies through a centralized configuration system and is designed for both local testing and large-scale cluster production.
 
-## Workflow Overview
+## Core Concepts
 
-The process is managed by the `runall_prod_hvmaps.py` script and can be broken down into two main stages:
+### 1. Central Orchestrator
+The `runall_prod_hvmaps.py` script is the single entry point for the entire workflow. It reads configurations, resolves parameters, creates the necessary directory structure, and executes the required ROOT macros in sequence.
 
-1.  **Pass 1: Initial Vertex Finding**
-    - The standard simulation, digitization, reconstruction, and PID chain is executed.
-    - The `ana_dpm.C` macro is run on the output. This script performs a robust Gaussian fit to the POCA (Point of Closest Approach) vertex distribution of proton-antiproton pairs to determine the primary interaction vertex.
-    - The fitted vertex coordinates (X, Y, Z) are saved to a JSON file: `<prefix>_<job_id>_vtx_fit.json`.
+### 2. Configuration Management
+All parameters are managed through a `config.json` file. This allows for easy switching between different physics scenarios without modifying the scripts.
 
-2.  **Pass 2: Vertex-Constrained Rerunning & Verification**
-    - The `runall_prod_hvmaps.py` orchestrator script reads the coordinates from the JSON file.
-    - It exports these coordinates as environment variables (`FIT_VERTEX_X`, `FIT_VERTEX_Y`, `FIT_VERTEX_Z`).
-    - It then executes `prod_aod_complete.C`, which reruns the reconstruction and PID steps. The core tracking code (`PndPidTrackInfo`) is configured to use the vertex coordinates from the environment variables as a constraint, improving track parameter resolution.
-    - Finally, `ana_complete.C` is run as a verification step. It generates histograms of the newly fitted vertex coordinates (`pvx`, `pvy`, `pvz`) to confirm the results of the second pass. These plots are saved as `<prefix>_<job_id>_vtx_verification.png`.
+### 3. Parameter Hierarchy
+The script uses a three-tiered parameter system, providing maximum flexibility:
+1.  **Hardcoded Defaults**: Sensible defaults are defined within the script.
+2.  **`config.json`**: Values in this file override the hardcoded defaults.
+3.  **Command-Line Arguments**: Arguments passed directly to the script (e.g., `--nevts 10000`) will override both the defaults and the `config.json` values.
 
-This two-pass approach allows for a more precise analysis by first establishing the primary event vertex and then using that information to refine the final physics results.
+## Available Workflows
 
----
+The `back_prop_vertex` parameter in `config.json` controls which analysis workflow is executed.
 
-# Production Workflow Scripts
+### A. POCA Workflow (`"back_prop_vertex": "poca"`)
+This is a **two-pass analysis** designed to achieve the highest possible track resolution by using a fitted primary vertex.
 
-This directory contains scripts to run the `prod_hvmaps` simulation workflow, both locally and on a SLURM cluster like GSI Virgo.
+-   **Pass 1: Initial Vertex Finding**
+    1.  The standard simulation, digitization, reconstruction, and PID chain is executed.
+    2.  `ana_dpm.C` is run to analyze proton-antiproton pairs and calculate their Point of Closest Approach (POCA) vertex.
+    3.  The fitted vertex coordinates (X, Y, Z) are saved to `<output_path>/<prefix>/reco/<prefix>_<job_id>_vtx_fit.json`.
 
-## Scripts
+-   **Pass 2: Vertex-Constrained Rerunning**
+    1.  The script reads the vertex coordinates from the JSON file.
+    2.  It exports these coordinates as environment variables (`FIT_VERTEX_X`, `FIT_VERTEX_Y`, `FIT_VERTEX_Z`).
+    3.  `prod_aod_complete.C` is executed with the `"fitvertex"` option. This reruns the reconstruction and PID, using the vertex from the environment variables as a constraint.
+    4.  `ana_complete.C` is run as a final verification step, generating plots to confirm the results.
 
-- `runall_prod_hvmaps.sh`: The original bash script that runs the full sequence of ROOT macros.
-- `runall_prod_hvmaps.py`: A Python wrapper that calls `runall_prod_hvmaps.sh`. It accepts the same arguments and is intended for consistency if a Python-based workflow is preferred.
-- `submit_prod_hvmaps.py`: A Python script to generate and submit SLURM `sbatch` jobs. This is the recommended way to run the workflow in parallel on a cluster.
+### B. MC Workflow (`"back_prop_vertex": "mc"`)
+This is a simplified **single-pass analysis** that uses the Monte Carlo truth vertex for back-propagation. It is faster and useful for studies where vertex fitting is not required.
 
-## How to Run on a SLURM Cluster (e.g., GSI Virgo)
+1.  The simulation is run.
+2.  `prod_aod_complete.C` is executed with the `"mcvertex"` option. This runs the reconstruction and PID using the MC truth vertex.
+3.  `ana_complete.C` is run for final analysis.
 
-The `submit_prod_hvmaps.py` script is the main tool for submitting jobs. It generates a temporary `sbatch` script that calls `runall_prod_hvmaps.sh` and submits it for you.
+## Configuration (`config.json`)
 
-### Basic Usage
+All workflow parameters can be set in `config.json`:
 
-To submit a job array, use the `--array` flag. For example, to run 10 jobs:
+| Parameter          | Type    | Description                                                                       |
+| ------------------ | ------- | --------------------------------------------------------------------------------- |
+| `prefix`           | string  | A name for the job, used to create a dedicated output subdirectory.               |
+| `nevts`            | integer | Number of events to generate per job.                                             |
+| `dec`              | string  | EvtGen decay file name or a generator type (e.g., `DPM2`, `FTF`, `BOX`).           |
+| `mom`              | float   | Momentum of the antiproton beam in GeV/c.                                         |
+| `use_mvd_hvmaps`   | string  | `"true"` or `"false"`. Selects the MVD parameter file (`all_hvmaps.par` or `all.par`). |
+| `ipx`, `ipy`, `ipz`| float   | Coordinates of the interaction point (IP) in cm.                                  |
+| `use_restgas`      | string  | `"true"` or `"false"`. If true, enables the rest gas target simulation (`TargetMode=6`). |
+| `theta_min`, `theta_max` | float | Minimum and maximum theta angles (in degrees) for the DPM generator.            |
+| `back_prop_vertex` | string  | Workflow selector. Can be `"poca"` or `"mc"`.                                     |
+| `output_path`      | string  | The absolute base path where all output will be stored.                           |
 
-```bash
-python3 macro/target/submit_prod_hvmaps.py --array 1-10 --prefix 1234 --nevts 5000 --dec DPM2 --pbeam 8.9
+## Output Directory Structure
+
+The script creates a structured output to keep results organized. The structure is:
+
+```
+<output_path>/
+└── <prefix>/
+    ├── log/
+    │   ├── <prefix>_<job_id>_sim.log
+    │   └── ...
+    ├── reco/
+    │   ├── <prefix>_<job_id>_sim.root
+    │   ├── <prefix>_<job_id>_vtx_fit.json
+    │   └── ...
+    └── figure/
+        ├── <prefix>_<job_id>_vtx_fit.png
+        └── ...
 ```
 
-This will create 10 jobs, each with a unique `SLURM_ARRAY_TASK_ID` from 1 to 10. The output files will be named using this ID, e.g., `1234_1_sim.root`, `1234_2_sim.root`, etc.
+## Usage
 
-### Dry Run
-
-Before submitting, you can check the generated `sbatch` script content with `--dry-run`:
-
-```bash
-python3 macro/target/submit_prod_hvmaps.py --dry-run --array 1-5
-```
-
-This will print the `sbatch` script to the console without actually submitting it.
-
-### Command-line Options for `submit_prod_hvmaps.py`
-
-- `--array`: (Required for cluster jobs) The job array specification (e.g., `1-100`, `1-10%5`).
-- `--prefix`: Prefix for output files (default: `9999`).
-- `--nevts`: Number of events per job (default: `1000`).
-- `--dec`: Decay/generator string (default: `pp_dd`).
-- `--pbeam`: Beam momentum (default: `8.9`).
-- `--jobname`: SLURM job name (default: `pndsim`).
-- `--time`: Time limit for each job (default: `8:00:00`).
-- `--outbase`: Directory for SLURM log files (default: `data/slurmlog`).
-- `--extra-sbatch`: A string of extra `#SBATCH` directives to add to the script, separated by newlines.
-
-## Local Execution (for testing)
-
-You can run the workflow for a single job locally by calling the shell script directly. This is useful for testing and debugging.
+### Local Execution
+For testing and debugging, you can run the script directly. You can override any parameter from `config.json` using command-line flags.
 
 ```bash
-# Make sure the script is executable
-chmod +x macro/target/runall_prod_hvmaps.sh
+# Run with default settings from config.json
+python3 macro/target/runall_prod_hvmaps.py
 
-# Run with custom parameters
-./macro/target/runall_prod_hvmaps.sh 9999 1000 pp_dd 8.9
+# Override the number of events and prefix for a specific run
+python3 macro/target/runall_prod_hvmaps.py --nevts 5000 --prefix my_local_test
 ```
 
-You can also use the Python wrapper, which does the same thing:
+### SLURM Cluster Execution
+The script is designed to work with SLURM job arrays. It automatically detects the `SLURM_ARRAY_TASK_ID` environment variable to create unique output file names for each job in the array.
 
+**Example `sbatch` script (`submit.sh`):**
 ```bash
-python3 macro/target/runall_prod_hvmaps.py 9999 1000 pp_dd 8.9
+#!/bin/bash
+#SBATCH --job-name=pnd_sim_array
+#SBATCH --output=/lustre/panda/jili/slurmlog/pnd_sim_%A_%a.log
+#SBATCH --error=/lustre/panda/jili/slurmlog/pnd_sim_%A_%a.err
+#SBATCH --time=08:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=4G
+#SBATCH --array=1-100
+
+# Setup PandaRoot environment
+# (You must source your environment script here)
+# e.g., source /path/to/your/pandaroot/build/config.sh
+
+# Navigate to the macro directory
+cd /path/to/your/RestgasDetermination/macro/target
+
+# Run the python orchestrator
+# The script will use the settings from config.json
+python3 runall_prod_hvmaps.py
 ```
+
+To submit the job array, simply run:
+```bash
+sbatch submit.sh
+```
+This will launch 100 jobs, and the Python script will handle the unique naming and output paths for each one.
