@@ -259,6 +259,7 @@ def run_for_config(p):
 
 
 def main():
+    print("--- Starting analysis script ---") # Add this line
     # --- Argument Parser Setup ---
     # This parser handles the config file path(s) and parallel jobs argument first.
     conf_parser = argparse.ArgumentParser(add_help=False)
@@ -310,6 +311,9 @@ def main():
             # If the path doesn't exist, it might be the default 'config.json'.
             # We'll pass it along and let load_config show a warning if it's not found.
             expanded_config_files.append(path)
+
+    if not expanded_config_files:
+        print(f"Warning: No config files found in the provided paths: {conf_args.configfiles}")
 
     tasks = []
     for config_file in expanded_config_files:
@@ -368,3 +372,8 @@ def main():
             run_for_config(task)
 
     print("\nAll workflows completed.")
+    print("--- Analysis script finished ---") # Add this line
+
+
+if __name__ == '__main__':
+    main()
