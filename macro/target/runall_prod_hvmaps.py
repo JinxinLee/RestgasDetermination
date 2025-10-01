@@ -340,8 +340,23 @@ def main():
         tasks.append(p)
 
     # --- Workflow Execution ---
+    print("\n--- Parsed Arguments ---")
+    # Print the arguments for the first task as a representative sample
+    if tasks:
+        print("Sample configuration for the first task:")
+        for key, value in vars(tasks[0]).items():
+            # Don't print arguments that are not workflow parameters
+            if key not in ['configfiles', 'jobs']:
+                 print(f"  {key}: {value}")
+    print("------------------------\n")
+
+    if not tasks:
+        print("\nError: No configuration files found or processed. Exiting.", file=sys.stderr)
+        print(f"Searched in paths provided: {conf_args.configfiles}", file=sys.stderr)
+        sys.exit(1)
+        
     num_jobs = conf_args.jobs
-    print(f"\nFound {len(tasks)} configuration(s) to run. Starting {num_jobs} parallel job(s).")
+    print(f"Found {len(tasks)} configuration(s) to run. Starting {num_jobs} parallel job(s).")
 
     if num_jobs > 1 and len(tasks) > 1:
         # Parallel execution
