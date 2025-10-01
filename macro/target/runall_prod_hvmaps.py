@@ -28,6 +28,8 @@ import subprocess
 import argparse
 import shlex
 import json
+from multiprocessing import Pool
+
 
 def run_command(command, log_file, output_file, env=None):
     """Executes a command and logs its output, skipping if the output file already exists."""
@@ -57,13 +59,13 @@ def run_command(command, log_file, output_file, env=None):
             f.write("Error: 'root' command not found. Make sure ROOT is installed and in your PATH.")
         return False
 
-def load_config(config_file='config.json'):
+def load_config(config_file):
     """Loads configuration from a JSON file."""
-    if os.path.exists(config_file):
+    if config_file and os.path.exists(config_file):
         print(f"Loading configuration from {config_file}")
         with open(config_file, 'r') as f:
             return json.load(f)
-    print(f"Configuration file {config_file} not found. Using defaults and command-line arguments.")
+    print(f"Warning: Configuration file '{config_file}' not found. Using defaults and command-line arguments.")
     return {}
 
 def get_generated_events(log_file):
@@ -209,71 +211,16 @@ def run_mc_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path
         sys.exit(1)
     append_nevents(ana_complete_log)
 
-def main():
-    # --- Configuration Loading and Argument Parsing ---
-    
-    # Load configuration from file first
-    config = load_config('config.json')
-
-    # Set up parser
-    parser = argparse.ArgumentParser(description='Run the complete analysis chain for rest gas determination.')
-    
-    # Define arguments. The defaults will be overridden by config values,
-    # and then by any command-line arguments provided.
-    parser.add_argument('--prefix', type=str, help='Prefix for output files.')
-    parser.add_argument('--nevts', type=int, help='Number of events to simulate.')
-    parser.add_argument('--dec', type=str, help='Name of EvtGen decay file or generator type (DPM/FTF/BOX).')
-    parser.add_argument('--mom', type=float, help='Momentum of the pbar-beam.')
-    parser.add_argument('--use_mvd_hvmaps', choices=['true', 'false'], help='Set to "true" to use new MVD with hvmaps.')
-    parser.add_argument('--ipx', type=float, help='IP x coordinate.')
-    parser.add_argument('--ipy', type=float, help='IP y coordinate.')
-    parser.add_argument('--ipz', type=float, help='IP z coordinate.')
-    parser.add_argument('--use_restgas', choices=['true', 'false'], help='Set to "true" to use restgas target.')
-    parser.add_argument('--theta_min', type=float, help='Theta min for DPM generator.')
-    parser.add_argument('--theta_max', type=float, help='Theta max for DPM generator.')
-    parser.add_argument('--back_prop_vertex', choices=['poca', 'mc'], help='Vertex source for back propagation.')
-    parser.add_argument('--output_path', type=str, help='Base path for output files.')
-    
-    # Parse command-line arguments
-    args = parser.parse_args()
-
-    # --- Parameter Resolution ---
-    # Create a final parameters object. Start with hardcoded defaults,
-    # update with config file values, then update with command-line arguments.
-    
-    final_params = {
-        'prefix': 'test',
-        'nevts': 1000,
-        'dec': 'pp_dd',
-        'mom': 4.06,
-        'use_mvd_hvmaps': 'false',
-        'ipx': 0.0,
-        'ipy': 0.0,
-        'ipz': 0.0,
-        'use_restgas': 'false',
-        'theta_min': 0.0,
-        'theta_max': 180.0,
-        'back_prop_vertex': 'poca',
-        'output_path': 'data'
-    }
-
-    # Update with config file values
-    final_params.update(config)
-
-    # Update with command-line arguments that were actually provided
-    for key, value in vars(args).items():
-        if value is not None:
-            final_params[key] = value
-            
-    # Use a Namespace for dot notation access, similar to argparse
-    p = argparse.Namespace(**final_params)
-
+def run_for_config(p):
+    """Runs the entire workflow for a given parameter set."""
     # The argument is already a string "true" or "false"
     use_mvd_str = p.use_mvd_hvmaps
-    print(f"--- Final Parameters ---")
-    for key, value in final_params.items():
-        print(f"{key}: {value}")
-    print("------------------------")
+    print(f"\n--- Starting Workflow for Prefix: {p.prefix} from config: {p.configfile} ---")
+    for key, value in vars(p).items():
+        # Don't print arguments that are not workflow parameters
+        if key not in ['configfiles', 'configfile', 'jobs']:
+            print(f"{key}: {value}")
+    print("-------------------------------------------------")
 
     # --- Path Setup ---
     # Construct the base path for this specific job prefix
@@ -290,8 +237,9 @@ def main():
     # Save the final configuration for this run
     config_save_path = os.path.join(base_path, 'config.json')
     with open(config_save_path, 'w') as f:
-        # Convert Namespace to dict for saving
-        json.dump(vars(p), f, indent=4)
+        # Convert Namespace to dict for saving, filter out helper args
+        config_to_save = {k: v for k, v in vars(p).items() if k not in ['configfiles', 'configfile', 'jobs']}
+        json.dump(config_to_save, f, indent=4)
     print(f"Saved final configuration to {config_save_path}")
 
     slurm_id = os.environ.get('SLURM_ARRAY_TASK_ID', '1')
@@ -307,7 +255,101 @@ def main():
         print(f"Error: Invalid back_prop_vertex option '{p.back_prop_vertex}'. Choose 'poca' or 'mc'.", file=sys.stderr)
         sys.exit(1)
 
-    print("\nWorkflow completed successfully.")
+    print(f"\n--- Workflow for Prefix: {p.prefix} completed successfully. ---")
 
-if __name__ == '__main__':
-    main()
+
+def main():
+    # --- Argument Parser Setup ---
+    # This parser handles the config file path(s) and parallel jobs argument first.
+    conf_parser = argparse.ArgumentParser(add_help=False)
+    conf_parser.add_argument('configfiles', type=str, nargs='*', default=['config.json'],
+                             help='One or more paths to configuration JSON files or directories containing them. Defaults to "config.json".')
+    conf_parser.add_argument('-j', '--jobs', type=int, default=1,
+                             help='Number of parallel jobs to run. Defaults to 1 (sequential).')
+    
+    # Parse known args to get the config file paths and any other command-line args.
+    conf_args, remaining_argv = conf_parser.parse_known_args()
+    
+    # --- Main Parser ---
+    # This parser defines all possible arguments.
+    parser = argparse.ArgumentParser(
+        description='Run the complete analysis chain for rest gas determination.',
+        parents=[conf_parser] # Inherit arguments for help message
+    )
+    
+    # Define all arguments that can be set via command line or config file
+    parser.add_argument('--prefix', type=str, help='Prefix for output files.')
+    parser.add_argument('--nevts', type=int, help='Number of events to simulate.')
+    parser.add_argument('--dec', type=str, help='Name of EvtGen decay file or generator type (DPM/FTF/BOX).')
+    parser.add_argument('--mom', type=float, help='Momentum of the pbar-beam.')
+    parser.add_argument('--use_mvd_hvmaps', choices=['true', 'false'], help='Set to "true" to use new MVD with hvmaps.')
+    parser.add_argument('--ipx', type=float, help='IP x coordinate.')
+    parser.add_argument('--ipy', type=float, help='IP y coordinate.')
+    parser.add_argument('--ipz', type=float, help='IP z coordinate.')
+    parser.add_argument('--use_restgas', choices=['true', 'false'], help='Set to "true" to use restgas target.')
+    parser.add_argument('--theta_min', type=float, help='Theta min for DPM generator.')
+    parser.add_argument('--theta_max', type=float, help='Theta max for DPM generator.')
+    parser.add_argument('--back_prop_vertex', choices=['poca', 'mc'], help='Vertex source for back propagation.')
+    parser.add_argument('--output_path', type=str, help='Base path for output files.')
+
+    # --- Task Preparation ---
+    # Expand directories into a list of config files
+    expanded_config_files = []
+    for path in conf_args.configfiles:
+        if os.path.isdir(path):
+            print(f"Searching for config files in directory: {path}")
+            for root, _, files in os.walk(path):
+                for file in files:
+                    if file.endswith('.json'):
+                        full_path = os.path.join(root, file)
+                        expanded_config_files.append(full_path)
+                        print(f"  Found config file: {full_path}")
+        elif os.path.isfile(path):
+            expanded_config_files.append(path)
+        else:
+            # If the path doesn't exist, it might be the default 'config.json'.
+            # We'll pass it along and let load_config show a warning if it's not found.
+            expanded_config_files.append(path)
+
+    tasks = []
+    for config_file in expanded_config_files:
+        # 1. Start with hardcoded defaults
+        params = {
+            'prefix': 'test', 'nevts': 1000, 'dec': 'pp_dd', 'mom': 4.06,
+            'use_mvd_hvmaps': 'false', 'ipx': 0.0, 'ipy': 0.0, 'ipz': 0.0,
+            'use_restgas': 'false', 'theta_min': 0.0, 'theta_max': 180.0,
+            'back_prop_vertex': 'poca', 'output_path': 'data'
+        }
+
+        # 2. Load configuration from the current file
+        config = load_config(config_file)
+        params.update(config)
+
+        # 3. Override with any command-line arguments
+        # We need to parse the remaining_argv for each loop iteration
+        # to apply the command-line overrides correctly.
+        # We set the defaults to the merged (default + config) params.
+        parser.set_defaults(**params)
+        # We parse args from remaining_argv, and also add back the configfiles and jobs
+        # from the initial parse so they are present in the final namespace.
+        p = parser.parse_args(remaining_argv + [
+            '--jobs', str(conf_args.jobs)
+        ])
+        # Add the specific config file used for this task, for reference
+        p.configfile = config_file
+        tasks.append(p)
+
+    # --- Workflow Execution ---
+    num_jobs = conf_args.jobs
+    print(f"\nFound {len(tasks)} configuration(s) to run. Starting {num_jobs} parallel job(s).")
+
+    if num_jobs > 1 and len(tasks) > 1:
+        # Parallel execution
+        with Pool(processes=num_jobs) as pool:
+            pool.map(run_for_config, tasks)
+    else:
+        # Sequential execution
+        for task in tasks:
+            run_for_config(task)
+
+    print("\nAll workflows completed.")
