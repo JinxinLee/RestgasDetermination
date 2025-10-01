@@ -123,7 +123,7 @@ def run_poca_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_pa
     # Analysis for Vertex Fitting
     ana_log = os.path.join(log_path, f"{out_prefix}_ana.log")
     ana_output = os.path.join(reco_path, f"{out_prefix}_vtx_fit.json")
-    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\")"'
+    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\")"'
     if not run_command(ana_dpm_cmd, ana_log, ana_output):
         sys.exit(1)
     append_nevents(ana_log)
@@ -167,7 +167,7 @@ def run_poca_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_pa
     # Re-run final analysis
     ana_complete_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
     ana_complete_output = os.path.join(reco_path, f"{out_prefix}_poca.root")
-    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\")"'
+    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\")"'
     if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output, env=fit_env):
         sys.exit(1)
     append_nevents(ana_complete_log)
@@ -204,7 +204,7 @@ def run_mc_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path
     # Run final analysis
     ana_complete_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
     ana_complete_output = os.path.join(reco_path, f"{out_prefix}_poca.root")
-    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\")"'
+    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\")"'
     if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output):
         sys.exit(1)
     append_nevents(ana_complete_log)
@@ -242,7 +242,7 @@ def main():
     # update with config file values, then update with command-line arguments.
     
     final_params = {
-        'prefix': '9999',
+        'prefix': 'test',
         'nevts': 1000,
         'dec': 'pp_dd',
         'mom': 4.06,

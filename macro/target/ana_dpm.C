@@ -4,7 +4,7 @@ class PndAnaPidSelector;
 class PndAnaPidCombiner;
 class PndAnalysis;
 
-void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".")
+void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".", TString figure_name = "figure")
 {
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
@@ -751,8 +751,8 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
       cout << "***************************************************" << endl;
     }
   }
-  
-  c1->SaveAs(figure_path + "/" + prefix + "_vtx_fit.png");
+
+  c1->SaveAs(figure_path + "/" + figure_name + "_vtx_fit.png");
 
   // --- Save fit results to JSON ---
   TString json_filename = prefix + "_vtx_fit.json";
