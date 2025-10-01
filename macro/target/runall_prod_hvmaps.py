@@ -287,6 +287,13 @@ def main():
     os.makedirs(reco_path, exist_ok=True)
     os.makedirs(figure_path, exist_ok=True)
 
+    # Save the final configuration for this run
+    config_save_path = os.path.join(base_path, 'config.json')
+    with open(config_save_path, 'w') as f:
+        # Convert Namespace to dict for saving
+        json.dump(vars(p), f, indent=4)
+    print(f"Saved final configuration to {config_save_path}")
+
     slurm_id = os.environ.get('SLURM_ARRAY_TASK_ID', '1')
     # Note: out_prefix no longer contains the subdirectories
     out_prefix = f"{p.prefix}_{slurm_id}"
