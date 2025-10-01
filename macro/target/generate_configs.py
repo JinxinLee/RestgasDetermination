@@ -44,9 +44,9 @@ def main():
                         help='Name of EvtGen decay file or generator type (DPM/FTF/BOX).')
     parser.add_argument('--use_mvd_hvmaps', type=str, default='false', choices=['true', 'false'],
                         help='Set to "true" to use new MVD with hvmaps.')
-    parser.add_argument('--theta_min', type=float, default=0.0,
+    parser.add_argument('--theta_min', type=float, default=22.0,
                         help='Theta min for DPM generator.')
-    parser.add_argument('--theta_max', type=float, default=180.0,
+    parser.add_argument('--theta_max', type=float, default=150.0,
                         help='Theta max for DPM generator.')
     parser.add_argument('--output-path', type=str, default='data',
                         help='Base output path for the simulation data itself (written into the config).')
@@ -69,15 +69,15 @@ def main():
     for mom, ipx, ipy, ipz in param_combinations:
         # --- Build paths and names ---
         # e.g., configs/point/poca
-        target_dir = os.path.join(args.output_dir, args.type, args.vertex)
+        target_dir = args.output_dir
         
         # e.g., point/restgas_poca/mc_mom_ipx_ipy_ipz
         prefix = f"{args.type}_{args.vertex}_{mom}_{ipx}_{ipy}_{ipz}"
         
         # e.g., mom_ipx_ipy_ipz.json
         filename = f"{args.type}_{args.vertex}_{mom}_{ipx}_{ipy}_{ipz}.json"
-        
-        filepath = os.path.join(target_dir, filename)
+
+        filepath = os.path.join(args.output_dir, filename)
 
         # --- Create config dictionary ---
         config_data = {
