@@ -13,12 +13,12 @@ All parameters are managed through a `config.json` file. This allows for easy sw
 ### 3. Parameter Hierarchy
 The script uses a three-tiered parameter system, providing maximum flexibility:
 1.  **Hardcoded Defaults**: Sensible defaults are defined within the script.
-2.  **`config.json`**: Values in this file override the hardcoded defaults.
-3.  **Command-Line Arguments**: Arguments passed directly to the script (e.g., `--nevts 10000`) will override both the defaults and the `config.json` values.
+2.  **Configuration Files (`.json`)**: Values in these files override the hardcoded defaults.
+3.  **Command-Line Arguments**: Arguments passed directly to the script (e.g., `--nevts 10000`) will override both the defaults and the configuration file values.
 
 ## Available Workflows
 
-The `back_prop_vertex` parameter in `config.json` controls which analysis workflow is executed.
+The `back_prop_vertex` parameter in the configuration files controls which analysis workflow is executed.
 
 ### A. POCA Workflow (`"back_prop_vertex": "poca"`)
 This is a **two-pass analysis** designed to achieve the highest possible track resolution by using a fitted primary vertex.
@@ -41,9 +41,31 @@ This is a simplified **single-pass analysis** that uses the Monte Carlo truth ve
 2.  `prod_aod_complete.C` is executed with the `"mcvertex"` option. This runs the reconstruction and PID using the MC truth vertex.
 3.  `ana_complete.C` is run for final analysis.
 
-## Configuration (`config.json`)
+## Configuration Generation (`generate_configs.py`)
 
-All workflow parameters can be set in `config.json`:
+Before running the main workflow, you can generate a set of configuration files.
+
+**Usage:**
+```bash
+python3 macro/target/generate_configs.py [options]
+```
+
+**Example:**
+Generate configurations for two momentum points and two IP Z-coordinates.
+```bash
+python3 macro/target/generate_configs.py \
+  --type point \
+  --vertex poca \
+  --moms 8.9 4.06 \
+  --ipzs -10.0 10.0 \
+  --nevts 10000 \
+  --output-dir configs
+```
+This will create multiple `.json` files inside the `configs/` directory, one for each parameter combination.
+
+## Main Workflow Execution (`runall_prod_hvmaps.py`)
+
+All workflow parameters can be set in the `.json` configuration files:
 
 | Parameter          | Type    | Description                                                                       |
 | ------------------ | ------- | --------------------------------------------------------------------------------- |
@@ -65,6 +87,7 @@ The script creates a structured output to keep results organized. The structure 
 ```
 <output_path>/
 └── <prefix>/
+    ├── config.json
     ├── log/
     │   ├── <prefix>_<job_id>_sim.log
     │   └── ...
@@ -80,14 +103,20 @@ The script creates a structured output to keep results organized. The structure 
 ## Usage
 
 ### Local Execution
-For testing and debugging, you can run the script directly. You can override any parameter from `config.json` using command-line flags.
+For testing and debugging, you can run the script directly. You can point it to a single config file, multiple files, or a directory containing them.
 
 ```bash
-# Run with default settings from config.json
-python3 macro/target/runall_prod_hvmaps.py
+# Run with a single, specific configuration file
+python3 macro/target/runall_prod_hvmaps.py configs/point_poca_8.9_0.0_0.0_-10.0.json
 
-# Override the number of events and prefix for a specific run
-python3 macro/target/runall_prod_hvmaps.py --nevts 5000 --prefix my_local_test
+# Run all configurations found in the 'configs' directory
+python3 macro/target/runall_prod_hvmaps.py configs/
+
+# Run all configurations in parallel using 4 cores
+python3 macro/target/runall_prod_hvmaps.py configs/ -j 4
+
+# Override the number of events for all runs, regardless of config file settings
+python3 macro/target/runall_prod_hvmaps.py configs/ --nevts 5000
 ```
 
 ### SLURM Cluster Execution
@@ -114,7 +143,7 @@ The script is designed to work with SLURM job arrays. It automatically detects t
 cd /path/to/your/RestgasDetermination/macro/target
 
 # Run the python orchestrator
-# The script will use the settings from config.json
+# The script will use the settings from a default config.json if no path is provided
 python3 runall_prod_hvmaps.py
 ```
 
@@ -123,3 +152,23 @@ To submit the job array, simply run:
 sbatch submit.sh
 ```
 This will launch 100 jobs, and the Python script will handle the unique naming and output paths for each one.
+
+## Generating Configurations in Batch
+
+To facilitate large-scale studies with varying parameters, the `generate_configs.py` script is provided. This script automatically generates a matrix of configuration files based on lists of parameters you provide.
+
+### How it Works
+You provide lists of values for parameters like momentum (`--moms`), interaction point coordinates (`--ipxs`, `--ipys`, `--ipzs`), and simulation types. The script then calculates the Cartesian product of all these lists and generates a unique `.json` file for each combination.
+
+### Usage
+```bash
+# Example: Generate configs for a scan over beam momentum and Z-vertex position
+python3 macro/target/generate_configs.py \
+    --type point \
+    --vertex poca \
+    --moms 8.9 4.06 \
+    --ipzs -10.0 0.0 10.0 \
+    --nevts 100000 \
+    --output-dir configs/my_scan
+```
+This will create a set of `.json` files inside the `configs/my_scan/` directory, such as `point_poca_8.9_0.0_0.0_-10.0.json`, `point_poca_4.06_0.0_0.0_0.0.json`, etc.
