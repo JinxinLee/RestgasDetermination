@@ -48,7 +48,7 @@ def main():
                         help='Theta min for DPM generator.')
     parser.add_argument('--theta_max', type=float, default=150.0,
                         help='Theta max for DPM generator.')
-    parser.add_argument('--output-path', type=str, default='data',
+    parser.add_argument('--output-path', type=str, default='/lustre/panda/jili/oct19/macro/target/data/',
                         help='Base output path for the simulation data itself (written into the config).')
     parser.add_argument('--output-dir', type=str, default='configs',
                         help='Directory where the generated .json config files will be saved.')
