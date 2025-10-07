@@ -267,77 +267,6 @@ def run_poca_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path
     
     print(f"--- POCA Worker for {out_prefix} finished. ---")
 
-def run_poca_merge(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path):
-    """Merges results and runs final analysis for the POCA workflow."""
-    print("\n--- Running POCA Merge and Final Analysis ---")
-    
-    # --- Step 1 Merge & Vertex Fit ---
-    print("\n--- Merging initial files and fitting vertex ---")
-    njobs = p.njobs
-    
-    # Merge PID files
-    merged_pid_file = os.path.join(reco_path, f"{out_prefix_base}_pid.root")
-    pid_files_to_merge = [os.path.join(reco_path, f"{out_prefix_base}_{i+1}_pid.root") for i in range(njobs)]
-    # We need to pass the JSON string as a single, quoted C++ string literal.
-    # 1. json.dumps creates the JSON array string: ["file1", "file2"]
-    # 2. We escape the inner double quotes for C++: [\"file1\", \"file2\"]
-    # 3. We wrap the result in quotes for the C++ function call: "[\"file1\", ...]"
-    json_str = json.dumps(pid_files_to_merge).replace('"', '\\"')
-    merge_command = f'root -l -b -q \'merge_files.C("{merged_pid_file}", "{json_str}")\''
-    merge_log = os.path.join(log_path, f"{out_prefix_base}_merge_pid.log")
-    if not run_command(merge_command, merge_log, merged_pid_file):
-        print("Error during initial PID merging. Exiting.", file=sys.stderr)
-        sys.exit(1)
-
-    # Run Analysis for Vertex Fitting on merged file
-    ana_log = os.path.join(log_path, f"{out_prefix_base}_ana.log")
-    ana_output = os.path.join(reco_path, f"{out_prefix_base}_vtx_fit.json")
-    # Note: nevts for ana_dpm should be the total number of events
-    total_nevts = p.nevts * njobs
-    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({total_nevts}, \\"{os.path.join(reco_path, out_prefix_base)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix_base}\\")"'
-    if not run_command(ana_dpm_cmd, ana_log, ana_output):
-        sys.exit(1)
-
-    # --- Step 2: Re-run submission, Merge & Final Analysis ---
-    print("\n--- Submitting second stage worker jobs for fitted vertex ---")
-    try:
-        with open(ana_output, 'r') as f:
-            fit_data = json.load(f)
-        vtx_x = fit_data['vertex_x']['mean']
-        vtx_y = fit_data['vertex_y']['mean']
-        vtx_z = fit_data['vertex_z']['mean']
-        print(f"Found fitted vertex: X={vtx_x}, Y={vtx_y}, Z={vtx_z}")
-    except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
-        print(f"Error: Could not read or parse fit results from {ana_output}.", file=sys.stderr)
-        sys.exit(1)
-
-    # Submit worker jobs for the second pass
-    submit_command = (
-        f"sbatch --wait --export=ALL,FIT_VERTEX_X={vtx_x},FIT_VERTEX_Y={vtx_y},FIT_VERTEX_Z={vtx_z} "
-        f"--array=1-{njobs} submit_sbatch.sh {p.configfile} worker"
-    )
-    print(f"Executing submission command for second pass: {submit_command}")
-    subprocess.run(shlex.split(submit_command), check=True)
-    print("--- Second stage worker jobs finished. ---")
-
-    print("\n--- Merging final files and running final analysis ---")
-    # Merge final AOD files
-    merged_aod_file = os.path.join(reco_path, f"{out_prefix_base}_pid_poca.root")
-    aod_files_to_merge = [os.path.join(reco_path, f"{out_prefix_base}_{i+1}_pid_poca.root") for i in range(njobs)]
-    json_str_aod = json.dumps(aod_files_to_merge).replace('"', '\\"')
-    merge_aod_command = f'root -l -b -q \'merge_files.C("{merged_aod_file}", "{json_str_aod}")\''
-    merge_aod_log = os.path.join(log_path, f"{out_prefix_base}_merge_aod.log")
-    if not run_command(merge_aod_command, merge_aod_log, merged_aod_file):
-        print("Error during final AOD merging. Exiting.", file=sys.stderr)
-        sys.exit(1)
-
-    # Run final analysis on the final merged file
-    ana_complete_log = os.path.join(log_path, f"{out_prefix_base}_ana_complete.log")
-    ana_complete_output = os.path.join(reco_path, f"{out_prefix_base}_poca.root")
-    ana_complete_cmd = f'root -l -b -q "ana_complete.C({total_nevts}, \\"{os.path.join(reco_path, out_prefix_base)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix_base}\\")"'
-    if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output):
-        sys.exit(1)
-
 def run_mc_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
     """Runs the worker part of the MC workflow for a single job."""
     print(f"--- Running MC Worker for {out_prefix} ---")
@@ -366,27 +295,144 @@ def run_mc_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
     append_nevents(aod_complete_log)
     print(f"--- MC Worker for {out_prefix} finished. ---")
 
-def run_mc_merge(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path):
-    """Merges results and runs final analysis for the MC workflow."""
-    print("\n--- Running MC Merge and Final Analysis ---")
+def run_poca_merge_step1(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path):
+    """POCA Step 1: Merges initial files, fits vertex, and submits second stage."""
+    print("\n--- Running POCA Merge Step 1: Initial Merge and Vertex Fit ---")
     njobs = p.njobs
+
+    # Merge PID files
+    merged_pid_file = os.path.join(reco_path, f"{out_prefix_base}_pid.root")
+    pid_files_to_merge = [os.path.join(reco_path, f"{out_prefix_base}_{i+1}_pid.root") for i in range(njobs)]
+    json_str = json.dumps(pid_files_to_merge).replace('"', '\\"')
+    merge_command = f'root -l -b -q \'merge_files.C("{merged_pid_file}", "{json_str}")\''
+    merge_log = os.path.join(log_path, f"{out_prefix_base}_merge_pid.log")
+    if not run_command(merge_command, merge_log, merged_pid_file):
+        print("Error during initial PID merging. Exiting.", file=sys.stderr)
+        sys.exit(1)
+
+    # Run Analysis for Vertex Fitting on merged file
+    ana_log = os.path.join(log_path, f"{out_prefix_base}_ana.log")
+    ana_output = os.path.join(reco_path, f"{out_prefix_base}_vtx_fit.json")
+    total_nevts = p.nevts * njobs
+    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({total_nevts}, \\"{os.path.join(reco_path, out_prefix_base)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix_base}\\")"'
+    if not run_command(ana_dpm_cmd, ana_log, ana_output):
+        sys.exit(1)
+
+    # Read vertex info and submit next stages
+    print("\n--- Submitting second stage jobs ---")
+    try:
+        with open(ana_output, 'r') as f:
+            fit_data = json.load(f)
+        vtx_x = fit_data['vertex_x']['mean']
+        vtx_y = fit_data['vertex_y']['mean']
+        vtx_z = fit_data['vertex_z']['mean']
+        print(f"Found fitted vertex: X={vtx_x}, Y={vtx_y}, Z={vtx_z}")
+
+        # Submit worker jobs for the second pass and get job ID
+        worker2_command = (
+            f"sbatch --export=ALL,FIT_VERTEX_X={vtx_x},FIT_VERTEX_Y={vtx_y},FIT_VERTEX_Z={vtx_z} "
+            f"--array=1-{njobs} submit_sbatch.sh {p.configfile} worker"
+        )
+        print(f"Executing submission command for second pass workers: {worker2_command}")
+        result = subprocess.run(shlex.split(worker2_command), check=True, capture_output=True, text=True)
+        worker2_job_id = result.stdout.strip().split()[-1]
+        print(f"--- Second stage worker jobs submitted with Job ID: {worker2_job_id} ---")
+
+        # Submit the final merge (merge2) job, dependent on the second worker stage
+        merge2_command = f"sbatch --dependency=afterok:{worker2_job_id} submit_sbatch.sh {p.configfile} merge2"
+        print(f"Executing submission command for final merge: {merge2_command}")
+        subprocess.run(shlex.split(merge2_command), check=True)
+        print(f"--- Final merge job (merge2) submitted and will run after second stage workers complete. ---")
+
+    except (FileNotFoundError, KeyError, json.JSONDecodeError, subprocess.CalledProcessError, IndexError) as e:
+        print(f"Error during second stage submission: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def run_poca_merge_step2(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path):
+    """POCA Step 2: Merges final AOD files and runs final analysis."""
+    print("\n--- Running POCA Merge Step 2: Final Merge and Analysis ---")
+    njobs = p.njobs
+    total_nevts = p.nevts * njobs
 
     # Merge final AOD files
     merged_aod_file = os.path.join(reco_path, f"{out_prefix_base}_pid_poca.root")
     aod_files_to_merge = [os.path.join(reco_path, f"{out_prefix_base}_{i+1}_pid_poca.root") for i in range(njobs)]
-    json_str_mc = json.dumps(aod_files_to_merge).replace('"', '\\"')
-    merge_aod_command = f'root -l -b -q \'merge_files.C("{merged_aod_file}", "{json_str_mc}")\''
+    json_str_aod = json.dumps(aod_files_to_merge).replace('"', '\\"')
+    merge_aod_command = f'root -l -b -q \'merge_files.C("{merged_aod_file}", "{json_str_aod}")\''
     merge_aod_log = os.path.join(log_path, f"{out_prefix_base}_merge_aod.log")
     if not run_command(merge_aod_command, merge_aod_log, merged_aod_file):
         print("Error during final AOD merging. Exiting.", file=sys.stderr)
         sys.exit(1)
 
-    # Run final analysis on the merged file
-    total_nevts = p.nevts * njobs
+    # Run final analysis on the final merged file
     ana_complete_log = os.path.join(log_path, f"{out_prefix_base}_ana_complete.log")
     ana_complete_output = os.path.join(reco_path, f"{out_prefix_base}_poca.root")
     ana_complete_cmd = f'root -l -b -q "ana_complete.C({total_nevts}, \\"{os.path.join(reco_path, out_prefix_base)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix_base}\\")"'
     if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output):
+        sys.exit(1)
+
+def run_poca_merge(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path):
+    """Dispatches to the correct POCA merge step based on the mode."""
+    if p.mode == 'merge1':
+        run_poca_merge_step1(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path)
+    elif p.mode == 'merge2':
+        run_poca_merge_step2(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path)
+    else: # Original local/sequential logic
+        # This part is now effectively legacy, as cluster submission is preferred.
+        # For simplicity, we can keep it as a single block for local testing.
+        run_poca_merge_step1_local_equivalent(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path)
+        run_poca_merge_step2(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path)
+
+def run_poca_merge_step1_local_equivalent(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path):
+    """The first part of the original run_poca_merge, for local execution."""
+    print("\n--- Running POCA Merge Step 1 (Local): Initial Merge and Vertex Fit ---")
+    njobs = p.njobs
+    
+    # Merge PID files
+    merged_pid_file = os.path.join(reco_path, f"{out_prefix_base}_pid.root")
+    pid_files_to_merge = [os.path.join(reco_path, f"{out_prefix_base}_{i+1}_pid.root") for i in range(njobs)]
+    json_str = json.dumps(pid_files_to_merge).replace('"', '\\"')
+    merge_command = f'root -l -b -q \'merge_files.C("{merged_pid_file}", "{json_str}")\''
+    merge_log = os.path.join(log_path, f"{out_prefix_base}_merge_pid.log")
+    if not run_command(merge_command, merge_log, merged_pid_file):
+        sys.exit(1)
+
+    # Run Analysis for Vertex Fitting on merged file
+    ana_log = os.path.join(log_path, f"{out_prefix_base}_ana.log")
+    ana_output = os.path.join(reco_path, f"{out_prefix_base}_vtx_fit.json")
+    total_nevts = p.nevts * njobs
+    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({total_nevts}, \\"{os.path.join(reco_path, out_prefix_base)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix_base}\\")"'
+    if not run_command(ana_dpm_cmd, ana_log, ana_output):
+        sys.exit(1)
+
+    # --- Step 2: Re-run with Fitted Vertex ---
+    print("\n--- Re-running Reco/PID with Fitted Vertex (Local) ---")
+    try:
+        with open(ana_output, 'r') as f:
+            fit_data = json.load(f)
+        vtx_x = fit_data['vertex_x']['mean']
+        vtx_y = fit_data['vertex_y']['mean']
+        vtx_z = fit_data['vertex_z']['mean']
+        print(f"Found fitted vertex: X={vtx_x}, Y={vtx_y}, Z={vtx_z}")
+        
+        fit_env = {
+            'FIT_VERTEX_X': str(vtx_x),
+            'FIT_VERTEX_Y': str(vtx_y),
+            'FIT_VERTEX_Z': str(vtx_z)
+        }
+        # In local mode, we just run the second stage directly.
+        # We need to re-run the worker tasks sequentially.
+        for i in range(njobs):
+            slurm_id = str(i + 1)
+            out_prefix = f"{out_prefix_base}_{slurm_id}"
+            print(f"\n--- Running second stage for worker {slurm_id} (local) ---")
+            aod_complete_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
+            aod_complete_output = os.path.join(reco_path, f"{out_prefix}_pid_poca.root")
+            if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(reco_path, out_prefix)}\\", \\"fitvertex\\", {use_mvd_str})"', aod_complete_log, aod_complete_output, env=fit_env):
+                sys.exit(1)
+
+    except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
+        print(f"Error: Could not read or parse fit results from {ana_output}.", file=sys.stderr)
         sys.exit(1)
 
 def run_for_config(p):
@@ -439,17 +485,28 @@ def run_for_config(p):
             json.dump(config_to_save, f, indent=4)
         print(f"Saved final configuration to {config_save_path}")
 
-        # Submit the first stage of worker jobs
-        submit_command = f"sbatch --wait --array=1-{p.njobs} submit_sbatch.sh {config_save_path} worker"
+        # Submit the first stage of worker jobs and get the job ID
+        submit_command = f"sbatch --array=1-{p.njobs} submit_sbatch.sh {config_save_path} worker"
         print(f"Executing submission command: {submit_command}")
-        subprocess.run(shlex.split(submit_command), check=True)
-        print("--- All worker jobs finished. ---")
+        try:
+            result = subprocess.run(shlex.split(submit_command), check=True, capture_output=True, text=True)
+            job_id = result.stdout.strip().split()[-1]
+            print(f"--- Worker jobs submitted with Job ID: {job_id} ---")
 
-        # After workers are done, run the merge step
-        # The 'merge' mode will handle the second stage submission for POCA
-        merge_command = f"python3 {__file__} {config_save_path} --mode merge"
-        print(f"Executing merge command: {merge_command}")
-        subprocess.run(shlex.split(merge_command), check=True)
+            # Determine the correct merge mode based on the workflow
+            merge_mode = 'merge'
+            if p.back_prop_vertex == 'poca':
+                merge_mode = 'merge1'
+
+            # After workers are submitted, submit the merge step as a dependent job
+            merge_submit_command = f"sbatch --dependency=afterok:{job_id} submit_sbatch.sh {config_save_path} {merge_mode}"
+            print(f"Executing merge submission command: {merge_submit_command}")
+            subprocess.run(shlex.split(merge_submit_command), check=True)
+            print(f"--- Merge job ({merge_mode}) submitted and will run after workers complete. ---")
+
+        except (subprocess.CalledProcessError, IndexError) as e:
+            print(f"Error submitting jobs to Slurm: {e}", file=sys.stderr)
+            sys.exit(1)
 
     elif p.mode == 'worker':
         slurm_id = os.environ.get('SLURM_ARRAY_TASK_ID', '1')
@@ -461,13 +518,15 @@ def run_for_config(p):
         elif p.back_prop_vertex == 'mc':
             run_mc_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path)
 
-    elif p.mode == 'merge':
+    elif p.mode in ['merge', 'merge1', 'merge2']:
         # The base prefix for merging should be the shortened naming_prefix
         out_prefix_base = naming_prefix
-        print(f"\n--- Starting Merge Step for Prefix: {p.prefix} (using file base prefix: {out_prefix_base}) ---")
+        print(f"\n--- Starting Merge Step for Prefix: {p.prefix} (mode: {p.mode}, file base prefix: {out_prefix_base}) ---")
         if p.back_prop_vertex == 'poca':
+            # run_poca_merge will dispatch to step1 or step2 based on mode
             run_poca_merge(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path)
         elif p.back_prop_vertex == 'mc':
+            # MC workflow only has a single merge step
             run_mc_merge(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path)
 
     else:
@@ -485,7 +544,7 @@ def main():
                              help='One or more paths to configuration JSON files or directories containing them. Defaults to "config.json".')
     conf_parser.add_argument('-j', '--jobs', type=int, default=1,
                              help='Number of parallel jobs to run for local mode. Defaults to 1 (sequential).')
-    conf_parser.add_argument('--mode', choices=['local', 'submit', 'worker', 'merge'], default='local',
+    conf_parser.add_argument('--mode', choices=['local', 'submit', 'worker', 'merge', 'merge1', 'merge2'], default='local',
                              help='Execution mode: "local" (default), "submit" to cluster, "worker" for cluster job, "merge" for post-processing.')
 
     # Parse known args to get the config file paths and other command-line args.
@@ -516,7 +575,7 @@ def main():
 
     # --- Task Preparation ---
     # In worker or merge mode, we expect exactly one config file.
-    if conf_args.mode in ['worker', 'merge']:
+    if conf_args.mode in ['worker', 'merge', 'merge1', 'merge2']:
         if len(conf_args.configfiles) != 1:
             print(f"Error: '{conf_args.mode}' mode requires exactly one config file, but {len(conf_args.configfiles)} were given.", file=sys.stderr)
             sys.exit(1)
@@ -537,10 +596,10 @@ def main():
             else:
                 # If the path doesn't exist, it might be the default 'config.json'.
                 # We'll pass it along and let load_config show a warning if it's not found.
-                if conf_args.mode != 'worker' and conf_args.mode != 'merge':
+                if conf_args.mode not in ['worker', 'merge', 'merge1', 'merge2']:
                      expanded_config_files.append(path)
 
-    if not expanded_config_files and conf_args.mode not in ['worker', 'merge']:
+    if not expanded_config_files and conf_args.mode not in ['worker', 'merge', 'merge1', 'merge2']:
         print(f"Warning: No config files found in the provided paths: {conf_args.configfiles}")
 
     tasks = []
@@ -571,7 +630,7 @@ def main():
 
     # --- Workflow Execution ---
     if not tasks:
-        if conf_args.mode in ['worker', 'merge']:
+        if conf_args.mode in ['worker', 'merge', 'merge1', 'merge2']:
              # This case should be handled earlier, but as a safeguard:
              print(f"Error: No config file provided for '{conf_args.mode}' mode.", file=sys.stderr)
         else:
@@ -590,7 +649,7 @@ def main():
     print("------------------------\n")
         
     # For submit, worker, merge modes, we typically run one task at a time from the command line
-    if conf_args.mode in ['submit', 'worker', 'merge']:
+    if conf_args.mode in ['submit', 'worker', 'merge', 'merge1', 'merge2']:
         if len(tasks) > 1:
             print(f"Warning: Running in '{conf_args.mode}' mode, but multiple configs were found. Only processing the first one: {tasks[0].configfile}", file=sys.stderr)
         run_for_config(tasks[0])
