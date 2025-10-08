@@ -312,6 +312,19 @@ def run_mc_merge(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_pa
         print("Error during final AOD merging for MC workflow. Exiting.", file=sys.stderr)
         sys.exit(1)
 
+    # Merge parameter files
+    merged_par_file = os.path.join(reco_path, f"{out_prefix_base}_par.root")
+    par_files_to_merge = [os.path.join(reco_path, f"{out_prefix_base}_{i+1}_par.root") for i in range(njobs)]
+    par_files_to_merge = [f for f in par_files_to_merge if os.path.exists(f)] # Only merge existing files
+    if par_files_to_merge:
+        json_str_par = json.dumps(par_files_to_merge).replace('"', '\\"')
+        merge_par_command = f'root -l -b -q \'merge_files.C("{merged_par_file}", "{json_str_par}")\''
+        merge_par_log = os.path.join(log_path, f"{out_prefix_base}_merge_par.log")
+        if not run_command(merge_par_command, merge_par_log, merged_par_file):
+            print("Warning: Error during parameter file merging for MC workflow.", file=sys.stderr)
+        else:
+            print(f"--- MC parameter file merge complete. Output: {merged_par_file} ---")
+
     # Run final analysis on the final merged file
     ana_complete_log = os.path.join(log_path, f"{out_prefix_base}_ana_complete.log")
     ana_complete_output = os.path.join(reco_path, f"{out_prefix_base}_poca.root")
@@ -321,19 +334,32 @@ def run_mc_merge(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_pa
 
 def run_poca_merge_step1(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path):
     """POCA Step 1: Merges initial files for vertex fitting."""
-    print("\n--- Running POCA Merge Step 1: Initial PID Merge ---")
+    print("\n--- Running POCA Merge Step 1: Initial PID and Parameter Merge ---")
     njobs = p.njobs
 
     # Merge PID files
     merged_pid_file = os.path.join(reco_path, f"{out_prefix_base}_pid.root")
     pid_files_to_merge = [os.path.join(reco_path, f"{out_prefix_base}_{i+1}_pid.root") for i in range(njobs)]
-    json_str = json.dumps(pid_files_to_merge).replace('"', '\\"')
-    merge_command = f'root -l -b -q \'merge_files.C("{merged_pid_file}", "{json_str}")\''
-    merge_log = os.path.join(log_path, f"{out_prefix_base}_merge_pid.log")
-    if not run_command(merge_command, merge_log, merged_pid_file):
+    json_str_pid = json.dumps(pid_files_to_merge).replace('"', '\\"')
+    merge_pid_command = f'root -l -b -q \'merge_files.C("{merged_pid_file}", "{json_str_pid}")\''
+    merge_pid_log = os.path.join(log_path, f"{out_prefix_base}_merge_pid.log")
+    if not run_command(merge_pid_command, merge_pid_log, merged_pid_file):
         print("Error during initial PID merging. Exiting.", file=sys.stderr)
         sys.exit(1)
     print(f"--- Initial PID merge complete. Output: {merged_pid_file} ---")
+
+    # Merge parameter files
+    merged_par_file = os.path.join(reco_path, f"{out_prefix_base}_par.root")
+    par_files_to_merge = [os.path.join(reco_path, f"{out_prefix_base}_{i+1}_par.root") for i in range(njobs)]
+    par_files_to_merge = [f for f in par_files_to_merge if os.path.exists(f)] # Only merge existing files
+    if par_files_to_merge:
+        json_str_par = json.dumps(par_files_to_merge).replace('"', '\\"')
+        merge_par_command = f'root -l -b -q \'merge_files.C("{merged_par_file}", "{json_str_par}")\''
+        merge_par_log = os.path.join(log_path, f"{out_prefix_base}_merge_par.log")
+        if not run_command(merge_par_command, merge_par_log, merged_par_file):
+            print("Warning: Error during parameter file merging.", file=sys.stderr)
+        else:
+            print(f"--- Parameter file merge complete. Output: {merged_par_file} ---")
 
 def run_poca_ana_step1(p, use_mvd_str, out_prefix_base, log_path, reco_path, figure_path):
     """POCA Ana Step 1: Fits vertex from merged file and submits second stage."""
