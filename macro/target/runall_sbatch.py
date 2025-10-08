@@ -441,6 +441,12 @@ def run_for_config(p):
     use_mvd_str = p.use_mvd_hvmaps
     
     # --- Path Setup ---
+    # Get the absolute path to the submission script
+    submit_script_path = os.path.abspath("submit_sbatch.sh")
+    if not os.path.exists(submit_script_path):
+        print(f"Error: Submission script not found at {submit_script_path}", file=sys.stderr)
+        sys.exit(1)
+
     # Construct the base path for this specific job prefix
     base_path = os.path.join(p.output_path, p.prefix)
     

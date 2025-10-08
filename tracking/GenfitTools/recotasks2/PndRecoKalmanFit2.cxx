@@ -224,6 +224,17 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG) {
     return tAfter;
   }
 
+  // check for nan in track parameters before fitting
+  if (std::isnan(tBefore->GetParamFirst().GetPz()) || std::isnan(tBefore->GetParamFirst().GetZ())) {
+    tAfter = tBefore;
+    tAfter->SetFlag(-11);
+    if (fVerbose > 0) {
+      std::cout << "*** PndRecoKalmanFit2::Fit" << "\t"
+                << "Track has NAN in parameters. Skipping fit. ***" << std::endl;
+    }
+    return tAfter; // flag -11 : nan in parameters
+  }
+
   if (fabs(tBefore->GetParamFirst().GetPz()) < 1e-9) {
     tAfter = tBefore;
     tAfter->SetFlag(-10);
