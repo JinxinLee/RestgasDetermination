@@ -366,7 +366,15 @@ def run_poca_ana_step1(p, use_mvd_str, out_prefix_base, log_path, reco_path, fig
     print("\n--- Running POCA Ana Step 1: Vertex Fit and Second Stage Submission ---")
     njobs = p.njobs
     total_nevts = p.nevts * njobs
-    submit_script_path = os.path.abspath("submit_sbatch.sh")
+    
+    # Determine the absolute path of submit_sbatch.sh relative to the config file
+    # This is more robust than relying on the current working directory.
+    config_dir = os.path.dirname(os.path.abspath(p.configfile))
+    # Assumes submit_sbatch.sh is in the parent directory of the config's location (e.g., .../data/prefix/config.json -> .../submit_sbatch.sh)
+    # Let's adjust this to be more general. Assume the script is in the same directory as the python script itself.
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    submit_script_path = os.path.join(script_dir, "submit_sbatch.sh")
+    print(f"Using submission script path: {submit_script_path}")
 
     # Run Analysis for Vertex Fitting on merged file
     ana_log = os.path.join(log_path, f"{out_prefix_base}_ana.log")
@@ -386,9 +394,11 @@ def run_poca_ana_step1(p, use_mvd_str, out_prefix_base, log_path, reco_path, fig
         print(f"Found fitted vertex: X={vtx_x}, Y={vtx_y}, Z={vtx_z}")
 
         # Submit worker jobs for the second pass and get job ID
+        # Use the absolute path for the config file to be safe
+        abs_config_path = os.path.abspath(p.configfile)
         worker2_command = (
             f"sbatch --export=ALL,FIT_VERTEX_X={vtx_x},FIT_VERTEX_Y={vtx_y},FIT_VERTEX_Z={vtx_z} "
-            f"--array=1-{njobs} {submit_script_path} {p.configfile} worker"
+            f"--array=1-{njobs} {submit_script_path} {abs_config_path} worker"
         )
         print(f"Executing submission command for second pass workers: {worker2_command}")
         result = subprocess.run(shlex.split(worker2_command), check=True, capture_output=True, text=True)
@@ -396,7 +406,7 @@ def run_poca_ana_step1(p, use_mvd_str, out_prefix_base, log_path, reco_path, fig
         print(f"--- Second stage worker jobs submitted with Job ID: {worker2_job_id} ---")
 
         # Submit the final merge (merge2) job, dependent on the second worker stage
-        merge2_command = f"sbatch --dependency=afterok:{worker2_job_id} {submit_script_path} {p.configfile} merge2"
+        merge2_command = f"sbatch --dependency=afterok:{worker2_job_id} {submit_script_path} {abs_config_path} merge2"
         print(f"Executing submission command for final merge: {merge2_command}")
         subprocess.run(shlex.split(merge2_command), check=True)
         print(f"--- Final merge job (merge2) submitted and will run after second stage workers complete. ---")
