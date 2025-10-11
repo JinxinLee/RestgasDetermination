@@ -9,10 +9,10 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
   //TString input = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  TString output = "ana_poca";
+  TString output = "ana_final";
   //TString friend1 = "reco";
-  TString friend2 = "pid_poca";
-  TString friend3 = "sim";
+  TString friend2 = "pid_final";
+  //TString friend3 = "sim";
   //TString friend4 = "digi";
 
   // -----   Initial Settings   --------------------------------------------
@@ -22,7 +22,7 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
   fRun->SetOutput(output);
   //fRun->AddFriend(friend1);
   fRun->AddFriend(friend2);
-  fRun->AddFriend(friend3);
+  //fRun->AddFriend(friend3);
   //fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
@@ -60,7 +60,7 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
 */
   fRun->Init(); 
 
-  TFile *out = TFile::Open(prefix + "_poca.root","RECREATE");
+  TFile *out = TFile::Open(prefix + "_ana_final.root","RECREATE");
 
   RhoTuple *ntpDp = new RhoTuple("ntpDp","Dp Analysis");
 

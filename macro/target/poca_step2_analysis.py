@@ -197,7 +197,8 @@ def main():
     """Main execution function."""
     p = parse_arguments("Run the second step of the POCA analysis workflow for a single worker.")
     
-    use_mvd_str = 'true' if p.use_mvd_hvmaps else 'false'
+    use_mvd_str = "true" if str(p.use_mvd_hvmaps).lower() == 'true' else "false"
+    print(f"--- Starting POCA Step 2. Using MVD HVMAPS: {use_mvd_str} ---")
 
     # --- Path Setup for Worker ---
     slurm_job_id = os.environ.get('SLURM_JOB_ID', 'localjob')

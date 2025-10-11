@@ -1,11 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=pnd_sim
-#SBATCH --partition=main
+#SBATCH --partition=long
+#SBATCH --time=20:00:00
 #SBATCH --output=/lustre/panda/jili/oct19/macro/target/data/slurmlog/pnd_sim_%A_%a.log
 #SBATCH --error=/lustre/panda/jili/oct19/macro/target/data/slurmlog/pnd_sim_%A_%a.err
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
+#SBATCH --mem=16G
 #SBATCH --array=1-1
 #SBATCH --singularity-container=/cvmfs/vae.gsi.de/vae23/containers/user_container-develop.sif
 
@@ -34,8 +36,10 @@ echo "FAIRROOTPATH is "$FAIRROOTPATH
 echo "---------------------------------"
 
 # Navigate to the directory of this script to ensure relative paths in python work
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-cd "$SCRIPT_DIR"
+#SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+#cd "$SCRIPT_DIR"
+#echo "SCRIPT_DIR is"$SCRIPT_DIR
+cd /lustre/panda/jili/oct19/macro/target
 
 # Run the command passed as arguments to this script
 echo "Running python script..."

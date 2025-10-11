@@ -11,7 +11,7 @@ def run_mc_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
     sim_log = os.path.join(log_path, f"{out_prefix}_sim.log")
     sim_output = os.path.join(reco_path, f"{out_prefix}_sim.root")
     sim_command = (
-        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {p.nevts_mc}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
+        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
         f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
     )
     if not run_command(sim_command, sim_log, sim_output):
@@ -34,7 +34,7 @@ def run_mc_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
     ana_complete_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
     ana_complete_output = os.path.join(reco_path, f"{out_prefix}_poca.root")
     ana_complete_cmd = (
-        f'root -l -b -q "ana_complete.C({p.nevts_mc}, \\"{os.path.join(reco_path, out_prefix)}\\", '
+        f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", '
         f'{use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\")"'
     )
     if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output):
@@ -46,8 +46,9 @@ def run_mc_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
 def main():
     """Main execution function."""
     p = parse_arguments("Run the MC simulation step for a single worker.")
-    
-    use_mvd_str = 'true' if p.use_mvd_hvmaps else 'false'
+
+    use_mvd_str = "true" if str(p.use_mvd_hvmaps).lower() == 'true' else "false"
+    print(f"--- Starting MC Workflow. Using MVD HVMAPS: {use_mvd_str} ---")
 
     # --- Path Setup for Worker ---
     slurm_job_id = os.environ.get('SLURM_JOB_ID', 'localjob')
@@ -91,12 +92,22 @@ def main():
         try:
             os.makedirs(final_reco_path, exist_ok=True)
             os.makedirs(final_figure_path, exist_ok=True)
-            
+
+            # Copy reco files
             if os.path.exists(reco_path):
-                shutil.copytree(reco_path, final_reco_path, dirs_exist_ok=True)
-            
+                for item in os.listdir(reco_path):
+                    s = os.path.join(reco_path, item)
+                    d = os.path.join(final_reco_path, item)
+                    if os.path.isfile(s):
+                        shutil.copy2(s, d)
+
+            # Copy figure files
             if os.path.exists(figure_path):
-                shutil.copytree(figure_path, final_figure_path, dirs_exist_ok=True)
+                for item in os.listdir(figure_path):
+                    s = os.path.join(figure_path, item)
+                    d = os.path.join(final_figure_path, item)
+                    if os.path.isfile(s):
+                        shutil.copy2(s, d)
 
             print("--- Copy complete. Cleaning up temporary directory. ---")
             shutil.rmtree(temp_base_path)

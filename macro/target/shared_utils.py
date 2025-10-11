@@ -59,7 +59,7 @@ def get_default_params():
         'use_mvd_hvmaps': 'false', 'ipx': 0.0, 'ipy': 0.0, 'ipz': 0.0,
         'use_restgas': 'false', 'theta_min': 0.0, 'theta_max': 180.0,
         'back_prop_vertex': 'poca', 'output_path': 'data',
-        'njobs': 10, 'njobs_mc': 10
+        'njobs': 10
     }
 
 def parse_arguments(description, is_workflow_runner=False):
@@ -121,7 +121,6 @@ def parse_arguments(description, is_workflow_runner=False):
             # Special override for --jobs if provided
             if conf_args.jobs is not None:
                 p.njobs = conf_args.jobs
-                p.njobs_mc = conf_args.jobs
 
             p.configfile = config_file # Add for reference
             tasks.append(p)

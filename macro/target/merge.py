@@ -22,7 +22,7 @@ def merge_files(file_list, output_file, log_file):
     command = f"hadd -f {output_file} {' '.join(file_list)}"
     
     print(f"Merging {len(file_list)} files into {output_file}...")
-    return run_command(command, log_file, output_file, check_file_size=False) # Don't check size for hadd, it's variable
+    return run_command(command, log_file, output_file)
 
 def run_merge(p, file_types, step_name):
     """Runs the merge process for specified file types."""

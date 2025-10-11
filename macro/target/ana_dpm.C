@@ -12,7 +12,7 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
   TString output = "ana";
   //TString friend1 = "reco";
   TString friend2 = "pid";
-  TString friend3 = "sim";
+  //TString friend3 = "sim";
   //TString friend4 = "digi";
 
   // -----   Initial Settings   --------------------------------------------
@@ -22,7 +22,7 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
   fRun->SetOutput(output);
   //fRun->AddFriend(friend1);
   fRun->AddFriend(friend2);
-  fRun->AddFriend(friend3);
+  //fRun->AddFriend(friend3);
   //fRun->AddFriend(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);

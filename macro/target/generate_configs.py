@@ -10,7 +10,7 @@ Usage:
   python3 generate_configs.py --type <type> --vertex <vertex> --moms <moms...> --ipxs <ipxs...> --ipys <ipys...> --ipzs <ipzs...>
 
 Example:
-  python3 generate_configs.py --type point --vertex poca --moms 8.9 4.06 --ipxs 0.0 0.1 --ipys 0.0 --ipzs -10.0 0.0 10.0 --nevts 100000 --output-dir configs
+  python3 generate_configs.py --type point --vertex poca --moms 4.06 --ipxs 0.0 --ipys 0.0 --ipzs 0.0 --nevts 10000 --output-dir configs
 """
 import os
 import json
