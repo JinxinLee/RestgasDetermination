@@ -7,7 +7,7 @@ from shared_utils import parse_arguments, get_default_params, load_config
 def submit_sbatch(command, dep_job_id=None):
     """Submits a job to Slurm and returns the job ID."""
     if dep_job_id:
-        command = f"sbatch --dependency=afterok:{dep_job_id} {command}"
+        command = f"sbatch --dependency=afterany:{dep_job_id} {command}"
     else:
         command = f"sbatch {command}"
     
