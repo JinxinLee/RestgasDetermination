@@ -24,7 +24,7 @@ def run_mc_worker(p, use_mvd_str, out_prefix, log_path, temp_reco_path, temp_fig
     sim_log = os.path.join(log_path, f"{out_prefix}_sim.log")
     temp_sim_output, final_sim_output = get_paths("sim.root")
     sim_command = (
-        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {p.nevts_mc}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
+        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
         f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
     )
     if not check_and_run(sim_command, sim_log, temp_sim_output, final_sim_output):
@@ -46,7 +46,7 @@ def run_mc_worker(p, use_mvd_str, out_prefix, log_path, temp_reco_path, temp_fig
     ana_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
     temp_ana_output, final_ana_output = get_paths("poca.root")
     ana_cmd = (
-        f'root -l -b -q "ana_complete.C({p.nevts_mc}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", '
+        f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", '
         f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\")"'
     )
     if not check_and_run(ana_cmd, ana_log, temp_ana_output, final_ana_output):
