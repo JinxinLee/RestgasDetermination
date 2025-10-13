@@ -3,53 +3,62 @@ import sys
 import shutil
 from shared_utils import run_command, get_generated_events, parse_arguments
 
-def run_poca_worker_step1(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
+def check_and_run(command, log_file, temp_output_file, final_output_file):
+    """Checks if the final output file exists before running a command."""
+    if os.path.exists(final_output_file):
+        print(f"Final output file {final_output_file} already exists. Skipping command.")
+        return True
+    return run_command(command, log_file, temp_output_file)
+
+def run_poca_worker_step1(p, use_mvd_str, out_prefix, log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path):
     """Runs the first step of the POCA workflow for a single worker job."""
     print(f"--- Running POCA Worker Step 1 for {out_prefix} ---")
 
-    # --- Step 1: Initial Workflow ---
+    def get_paths(suffix):
+        temp_file = os.path.join(temp_reco_path, f"{out_prefix}_{suffix}")
+        final_file = os.path.join(final_reco_path, f"{out_prefix}_{suffix}")
+        return temp_file, final_file
+
+    # --- Simulation ---
     sim_log = os.path.join(log_path, f"{out_prefix}_sim.log")
-    sim_output = os.path.join(reco_path, f"{out_prefix}_sim.root")
+    temp_sim_output, final_sim_output = get_paths("sim.root")
     sim_command = (
-        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
+        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
         f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
     )
-    if not run_command(sim_command, sim_log, sim_output):
+    if not check_and_run(sim_command, sim_log, temp_sim_output, final_sim_output):
         sys.exit(1)
 
-    num_ev_line = get_generated_events(sim_log)
-    def append_nevents(log_file):
-        if num_ev_line:
-            with open(log_file, 'a') as f:
-                f.write('\n' + num_ev_line)
-
+    # --- Digitization ---
     digi_log = os.path.join(log_path, f"{out_prefix}_digi.log")
-    digi_output = os.path.join(reco_path, f"{out_prefix}_digi.root")
-    if not run_command(f'root -l -b -q "prod_aod_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str})"', digi_log, digi_output):
+    temp_digi_output, final_digi_output = get_paths("digi.root")
+    digi_cmd = f'root -l -b -q "prod_aod_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str})"'
+    if not check_and_run(digi_cmd, digi_log, temp_digi_output, final_digi_output):
         sys.exit(1)
-    append_nevents(digi_log)
 
+    # --- Reconstruction ---
     reco_log = os.path.join(log_path, f"{out_prefix}_reco.log")
-    reco_output = os.path.join(reco_path, f"{out_prefix}_reco.root")
-    if not run_command(f'root -l -b -q "reco_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str})"', reco_log, reco_output):
+    temp_reco_output, final_reco_output = get_paths("reco.root")
+    reco_cmd = f'root -l -b -q "reco_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str})"'
+    if not check_and_run(reco_cmd, reco_log, temp_reco_output, final_reco_output):
         sys.exit(1)
-    append_nevents(reco_log)
 
+    # --- PID ---
     pid_log = os.path.join(log_path, f"{out_prefix}_pid.log")
-    pid_output = os.path.join(reco_path, f"{out_prefix}_pid.root")
-    if not run_command(f'root -l -b -q "pid_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str})"', pid_log, pid_output):
+    temp_pid_output, final_pid_output = get_paths("pid.root")
+    pid_cmd = f'root -l -b -q "pid_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str})"'
+    if not check_and_run(pid_cmd, pid_log, temp_pid_output, final_pid_output):
         sys.exit(1)
-    append_nevents(pid_log)
 
-    # Analysis for Vertex Fitting (ana_dpm.C)
+    # --- Analysis for Vertex Fitting (ana_dpm.C) ---
     ana_log = os.path.join(log_path, f"{out_prefix}_ana_dpm.log")
-    ana_output = os.path.join(reco_path, f"{out_prefix}_vtx_fit.json")
-    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\")"'
-    if not run_command(ana_dpm_cmd, ana_log, ana_output):
+    temp_ana_output, final_ana_output = get_paths("vtx_fit.json")
+    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\")"'
+    if not check_and_run(ana_dpm_cmd, ana_log, temp_ana_output, final_ana_output):
         sys.exit(1)
-    append_nevents(ana_log)
     
     print(f"--- POCA Worker Step 1 for {out_prefix} finished. ---")
+
 
 def main():
     """Main execution function."""
@@ -73,13 +82,12 @@ def main():
     temp_base_path = os.path.join("/tmp", temp_dir_name)
     print(f"--- Worker mode detected. Using temporary path for reco/figure: {temp_base_path} ---")
     
-    log_path = final_log_path
-    reco_path = os.path.join(temp_base_path, 'reco')
-    figure_path = os.path.join(temp_base_path, 'figure')
-    
-    os.makedirs(log_path, exist_ok=True)
-    os.makedirs(reco_path, exist_ok=True)
-    os.makedirs(figure_path, exist_ok=True)
+    temp_reco_path = os.path.join(temp_base_path, 'reco')
+    temp_figure_path = os.path.join(temp_base_path, 'figure')
+
+    os.makedirs(final_log_path, exist_ok=True)
+    os.makedirs(temp_reco_path, exist_ok=True)
+    os.makedirs(temp_figure_path, exist_ok=True)
 
     # --- Naming and Execution ---
     prefix_parts = p.prefix.split('_')
@@ -89,7 +97,7 @@ def main():
     print(f"\n--- Starting POCA Worker Job {slurm_task_id} for Prefix: {p.prefix} (using file prefix: {out_prefix}) ---")
     
     try:
-        run_poca_worker_step1(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path)
+        run_poca_worker_step1(p, use_mvd_str, out_prefix, final_log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path)
     finally:
         # Copy results from /tmp to final destination
         print(f"--- Copying reco/figure results from {temp_base_path} to {final_base_path} ---")
@@ -97,11 +105,21 @@ def main():
             os.makedirs(final_reco_path, exist_ok=True)
             os.makedirs(final_figure_path, exist_ok=True)
             
-            if os.path.exists(reco_path):
-                shutil.copytree(reco_path, final_reco_path, dirs_exist_ok=True)
-            
-            if os.path.exists(figure_path):
-                shutil.copytree(figure_path, final_figure_path, dirs_exist_ok=True)
+            # Copy reco files
+            if os.path.exists(temp_reco_path):
+                for item in os.listdir(temp_reco_path):
+                    s = os.path.join(temp_reco_path, item)
+                    d = os.path.join(final_reco_path, item)
+                    if os.path.isfile(s):
+                        shutil.copy2(s, d)
+
+            # Copy figure files
+            if os.path.exists(temp_figure_path):
+                for item in os.listdir(temp_figure_path):
+                    s = os.path.join(temp_figure_path, item)
+                    d = os.path.join(final_figure_path, item)
+                    if os.path.isfile(s):
+                        shutil.copy2(s, d)
 
             print("--- Copy complete. Cleaning up temporary directory. ---")
             shutil.rmtree(temp_base_path)

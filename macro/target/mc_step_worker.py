@@ -3,41 +3,53 @@ import sys
 import shutil
 from shared_utils import run_command, parse_arguments
 
-def run_mc_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
+def check_and_run(command, log_file, temp_output_file, final_output_file):
+    """Checks if the final output file exists before running a command."""
+    if os.path.exists(final_output_file):
+        print(f"Final output file {final_output_file} already exists. Skipping command.")
+        return True
+    return run_command(command, log_file, temp_output_file)
+
+def run_mc_worker(p, use_mvd_str, out_prefix, log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path):
     """Runs the MC simulation and reconstruction for a single worker job."""
     print(f"--- Running MC Worker for {out_prefix} ---")
 
+    # Helper to create full temp and final paths
+    def get_paths(suffix):
+        temp_file = os.path.join(temp_reco_path, f"{out_prefix}_{suffix}")
+        final_file = os.path.join(final_reco_path, f"{out_prefix}_{suffix}")
+        return temp_file, final_file
+
     # --- Step 1: Simulation ---
     sim_log = os.path.join(log_path, f"{out_prefix}_sim.log")
-    sim_output = os.path.join(reco_path, f"{out_prefix}_sim.root")
+    temp_sim_output, final_sim_output = get_paths("sim.root")
     sim_command = (
-        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
+        f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {p.nevts_mc}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
         f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
     )
-    if not run_command(sim_command, sim_log, sim_output):
+    if not check_and_run(sim_command, sim_log, temp_sim_output, final_sim_output):
         print(f"Error: MC simulation (prod_sim_hvmaps.C) for {out_prefix} failed.", file=sys.stderr)
         sys.exit(1)
 
     # --- Step 2: Combined AOD ---
-    aod_complete_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
-    aod_complete_output = os.path.join(reco_path, f"{out_prefix}_pid_poca.root")
-    # For MC, we use the "mcvertex" option
-    aod_complete_cmd = (
-        f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(reco_path, out_prefix)}\\", '
+    aod_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
+    temp_aod_output, final_aod_output = get_paths("pid_poca.root")
+    aod_cmd = (
+        f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", '
         f'\\"mcvertex\\", {use_mvd_str})"'
     )
-    if not run_command(aod_complete_cmd, aod_complete_log, aod_complete_output):
+    if not check_and_run(aod_cmd, aod_log, temp_aod_output, final_aod_output):
         print(f"Error: MC AOD completion (prod_aod_complete.C) for {out_prefix} failed.", file=sys.stderr)
         sys.exit(1)
 
     # --- Step 3: Final Analysis ---
-    ana_complete_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
-    ana_complete_output = os.path.join(reco_path, f"{out_prefix}_poca.root")
-    ana_complete_cmd = (
-        f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", '
-        f'{use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\")"'
+    ana_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
+    temp_ana_output, final_ana_output = get_paths("poca.root")
+    ana_cmd = (
+        f'root -l -b -q "ana_complete.C({p.nevts_mc}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", '
+        f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\")"'
     )
-    if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output):
+    if not check_and_run(ana_cmd, ana_log, temp_ana_output, final_ana_output):
         print(f"Error: MC final analysis (ana_complete.C) for {out_prefix} failed.", file=sys.stderr)
         sys.exit(1)
 
@@ -46,9 +58,8 @@ def run_mc_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path):
 def main():
     """Main execution function."""
     p = parse_arguments("Run the MC simulation step for a single worker.")
-
     use_mvd_str = "true" if str(p.use_mvd_hvmaps).lower() == 'true' else "false"
-    print(f"--- Starting MC Workflow. Using MVD HVMAPS: {use_mvd_str} ---")
+    print(f"--- Starting MC Worker. Using MVD HVmaps: {use_mvd_str} ---")
 
     # --- Path Setup for Worker ---
     slurm_job_id = os.environ.get('SLURM_JOB_ID', 'localjob')
@@ -63,15 +74,14 @@ def main():
     # Temporary paths on the worker node
     temp_dir_name = f"{p.prefix}_mc_{slurm_job_id}_{slurm_task_id}"
     temp_base_path = os.path.join("/tmp", temp_dir_name)
-    print(f"--- MC Worker mode detected. Using temporary path for reco/figure: {temp_base_path} ---")
+    print(f"--- Using temporary path: {temp_base_path} ---")
     
-    log_path = final_log_path
-    reco_path = os.path.join(temp_base_path, 'reco')
-    figure_path = os.path.join(temp_base_path, 'figure')
+    temp_reco_path = os.path.join(temp_base_path, 'reco')
+    temp_figure_path = os.path.join(temp_base_path, 'figure')
     
-    os.makedirs(log_path, exist_ok=True)
-    os.makedirs(reco_path, exist_ok=True)
-    os.makedirs(figure_path, exist_ok=True)
+    os.makedirs(final_log_path, exist_ok=True)
+    os.makedirs(temp_reco_path, exist_ok=True)
+    os.makedirs(temp_figure_path, exist_ok=True)
 
     # --- Naming and Execution ---
     prefix_parts = p.prefix.split('_')
@@ -81,30 +91,26 @@ def main():
     print(f"\n--- Starting MC Worker Job {slurm_task_id} for Prefix: {p.prefix} (using file prefix: {out_prefix}) ---")
     
     try:
-        # The MC step no longer needs the POCA results from the shared drive,
-        # as it's a self-contained simulation from start to finish.
-        # The old logic for copying files is removed.
-        
-        run_mc_worker(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path)
+        run_mc_worker(p, use_mvd_str, out_prefix, final_log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path)
     finally:
         # Copy results from /tmp to final destination
-        print(f"--- Copying MC results from {temp_base_path} to {final_base_path} ---")
+        print(f"--- Copying results from {temp_base_path} to {final_base_path} ---")
         try:
             os.makedirs(final_reco_path, exist_ok=True)
             os.makedirs(final_figure_path, exist_ok=True)
-
-            # Copy reco files
-            if os.path.exists(reco_path):
-                for item in os.listdir(reco_path):
-                    s = os.path.join(reco_path, item)
+            
+             # Copy reco files
+            if os.path.exists(temp_reco_path):
+                for item in os.listdir(temp_reco_path):
+                    s = os.path.join(temp_reco_path, item)
                     d = os.path.join(final_reco_path, item)
                     if os.path.isfile(s):
                         shutil.copy2(s, d)
 
             # Copy figure files
-            if os.path.exists(figure_path):
-                for item in os.listdir(figure_path):
-                    s = os.path.join(figure_path, item)
+            if os.path.exists(temp_figure_path):
+                for item in os.listdir(temp_figure_path):
+                    s = os.path.join(temp_figure_path, item)
                     d = os.path.join(final_figure_path, item)
                     if os.path.isfile(s):
                         shutil.copy2(s, d)

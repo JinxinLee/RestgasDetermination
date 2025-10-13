@@ -38,8 +38,10 @@ def main():
                         help='List of interaction point Z coordinates.')
 
     # --- Optional, fixed-value arguments for all generated configs ---
-    parser.add_argument('--nevts', type=int, default=100,
+    parser.add_argument('--nevts', type=int, default=10000,
                         help='Number of events to simulate.')
+    parser.add_argument('--njobs', type=int, default=100,
+                        help='Number of parallel jobs to run (for workflow runner).')
     parser.add_argument('--dec', type=str, default='DPM2',
                         help='Name of EvtGen decay file or generator type (DPM/FTF/BOX).')
     parser.add_argument('--use_mvd_hvmaps', type=str, default='false', choices=['true', 'false'],
