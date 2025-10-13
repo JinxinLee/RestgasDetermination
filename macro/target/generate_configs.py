@@ -85,6 +85,7 @@ def main():
         config_data = {
             "prefix": prefix,
             "nevts": args.nevts,
+            "njobs": args.njobs,
             "dec": args.dec,
             "mom": mom,
             "use_mvd_hvmaps": args.use_mvd_hvmaps,
