@@ -635,70 +635,71 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
   TCanvas *c1 = new TCanvas("c1", "Vertex Verification", 1200, 400);
   c1->Divide(3, 1);
 
-  // --- Histogram for X coordinate ---
+  // First pass: determine Z cut to apply to all histograms
+  TCut z_cut = "";
+  Int_t entries_z_3rms = 0;
+  
+  if (tree->GetEntries(valid_data) > 0) {
+    // Create temporary Z histogram to get mean and RMS
+    Double_t min_z_range = config_z - 1.0;
+    Double_t max_z_range = config_z + 1.0;
+    TH1F *htemp_z = new TH1F("htemp_z", "", 100, min_z_range, max_z_range);
+    tree->Draw("pvz>>htemp_z", valid_data, "goff");
+    
+    Double_t mean_z = htemp_z->GetMean();
+    Double_t rms_z = htemp_z->GetRMS();
+    delete htemp_z;
+    
+    // Define Z cut: mean_z ± 3*RMS
+    z_cut = Form("pvz > %f && pvz < %f", mean_z - 3*rms_z, mean_z + 3*rms_z);
+    entries_z_3rms = tree->GetEntries(valid_data && z_cut);
+    
+    std::cout << "Z cut applied: " << mean_z - 3*rms_z << " < pvz < " << mean_z + 3*rms_z << std::endl;
+    std::cout << "Events after Z cut: " << entries_z_3rms << std::endl;
+  }
+  
+  // Combined cut: valid data AND Z cut
+  TCut final_cut = valid_data && z_cut;
+
+  // --- Histogram for X coordinate (with Z cut) ---
   c1->cd(1);
   TH1F *h_vtx_x = nullptr;
-  if (tree->GetEntries(valid_data) > 0) {
-    // 1. Create a temporary histogram with a wide range to get statistics
-    TH1F *htemp_x = new TH1F("htemp_x", "", 200, -5, 5); // Wide range
-    tree->Draw("pvx>>htemp_x", valid_data, "goff");
+  if (tree->GetEntries(final_cut) > 0) {
+    Double_t min_x_range = config_x - 0.5;
+    Double_t max_x_range = config_x + 0.5;
 
-    // 2. Get robust statistics (mean and RMS)
-    Double_t mean_x_stat = htemp_x->GetMean();
-    Double_t rms_x_stat = htemp_x->GetRMS();
-    delete htemp_x; // Clean up temporary histogram
-
-    // 3. Define a robust range, e.g., mean +/- 5*RMS
-    Double_t min_x_robust = mean_x_stat - 5 * rms_x_stat;
-    Double_t max_x_robust = mean_x_stat + 5 * rms_x_stat;
-
-    // 4. Create the final histogram using the robust range
-    h_vtx_x = new TH1F("h_vtx_x", "Fitted Vertex X;X (cm);Events", 100, min_x_robust, max_x_robust);
-    tree->Draw("pvx>>h_vtx_x", valid_data, ""); // Draw without fitting
+    h_vtx_x = new TH1F("h_vtx_x", "Fitted Vertex X (Z cut);X (cm);Events", 100, min_x_range, max_x_range);
+    tree->Draw("pvx>>h_vtx_x", final_cut, "");
   }
 
-  // --- Histogram for Y coordinate ---
+  // --- Histogram for Y coordinate (with Z cut) ---
   c1->cd(2);
   TH1F *h_vtx_y = nullptr;
-  if (tree->GetEntries(valid_data) > 0) {
-    TH1F *htemp_y = new TH1F("htemp_y", "", 200, -5, 5);
-    tree->Draw("pvy>>htemp_y", valid_data, "goff");
-    Double_t mean_y_stat = htemp_y->GetMean();
-    Double_t rms_y_stat = htemp_y->GetRMS();
-    delete htemp_y;
-    Double_t min_y_robust = mean_y_stat - 5 * rms_y_stat;
-    Double_t max_y_robust = mean_y_stat + 5 * rms_y_stat;
+  if (tree->GetEntries(final_cut) > 0) {
+    Double_t min_y_range = config_y - 0.5;
+    Double_t max_y_range = config_y + 0.5;
 
-    h_vtx_y = new TH1F("h_vtx_y", "Fitted Vertex Y;Y (cm);Events", 100, min_y_robust, max_y_robust);
-    tree->Draw("pvy>>h_vtx_y", valid_data, ""); // Draw without fitting
+    h_vtx_y = new TH1F("h_vtx_y", "Fitted Vertex Y (Z cut);Y (cm);Events", 100, min_y_range, max_y_range);
+    tree->Draw("pvy>>h_vtx_y", final_cut, "");
   }
 
-  // --- Histogram for Z coordinate ---
+  // --- Histogram for Z coordinate (with Z cut) ---
   c1->cd(3);
   TH1F *h_vtx_z = nullptr;
-  if (tree->GetEntries(valid_data) > 0) {
-    // Use config_z ± 1 as the Z range
+  if (tree->GetEntries(final_cut) > 0) {
     Double_t min_z_range = config_z - 1.0;
     Double_t max_z_range = config_z + 1.0;
 
-    h_vtx_z = new TH1F("h_vtx_z", "Fitted Vertex Z;Z (cm);Events", 100, min_z_range, max_z_range);
-    tree->Draw("pvz>>h_vtx_z", valid_data, ""); // Draw without fitting
+    h_vtx_z = new TH1F("h_vtx_z", "Fitted Vertex Z (Z cut);Z (cm);Events", 100, min_z_range, max_z_range);
+    tree->Draw("pvz>>h_vtx_z", final_cut, "");
     
-    // Get statistics for the 3*RMS cut
-    Double_t mean_z = h_vtx_z->GetMean();
-    Double_t rms_z = h_vtx_z->GetRMS();
-    
-    // Count entries in X, Y, Z histograms
+    // Count entries in X, Y, Z histograms (all with Z cut applied)
     Int_t entries_x = (h_vtx_x != nullptr) ? h_vtx_x->GetEntries() : 0;
     Int_t entries_y = (h_vtx_y != nullptr) ? h_vtx_y->GetEntries() : 0;
     Int_t entries_z = h_vtx_z->GetEntries();
     
-    // Count entries within mean_z ± 3*RMS
-    TCut z_cut = Form("pvz > %f && pvz < %f", mean_z - 3*rms_z, mean_z + 3*rms_z);
-    Int_t entries_z_3rms = tree->GetEntries(valid_data && z_cut);
-    
     // Write to text file (append mode for parallel jobs)
-    // Output format: config_x config_y config_z entries_x entries_y entries_z entries_z_3rms
+    // Output format: config_x config_y config_z entries_z_3rms
     TString stats_file = stats_output_dir + "/vtx_stats.txt";
     std::ofstream outfile(stats_file.Data(), std::ios::app);
     if (outfile.is_open()) {
@@ -707,8 +708,8 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
       outfile.close();
       std::cout << "Vertex statistics appended to " << stats_file << std::endl;
       std::cout << "Config: X=" << config_x << " Y=" << config_y << " Z=" << config_z 
-                << " | Entries: X=" << entries_x << " Y=" << entries_y 
-                << " Z=" << entries_z << " Z(3RMS)=" << entries_z_3rms << std::endl;
+                << " | Entries after Z cut: X=" << entries_x << " Y=" << entries_y 
+                << " Z=" << entries_z << " Total=" << entries_z_3rms << std::endl;
     } else {
       std::cerr << "Error: Could not open " << stats_file << " for writing!" << std::endl;
     }
