@@ -703,7 +703,6 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
     std::ofstream outfile(stats_file.Data(), std::ios::app);
     if (outfile.is_open()) {
       outfile << config_x << " " << config_y << " " << config_z << " " 
-              << entries_x << " " << entries_y << " " << entries_z << " " 
               << entries_z_3rms << std::endl;
       outfile.close();
       std::cout << "Vertex statistics appended to " << stats_file << std::endl;
