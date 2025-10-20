@@ -46,3 +46,14 @@ echo "Running python script..."
 "$@"
 
 echo "--- Slurm Job Finished ---"
+
+# Clean up empty error file and corresponding log file if no errors
+ERROR_FILE="/lustre/panda/jili/oct19/macro/target/data/slurmlog/pnd_sim_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}.err"
+LOG_FILE="/lustre/panda/jili/oct19/macro/target/data/slurmlog/pnd_sim_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}.log"
+
+if [ -f "$ERROR_FILE" ] && [ ! -s "$ERROR_FILE" ]; then
+    echo "No errors detected, removing error and log files"
+    rm -f "$ERROR_FILE"
+    rm -f "$LOG_FILE"
+fi
+

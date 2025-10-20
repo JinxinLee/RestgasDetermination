@@ -4,7 +4,7 @@ class PndAnaPidSelector;
 class PndAnaPidCombiner;
 class PndAnalysis;
 
-void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".", TString figure_name = "figure", Double_t config_z = 0.0)
+void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".", TString figure_name = "figure", Double_t config_x = 0.0, Double_t config_y = 0.0, Double_t config_z = 0.0, TString stats_output_dir = ".")
 {
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
@@ -698,13 +698,18 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
     Int_t entries_z_3rms = tree->GetEntries(valid_data && z_cut);
     
     // Write to text file (append mode for parallel jobs)
-    TString stats_file = prefix + "_vtx_stats.txt";
+    // Output format: config_x config_y config_z entries_x entries_y entries_z entries_z_3rms
+    TString stats_file = stats_output_dir + "/vtx_stats.txt";
     std::ofstream outfile(stats_file.Data(), std::ios::app);
     if (outfile.is_open()) {
-      outfile << entries_x << " " << entries_y << " " << entries_z << " " << entries_z_3rms << std::endl;
+      outfile << config_x << " " << config_y << " " << config_z << " " 
+              << entries_x << " " << entries_y << " " << entries_z << " " 
+              << entries_z_3rms << std::endl;
       outfile.close();
       std::cout << "Vertex statistics appended to " << stats_file << std::endl;
-      std::cout << "Entries: X=" << entries_x << " Y=" << entries_y << " Z=" << entries_z << " Z(3RMS)=" << entries_z_3rms << std::endl;
+      std::cout << "Config: X=" << config_x << " Y=" << config_y << " Z=" << config_z 
+                << " | Entries: X=" << entries_x << " Y=" << entries_y 
+                << " Z=" << entries_z << " Z(3RMS)=" << entries_z_3rms << std::endl;
     } else {
       std::cerr << "Error: Could not open " << stats_file << " for writing!" << std::endl;
     }

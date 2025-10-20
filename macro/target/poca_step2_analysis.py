@@ -80,7 +80,8 @@ def run_poca_analysis_steps(p, use_mvd_str, out_prefix, unified_log, temp_reco_p
     temp_ana_output, final_ana_output = get_paths("poca.root")
     ana_cmd = (
         f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", '
-        f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\", {p.ipz})"'
+        f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\", '
+        f'{p.ipx}, {p.ipy}, {p.ipz}, \\"{final_reco_path}/..\\")"`'
     )
     # Use run_command directly instead of check_and_run to force execution
     if not run_command(ana_cmd, unified_log, temp_ana_output, env=fit_env):
