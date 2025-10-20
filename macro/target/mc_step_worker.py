@@ -10,7 +10,7 @@ def check_and_run(command, log_file, temp_output_file, final_output_file):
         return True
     return run_command(command, log_file, temp_output_file)
 
-def run_mc_worker(p, use_mvd_str, out_prefix, log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path):
+def run_mc_worker(p, use_mvd_str, out_prefix, unified_log, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path):
     """Runs the MC simulation and reconstruction for a single worker job."""
     print(f"--- Running MC Worker for {out_prefix} ---")
 
@@ -21,35 +21,34 @@ def run_mc_worker(p, use_mvd_str, out_prefix, log_path, temp_reco_path, temp_fig
         return temp_file, final_file
 
     # --- Step 1: Simulation ---
-    sim_log = os.path.join(log_path, f"{out_prefix}_sim.log")
     temp_sim_output, final_sim_output = get_paths("sim.root")
     sim_command = (
         f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
         f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
     )
-    if not check_and_run(sim_command, sim_log, temp_sim_output, final_sim_output):
+    if not check_and_run(sim_command, unified_log, temp_sim_output, final_sim_output):
         print(f"Error: MC simulation (prod_sim_hvmaps.C) for {out_prefix} failed.", file=sys.stderr)
         sys.exit(1)
 
     # --- Step 2: Combined AOD ---
-    aod_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
     temp_aod_output, final_aod_output = get_paths("pid_poca.root")
     aod_cmd = (
         f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", '
         f'\\"mcvertex\\", {use_mvd_str})"'
     )
-    if not check_and_run(aod_cmd, aod_log, temp_aod_output, final_aod_output):
+    if not check_and_run(aod_cmd, unified_log, temp_aod_output, final_aod_output):
         print(f"Error: MC AOD completion (prod_aod_complete.C) for {out_prefix} failed.", file=sys.stderr)
         sys.exit(1)
 
     # --- Step 3: Final Analysis ---
-    ana_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
+    # Always run analysis step, even if output exists
     temp_ana_output, final_ana_output = get_paths("poca.root")
     ana_cmd = (
         f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", '
-        f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\")"'
+        f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\", {p.ipz})"'
     )
-    if not check_and_run(ana_cmd, ana_log, temp_ana_output, final_ana_output):
+    # Use run_command directly instead of check_and_run to force execution
+    if not run_command(ana_cmd, unified_log, temp_ana_output):
         print(f"Error: MC final analysis (ana_complete.C) for {out_prefix} failed.", file=sys.stderr)
         sys.exit(1)
 
@@ -90,8 +89,11 @@ def main():
     
     print(f"\n--- Starting MC Worker Job {slurm_task_id} for Prefix: {p.prefix} (using file prefix: {out_prefix}) ---")
     
+    # Create unified log file for this worker
+    unified_log = os.path.join(final_log_path, f"{out_prefix}_worker.log")
+    
     try:
-        run_mc_worker(p, use_mvd_str, out_prefix, final_log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path)
+        run_mc_worker(p, use_mvd_str, out_prefix, unified_log, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path)
     finally:
         # Copy results from /tmp to final destination
         print(f"--- Copying results from {temp_base_path} to {final_base_path} ---")

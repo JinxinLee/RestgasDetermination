@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "ana_complete.C": "cpp",
-        "pid_complete.C": "cpp"
+        "pid_complete.C": "cpp",
+        "merge_files.C": "cpp",
+        "prod_sim_hvmaps.C": "cpp",
+        "prod_aod_complete.C": "cpp",
+        "ana_dpm.C": "cpp"
     }
 }

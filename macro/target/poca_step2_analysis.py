@@ -39,7 +39,7 @@ def get_vertex_from_file(json_file):
         print(f"Reason: {e}", file=sys.stderr)
         return None
 
-def run_poca_analysis_steps(p, use_mvd_str, out_prefix, log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path):
+def run_poca_analysis_steps(p, use_mvd_str, out_prefix, unified_log, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path):
     """The actual analysis logic, operating on specific paths."""
     
     # --- Step 1: Get vertex environment ---
@@ -55,24 +55,24 @@ def run_poca_analysis_steps(p, use_mvd_str, out_prefix, log_path, temp_reco_path
         return temp_file, final_file
 
     # --- Step 2: Run prod_aod_complete.C ---
-    aod_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
     temp_aod_output, final_aod_output = get_paths("pid_poca.root")
     aod_cmd = (
         f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", '
         f'\\"fitvertex\\", {use_mvd_str})"'
     )
-    if not check_and_run(aod_cmd, aod_log, temp_aod_output, final_aod_output, env=fit_env):
+    if not check_and_run(aod_cmd, unified_log, temp_aod_output, final_aod_output, env=fit_env):
         print(f"Error: POCA AOD completion (prod_aod_complete.C) for {out_prefix} failed.", file=sys.stderr)
         sys.exit(1)
 
     # --- Step 3: Run ana_complete.C ---
-    ana_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
+    # Always run analysis step, even if output exists
     temp_ana_output, final_ana_output = get_paths("poca.root")
     ana_cmd = (
         f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", '
-        f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\")"'
+        f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\", {p.ipz})"'
     )
-    if not check_and_run(ana_cmd, ana_log, temp_ana_output, final_ana_output, env=fit_env):
+    # Use run_command directly instead of check_and_run to force execution
+    if not run_command(ana_cmd, unified_log, temp_ana_output, env=fit_env):
         print(f"Error: POCA analysis (ana_complete.C) for {out_prefix} failed.", file=sys.stderr)
         sys.exit(1)
 
@@ -112,12 +112,15 @@ def main():
     
     print(f"\n--- Starting POCA Worker Job {slurm_task_id} for Prefix: {p.prefix} (using file prefix: {out_prefix}) ---")
     
+    # Create unified log file for this analysis step
+    unified_log = os.path.join(final_log_path, f"{out_prefix}_analysis.log")
+    
     try:
         # The MC step no longer needs the POCA results from the shared drive,
         # as it's a self-contained simulation from start to finish.
         # The old logic for copying files is removed.
 
-        run_poca_analysis_steps(p, use_mvd_str, out_prefix, final_log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path)
+        run_poca_analysis_steps(p, use_mvd_str, out_prefix, unified_log, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path)
     finally:
         # Copy results from /tmp to final destination
         print(f"--- Copying POCA results from {temp_base_path} to {final_base_path} ---")

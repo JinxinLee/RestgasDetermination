@@ -4,7 +4,7 @@ class PndAnaPidSelector;
 class PndAnaPidCombiner;
 class PndAnalysis;
 
-void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".", TString figure_name = "figure")
+void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".", TString figure_name = "figure", Double_t config_z = 0.0)
 {
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
@@ -677,16 +677,37 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
   c1->cd(3);
   TH1F *h_vtx_z = nullptr;
   if (tree->GetEntries(valid_data) > 0) {
-    TH1F *htemp_z = new TH1F("htemp_z", "", 200, -50, 50);
-    tree->Draw("pvz>>htemp_z", valid_data, "goff");
-    Double_t mean_z_stat = htemp_z->GetMean();
-    Double_t rms_z_stat = htemp_z->GetRMS();
-    delete htemp_z;
-    Double_t min_z_robust = mean_z_stat - 5 * rms_z_stat;
-    Double_t max_z_robust = mean_z_stat + 5 * rms_z_stat;
+    // Use config_z ± 1 as the Z range
+    Double_t min_z_range = config_z - 1.0;
+    Double_t max_z_range = config_z + 1.0;
 
-    h_vtx_z = new TH1F("h_vtx_z", "Fitted Vertex Z;Z (cm);Events", 100, min_z_robust, max_z_robust);
+    h_vtx_z = new TH1F("h_vtx_z", "Fitted Vertex Z;Z (cm);Events", 100, min_z_range, max_z_range);
     tree->Draw("pvz>>h_vtx_z", valid_data, ""); // Draw without fitting
+    
+    // Get statistics for the 3*RMS cut
+    Double_t mean_z = h_vtx_z->GetMean();
+    Double_t rms_z = h_vtx_z->GetRMS();
+    
+    // Count entries in X, Y, Z histograms
+    Int_t entries_x = (h_vtx_x != nullptr) ? h_vtx_x->GetEntries() : 0;
+    Int_t entries_y = (h_vtx_y != nullptr) ? h_vtx_y->GetEntries() : 0;
+    Int_t entries_z = h_vtx_z->GetEntries();
+    
+    // Count entries within mean_z ± 3*RMS
+    TCut z_cut = Form("pvz > %f && pvz < %f", mean_z - 3*rms_z, mean_z + 3*rms_z);
+    Int_t entries_z_3rms = tree->GetEntries(valid_data && z_cut);
+    
+    // Write to text file (append mode for parallel jobs)
+    TString stats_file = prefix + "_vtx_stats.txt";
+    std::ofstream outfile(stats_file.Data(), std::ios::app);
+    if (outfile.is_open()) {
+      outfile << entries_x << " " << entries_y << " " << entries_z << " " << entries_z_3rms << std::endl;
+      outfile.close();
+      std::cout << "Vertex statistics appended to " << stats_file << std::endl;
+      std::cout << "Entries: X=" << entries_x << " Y=" << entries_y << " Z=" << entries_z << " Z(3RMS)=" << entries_z_3rms << std::endl;
+    } else {
+      std::cerr << "Error: Could not open " << stats_file << " for writing!" << std::endl;
+    }
   }
 
   c1->SaveAs(figure_path + "/" + figure_name + "_vtx_verification.png");

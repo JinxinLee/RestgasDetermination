@@ -10,7 +10,7 @@ def check_and_run(command, log_file, temp_output_file, final_output_file):
         return True
     return run_command(command, log_file, temp_output_file)
 
-def run_poca_worker_step1(p, use_mvd_str, out_prefix, log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path):
+def run_poca_worker_step1(p, use_mvd_str, out_prefix, unified_log, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path):
     """Runs the first step of the POCA workflow for a single worker job."""
     print(f"--- Running POCA Worker Step 1 for {out_prefix} ---")
 
@@ -20,41 +20,36 @@ def run_poca_worker_step1(p, use_mvd_str, out_prefix, log_path, temp_reco_path, 
         return temp_file, final_file
 
     # --- Simulation ---
-    sim_log = os.path.join(log_path, f"{out_prefix}_sim.log")
     temp_sim_output, final_sim_output = get_paths("sim.root")
     sim_command = (
         f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
         f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
     )
-    if not check_and_run(sim_command, sim_log, temp_sim_output, final_sim_output):
+    if not check_and_run(sim_command, unified_log, temp_sim_output, final_sim_output):
         sys.exit(1)
 
     # --- Digitization ---
-    digi_log = os.path.join(log_path, f"{out_prefix}_digi.log")
     temp_digi_output, final_digi_output = get_paths("digi.root")
     digi_cmd = f'root -l -b -q "prod_aod_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str})"'
-    if not check_and_run(digi_cmd, digi_log, temp_digi_output, final_digi_output):
+    if not check_and_run(digi_cmd, unified_log, temp_digi_output, final_digi_output):
         sys.exit(1)
 
     # --- Reconstruction ---
-    reco_log = os.path.join(log_path, f"{out_prefix}_reco.log")
     temp_reco_output, final_reco_output = get_paths("reco.root")
     reco_cmd = f'root -l -b -q "reco_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str})"'
-    if not check_and_run(reco_cmd, reco_log, temp_reco_output, final_reco_output):
+    if not check_and_run(reco_cmd, unified_log, temp_reco_output, final_reco_output):
         sys.exit(1)
 
     # --- PID ---
-    pid_log = os.path.join(log_path, f"{out_prefix}_pid.log")
     temp_pid_output, final_pid_output = get_paths("pid.root")
     pid_cmd = f'root -l -b -q "pid_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str})"'
-    if not check_and_run(pid_cmd, pid_log, temp_pid_output, final_pid_output):
+    if not check_and_run(pid_cmd, unified_log, temp_pid_output, final_pid_output):
         sys.exit(1)
 
     # --- Analysis for Vertex Fitting (ana_dpm.C) ---
-    ana_log = os.path.join(log_path, f"{out_prefix}_ana_dpm.log")
     temp_ana_output, final_ana_output = get_paths("vtx_fit.json")
     ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\")"'
-    if not check_and_run(ana_dpm_cmd, ana_log, temp_ana_output, final_ana_output):
+    if not check_and_run(ana_dpm_cmd, unified_log, temp_ana_output, final_ana_output):
         sys.exit(1)
     
     print(f"--- POCA Worker Step 1 for {out_prefix} finished. ---")
@@ -96,8 +91,11 @@ def main():
     
     print(f"\n--- Starting POCA Worker Job {slurm_task_id} for Prefix: {p.prefix} (using file prefix: {out_prefix}) ---")
     
+    # Create unified log file for this worker
+    unified_log = os.path.join(final_log_path, f"{out_prefix}_worker.log")
+    
     try:
-        run_poca_worker_step1(p, use_mvd_str, out_prefix, final_log_path, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path)
+        run_poca_worker_step1(p, use_mvd_str, out_prefix, unified_log, temp_reco_path, temp_figure_path, final_reco_path, final_figure_path)
     finally:
         # Copy results from /tmp to final destination
         print(f"--- Copying reco/figure results from {temp_base_path} to {final_base_path} ---")
