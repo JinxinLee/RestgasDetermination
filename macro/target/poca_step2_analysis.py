@@ -55,7 +55,7 @@ def run_poca_analysis_steps(p, use_mvd_str, out_prefix, unified_log, temp_reco_p
         return temp_file, final_file
 
     # --- Step 2: Run prod_aod_complete.C ---
-    temp_aod_output, final_aod_output = get_paths("pid_poca.root")
+    temp_aod_output, final_aod_output = get_paths("pid_final.root")
     aod_cmd = (
         f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", '
         f'\\"fitvertex\\", {use_mvd_str})"'
@@ -66,6 +66,17 @@ def run_poca_analysis_steps(p, use_mvd_str, out_prefix, unified_log, temp_reco_p
 
     # --- Step 3: Run ana_complete.C ---
     # Always run analysis step, even if output exists
+    # First, ensure all required input files are in the temp directory
+    required_files = ["par.root", "pid_final.root"]
+    for file_suffix in required_files:
+        temp_file = os.path.join(temp_reco_path, f"{out_prefix}_{file_suffix}")
+        final_file = os.path.join(final_reco_path, f"{out_prefix}_{file_suffix}")
+        
+        # If file doesn't exist in temp but exists in final, copy it
+        if not os.path.exists(temp_file) and os.path.exists(final_file):
+            print(f"Copying required input file {final_file} to {temp_file} for analysis")
+            shutil.copy2(final_file, temp_file)
+    
     temp_ana_output, final_ana_output = get_paths("poca.root")
     ana_cmd = (
         f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", '
