@@ -528,6 +528,21 @@ void PndMasterRunSim::SetGenerator()
       aGen->ReadDensityFile();
     }
   } break;
+  case 8: {
+    // pencil beam with a gaussian target and 10% restgas profile for testing
+    tgtfile += "/input/restgas_10%.txt";
+    LOG(info) << "Using 10% distributed Beam-Target profile " << tgtfile.Data();
+    TObjArray *genList = fGen->GetListOfGenerators();
+    for (int i = 0; i < genList->GetEntriesFast(); i++) {
+      TObject *obj = genList->At(i);
+      if (!obj->InheritsFrom("PndTargetGenerator"))
+        continue;
+      PndTargetGenerator *aGen = (PndTargetGenerator *)genList->At(i);
+      aGen->SetDensityProfile(tgtfile);
+      aGen->SetBeamRadius(0.1);                 // default beam spot sigma 1mm^2 by "Fair Operation Modes" document v.6 (2020)
+      aGen->ReadDensityFile();
+    }
+  } break;
   default: LOG(info) << "Unknown target mode - Using no vertex smearing";
   }
 }
