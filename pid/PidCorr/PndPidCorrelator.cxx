@@ -789,6 +789,22 @@ void PndPidCorrelator::ConstructChargedCandidate() {
       continue; // cut flag<=0
     }
     FairTrackParH *helix = new FairTrackParH(&par, ierr);
+    
+    // Check if helix creation failed
+    if (ierr != 0 || !helix) {
+      cout << "-W- PndPidCorrelator::ConstructChargedCandidate: Failed to create helix for track #" << i << endl;
+      if (helix) delete helix;
+      AddChargedCandidate(dummyCand);
+      continue;
+    }
+    
+    // Check if helix parameters are valid
+    if (!std::isfinite(helix->GetX()) || !std::isfinite(helix->GetY()) || !std::isfinite(helix->GetZ())) {
+      cout << "-W- PndPidCorrelator::ConstructChargedCandidate: Helix has invalid position for track #" << i << endl;
+      delete helix;
+      AddChargedCandidate(dummyCand);
+      continue;
+    }
 
     PndPidCandidate* pidCand = 	new PndPidCandidate();
 
@@ -831,6 +847,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     pidCand->SetTrackBranch(FairRootManager::Instance()->GetBranchId(fTrackBranch));
     pidCand->AddLink(FairLink(fTrackBranch, i));
     if (!GetTrackInfo(track, pidCand)) {
+      delete helix;
       AddChargedCandidate(dummyCand);
       continue;
     }
@@ -845,6 +862,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
       if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
       if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0)) GetDskInfo(helix, pidCand);
     }
+    delete helix; // Clean up helix after use
     AddChargedCandidate(pidCand);
   }
 
@@ -866,6 +884,22 @@ void PndPidCorrelator::ConstructChargedCandidate() {
         continue; // cut flag<=0
       }
       FairTrackParH *helix = new FairTrackParH(&par, ierr);
+      
+      // Check if helix creation failed
+      if (ierr != 0 || !helix) {
+        cout << "-W- PndPidCorrelator::ConstructChargedCandidate: Failed to create helix for track2 #" << i << endl;
+        if (helix) delete helix;
+        AddChargedCandidate(dummyCand);
+        continue;
+      }
+      
+      // Check if helix parameters are valid
+      if (!std::isfinite(helix->GetX()) || !std::isfinite(helix->GetY()) || !std::isfinite(helix->GetZ())) {
+        cout << "-W- PndPidCorrelator::ConstructChargedCandidate: Helix has invalid position for track2 #" << i << endl;
+        delete helix;
+        AddChargedCandidate(dummyCand);
+        continue;
+      }
 
       PndPidCandidate* pidCand =  new PndPidCandidate();
       pidCand->SetPidHypo(fPidHyp);	//Walter added
@@ -907,6 +941,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
       pidCand->SetTrackBranch(FairRootManager::Instance()->GetBranchId(fTrackBranch2));
       pidCand->AddLink(FairLink(fTrackBranch2, i));
       if (!GetTrackInfo(track, pidCand)) {
+        delete helix;
         AddChargedCandidate(dummyCand);
         continue;
       }
@@ -921,6 +956,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
         if (mapMdtForward.size()>0)  GetFMdtInfo(&par, pidCand);
         if ( (fRichMode>0) ) GetRichInfo(helix, pidCand);
       } // end of fast mode
+      delete helix; // Clean up helix after use
       AddChargedCandidate(pidCand);
     }
   }
@@ -1008,25 +1044,51 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       Int_t ierr = 0;
       FairTrackParP par = track->GetParamLast();
 
-    /*  // --- Add check for invalid track parameters before propagation ---
+      // --- Add check for invalid track parameters before propagation ---
       if (!std::isfinite(par.GetX()) || !std::isfinite(par.GetY()) || !std::isfinite(par.GetZ()) ||
           !std::isfinite(par.GetPx()) || !std::isfinite(par.GetPy()) || !std::isfinite(par.GetPz())) {
         cout << "-W- PndPidCorrelator::ConstructNeutralCandidate: Skipping track #" << tt
              << " with invalid parameters (NaN or Inf)." << endl;
         continue;
       }
-    */
+
       FairTrackParH *helix = new FairTrackParH(&par, ierr);
+      
+      // Check if helix creation failed
+      if (ierr != 0 || !helix) {
+        cout << "-W- PndPidCorrelator::ConstructNeutralCandidate: Failed to create helix for track #" << tt << endl;
+        if (helix) delete helix;
+        continue;
+      }
+      
+      // Check if helix parameters are valid
+      if (!std::isfinite(helix->GetX()) || !std::isfinite(helix->GetY()) || !std::isfinite(helix->GetZ())) {
+        cout << "-W- PndPidCorrelator::ConstructNeutralCandidate: Helix has invalid position for track #" << tt << endl;
+        delete helix;
+        continue;
+      }
 
       if (bump->GetModule()<5) // barrel
       {
-        if ((bump->GetModule()<3) && (helix->GetZ()>150.)  ) continue; // not consider tracks after emc barrel for BARREL
-        if ((bump->GetModule()==3) && (helix->GetZ()<165.) ) continue; // consider tracks only from last gem plane for FWD
-        if ((bump->GetModule()==4) && (helix->GetZ()>-30.) ) continue; // consider tracks only ending at the back of STT for BKW
+        if ((bump->GetModule()<3) && (helix->GetZ()>150.)  ) {
+          delete helix;
+          continue; // not consider tracks after emc barrel for BARREL
+        }
+        if ((bump->GetModule()==3) && (helix->GetZ()<165.) ) {
+          delete helix;
+          continue; // consider tracks only from last gem plane for FWD
+        }
+        if ((bump->GetModule()==4) && (helix->GetZ()>-30.) ) {
+          delete helix;
+          continue; // consider tracks only ending at the back of STT for BKW
+        }
       }
       else // forward
       {
-        if (helix->GetZ() <  fCorrPar->GetZLastPlane()) continue;  // consider tracks only from last fts plane for FSC
+        if (helix->GetZ() <  fCorrPar->GetZLastPlane()) {
+          delete helix;
+          continue;  // consider tracks only from last fts plane for FSC
+        }
       }
 
       if (fGeanePro)
@@ -1036,8 +1098,17 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
         vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
         FairTrackParH *fRes= new FairTrackParH();
         Bool_t rc =   fGeanePropagator->Propagate(helix, fRes, fPidHyp*par.GetQ()); // First propagation at module
-        if (!rc) continue;
+        delete helix; // Clean up helix after propagation
+        if (!rc) {
+          delete fRes;
+          continue;
+        }
         vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+        delete fRes; // Clean up result after use
+      }
+      else
+      {
+        delete helix; // Clean up helix if Geane is not used
       }
 
       Float_t dist = (vtx-vertex).Mag2();
