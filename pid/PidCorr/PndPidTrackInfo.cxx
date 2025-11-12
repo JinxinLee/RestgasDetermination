@@ -105,13 +105,16 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
         // For fitted vertex: Propagate to axis through (vertex_x, vertex_y)
         std::cout << "-I- PndPidTrackInfo::GetIP: Propagating to axis parallel to z-axis through ("
                   << targetPoint.X() << ", " << targetPoint.Y() << ")" << std::endl;
-        
+
+        fGeanePropagator->PropagateToPCA(2, -1); // Mode 2 for axis/wire
+
         // Define the wire (axis) parallel to z-axis through (vertex_x, vertex_y)
-        TVector3 wirePoint1(targetPoint.X(), targetPoint.Y(), -50.); // Start of axis
-        TVector3 wirePoint2(targetPoint.X(), targetPoint.Y(), 100.); // End of axis
+        //TVector3 wirePoint1(targetPoint.X(), targetPoint.Y(), -50.); // Start of axis
+        //TVector3 wirePoint2(targetPoint.X(), targetPoint.Y(), 100.); // End of axis
+        TVector3 wirePoint1(0., 0., -50.); // Start of axis
+        TVector3 wirePoint2(0., 0., 100.); // End of axis
         
         fGeanePropagator->SetWire(wirePoint1, wirePoint2);
-        fGeanePropagator->PropagateToPCA(2, -1); // Mode 2 for axis/wire
         fGeanePropagator->setBackProp();
         
         FairTrackParH *helix = new FairTrackParH(&par, ierr);
