@@ -50,6 +50,7 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     // --- Propagation Target Logic ---
     TVector3 targetPoint;
     bool targetSet = false;
+    bool useFittedVertexAxis = false; // Flag to indicate if we should use axis propagation
 
     // 1. Try to get vertex from environment variables if fUseFittedVertex is true
     if (fUseFittedVertex) {
@@ -64,8 +65,9 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
                 double z = std::stod(vtx_z_str);
                 targetPoint.SetXYZ(x, y, z);
                 targetSet = true;
-                std::cout << "-I- PndPidTrackInfo::GetIP: Using fitted vertex from environment as target point: "
-                          << targetPoint.X() << ", " << targetPoint.Y() << ", " << targetPoint.Z() << std::endl;
+                useFittedVertexAxis = true; // Enable axis propagation for fitted vertex
+                std::cout << "-I- PndPidTrackInfo::GetIP: Using fitted vertex from environment. Will propagate to axis through: ("
+                          << targetPoint.X() << ", " << targetPoint.Y() << ")" << std::endl;
             } catch (const std::invalid_argument& e) {
                 std::cerr << "-W- PndPidTrackInfo::GetIP: Invalid argument when converting fitted vertex from environment. " << e.what() << std::endl;
             } catch (const std::out_of_range& e) {
@@ -98,37 +100,66 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
         std::cout << "-I- PndPidTrackInfo::GetIP: Using default IP (0,0,0) as target point." << std::endl;
     }
 
-    // --- Two-Step Propagation for Robustness ---
-    // Step 1: Propagate robustly to the plane containing the IP
-    // Define the plane at 1cm before the target point
-    TVector3 p0(0., 0., targetPoint.Z() + 1.);
-    TVector3 p1(1., 0., 0.);
-    TVector3 p2(0., 1., 0.);
-    p1.SetMag(1);
-    p2.SetMag(1);
-    fGeanePropagator->PropagateToPlane(p0, p1, p2);
-    fGeanePropagator->setBackProp();
+    // --- Propagation Strategy ---
+    if (useFittedVertexAxis) {
+        // For fitted vertex: Propagate to axis through (vertex_x, vertex_y)
+        std::cout << "-I- PndPidTrackInfo::GetIP: Propagating to axis parallel to z-axis through ("
+                  << targetPoint.X() << ", " << targetPoint.Y() << ")" << std::endl;
+        
+        // Define the wire (axis) parallel to z-axis through (vertex_x, vertex_y)
+        TVector3 wirePoint1(targetPoint.X(), targetPoint.Y(), -50.); // Start of axis
+        TVector3 wirePoint2(targetPoint.X(), targetPoint.Y(), 100.); // End of axis
+        
+        fGeanePropagator->SetWire(wirePoint1, wirePoint2);
+        fGeanePropagator->PropagateToPCA(2, -1); // Mode 2 for axis/wire
+        fGeanePropagator->setBackProp();
+        
+        FairTrackParH *helix = new FairTrackParH(&par, ierr);
+        Bool_t rc = fGeanePropagator->Propagate(helix, fRes, fPidHyp * charge);
+        
+        if (!rc) {
+            std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed propagation to fitted vertex axis." << std::endl;
+            delete helix;
+            return kFALSE;
+        }
+        delete helix;
+    } else {
+        // For MC truth or default: Use two-step propagation to point
+        // Step 1: Propagate robustly to the plane containing the IP
+        // Define the plane at 1cm before the target point
+        TVector3 p0(0., 0., targetPoint.Z() + 1.);
+        TVector3 p1(1., 0., 0.);
+        TVector3 p2(0., 1., 0.);
+        p1.SetMag(1);
+        p2.SetMag(1);
+        fGeanePropagator->PropagateToPlane(p0, p1, p2);
+        fGeanePropagator->setBackProp();
 
-    FairTrackParP *parAtPlane = new FairTrackParP(); // Create a new object to store the result of step 1
-    // Note: The input is a pointer to the initial 'par' object
-    Bool_t rc_plane = fGeanePropagator->Propagate(&par, parAtPlane, fPidHyp * charge);
+        FairTrackParP *parAtPlane = new FairTrackParP(); // Create a new object to store the result of step 1
+        // Note: The input is a pointer to the initial 'par' object
+        Bool_t rc_plane = fGeanePropagator->Propagate(&par, parAtPlane, fPidHyp * charge);
 
-    if (!rc_plane) {
-        std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed robust propagation to target plane." << std::endl;
+        if (!rc_plane) {
+            std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed robust propagation to target plane." << std::endl;
+            delete parAtPlane;
+            return kFALSE;
+        }
+
+        // Step 2: From the plane, do a short, precise propagation to the target point.
+        // This step is now numerically stable because the distance is short.
+        FairTrackParH *helixAtPlane = new FairTrackParH(parAtPlane, ierr);
+        fGeanePropagator->SetPoint(targetPoint);
+        fGeanePropagator->PropagateToPCA(1, -1); // Mode 1 for Point
+        Bool_t rc_point = fGeanePropagator->Propagate(helixAtPlane, fRes, fPidHyp * charge);
+
+        if (!rc_point) {
+            std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed final precise propagation to target point." << std::endl;
+            delete helixAtPlane;
+            delete parAtPlane;
+            return kFALSE;
+        }
+        delete helixAtPlane;
         delete parAtPlane;
-        return kFALSE;
-    }
-
-    // Step 2: From the plane, do a short, precise propagation to the target point.
-    // This step is now numerically stable because the distance is short.
-    FairTrackParH *helixAtPlane = new FairTrackParH(parAtPlane, ierr);
-    fGeanePropagator->SetPoint(targetPoint);
-    fGeanePropagator->PropagateToPCA(1, -1); // Mode 1 for Point
-    Bool_t rc_point = fGeanePropagator->Propagate(helixAtPlane, fRes, fPidHyp * charge);
-
-    if (!rc_point) {
-        std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed final precise propagation to target point." << std::endl;
-        return kFALSE;
     }
 
     // Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*charge);
