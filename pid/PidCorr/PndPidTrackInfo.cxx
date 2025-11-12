@@ -115,7 +115,7 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
         TVector3 wirePoint2(0., 0., 100.); // End of axis
         
         fGeanePropagator->SetWire(wirePoint1, wirePoint2);
-        fGeanePropagator->setBackProp();
+        //fGeanePropagator->setBackProp();
         
         FairTrackParH *helix = new FairTrackParH(&par, ierr);
         Bool_t rc = fGeanePropagator->Propagate(helix, fRes, fPidHyp * charge);
