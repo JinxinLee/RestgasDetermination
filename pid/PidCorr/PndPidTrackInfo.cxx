@@ -109,10 +109,10 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
         fGeanePropagator->PropagateToPCA(2, -1); // Mode 2 for axis/wire
 
         // Define the wire (axis) parallel to z-axis through (vertex_x, vertex_y)
-        //TVector3 wirePoint1(targetPoint.X(), targetPoint.Y(), -50.); // Start of axis
-        //TVector3 wirePoint2(targetPoint.X(), targetPoint.Y(), 100.); // End of axis
-        TVector3 wirePoint1(0., 0., -50.); // Start of axis
-        TVector3 wirePoint2(0., 0., 100.); // End of axis
+        TVector3 wirePoint1(targetPoint.X(), targetPoint.Y(), -50.); // Start of axis
+        TVector3 wirePoint2(targetPoint.X(), targetPoint.Y(), 100.); // End of axis
+        //TVector3 wirePoint1(0., 0., -50.); // Start of axis
+        //TVector3 wirePoint2(0., 0., 100.); // End of axis
         
         fGeanePropagator->SetWire(wirePoint1, wirePoint2);
         //fGeanePropagator->setBackProp();
