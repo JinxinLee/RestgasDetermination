@@ -127,42 +127,59 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
         }
         delete helix;
     } else {
-        // For MC truth or default: Use two-step propagation to point
-        // Step 1: Propagate robustly to the plane containing the IP
-        // Define the plane at 1cm before the target point
-        TVector3 p0(0., 0., targetPoint.Z() + 1.);
-        TVector3 p1(1., 0., 0.);
-        TVector3 p2(0., 1., 0.);
-        p1.SetMag(1);
-        p2.SetMag(1);
-        fGeanePropagator->PropagateToPlane(p0, p1, p2);
-        fGeanePropagator->setBackProp();
-
-        FairTrackParP *parAtPlane = new FairTrackParP(); // Create a new object to store the result of step 1
-        // Note: The input is a pointer to the initial 'par' object
-        Bool_t rc_plane = fGeanePropagator->Propagate(&par, parAtPlane, fPidHyp * charge);
-
-        if (!rc_plane) {
-            std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed robust propagation to target plane." << std::endl;
-            delete parAtPlane;
-            return kFALSE;
-        }
-
-        // Step 2: From the plane, do a short, precise propagation to the target point.
-        // This step is now numerically stable because the distance is short.
-        FairTrackParH *helixAtPlane = new FairTrackParH(parAtPlane, ierr);
+        // For MC truth or default: Direct propagation to point
+        std::cout << "-I- PndPidTrackInfo::GetIP: Propagating directly to target point: ("
+                  << targetPoint.X() << ", " << targetPoint.Y() << ", " << targetPoint.Z() << ")" << std::endl;
+        
+        FairTrackParH *helix = new FairTrackParH(&par, ierr);
         fGeanePropagator->SetPoint(targetPoint);
         fGeanePropagator->PropagateToPCA(1, -1); // Mode 1 for Point
-        Bool_t rc_point = fGeanePropagator->Propagate(helixAtPlane, fRes, fPidHyp * charge);
-
-        if (!rc_point) {
-            std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed final precise propagation to target point." << std::endl;
-            delete helixAtPlane;
-            delete parAtPlane;
+        
+        Bool_t rc = fGeanePropagator->Propagate(helix, fRes, fPidHyp * charge);
+        
+        if (!rc) {
+            std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed direct propagation to target point." << std::endl;
+            delete helix;
             return kFALSE;
         }
-        delete helixAtPlane;
-        delete parAtPlane;
+        delete helix;
+
+        // --- Old two-step propagation code (kept for reference) ---
+        // // Step 1: Propagate robustly to the plane containing the IP
+        // // Define the plane at 1cm before the target point
+        // TVector3 p0(0., 0., targetPoint.Z() + 1.);
+        // TVector3 p1(1., 0., 0.);
+        // TVector3 p2(0., 1., 0.);
+        // p1.SetMag(1);
+        // p2.SetMag(1);
+        // fGeanePropagator->PropagateToPlane(p0, p1, p2);
+        // fGeanePropagator->setBackProp();
+
+        // FairTrackParP *parAtPlane = new FairTrackParP(); // Create a new object to store the result of step 1
+        // // Note: The input is a pointer to the initial 'par' object
+        // Bool_t rc_plane = fGeanePropagator->Propagate(&par, parAtPlane, fPidHyp * charge);
+
+        // if (!rc_plane) {
+        //     std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed robust propagation to target plane." << std::endl;
+        //     delete parAtPlane;
+        //     return kFALSE;
+        // }
+
+        // // Step 2: From the plane, do a short, precise propagation to the target point.
+        // // This step is now numerically stable because the distance is short.
+        // FairTrackParH *helixAtPlane = new FairTrackParH(parAtPlane, ierr);
+        // fGeanePropagator->SetPoint(targetPoint);
+        // fGeanePropagator->PropagateToPCA(1, -1); // Mode 1 for Point
+        // Bool_t rc_point = fGeanePropagator->Propagate(helixAtPlane, fRes, fPidHyp * charge);
+
+        // if (!rc_point) {
+        //     std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed final precise propagation to target point." << std::endl;
+        //     delete helixAtPlane;
+        //     delete parAtPlane;
+        //     return kFALSE;
+        // }
+        // delete helixAtPlane;
+        // delete parAtPlane;
     }
 
     // Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*charge);
