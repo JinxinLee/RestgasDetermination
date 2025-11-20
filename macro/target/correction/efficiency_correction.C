@@ -83,7 +83,7 @@ void efficiency_correction(
         return; 
     }
     // 尝试获取 cbmsim 或 pndsim
-    tMCGen = (TTree*)fMCGen->Get("pndsim");
+    TTree* tMCGen = (TTree*)fMCGen->Get("pndsim");
     
     if (!tMCGen) { std::cout << "Error: Cannot find tree 'cbmsim' or 'pndsim' in MC Gen file." << std::endl; return; }
 
