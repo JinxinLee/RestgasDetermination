@@ -154,8 +154,8 @@ void efficiency_correction(
     hMCRecScaled->SetLineColor(kRed);
     hMCRecScaled->Draw("HIST SAME");
     
-    TLegend* leg1 = new TLegend(0.65, 0.7, 0.9, 0.9);
-    leg1->AddEntry(hData, "Real Data (Rec)", "lp");
+    TLegend* leg1 = new TLegend(0.55, 0.7, 0.9, 0.9);
+    leg1->AddEntry(hData, Form("Real Data (Rec) (N=%.0f)", hData->Integral()), "lp");
     leg1->AddEntry(hMCRecScaled, "MC Rec (Scaled)", "l");
     leg1->Draw();
 
