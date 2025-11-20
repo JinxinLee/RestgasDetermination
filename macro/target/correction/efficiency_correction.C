@@ -40,6 +40,12 @@ void efficiency_correction(
     // 设置绘图风格
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(1);
+    gStyle->SetTextSize(0.05);
+    gStyle->SetLabelSize(0.05, "XYZ");
+    gStyle->SetTitleSize(0.06, "XYZ");
+    gStyle->SetTitleOffset(0.8, "Y");
+    gStyle->SetPadLeftMargin(0.15);
+    gStyle->SetPadBottomMargin(0.15);
 
     // ---------------------------------------------------------
     // 1. 获取真实数据分布 (Numerator for Data)
@@ -52,7 +58,7 @@ void efficiency_correction(
     TTree* tData = (TTree*)fData->Get("ntpDp");
     if (!tData) { std::cout << "Error: Cannot find tree 'ntpDp' in Data file." << std::endl; return; }
 
-    TH1F* hData = new TH1F("hData", "Real Data (Rec);Z (cm);Counts", nBins, xMin, xMax);
+    TH1F* hData = new TH1F("hData", "Real Data (Rec);Z (cm);#Events", nBins, xMin, xMax);
     tData->Draw(plotVar + ">>hData", recCut);
     hData->SetDirectory(0); // 从文件中解离
     fData->Close();
@@ -68,7 +74,7 @@ void efficiency_correction(
     TTree* tMCRec = (TTree*)fMCRec->Get("ntpDp");
     if (!tMCRec) { std::cout << "Error: Cannot find tree 'ntpDp' in MC Rec file." << std::endl; return; }
 
-    TH1F* hMCRec = new TH1F("hMCRec", "MC Reconstructed;Z (cm);Counts", nBins, xMin, xMax);
+    TH1F* hMCRec = new TH1F("hMCRec", "MC Reconstructed;Z (cm);#Events", nBins, xMin, xMax);
     tMCRec->Draw(mcRecVar + ">>hMCRec", recCut);
     hMCRec->SetDirectory(0);
     fMCRec->Close();
@@ -88,7 +94,7 @@ void efficiency_correction(
     
     if (!tMCGen) { std::cout << "Error: Cannot find tree 'cbmsim' or 'pndsim' in MC Gen file." << std::endl; return; }
 
-    TH1F* hMCGen = new TH1F("hMCGen", "MC Generated;Z (cm);Counts", nBins, xMin, xMax);
+    TH1F* hMCGen = new TH1F("hMCGen", "MC Generated;Z (cm);#Events", nBins, xMin, xMax);
     
     std::cout << "Drawing Gen variable: " << genVar << " with cut: " << genCut << std::endl;
     // 注意：这里假设genVar可以直接访问。如果是TClonesArray，可能需要更复杂的Draw语法
@@ -110,7 +116,7 @@ void efficiency_correction(
             if (!tDataGen) tDataGen = (TTree*)fDataGen->Get("pndsim");
             
             if (tDataGen) {
-                hDataGen = new TH1F("hDataGen", "Real Data Generated (Truth);Z (cm);Counts", nBins, xMin, xMax);
+                hDataGen = new TH1F("hDataGen", "Real Data Generated (Truth);Z (cm);#Events", nBins, xMin, xMax);
                 std::cout << "Drawing Real Data Gen variable..." << std::endl;
                 tDataGen->Draw(genVar + ">>hDataGen", genCut);
                 hDataGen->SetDirectory(0);
@@ -134,13 +140,13 @@ void efficiency_correction(
     // 5. 修正真实数据 (Correction)
     // ---------------------------------------------------------
     TH1F* hCorrected = (TH1F*)hData->Clone("hCorrected");
-    hCorrected->SetTitle("Corrected Data Distribution;Variable;Counts (Corrected)");
+    hCorrected->SetTitle("Corrected Data Distribution;Variable;#Events (Corrected)");
     hCorrected->Divide(hEff);
 
     // ---------------------------------------------------------
     // 6. 绘图与保存
     // ---------------------------------------------------------
-    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 1200, 800);
+    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 2400, 1600);
     c1->Divide(2, 2);
 
     // Pad 1: 原始数据与MC重建对比 (形状对比)
