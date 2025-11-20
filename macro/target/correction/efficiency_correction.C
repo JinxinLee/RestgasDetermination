@@ -28,6 +28,7 @@ void efficiency_correction(
     TString mcGenFile = "mc_sim.root",            // MC生成数据文件 (sim输出，包含MCTrack)
     TString realDataGenFile = "",                 // 真实数据对应的生成文件 (可选，用于验证)
     TString plotVar = "pvz",                      // 需要修正的变量名 (在ana文件的ntpDp树中)
+    TString mcRecVar = "pvz_mc",                  // MC重建变量 (用于效率分子，通常使用MC真值)
     TString genVar = "MCTrack.fStartZ",           // 对应的生成级变量 (在sim文件的pndsim树中)
     TString recCut = "pvz != -999.0",             // 重建数据的筛选条件
     TString genCut = "MCTrack.fMotherID==-1&&MCTrack.fPdgCode==2212", // 生成级粒子的筛选条件
@@ -68,7 +69,7 @@ void efficiency_correction(
     if (!tMCRec) { std::cout << "Error: Cannot find tree 'ntpDp' in MC Rec file." << std::endl; return; }
 
     TH1F* hMCRec = new TH1F("hMCRec", "MC Reconstructed;Z (cm);Counts", nBins, xMin, xMax);
-    tMCRec->Draw(plotVar + ">>hMCRec", recCut);
+    tMCRec->Draw(mcRecVar + ">>hMCRec", recCut);
     hMCRec->SetDirectory(0);
     fMCRec->Close();
 
@@ -153,7 +154,7 @@ void efficiency_correction(
     hMCRecScaled->SetLineColor(kRed);
     hMCRecScaled->Draw("HIST SAME");
     
-    TLegend* leg1 = new TLegend(0.5, 0.7, 0.85, 0.85);
+    TLegend* leg1 = new TLegend(0.65, 0.7, 0.9, 0.9);
     leg1->AddEntry(hData, "Real Data (Rec)", "lp");
     leg1->AddEntry(hMCRecScaled, "MC Rec (Scaled)", "l");
     leg1->Draw();
@@ -165,7 +166,7 @@ void efficiency_correction(
     hMCRec->SetLineColor(kRed);
     hMCRec->Draw("HIST SAME");
     
-    TLegend* leg2 = new TLegend(0.5, 0.7, 0.85, 0.85);
+    TLegend* leg2 = new TLegend(0.65, 0.7, 0.9, 0.9);
     leg2->AddEntry(hMCGen, "MC Gen", "l");
     leg2->AddEntry(hMCRec, "MC Rec", "l");
     leg2->Draw();
@@ -190,7 +191,7 @@ void efficiency_correction(
         hDataGen->SetLineWidth(2);
         hDataGen->Draw("HIST SAME");
         
-        TLegend* leg4 = new TLegend(0.5, 0.7, 0.85, 0.85);
+        TLegend* leg4 = new TLegend(0.65, 0.7, 0.9, 0.9);
         leg4->AddEntry(hCorrected, "Corrected Data", "lp");
         leg4->AddEntry(hDataGen, "True Distribution (Gen)", "l");
         leg4->Draw();
