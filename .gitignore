@@ -8,5 +8,6 @@ macro/detectors/lmd/**/*.root
 .vscode/**
 .vscode/settings.json
 macro/target/*.root
+macro/target/correction/*.root
 macro/target/configs/
 macro/target/gphysi.dat

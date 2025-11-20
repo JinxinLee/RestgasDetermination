@@ -26,6 +26,7 @@ void efficiency_correction(
     TString realDataFile = "data_ana_final.root", // 真实数据文件 (经过ana)
     TString mcRecFile = "mc_ana_final.root",      // MC重建数据文件 (经过ana)
     TString mcGenFile = "mc_sim.root",            // MC生成数据文件 (sim输出，包含MCTrack)
+    TString realDataGenFile = "",                 // 真实数据对应的生成文件 (可选，用于验证)
     TString plotVar = "pvz",                      // 需要修正的变量名 (在ana文件的ntpDp树中)
     TString genVar = "MCTrack.fStartZ",           // 对应的生成级变量 (在sim文件的pndsim树中)
     TString recCut = "pvz != -999.0",             // 重建数据的筛选条件
@@ -82,8 +83,7 @@ void efficiency_correction(
         return; 
     }
     // 尝试获取 cbmsim 或 pndsim
-    TTree* tMCGen = (TTree*)fMCGen->Get("cbmsim"); 
-    if (!tMCGen) tMCGen = (TTree*)fMCGen->Get("pndsim");
+    tMCGen = (TTree*)fMCGen->Get("pndsim");
     
     if (!tMCGen) { std::cout << "Error: Cannot find tree 'cbmsim' or 'pndsim' in MC Gen file." << std::endl; return; }
 
@@ -95,6 +95,30 @@ void efficiency_correction(
     tMCGen->Draw(genVar + ">>hMCGen", genCut); 
     hMCGen->SetDirectory(0);
     fMCGen->Close();
+
+    // ---------------------------------------------------------
+    // 3.5 获取真实数据的生成分布 (Optional Truth for Verification)
+    // ---------------------------------------------------------
+    TH1F* hDataGen = nullptr;
+    if (realDataGenFile != "") {
+        TFile* fDataGen = TFile::Open(realDataGenFile);
+        if (!fDataGen || fDataGen->IsZombie()) {
+            std::cout << "Warning: Cannot open Real Data Gen file: " << realDataGenFile << std::endl;
+        } else {
+            TTree* tDataGen = (TTree*)fDataGen->Get("cbmsim");
+            if (!tDataGen) tDataGen = (TTree*)fDataGen->Get("pndsim");
+            
+            if (tDataGen) {
+                hDataGen = new TH1F("hDataGen", "Real Data Generated (Truth);Z (cm);Counts", nBins, xMin, xMax);
+                std::cout << "Drawing Real Data Gen variable..." << std::endl;
+                tDataGen->Draw(genVar + ">>hDataGen", genCut);
+                hDataGen->SetDirectory(0);
+            } else {
+                std::cout << "Warning: Cannot find tree 'cbmsim' or 'pndsim' in Real Data Gen file." << std::endl;
+            }
+            fDataGen->Close();
+        }
+    }
 
     // ---------------------------------------------------------
     // 4. 计算效率 (Efficiency)
@@ -160,6 +184,18 @@ void efficiency_correction(
     hCorrected->SetMarkerStyle(20);
     hCorrected->Draw("E");
 
+    if (hDataGen) {
+        hDataGen->SetLineColor(kMagenta);
+        hDataGen->SetLineStyle(2);
+        hDataGen->SetLineWidth(2);
+        hDataGen->Draw("HIST SAME");
+        
+        TLegend* leg4 = new TLegend(0.5, 0.7, 0.85, 0.85);
+        leg4->AddEntry(hCorrected, "Corrected Data", "lp");
+        leg4->AddEntry(hDataGen, "True Distribution (Gen)", "l");
+        leg4->Draw();
+    }
+
     // 保存结果
     c1->SaveAs("efficiency_correction_result.png");
     
@@ -169,6 +205,7 @@ void efficiency_correction(
     hMCGen->Write();
     hEff->Write();
     hCorrected->Write();
+    if (hDataGen) hDataGen->Write();
     fOut->Close();
 
     std::cout << "Analysis Complete." << std::endl;
