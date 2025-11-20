@@ -191,9 +191,9 @@ void efficiency_correction(
         hDataGen->SetLineWidth(2);
         hDataGen->Draw("HIST SAME");
         
-        TLegend* leg4 = new TLegend(0.65, 0.7, 0.9, 0.9);
-        leg4->AddEntry(hCorrected, "Corrected Data", "lp");
-        leg4->AddEntry(hDataGen, "True Distribution (Gen)", "l");
+        TLegend* leg4 = new TLegend(0.55, 0.7, 0.9, 0.9);
+        leg4->AddEntry(hCorrected, Form("Corrected Data (N=%.1f)", hCorrected->Integral()), "lp");
+        leg4->AddEntry(hDataGen, Form("True Distribution (Gen) (N=%.1f)", hDataGen->Integral()), "l");
         leg4->Draw();
     }
 
