@@ -61,6 +61,9 @@ PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed)
 
 PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed, Double_t ThtMin, Double_t ThtMax)
 { 
+  Double_t logangle = TMath::Log(0.4) + (TMath::Log(15.) - TMath::Log(Mom)) * (TMath::Log(4) - TMath::Log(0.4)) / (TMath::Log(15) - TMath::Log(1.5));
+  Double_t CalThtMin = TMath::Exp(logangle);
+  if(CalThtMin > ThtMin) ThtMin = CalThtMin;
   fMom = Mom;
   fMode = Mode;
   fSeed = Seed;
