@@ -2,6 +2,7 @@
 #include <iostream>
 #include "TFile.h"
 #include "TTree.h"
+#include "TChain.h"
 #include "TH1F.h"
 #include "TCanvas.h"
 #include "TLegend.h"
@@ -50,49 +51,47 @@ void efficiency_correction(
     // ---------------------------------------------------------
     // 1. 获取真实数据分布 (Numerator for Data)
     // ---------------------------------------------------------
-    TFile* fData = TFile::Open(realDataFile);
-    if (!fData || fData->IsZombie()) { 
-        std::cout << "Error: Cannot open Real Data file: " << realDataFile << std::endl; 
+    TChain* tData = new TChain("ntpDp");
+    tData->Add(realDataFile);
+    if (tData->GetEntries() == 0) { 
+        std::cout << "Error: Cannot find tree 'ntpDp' in Data file(s): " << realDataFile << std::endl; 
         return; 
     }
-    TTree* tData = (TTree*)fData->Get("ntpDp");
-    if (!tData) { std::cout << "Error: Cannot find tree 'ntpDp' in Data file." << std::endl; return; }
 
     TH1F* hData = new TH1F("hData", "Real Data (Rec);Z (cm);#Events", nBins, xMin, xMax);
     tData->Draw(plotVar + ">>hData", recCut);
     hData->SetDirectory(0); // 从文件中解离
-    fData->Close();
 
     // ---------------------------------------------------------
     // 2. 获取MC重建分布 (Numerator for Efficiency)
     // ---------------------------------------------------------
-    TFile* fMCRec = TFile::Open(mcRecFile);
-    if (!fMCRec || fMCRec->IsZombie()) { 
-        std::cout << "Error: Cannot open MC Rec file: " << mcRecFile << std::endl; 
+    TChain* tMCRec = new TChain("ntpDp");
+    tMCRec->Add(mcRecFile);
+    if (tMCRec->GetEntries() == 0) { 
+        std::cout << "Error: Cannot find tree 'ntpDp' in MC Rec file(s): " << mcRecFile << std::endl; 
         return; 
     }
-    TTree* tMCRec = (TTree*)fMCRec->Get("ntpDp");
-    if (!tMCRec) { std::cout << "Error: Cannot find tree 'ntpDp' in MC Rec file." << std::endl; return; }
 
     TH1F* hMCRec = new TH1F("hMCRec", "MC Reconstructed;Z (cm);#Events", nBins, xMin, xMax);
     tMCRec->Draw(mcRecVar + ">>hMCRec", recCut);
     hMCRec->SetDirectory(0);
-    fMCRec->Close();
 
     // ---------------------------------------------------------
     // 3. 获取MC生成分布 (Denominator for Efficiency)
     // ---------------------------------------------------------
     // 注意：这是计算绝对效率的关键。必须使用包含所有生成粒子的sim文件。
-    TFile* fMCGen = TFile::Open(mcGenFile);
-    if (!fMCGen || fMCGen->IsZombie()) { 
-        std::cout << "Error: Cannot open MC Gen file: " << mcGenFile << std::endl; 
-        std::cout << "Please provide the simulation file (sim.root) to calculate efficiency denominator." << std::endl;
+    TChain* tMCGen = new TChain("pndsim");
+    tMCGen->Add(mcGenFile);
+    if (tMCGen->GetEntries() == 0) {
+        delete tMCGen;
+        tMCGen = new TChain("cbmsim");
+        tMCGen->Add(mcGenFile);
+    }
+    
+    if (tMCGen->GetEntries() == 0) { 
+        std::cout << "Error: Cannot find tree 'cbmsim' or 'pndsim' in MC Gen file(s): " << mcGenFile << std::endl; 
         return; 
     }
-    // 尝试获取 cbmsim 或 pndsim
-    TTree* tMCGen = (TTree*)fMCGen->Get("pndsim");
-    
-    if (!tMCGen) { std::cout << "Error: Cannot find tree 'cbmsim' or 'pndsim' in MC Gen file." << std::endl; return; }
 
     TH1F* hMCGen = new TH1F("hMCGen", "MC Generated;Z (cm);#Events", nBins, xMin, xMax);
     
@@ -101,29 +100,27 @@ void efficiency_correction(
     // 例如 "MCTrack.fP" 或 "MCTrack[0].fP"
     tMCGen->Draw(genVar + ">>hMCGen", genCut); 
     hMCGen->SetDirectory(0);
-    fMCGen->Close();
 
     // ---------------------------------------------------------
     // 3.5 获取真实数据的生成分布 (Optional Truth for Verification)
     // ---------------------------------------------------------
     TH1F* hDataGen = nullptr;
     if (realDataGenFile != "") {
-        TFile* fDataGen = TFile::Open(realDataGenFile);
-        if (!fDataGen || fDataGen->IsZombie()) {
-            std::cout << "Warning: Cannot open Real Data Gen file: " << realDataGenFile << std::endl;
+        TChain* tDataGen = new TChain("pndsim");
+        tDataGen->Add(realDataGenFile);
+        if (tDataGen->GetEntries() == 0) {
+            delete tDataGen;
+            tDataGen = new TChain("cbmsim");
+            tDataGen->Add(realDataGenFile);
+        }
+
+        if (tDataGen->GetEntries() > 0) {
+            hDataGen = new TH1F("hDataGen", "Real Data Generated (Truth);Z (cm);#Events", nBins, xMin, xMax);
+            std::cout << "Drawing Real Data Gen variable..." << std::endl;
+            tDataGen->Draw(genVar + ">>hDataGen", genCut);
+            hDataGen->SetDirectory(0);
         } else {
-            TTree* tDataGen = (TTree*)fDataGen->Get("cbmsim");
-            if (!tDataGen) tDataGen = (TTree*)fDataGen->Get("pndsim");
-            
-            if (tDataGen) {
-                hDataGen = new TH1F("hDataGen", "Real Data Generated (Truth);Z (cm);#Events", nBins, xMin, xMax);
-                std::cout << "Drawing Real Data Gen variable..." << std::endl;
-                tDataGen->Draw(genVar + ">>hDataGen", genCut);
-                hDataGen->SetDirectory(0);
-            } else {
-                std::cout << "Warning: Cannot find tree 'cbmsim' or 'pndsim' in Real Data Gen file." << std::endl;
-            }
-            fDataGen->Close();
+            std::cout << "Warning: Cannot find tree 'cbmsim' or 'pndsim' in Real Data Gen file(s)." << std::endl;
         }
     }
 
