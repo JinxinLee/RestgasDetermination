@@ -44,15 +44,70 @@ void efficiency_correction(
     double devMax = 1.0
 )
 {
+    // ---------------------------------------------------------
+    // 基础设置
+    // ---------------------------------------------------------
+    // 强制使用纯白色背景
+    gStyle->SetCanvasColor(kWhite);
+    gStyle->SetFrameBorderMode(0);
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetPadBorderMode(0);
+
+    // ---------------------------------------------------------
+    // 关键：线宽与点大小 (针对 5000px 宽度优化)
+    // ---------------------------------------------------------
+    // 默认线宽通常是 1px，在 5000px 图上几乎不可见。建议设为 3 到 5。
+    gStyle->SetLineWidth(4);      
+    gStyle->SetFrameLineWidth(4); // 坐标轴边框
+    gStyle->SetHistLineWidth(4);  // 直方图线条
+    gStyle->SetFuncWidth(4);      // 函数/拟合曲线
+    gStyle->SetGridWidth(2);      // 网格线（如果开启）
+
+    // 标记点 (Marker) 大小，默认是 1.0，建议放大到 2.0 - 3.0
+    gStyle->SetMarkerSize(2.5);
+    gStyle->SetMarkerStyle(20);   // 推荐使用实心圆点，在大图上最清晰
+
+    // ---------------------------------------------------------
+    // 字体设置 (ROOT字体大小是占 Pad 高度的百分比)
+    // ---------------------------------------------------------
+    // 5000x2500 是 2:1 的宽图。
+    // 0.05 的意思是占高度的 5%，即 2500 * 0.05 = 125 像素高（非常清晰）。
+    
+    // 坐标轴刻度数值 (Label)
+    gStyle->SetLabelSize(0.05, "XY"); 
+    gStyle->SetLabelFont(42, "XY");   // 42号字体 (Helvetica) 比默认的 62号更标准
+
+    // 坐标轴标题 (Title)
+    gStyle->SetTitleSize(0.06, "XY"); 
+    gStyle->SetTitleFont(42, "XY");
+
+    // 顶部图表标题
+    gStyle->SetTitleSize(0.06, "t");  
+    gStyle->SetTitleFont(42, "t");
+
+    // ---------------------------------------------------------
+    // 布局微调
+    // ---------------------------------------------------------
+    // 调整标题与轴的距离。由于画布很宽，Y轴标题可能会离轴太远，需适当减小 Offset
+    gStyle->SetTitleOffset(0.95, "X");
+    gStyle->SetTitleOffset(0.70, "Y"); // 宽画幅下，Y轴标题贴近一点更好看
+
+    // 刻度线长度 (增加一点长度，更有质感)
+    gStyle->SetTickLength(0.02, "XY");
+    
+    // 统计框 (StatBox) - 如果需要显示，必须调整字体和位置，否则会很丑
+    gStyle->SetStatFont(42);
+    gStyle->SetStatFontSize(0.04);
+    gStyle->SetStatBorderSize(2); // 边框加粗
     // 设置绘图风格
-    gStyle->SetOptStat(0);
-    gStyle->SetOptTitle(1);
-    gStyle->SetTextSize(0.05);
-    gStyle->SetLabelSize(0.05, "XYZ");
-    gStyle->SetTitleSize(0.06, "XYZ");
-    gStyle->SetTitleOffset(1.4, "Y");
-    gStyle->SetPadLeftMargin(0.18);
-    gStyle->SetPadBottomMargin(0.15);
+    // gStyle->SetOptStat(0);
+    // gStyle->SetOptTitle(1);
+    // gStyle->SetTextSize(0.05);
+    // gStyle->SetLabelSize(0.05, "XYZ");
+    // gStyle->SetTitleSize(0.06, "XYZ");
+    // gStyle->SetTitleOffset(1.4, "Y");
+    // gStyle->SetPadLeftMargin(0.18);
+    // gStyle->SetPadBottomMargin(0.15);
 
     // ---------------------------------------------------------
     // 1. 获取MC重建分布 (Numerator for Efficiency) & 计算偏差
