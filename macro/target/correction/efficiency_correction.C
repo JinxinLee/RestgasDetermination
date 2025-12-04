@@ -235,7 +235,7 @@ void efficiency_correction(
     // ---------------------------------------------------------
     // 6. 绘图与保存
     // ---------------------------------------------------------
-    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 5000, 3000);
+    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 5000, 2500);
     c1->Divide(4, 2); // 4列2行
 
     // Pad 1: 原始数据(Raw) vs MC重建(Reco Var) - 形状对比
@@ -420,7 +420,7 @@ void efficiency_correction(
     pt->Draw();
 
     // 保存结果
-    c1->SaveAs("efficiency_correction_result.pdf");
+    c1->SaveAs("efficiency_correction_result.png");
     
     TFile* fOut = new TFile("corrected_data_output.root", "RECREATE");
     hDataRaw->Write("hDataRaw");
