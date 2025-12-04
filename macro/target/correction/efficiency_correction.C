@@ -104,16 +104,14 @@ void efficiency_correction(
         return; 
     }
 
-    // Data (Raw) - 未修正偏差
+    // Data (Raw) - 保持原始数据，不直接修正Bias
     TH1F* hDataRaw = new TH1F("hDataRaw", "Real Data (Raw);Z (cm);#Events", nBins, xMin, xMax);
     tData->Draw(plotVar + ">>hDataRaw", recCut);
     hDataRaw->SetDirectory(0);
 
-    // Data (Bias Corrected) - 动态修正偏差
-    // Z_corr = Z_raw - (p0 + p1 * Z_raw)
-    TH1F* hDataBiasCorr = new TH1F("hDataBiasCorr", "Real Data (Dyn Bias Corr);Z (cm);#Events", nBins, xMin, xMax);
-    tData->Draw(Form("%s - (%f + %f*%s) >> hDataBiasCorr", plotVar.Data(), p0, p1, plotVar.Data()), recCut);
-    hDataBiasCorr->SetDirectory(0); 
+    // ---------------------------------------------------------
+    // 3. 获取MC生成分布 (Denominator for Efficiency)
+    // --------------------------------------------------------- 
 
     // ---------------------------------------------------------
     // 3. 获取MC生成分布 (Denominator for Efficiency)
@@ -176,22 +174,51 @@ void efficiency_correction(
     hEffReco->SetTitle("Efficiency (Reco Var);Variable;Efficiency");
     hEffReco->Divide(hMCRecReco, hMCGen, 1, 1, "B");
 
+    // 4.3 Bias-Corrected Efficiency (Shifted Lookup)
+    // 构造一个考虑了Bias的效率曲线：Eff_corr(z_rec) = Eff_std(z_rec - Bias(z_rec))
+    // 这样在修正 Data(z_rec) 时，使用的是其对应真值位置 z_true 的效率
+    TH1F* hEffBiasCorr = (TH1F*)hEff->Clone("hEffBiasCorr");
+    hEffBiasCorr->SetTitle("Efficiency (Bias Corrected);Z_{reco} (cm);Efficiency");
+    hEffBiasCorr->Reset();
+    
+    for (int i = 1; i <= hEffBiasCorr->GetNbinsX(); ++i) {
+        double z_rec = hEffBiasCorr->GetBinCenter(i);
+        // 计算对应的真值位置: z_true = z_rec - Bias(z_rec)
+        double bias_val = p0 + p1 * z_rec;
+        double z_true = z_rec - bias_val;
+        
+        // 查找 z_true 在标准效率曲线(hEff)中的值
+        int bin_true = hEff->FindBin(z_true);
+        double eff_val = 0.0;
+        double eff_err = 0.0;
+        
+        // 确保在范围内
+        if (bin_true >= 1 && bin_true <= hEff->GetNbinsX()) {
+            eff_val = hEff->GetBinContent(bin_true);
+            eff_err = hEff->GetBinError(bin_true);
+        }
+        
+        hEffBiasCorr->SetBinContent(i, eff_val);
+        hEffBiasCorr->SetBinError(i, eff_err);
+    }
+
     // ---------------------------------------------------------
     // 5. 修正真实数据 (Correction)
     // ---------------------------------------------------------
-    // 5.1 标准修正: Bias Corrected Data / Truth Eff
-    TH1F* hCorrected = (TH1F*)hDataBiasCorr->Clone("hCorrected");
-    hCorrected->SetTitle("Corrected (BiasCorr + TruthEff);Variable;#Events");
-    hCorrected->Divide(hEff);
+    // 5.1 标准修正 (新): Raw Data / Bias-Corrected Eff
+    // 这保留了 Data 的 Reco 坐标，但使用了正确的(偏移后的)效率值进行归一化
+    TH1F* hCorrected = (TH1F*)hDataRaw->Clone("hCorrected");
+    hCorrected->SetTitle("Corrected (Raw / BiasCorrEff);Variable;#Events");
+    hCorrected->Divide(hEffBiasCorr);
 
-    // 5.2 无Bias修正: Raw Data / Truth Eff
+    // 5.2 无Bias修正: Raw Data / Standard Truth Eff (忽略Bias)
     TH1F* hCorrectedNoBias = (TH1F*)hDataRaw->Clone("hCorrectedNoBias");
-    hCorrectedNoBias->SetTitle("Corrected (NoBias + TruthEff);Variable;#Events");
+    hCorrectedNoBias->SetTitle("Corrected (Raw / TruthEff);Variable;#Events");
     hCorrectedNoBias->Divide(hEff);
 
-    // 5.3 Reco效率修正: Raw Data / Reco Eff (通常不需要Bias修正，因为Reco Eff包含了位置迁移)
+    // 5.3 Reco效率修正: Raw Data / Reco Eff (自动包含Bias和Smearing)
     TH1F* hCorrectedRecoEff = (TH1F*)hDataRaw->Clone("hCorrectedRecoEff");
-    hCorrectedRecoEff->SetTitle("Corrected (Raw + RecoEff);Variable;#Events");
+    hCorrectedRecoEff->SetTitle("Corrected (Raw / RecoEff);Variable;#Events");
     hCorrectedRecoEff->Divide(hEffReco);
 
     // ---------------------------------------------------------
@@ -200,20 +227,20 @@ void efficiency_correction(
     TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 2400, 1200);
     c1->Divide(4, 2); // 4列2行
 
-    // Pad 1: 原始数据(已修正Bias) vs MC重建(Truth Var)
+    // Pad 1: 原始数据(Raw) vs MC重建(Reco Var) - 形状对比
     c1->cd(1);
-    hDataBiasCorr->SetLineColor(kBlack);
-    hDataBiasCorr->SetMarkerStyle(20);
-    hDataBiasCorr->Draw("E");
+    hDataRaw->SetLineColor(kBlack);
+    hDataRaw->SetMarkerStyle(20);
+    hDataRaw->Draw("E");
     
-    TH1F* hMCRecScaled = (TH1F*)hMCRec->Clone("hMCRecScaled");
-    if (hMCRec->Integral() > 0) hMCRecScaled->Scale(hDataBiasCorr->Integral() / hMCRec->Integral());
-    hMCRecScaled->SetLineColor(kRed);
-    hMCRecScaled->Draw("HIST SAME");
+    TH1F* hMCRecRecoScaled = (TH1F*)hMCRecReco->Clone("hMCRecRecoScaled");
+    if (hMCRecReco->Integral() > 0) hMCRecRecoScaled->Scale(hDataRaw->Integral() / hMCRecReco->Integral());
+    hMCRecRecoScaled->SetLineColor(kRed);
+    hMCRecRecoScaled->Draw("HIST SAME");
     
     TLegend* leg1 = new TLegend(0.55, 0.7, 0.9, 0.9);
-    leg1->AddEntry(hDataBiasCorr, "Data (BiasCorr)", "lp");
-    leg1->AddEntry(hMCRecScaled, "MC Rec (TruthVar)", "l");
+    leg1->AddEntry(hDataRaw, "Data (Raw)", "lp");
+    leg1->AddEntry(hMCRecRecoScaled, "MC Rec (RecoVar)", "l");
     leg1->Draw();
 
     // Pad 2: MC 生成 vs MC 重建 (Truth Var)
@@ -256,9 +283,14 @@ void efficiency_correction(
     hEffReco->SetMarkerStyle(22);
     hEffReco->Draw("E SAME");
 
-    TLegend* leg4 = new TLegend(0.55, 0.7, 0.9, 0.9);
+    hEffBiasCorr->SetLineColor(kMagenta+2);
+    hEffBiasCorr->SetMarkerStyle(23);
+    hEffBiasCorr->Draw("E SAME");
+
+    TLegend* leg4 = new TLegend(0.55, 0.6, 0.9, 0.9);
     leg4->AddEntry(hEff, "Eff (Truth Var)", "lp");
     leg4->AddEntry(hEffReco, "Eff (Reco Var)", "lp");
+    leg4->AddEntry(hEffBiasCorr, "Eff (Bias Corr)", "lp");
     leg4->Draw();
 
     // Pad 5: 无Bias修正 (NoBias + TruthEff) vs Truth
@@ -274,12 +306,12 @@ void efficiency_correction(
         hDataGen->Draw("HIST SAME");
         
         TLegend* leg5 = new TLegend(0.55, 0.7, 0.9, 0.9);
-        leg5->AddEntry(hCorrectedNoBias, "Corr (NoBias+TruthEff)", "lp");
+        leg5->AddEntry(hCorrectedNoBias, "Corr (Raw/TruthEff)", "lp");
         leg5->AddEntry(hDataGen, "Truth", "l");
         leg5->Draw();
     }
 
-    // Pad 6: 标准修正 (BiasCorr + TruthEff) vs Truth
+    // Pad 6: 标准修正 (Raw / BiasCorrEff) vs Truth
     c1->cd(6);
     hCorrected->SetLineColor(kBlue+2);
     hCorrected->SetMarkerStyle(20);
@@ -289,12 +321,12 @@ void efficiency_correction(
         hDataGen->Draw("HIST SAME");
         
         TLegend* leg6 = new TLegend(0.55, 0.7, 0.9, 0.9);
-        leg6->AddEntry(hCorrected, "Corr (Bias+TruthEff)", "lp");
+        leg6->AddEntry(hCorrected, "Corr (Raw/BiasCorrEff)", "lp");
         leg6->AddEntry(hDataGen, "Truth", "l");
         leg6->Draw();
     }
 
-    // Pad 7: Reco效率修正 (Raw + RecoEff) vs Truth
+    // Pad 7: Reco效率修正 (Raw / RecoEff) vs Truth
     c1->cd(7);
     hCorrectedRecoEff->SetLineColor(kOrange+1);
     hCorrectedRecoEff->SetMarkerStyle(25);
@@ -303,10 +335,43 @@ void efficiency_correction(
     if (hDataGen) {
         hDataGen->Draw("HIST SAME");
         TLegend* leg7 = new TLegend(0.55, 0.7, 0.9, 0.9);
-        leg7->AddEntry(hCorrectedRecoEff, "Corr (Raw+RecoEff)", "lp");
+        leg7->AddEntry(hCorrectedRecoEff, "Corr (Raw/RecoEff)", "lp");
         leg7->AddEntry(hDataGen, "Truth", "l");
         leg7->Draw();
     }
+
+    // Pad 8: 三种修正结果对比
+    c1->cd(8);
+    hCorrected->Draw("E"); // Standard (BiasCorrEff)
+    hCorrectedNoBias->Draw("E SAME"); // No Bias
+    hCorrectedRecoEff->Draw("E SAME"); // Reco Eff
+    if (hDataGen) hDataGen->Draw("HIST SAME");
+
+    TLegend* leg8 = new TLegend(0.55, 0.6, 0.9, 0.9);
+    leg8->AddEntry(hCorrected, "BiasCorrEff", "lp");
+    leg8->AddEntry(hCorrectedNoBias, "No Bias", "lp");
+    leg8->AddEntry(hCorrectedRecoEff, "Reco Eff", "lp");
+    if (hDataGen) leg8->AddEntry(hDataGen, "Truth", "l");
+    leg8->Draw();
+
+    // 保存结果
+    c1->SaveAs("efficiency_correction_result.png");
+    
+    TFile* fOut = new TFile("corrected_data_output.root", "RECREATE");
+    hDataRaw->Write("hDataRaw");
+    hMCRec->Write();
+    hMCRecReco->Write();
+    hMCGen->Write();
+    hEff->Write();
+    hEffReco->Write();
+    hEffBiasCorr->Write(); // 保存Bias修正后的效率
+    hCorrected->Write("hCorrected_BiasCorrEff");
+    hCorrectedNoBias->Write("hCorrected_NoBias");
+    hCorrectedRecoEff->Write("hCorrected_RecoEff");
+    hDev->Write(); 
+    pBias->Write(); 
+    if (hDataGen) hDataGen->Write();
+    fOut->Close();
 
     // Pad 8: 三种修正结果对比
     c1->cd(8);
