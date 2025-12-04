@@ -89,8 +89,8 @@ void efficiency_correction(
     // 布局微调
     // ---------------------------------------------------------
     // 调整标题与轴的距离。由于画布很宽，Y轴标题可能会离轴太远，需适当减小 Offset
-    gStyle->SetTitleOffset(1.4, "X");
-    gStyle->SetTitleOffset(0.70, "Y"); // 宽画幅下，Y轴标题贴近一点更好看
+    gStyle->SetTitleOffset(0.95, "X");
+    gStyle->SetTitleOffset(1.0, "Y"); // 宽画幅下，Y轴标题贴近一点更好看
 
     // 刻度线长度 (增加一点长度，更有质感)
     gStyle->SetTickLength(0.02, "XY");
@@ -106,8 +106,8 @@ void efficiency_correction(
     // gStyle->SetLabelSize(0.05, "XYZ");
     // gStyle->SetTitleSize(0.06, "XYZ");
     // gStyle->SetTitleOffset(1.4, "Y");
-    gStyle->SetPadLeftMargin(0.18);
-    gStyle->SetPadBottomMargin(0.15);
+    // gStyle->SetPadLeftMargin(0.18);
+    // gStyle->SetPadBottomMargin(0.15);
 
     // ---------------------------------------------------------
     // 1. 获取MC重建分布 (Numerator for Efficiency) & 计算偏差
