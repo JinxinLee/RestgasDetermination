@@ -8,6 +8,11 @@
 #include "TString.h"
 #include "TEfficiency.h"
 #include "TStyle.h"
+#include "TArrow.h"
+#include "TLatex.h"
+#include "TProfile.h"
+#include "TF1.h"
+#include "TPaveText.h"
 
 /**
  * 效率修正脚本
@@ -278,12 +283,16 @@ void efficiency_correction(
     // Pad 4: 效率曲线对比
     c1->cd(4);
     hEff->SetLineColor(kGreen+2);
+    hEff->SetLineWidth(2);
+    hEff->SetMarkerColor(kGreen+2);
     hEff->SetMarkerStyle(21);
     hEff->SetMinimum(0.0);
-    hEff->SetMaximum(1.1);
+    hEff->SetMaximum(1.2);
     hEff->Draw("E");
     
     hEffReco->SetLineColor(kOrange+7);
+    hEffReco->SetLineWidth(2);
+    hEffReco->SetMarkerColor(kOrange+7);
     hEffReco->SetMarkerStyle(22);
     hEffReco->Draw("E SAME");
 
@@ -299,11 +308,44 @@ void efficiency_correction(
     // leg4->AddEntry(hEffBiasCorr, "Eff (Bias Corr)", "lp");
     leg4->Draw();
 
+    // 统一纵坐标范围 (以Truth为标准，忽略修正后的异常高点)
+    double yMax = 0;
+    if (hDataGen) {
+        yMax = hDataGen->GetMaximum() * 1.2;
+    } else {
+        // 如果没有Truth，则使用修正数据的最大值
+        if (hCorrectedNoBias->GetMaximum() > yMax) yMax = hCorrectedNoBias->GetMaximum();
+        if (hCorrectedRecoEff->GetMaximum() > yMax) yMax = hCorrectedRecoEff->GetMaximum();
+        yMax *= 1.2;
+    }
+
     // Pad 5: 无Bias修正 (NoBias + TruthEff) vs Truth
     c1->cd(5);
     hCorrectedNoBias->SetLineColor(kAzure+7);
     hCorrectedNoBias->SetMarkerStyle(24);
+    hCorrectedNoBias->SetMaximum(yMax);
     hCorrectedNoBias->Draw("E");
+
+    // 标注超出Y轴范围的点
+    for (int i = 1; i <= hCorrectedNoBias->GetNbinsX(); ++i) {
+        double content = hCorrectedNoBias->GetBinContent(i);
+        if (content > yMax) {
+            double x = hCorrectedNoBias->GetBinCenter(i);
+            // 画一个向上的红色箭头
+            TArrow *arrow = new TArrow(x, yMax * 0.8, x, yMax * 0.95, 0.02, "|>");
+            arrow->SetLineColor(kRed);
+            arrow->SetFillColor(kRed);
+            arrow->SetLineWidth(2);
+            arrow->Draw();
+            
+            // 标注具体数值
+            TLatex *latex = new TLatex(x, yMax * 0.96, Form("%.0f", content));
+            latex->SetTextSize(0.04);
+            latex->SetTextAlign(21); // Center-Bottom
+            latex->SetTextColor(kRed);
+            latex->Draw();
+        }
+    }
 
     if (hDataGen) {
         hDataGen->SetLineColor(kMagenta);
@@ -321,6 +363,7 @@ void efficiency_correction(
     c1->cd(6);
     hCorrectedRecoEff->SetLineColor(kOrange+1);
     hCorrectedRecoEff->SetMarkerStyle(25);
+    hCorrectedRecoEff->SetMaximum(yMax);
     hCorrectedRecoEff->Draw("E");
 
     if (hDataGen) {
@@ -334,6 +377,7 @@ void efficiency_correction(
     // Pad 7: 修正结果对比
     c1->cd(7);
     // hCorrected->Draw("E"); // Standard (BiasCorrEff)
+    hCorrectedNoBias->SetMaximum(yMax); // Ensure consistent scale
     hCorrectedNoBias->Draw("E"); // No Bias
     hCorrectedRecoEff->Draw("E SAME"); // Reco Eff
     if (hDataGen) hDataGen->Draw("HIST SAME");
@@ -355,17 +399,24 @@ void efficiency_correction(
     
     pt->AddText("Event Statistics (Integral):");
     pt->AddText("--------------------------------");
-    pt->AddText(Form("N_{RealData} (Raw): %.1f", hDataRaw->Integral()));
+    
+    double errRaw, errGen, errNoBias, errRecoEff;
+    double nRaw = hDataRaw->IntegralAndError(1, hDataRaw->GetNbinsX(), errRaw);
+    pt->AddText(Form("N_{RealData} (Raw): %.1f #pm %.1f", nRaw, errRaw));
     
     if (hDataGen) {
-        pt->AddText(Form("N_{Truth} (Gen): %.1f", hDataGen->Integral()));
+        double nGen = hDataGen->IntegralAndError(1, hDataGen->GetNbinsX(), errGen);
+        pt->AddText(Form("N_{Truth} (Gen): %.1f #pm %.1f", nGen, errGen));
     } else {
         pt->AddText("N_{Truth}: N/A");
     }
     
     pt->AddText("--------------------------------");
-    pt->AddText(Form("N_{Corr} (NoBias): %.1f", hCorrectedNoBias->Integral()));
-    pt->AddText(Form("N_{Corr} (RecoEff): %.1f", hCorrectedRecoEff->Integral()));
+    double nNoBias = hCorrectedNoBias->IntegralAndError(1, hCorrectedNoBias->GetNbinsX(), errNoBias);
+    pt->AddText(Form("N_{Corr} (NoBias): %.1f #pm %.1f", nNoBias, errNoBias));
+    
+    double nRecoEff = hCorrectedRecoEff->IntegralAndError(1, hCorrectedRecoEff->GetNbinsX(), errRecoEff);
+    pt->AddText(Form("N_{Corr} (RecoEff): %.1f #pm %.1f", nRecoEff, errRecoEff));
     
     pt->Draw();
 
