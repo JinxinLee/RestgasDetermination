@@ -70,13 +70,28 @@ void efficiency_correction(
     hMCRecReco->SetDirectory(0);
 
     // 计算偏差 (Reco - Truth)
-    TH1F* hDev = new TH1F("hDev", "Resolution (Rec - Truth);#Delta (cm);#Events", 100, devMin, devMax);
+    // 1. 全局偏差分布 (1D)
+    TH1F* hDev = new TH1F("hDev", "Global Resolution;Rec - Truth (cm);#Events", 100, devMin, devMax);
     tMCRec->Draw(Form("%s - %s >> hDev", plotVar.Data(), mcRecVar.Data()), recCut);
     hDev->SetDirectory(0);
-    
-    double bias = hDev->GetMean();
+    double globalBias = hDev->GetMean();
+
+    // 2. 偏差随Z的变化 (Profile) - 用于动态修正
+    TProfile* pBias = new TProfile("pBias", "Bias vs Z (Profile);Z_{reco} (cm);<Bias> (cm)", nBins, xMin, xMax);
+    // Draw y:x >> profile
+    tMCRec->Draw(Form("%s - %s : %s >> pBias", plotVar.Data(), mcRecVar.Data(), plotVar.Data()), recCut, "prof");
+    pBias->SetDirectory(0);
+
+    // 3. 拟合偏差曲线 (使用线性函数 pol1)
+    TF1* fBias = new TF1("fBias", "pol1", xMin, xMax);
+    pBias->Fit(fBias, "Q"); // Q for quiet
+    double p0 = fBias->GetParameter(0);
+    double p1 = fBias->GetParameter(1);
+
     std::cout << "------------------------------------------------" << std::endl;
-    std::cout << "Calculated Bias (Mean of Rec - Truth): " << bias << " cm" << std::endl;
+    std::cout << "Global Bias (Mean): " << globalBias << " cm" << std::endl;
+    std::cout << "Position-dependent Bias Fit (pol1): " << p0 << " + " << p1 << " * Z" << std::endl;
+    std::cout << "Applying dynamic bias correction..." << std::endl;
     std::cout << "------------------------------------------------" << std::endl;
 
     // ---------------------------------------------------------
@@ -94,9 +109,10 @@ void efficiency_correction(
     tData->Draw(plotVar + ">>hDataRaw", recCut);
     hDataRaw->SetDirectory(0);
 
-    // Data (Bias Corrected) - 修正偏差
-    TH1F* hDataBiasCorr = new TH1F("hDataBiasCorr", "Real Data (Bias Corrected);Z (cm);#Events", nBins, xMin, xMax);
-    tData->Draw(Form("%s - (%f) >> hDataBiasCorr", plotVar.Data(), bias), recCut);
+    // Data (Bias Corrected) - 动态修正偏差
+    // Z_corr = Z_raw - (p0 + p1 * Z_raw)
+    TH1F* hDataBiasCorr = new TH1F("hDataBiasCorr", "Real Data (Dyn Bias Corr);Z (cm);#Events", nBins, xMin, xMax);
+    tData->Draw(Form("%s - (%f + %f*%s) >> hDataBiasCorr", plotVar.Data(), p0, p1, plotVar.Data()), recCut);
     hDataBiasCorr->SetDirectory(0); 
 
     // ---------------------------------------------------------
@@ -212,14 +228,20 @@ void efficiency_correction(
     leg2->AddEntry(hMCRec, "MC Rec (TruthVar)", "l");
     leg2->Draw();
 
-    // Pad 3: 偏差 (Resolution)
+    // Pad 3: 偏差 (Profile & Fit)
     c1->cd(3);
-    hDev->SetLineColor(kBlue);
-    hDev->SetLineWidth(2);
-    hDev->Draw("HIST");
+    pBias->SetLineColor(kBlue);
+    pBias->SetMarkerStyle(20);
+    pBias->SetMinimum(devMin);
+    pBias->SetMaximum(devMax);
+    pBias->Draw();
+    
+    fBias->SetLineColor(kRed);
+    fBias->Draw("SAME");
     
     TLegend* leg3 = new TLegend(0.55, 0.7, 0.9, 0.9);
-    leg3->AddEntry(hDev, Form("Bias: %.4f cm", bias), "l");
+    leg3->AddEntry(pBias, "Bias Profile", "lp");
+    leg3->AddEntry(fBias, Form("Fit: %.3f + %.3f*Z", p0, p1), "l");
     leg3->Draw();
 
     // Pad 4: 效率曲线对比
@@ -315,6 +337,7 @@ void efficiency_correction(
     hCorrectedNoBias->Write("hCorrected_NoBias");
     hCorrectedRecoEff->Write("hCorrected_RecoEff");
     hDev->Write(); 
+    pBias->Write(); // 保存Profile
     if (hDataGen) hDataGen->Write();
     fOut->Close();
 
