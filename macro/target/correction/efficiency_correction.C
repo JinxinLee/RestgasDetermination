@@ -236,12 +236,12 @@ void efficiency_correction(
     // ---------------------------------------------------------
     // 4.1 标准效率 (Truth Variable based)
     TH1F* hEff = (TH1F*)hMCRec->Clone("hEff");
-    hEff->SetTitle("Efficiency (Truth Var);Variable;Efficiency");
+    hEff->SetTitle("Efficiency (Truth Var);Z (cm);Efficiency");
     hEff->Divide(hMCRec, hMCGen, 1, 1, "B"); 
 
     // 4.2 Reco效率 (Reco Variable based)
     TH1F* hEffReco = (TH1F*)hMCRecReco->Clone("hEffReco");
-    hEffReco->SetTitle("Efficiency (Reco Var);Variable;Efficiency");
+    hEffReco->SetTitle("Efficiency (Reco Var);Z (cm);Efficiency");
     hEffReco->Divide(hMCRecReco, hMCGen, 1, 1, "B");
 
     // 4.3 Bias-Corrected Efficiency (Shifted Lookup)
@@ -287,12 +287,12 @@ void efficiency_correction(
 
     // 5.2 无Bias修正: Raw Data / Standard Truth Eff (忽略Bias)
     TH1F* hCorrectedNoBias = (TH1F*)hDataRaw->Clone("hCorrectedNoBias");
-    hCorrectedNoBias->SetTitle("Corrected (Raw / TruthEff);Variable;#Events");
+    hCorrectedNoBias->SetTitle("Corrected (Raw / TruthEff);Z (cm);#Events");
     hCorrectedNoBias->Divide(hEff);
 
     // 5.3 Reco效率修正: Raw Data / Reco Eff (自动包含Bias和Smearing)
     TH1F* hCorrectedRecoEff = (TH1F*)hDataRaw->Clone("hCorrectedRecoEff");
-    hCorrectedRecoEff->SetTitle("Corrected (Raw / RecoEff);Variable;#Events");
+    hCorrectedRecoEff->SetTitle("Corrected (Raw / RecoEff);Z (cm);#Events");
     hCorrectedRecoEff->Divide(hEffReco);
 
     // ---------------------------------------------------------
@@ -312,7 +312,9 @@ void efficiency_correction(
     hMCRecRecoScaled->SetLineColor(kRed);
     hMCRecRecoScaled->Draw("HIST SAME");
     
-    TLegend* leg1 = new TLegend(0.55, 0.7, 0.9, 0.9);
+    TLegend* leg1 = new TLegend(0.6, 0.78, 0.9, 0.9);
+    leg1->SetFillStyle(0);
+    leg1->SetBorderSize(0);
     leg1->AddEntry(hDataRaw, "Data (Raw)", "lp");
     leg1->AddEntry(hMCRecRecoScaled, "MC Rec (RecoVar)", "l");
     leg1->Draw();
@@ -324,7 +326,9 @@ void efficiency_correction(
     hMCRec->SetLineColor(kRed);
     hMCRec->Draw("HIST SAME");
     
-    TLegend* leg2 = new TLegend(0.65, 0.7, 0.9, 0.9);
+    TLegend* leg2 = new TLegend(0.6, 0.78, 0.9, 0.9);
+    leg2->SetFillStyle(0);
+    leg2->SetBorderSize(0);
     leg2->AddEntry(hMCGen, "MC Gen", "l");
     leg2->AddEntry(hMCRec, "MC Rec (TruthVar)", "l");
     leg2->Draw();
@@ -332,17 +336,19 @@ void efficiency_correction(
     // Pad 3: 偏差直方图 (Global Resolution)
     c1->cd(3);
     hDev->SetLineColor(kBlue);
-    hDev->SetLineWidth(2);
+    //hDev->SetLineWidth(3);
     hDev->Draw();
     
-    TLegend* leg3 = new TLegend(0.55, 0.7, 0.9, 0.9);
+    TLegend* leg3 = new TLegend(0.6, 0.78, 0.9, 0.9);
+    leg3->SetFillStyle(0);
+    leg3->SetBorderSize(0);
     leg3->AddEntry(hDev, "Bias Distribution", "l");
     leg3->Draw();
 
     // Pad 4: 效率曲线对比
     c1->cd(4);
     hEff->SetLineColor(kGreen+2);
-    hEff->SetLineWidth(2);
+    //hEff->SetLineWidth(3);
     hEff->SetMarkerColor(kGreen+2);
     hEff->SetMarkerStyle(21);
     hEff->SetMinimum(0.0);
@@ -350,7 +356,7 @@ void efficiency_correction(
     hEff->Draw("E");
     
     hEffReco->SetLineColor(kOrange+7);
-    hEffReco->SetLineWidth(2);
+    //hEffReco->SetLineWidth(3);
     hEffReco->SetMarkerColor(kOrange+7);
     hEffReco->SetMarkerStyle(22);
     hEffReco->Draw("E SAME");
@@ -361,7 +367,9 @@ void efficiency_correction(
     hEffBiasCorr->Draw("E SAME");
     */
 
-    TLegend* leg4 = new TLegend(0.55, 0.6, 0.9, 0.9);
+    TLegend* leg4 = new TLegend(0.6, 0.78, 0.9, 0.9);
+    leg4->SetFillStyle(0);
+    leg4->SetBorderSize(0);
     leg4->AddEntry(hEff, "Eff (Truth Var)", "lp");
     leg4->AddEntry(hEffReco, "Eff (Reco Var)", "lp");
     // leg4->AddEntry(hEffBiasCorr, "Eff (Bias Corr)", "lp");
@@ -381,7 +389,9 @@ void efficiency_correction(
     // Pad 5: 无Bias修正 (NoBias + TruthEff) vs Truth
     c1->cd(5);
     hCorrectedNoBias->SetLineColor(kAzure+7);
-    hCorrectedNoBias->SetMarkerStyle(24);
+    hCorrectedNoBias->SetLineWidth(3);
+    hCorrectedNoBias->SetMarkerColor(kAzure+7);
+    hCorrectedNoBias->SetMarkerStyle(20);
     hCorrectedNoBias->SetMinimum(0.0);
     hCorrectedNoBias->SetMaximum(yMax);
     hCorrectedNoBias->Draw("E");
@@ -410,10 +420,12 @@ void efficiency_correction(
     if (hDataGen) {
         hDataGen->SetLineColor(kMagenta);
         hDataGen->SetLineStyle(2);
-        hDataGen->SetLineWidth(2);
+        //hDataGen->SetLineWidth(3);
         hDataGen->Draw("HIST SAME");
         
-        TLegend* leg5 = new TLegend(0.55, 0.7, 0.9, 0.9);
+        TLegend* leg5 = new TLegend(0.6, 0.78, 0.9, 0.9);
+        leg5->SetFillStyle(0);
+        leg5->SetBorderSize(0);
         leg5->AddEntry(hCorrectedNoBias, "Corr (Raw/TruthEff)", "lp");
         leg5->AddEntry(hDataGen, "Truth", "l");
         leg5->Draw();
@@ -422,14 +434,18 @@ void efficiency_correction(
     // Pad 6: Reco效率修正 (Raw / RecoEff) vs Truth
     c1->cd(6);
     hCorrectedRecoEff->SetLineColor(kOrange+1);
-    hCorrectedRecoEff->SetMarkerStyle(25);
+    hCorrectedRecoEff->SetLineWidth(3);
+    hCorrectedRecoEff->SetMarkerColor(kOrange+1);
+    hCorrectedRecoEff->SetMarkerStyle(21);
     hCorrectedRecoEff->SetMinimum(0.0);
     hCorrectedRecoEff->SetMaximum(yMax);
     hCorrectedRecoEff->Draw("E");
 
     if (hDataGen) {
         hDataGen->Draw("HIST SAME");
-        TLegend* leg6 = new TLegend(0.55, 0.7, 0.9, 0.9);
+        TLegend* leg6 = new TLegend(0.6, 0.78, 0.9, 0.9);
+        leg6->SetFillStyle(0);
+        leg6->SetBorderSize(0);
         leg6->AddEntry(hCorrectedRecoEff, "Corr (Raw/RecoEff)", "lp");
         leg6->AddEntry(hDataGen, "Truth", "l");
         leg6->Draw();
@@ -444,7 +460,9 @@ void efficiency_correction(
     hCorrectedRecoEff->Draw("E SAME"); // Reco Eff
     if (hDataGen) hDataGen->Draw("HIST SAME");
 
-    TLegend* leg7 = new TLegend(0.55, 0.6, 0.9, 0.9);
+    TLegend* leg7 = new TLegend(0.6, 0.72, 0.9, 0.9);
+    leg7->SetFillStyle(0);
+    leg7->SetBorderSize(0);
     // leg7->AddEntry(hCorrected, "BiasCorrEff", "lp");
     leg7->AddEntry(hCorrectedNoBias, "No Bias", "lp");
     leg7->AddEntry(hCorrectedRecoEff, "Reco Eff", "lp");
