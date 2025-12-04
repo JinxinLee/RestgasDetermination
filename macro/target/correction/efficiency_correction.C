@@ -50,8 +50,8 @@ void efficiency_correction(
     gStyle->SetTextSize(0.05);
     gStyle->SetLabelSize(0.05, "XYZ");
     gStyle->SetTitleSize(0.06, "XYZ");
-    gStyle->SetTitleOffset(0.8, "Y");
-    gStyle->SetPadLeftMargin(0.15);
+    gStyle->SetTitleOffset(1.4, "Y");
+    gStyle->SetPadLeftMargin(0.18);
     gStyle->SetPadBottomMargin(0.15);
 
     // ---------------------------------------------------------
@@ -235,7 +235,7 @@ void efficiency_correction(
     // ---------------------------------------------------------
     // 6. 绘图与保存
     // ---------------------------------------------------------
-    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 2400, 1200);
+    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 5000, 3000);
     c1->Divide(4, 2); // 4列2行
 
     // Pad 1: 原始数据(Raw) vs MC重建(Reco Var) - 形状对比
@@ -319,6 +319,7 @@ void efficiency_correction(
     c1->cd(5);
     hCorrectedNoBias->SetLineColor(kAzure+7);
     hCorrectedNoBias->SetMarkerStyle(24);
+    hCorrectedNoBias->SetMinimum(0.0);
     hCorrectedNoBias->SetMaximum(yMax);
     hCorrectedNoBias->Draw("E");
 
@@ -359,6 +360,7 @@ void efficiency_correction(
     c1->cd(6);
     hCorrectedRecoEff->SetLineColor(kOrange+1);
     hCorrectedRecoEff->SetMarkerStyle(25);
+    hCorrectedRecoEff->SetMinimum(0.0);
     hCorrectedRecoEff->SetMaximum(yMax);
     hCorrectedRecoEff->Draw("E");
 
@@ -373,6 +375,7 @@ void efficiency_correction(
     // Pad 7: 修正结果对比
     c1->cd(7);
     // hCorrected->Draw("E"); // Standard (BiasCorrEff)
+    hCorrectedNoBias->SetMinimum(0.0);
     hCorrectedNoBias->SetMaximum(yMax); // Ensure consistent scale
     hCorrectedNoBias->Draw("E"); // No Bias
     hCorrectedRecoEff->Draw("E SAME"); // Reco Eff
