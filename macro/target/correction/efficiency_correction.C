@@ -373,39 +373,6 @@ void efficiency_correction(
     if (hDataGen) hDataGen->Write();
     fOut->Close();
 
-    // Pad 8: 三种修正结果对比
-    c1->cd(8);
-    hCorrected->Draw("E"); // Standard
-    hCorrectedNoBias->Draw("E SAME"); // No Bias
-    hCorrectedRecoEff->Draw("E SAME"); // Reco Eff
-    if (hDataGen) hDataGen->Draw("HIST SAME");
-
-    TLegend* leg8 = new TLegend(0.55, 0.6, 0.9, 0.9);
-    leg8->AddEntry(hCorrected, "Standard", "lp");
-    leg8->AddEntry(hCorrectedNoBias, "No Bias", "lp");
-    leg8->AddEntry(hCorrectedRecoEff, "Reco Eff", "lp");
-    if (hDataGen) leg8->AddEntry(hDataGen, "Truth", "l");
-    leg8->Draw();
-
-    // 保存结果
-    c1->SaveAs("efficiency_correction_result.png");
-    
-    TFile* fOut = new TFile("corrected_data_output.root", "RECREATE");
-    hDataBiasCorr->Write("hDataBiasCorr");
-    hDataRaw->Write("hDataRaw");
-    hMCRec->Write();
-    hMCRecReco->Write();
-    hMCGen->Write();
-    hEff->Write();
-    hEffReco->Write();
-    hCorrected->Write("hCorrected_Standard");
-    hCorrectedNoBias->Write("hCorrected_NoBias");
-    hCorrectedRecoEff->Write("hCorrected_RecoEff");
-    hDev->Write(); 
-    pBias->Write(); // 保存Profile
-    if (hDataGen) hDataGen->Write();
-    fOut->Close();
-
     std::cout << "Analysis Complete." << std::endl;
     std::cout << "Plot saved to efficiency_correction_result.png" << std::endl;
     std::cout << "Root file saved to corrected_data_output.root" << std::endl;
