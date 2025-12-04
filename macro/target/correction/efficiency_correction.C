@@ -106,6 +106,10 @@ void efficiency_correction(
     // 设置绘图风格
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(1);
+    gStyle->SetPadBottomMargin(0.15); // 底部留白给 X 轴标题 (默认约 0.1)
+    gStyle->SetPadLeftMargin(0.15);   // 左侧留白给 Y 轴标题 (默认约 0.1)
+    gStyle->SetPadRightMargin(0.05);  // 右侧稍微紧凑点
+    gStyle->SetPadTopMargin(0.08);
     // gStyle->SetTextSize(0.05);
     // gStyle->SetLabelSize(0.05, "XYZ");
     // gStyle->SetTitleSize(0.06, "XYZ");
@@ -477,6 +481,8 @@ void efficiency_correction(
     pt->AddText(Form("N_{Corr} (RecoEff): %.1f #pm %.1f", nRecoEff, errRecoEff));
     
     pt->Draw();
+
+    gPad->RedrawAxis();
 
     // 保存结果
     c1->SaveAs("efficiency_correction_result.png");
