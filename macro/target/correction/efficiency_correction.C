@@ -177,6 +177,7 @@ void efficiency_correction(
     // 4.3 Bias-Corrected Efficiency (Shifted Lookup)
     // 构造一个考虑了Bias的效率曲线：Eff_corr(z_rec) = Eff_std(z_rec - Bias(z_rec))
     // 这样在修正 Data(z_rec) 时，使用的是其对应真值位置 z_true 的效率
+    /*
     TH1F* hEffBiasCorr = (TH1F*)hEff->Clone("hEffBiasCorr");
     hEffBiasCorr->SetTitle("Efficiency (Bias Corrected);Z_{reco} (cm);Efficiency");
     hEffBiasCorr->Reset();
@@ -201,15 +202,18 @@ void efficiency_correction(
         hEffBiasCorr->SetBinContent(i, eff_val);
         hEffBiasCorr->SetBinError(i, eff_err);
     }
+    */
 
     // ---------------------------------------------------------
     // 5. 修正真实数据 (Correction)
     // ---------------------------------------------------------
     // 5.1 标准修正 (新): Raw Data / Bias-Corrected Eff
     // 这保留了 Data 的 Reco 坐标，但使用了正确的(偏移后的)效率值进行归一化
+    /*
     TH1F* hCorrected = (TH1F*)hDataRaw->Clone("hCorrected");
     hCorrected->SetTitle("Corrected (Raw / BiasCorrEff);Variable;#Events");
     hCorrected->Divide(hEffBiasCorr);
+    */
 
     // 5.2 无Bias修正: Raw Data / Standard Truth Eff (忽略Bias)
     TH1F* hCorrectedNoBias = (TH1F*)hDataRaw->Clone("hCorrectedNoBias");
@@ -283,14 +287,16 @@ void efficiency_correction(
     hEffReco->SetMarkerStyle(22);
     hEffReco->Draw("E SAME");
 
+    /*
     hEffBiasCorr->SetLineColor(kMagenta+2);
     hEffBiasCorr->SetMarkerStyle(23);
     hEffBiasCorr->Draw("E SAME");
+    */
 
     TLegend* leg4 = new TLegend(0.55, 0.6, 0.9, 0.9);
     leg4->AddEntry(hEff, "Eff (Truth Var)", "lp");
     leg4->AddEntry(hEffReco, "Eff (Reco Var)", "lp");
-    leg4->AddEntry(hEffBiasCorr, "Eff (Bias Corr)", "lp");
+    // leg4->AddEntry(hEffBiasCorr, "Eff (Bias Corr)", "lp");
     leg4->Draw();
 
     // Pad 5: 无Bias修正 (NoBias + TruthEff) vs Truth
@@ -311,51 +317,60 @@ void efficiency_correction(
         leg5->Draw();
     }
 
-    // Pad 6: 标准修正 (Raw / BiasCorrEff) vs Truth
+    // Pad 6: Reco效率修正 (Raw / RecoEff) vs Truth
     c1->cd(6);
-    hCorrected->SetLineColor(kBlue+2);
-    hCorrected->SetMarkerStyle(20);
-    hCorrected->Draw("E");
-
-    if (hDataGen) {
-        hDataGen->Draw("HIST SAME");
-        
-        TLegend* leg6 = new TLegend(0.55, 0.7, 0.9, 0.9);
-        leg6->AddEntry(hCorrected, "Corr (Raw/BiasCorrEff)", "lp");
-        leg6->AddEntry(hDataGen, "Truth", "l");
-        leg6->Draw();
-    }
-
-    // Pad 7: Reco效率修正 (Raw / RecoEff) vs Truth
-    c1->cd(7);
     hCorrectedRecoEff->SetLineColor(kOrange+1);
     hCorrectedRecoEff->SetMarkerStyle(25);
     hCorrectedRecoEff->Draw("E");
 
     if (hDataGen) {
         hDataGen->Draw("HIST SAME");
-        TLegend* leg7 = new TLegend(0.55, 0.7, 0.9, 0.9);
-        leg7->AddEntry(hCorrectedRecoEff, "Corr (Raw/RecoEff)", "lp");
-        leg7->AddEntry(hDataGen, "Truth", "l");
-        leg7->Draw();
+        TLegend* leg6 = new TLegend(0.55, 0.7, 0.9, 0.9);
+        leg6->AddEntry(hCorrectedRecoEff, "Corr (Raw/RecoEff)", "lp");
+        leg6->AddEntry(hDataGen, "Truth", "l");
+        leg6->Draw();
     }
 
-    // Pad 8: 三种修正结果对比
-    c1->cd(8);
-    hCorrected->Draw("E"); // Standard (BiasCorrEff)
-    hCorrectedNoBias->Draw("E SAME"); // No Bias
+    // Pad 7: 修正结果对比
+    c1->cd(7);
+    // hCorrected->Draw("E"); // Standard (BiasCorrEff)
+    hCorrectedNoBias->Draw("E"); // No Bias
     hCorrectedRecoEff->Draw("E SAME"); // Reco Eff
     if (hDataGen) hDataGen->Draw("HIST SAME");
 
-    TLegend* leg8 = new TLegend(0.55, 0.6, 0.9, 0.9);
-    leg8->AddEntry(hCorrected, "BiasCorrEff", "lp");
-    leg8->AddEntry(hCorrectedNoBias, "No Bias", "lp");
-    leg8->AddEntry(hCorrectedRecoEff, "Reco Eff", "lp");
-    if (hDataGen) leg8->AddEntry(hDataGen, "Truth", "l");
-    leg8->Draw();
+    TLegend* leg7 = new TLegend(0.55, 0.6, 0.9, 0.9);
+    // leg7->AddEntry(hCorrected, "BiasCorrEff", "lp");
+    leg7->AddEntry(hCorrectedNoBias, "No Bias", "lp");
+    leg7->AddEntry(hCorrectedRecoEff, "Reco Eff", "lp");
+    if (hDataGen) leg7->AddEntry(hDataGen, "Truth", "l");
+    leg7->Draw();
+
+    // Pad 8: 统计信息输出
+    c1->cd(8);
+    TPaveText *pt = new TPaveText(0.1, 0.3, 0.9, 0.7, "NDC");
+    pt->SetFillColor(kWhite);
+    pt->SetBorderSize(1);
+    pt->SetTextAlign(12); // Left-Center
+    pt->SetTextSize(0.05);
+    
+    pt->AddText("Event Statistics (Integral):");
+    pt->AddText("--------------------------------");
+    pt->AddText(Form("N_{RealData} (Raw): %.1f", hDataRaw->Integral()));
+    
+    if (hDataGen) {
+        pt->AddText(Form("N_{Truth} (Gen): %.1f", hDataGen->Integral()));
+    } else {
+        pt->AddText("N_{Truth}: N/A");
+    }
+    
+    pt->AddText("--------------------------------");
+    pt->AddText(Form("N_{Corr} (NoBias): %.1f", hCorrectedNoBias->Integral()));
+    pt->AddText(Form("N_{Corr} (RecoEff): %.1f", hCorrectedRecoEff->Integral()));
+    
+    pt->Draw();
 
     // 保存结果
-    c1->SaveAs("efficiency_correction_result.png");
+    c1->SaveAs("efficiency_correction_result.pdf");
     
     TFile* fOut = new TFile("corrected_data_output.root", "RECREATE");
     hDataRaw->Write("hDataRaw");
@@ -364,8 +379,8 @@ void efficiency_correction(
     hMCGen->Write();
     hEff->Write();
     hEffReco->Write();
-    hEffBiasCorr->Write(); // 保存Bias修正后的效率
-    hCorrected->Write("hCorrected_BiasCorrEff");
+    // hEffBiasCorr->Write(); // 保存Bias修正后的效率
+    // hCorrected->Write("hCorrected_BiasCorrEff");
     hCorrectedNoBias->Write("hCorrected_NoBias");
     hCorrectedRecoEff->Write("hCorrected_RecoEff");
     hDev->Write(); 
