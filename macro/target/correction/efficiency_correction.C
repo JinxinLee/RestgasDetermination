@@ -88,15 +88,17 @@ void efficiency_correction(
     pBias->SetDirectory(0);
 
     // 3. 拟合偏差曲线 (使用线性函数 pol1)
+    /*
     TF1* fBias = new TF1("fBias", "pol1", xMin, xMax);
     pBias->Fit(fBias, "Q"); // Q for quiet
     double p0 = fBias->GetParameter(0);
     double p1 = fBias->GetParameter(1);
+    */
 
     std::cout << "------------------------------------------------" << std::endl;
     std::cout << "Global Bias (Mean): " << globalBias << " cm" << std::endl;
-    std::cout << "Position-dependent Bias Fit (pol1): " << p0 << " + " << p1 << " * Z" << std::endl;
-    std::cout << "Applying dynamic bias correction..." << std::endl;
+    // std::cout << "Position-dependent Bias Fit (pol1): " << p0 << " + " << p1 << " * Z" << std::endl;
+    // std::cout << "Applying dynamic bias correction..." << std::endl;
     std::cout << "------------------------------------------------" << std::endl;
 
     // ---------------------------------------------------------
@@ -272,12 +274,14 @@ void efficiency_correction(
     pBias->SetMaximum(devMax);
     pBias->Draw();
     
+    /*
     fBias->SetLineColor(kRed);
     fBias->Draw("SAME");
+    */
     
     TLegend* leg3 = new TLegend(0.55, 0.7, 0.9, 0.9);
     leg3->AddEntry(pBias, "Bias Profile", "lp");
-    leg3->AddEntry(fBias, Form("Fit: %.3f + %.3f*Z", p0, p1), "l");
+    // leg3->AddEntry(fBias, Form("Fit: %.3f + %.3f*Z", p0, p1), "l");
     leg3->Draw();
 
     // Pad 4: 效率曲线对比
