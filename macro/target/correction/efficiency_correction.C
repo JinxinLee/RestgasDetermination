@@ -266,22 +266,14 @@ void efficiency_correction(
     leg2->AddEntry(hMCRec, "MC Rec (TruthVar)", "l");
     leg2->Draw();
 
-    // Pad 3: 偏差 (Profile & Fit)
+    // Pad 3: 偏差直方图 (Global Resolution)
     c1->cd(3);
-    pBias->SetLineColor(kBlue);
-    pBias->SetMarkerStyle(20);
-    pBias->SetMinimum(devMin);
-    pBias->SetMaximum(devMax);
-    pBias->Draw();
-    
-    /*
-    fBias->SetLineColor(kRed);
-    fBias->Draw("SAME");
-    */
+    hDev->SetLineColor(kBlue);
+    hDev->SetLineWidth(2);
+    hDev->Draw();
     
     TLegend* leg3 = new TLegend(0.55, 0.7, 0.9, 0.9);
-    leg3->AddEntry(pBias, "Bias Profile", "lp");
-    // leg3->AddEntry(fBias, Form("Fit: %.3f + %.3f*Z", p0, p1), "l");
+    leg3->AddEntry(hDev, "Bias Distribution", "l");
     leg3->Draw();
 
     // Pad 4: 效率曲线对比
