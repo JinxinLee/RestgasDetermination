@@ -48,10 +48,14 @@ void efficiency_correction(
     // 基础设置
     // ---------------------------------------------------------
     // 强制使用纯白色背景
-    gStyle->SetCanvasColor(kWhite);
+    //gStyle->SetCanvasColor(kWhite);
     gStyle->SetFrameBorderMode(0);
     gStyle->SetCanvasBorderMode(0);
     gStyle->SetPadBorderMode(0);
+    // 设置全局图例无边框
+    gStyle->SetLegendBorderSize(0);
+    // (可选) 设置全局图例背景透明 (实测某些ROOT版本对Legend的全局FillStyle支持不稳定，建议用方法1手动设透明)
+    gStyle->SetLegendFillColor(0);
 
     // ---------------------------------------------------------
     // 关键：线宽与点大小 (针对 5000px 宽度优化)
@@ -90,7 +94,7 @@ void efficiency_correction(
     // ---------------------------------------------------------
     // 调整标题与轴的距离。由于画布很宽，Y轴标题可能会离轴太远，需适当减小 Offset
     gStyle->SetTitleOffset(0.95, "X");
-    gStyle->SetTitleOffset(1.0, "Y"); // 宽画幅下，Y轴标题贴近一点更好看
+    gStyle->SetTitleOffset(1.2, "Y"); // 宽画幅下，Y轴标题贴近一点更好看
 
     // 刻度线长度 (增加一点长度，更有质感)
     gStyle->SetTickLength(0.02, "XY");
