@@ -33,6 +33,7 @@ void efficiency_correction(
     TString mcRecFile = "mc_ana_final.root",      // MC重建数据文件 (经过ana)
     TString mcGenFile = "mc_sim.root",            // MC生成数据文件 (sim输出，包含MCTrack)
     TString realDataGenFile = "",                 // 真实数据对应的生成文件 (可选，用于验证)
+    TString outputName = "efficiency_correction_result", // 输出文件名前缀
     TString plotVar = "pvz",                      // 需要修正的变量名 (在ana文件的ntpDp树中)
     TString mcRecVar = "pvz_mc",                  // MC重建变量 (用于效率分子，通常使用MC真值)
     TString genVar = "MCTrack.fStartZ",           // 对应的生成级变量 (在sim文件的pndsim树中)
@@ -335,8 +336,8 @@ void efficiency_correction(
     // ---------------------------------------------------------
     // 6. 绘图与保存
     // ---------------------------------------------------------
-    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 5000, 2500);
-    c1->Divide(4, 2); // 4列2行
+    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 5000, 5000);
+    c1->Divide(3, 3); // 3列3行
 
     // Pad 1: 原始数据(Raw) vs MC重建(Reco Var) - 形状对比
     c1->cd(1);
@@ -424,8 +425,28 @@ void efficiency_correction(
         yMax *= 1.2;
     }
 
-    // Pad 5: Hybrid Correction (Raw / HybridEff) vs Truth
+    // Pad 5: Reco Efficiency Correction (Raw / RecoEff) vs Truth
     c1->cd(5);
+    hCorrectedRecoEff->SetLineColor(kAzure+7);
+    hCorrectedRecoEff->SetLineWidth(3);
+    hCorrectedRecoEff->SetMarkerColor(kAzure+7);
+    hCorrectedRecoEff->SetMarkerStyle(20);
+    hCorrectedRecoEff->SetMinimum(0.0);
+    hCorrectedRecoEff->SetMaximum(yMax);
+    hCorrectedRecoEff->Draw("E");
+
+    if (hDataGen) {
+        hDataGen->Draw("HIST SAME");
+        TLegend* leg5 = new TLegend(0.6, 0.78, 0.9, 0.9);
+        leg5->SetFillStyle(0);
+        leg5->SetBorderSize(0);
+        leg5->AddEntry(hCorrectedRecoEff, "Corr (RecoEff)", "lp");
+        leg5->AddEntry(hDataGen, "Truth", "l");
+        leg5->Draw();
+    }
+
+    // Pad 6: Hybrid Correction (Raw / HybridEff) vs Truth
+    c1->cd(6);
     hCorrectedHybrid->SetLineColor(kOrange+1);
     hCorrectedHybrid->SetLineWidth(3);
     hCorrectedHybrid->SetMarkerColor(kOrange+1);
@@ -436,43 +457,26 @@ void efficiency_correction(
 
     if (hDataGen) {
         hDataGen->Draw("HIST SAME");
-        TLegend* leg5 = new TLegend(0.6, 0.78, 0.9, 0.9);
-        leg5->SetFillStyle(0);
-        leg5->SetBorderSize(0);
-        leg5->AddEntry(hCorrectedHybrid, "Corr (Hybrid)", "lp");
-        leg5->AddEntry(hDataGen, "Truth", "l");
-        leg5->Draw();
+        TLegend* leg6 = new TLegend(0.6, 0.78, 0.9, 0.9);
+        leg6->SetFillStyle(0);
+        leg6->SetBorderSize(0);
+        leg6->AddEntry(hCorrectedHybrid, "Corr (Hybrid)", "lp");
+        leg6->AddEntry(hDataGen, "Truth", "l");
+        leg6->Draw();
     }
 
-    // Pad 6: 修正结果对比
-    c1->cd(6);
-    // hCorrected->Draw("E"); // Standard (BiasCorrEff)
-    hCorrectedHybrid->SetMinimum(0.0);
-    hCorrectedHybrid->SetMaximum(yMax); // Ensure consistent scale
-    hCorrectedHybrid->Draw("E"); // Hybrid
-    if (hDataGen) hDataGen->Draw("HIST SAME");
-
-    TLegend* leg6 = new TLegend(0.6, 0.72, 0.9, 0.9);
-    leg6->SetFillStyle(0);
-    leg6->SetBorderSize(0);
-    // leg6->AddEntry(hCorrected, "BiasCorrEff", "lp");
-    leg6->AddEntry(hCorrectedHybrid, "Hybrid Corr", "lp");
-    if (hDataGen) leg6->AddEntry(hDataGen, "Truth", "l");
-    leg6->Draw();
-
-    // Pad 7: Difference (Corrected - Truth)
+    // Pad 7: Difference (RecoEff Corrected - Truth)
     c1->cd(7);
     if (hDataGen) {
-        TH1F* hDiff = (TH1F*)hCorrectedHybrid->Clone("hDiff");
-        hDiff->SetTitle("Difference (Corrected - Truth);Z (cm);#Delta Events");
-        hDiff->Add(hDataGen, -1.0); // hDiff = hCorrectedHybrid - hDataGen
-        hDiff->SetLineColor(kRed);
-        hDiff->SetLineWidth(2);
-        hDiff->SetMarkerStyle(20);
-        hDiff->SetMarkerColor(kRed);
-        hDiff->Draw("E");
+        TH1F* hDiffReco = (TH1F*)hCorrectedRecoEff->Clone("hDiffReco");
+        hDiffReco->SetTitle("Diff (RecoEff Corr - Truth);Z (cm);#Delta Events");
+        hDiffReco->Add(hDataGen, -1.0); 
+        hDiffReco->SetLineColor(kAzure+7);
+        hDiffReco->SetLineWidth(2);
+        hDiffReco->SetMarkerStyle(20);
+        hDiffReco->SetMarkerColor(kAzure+7);
+        hDiffReco->Draw("E");
         
-        // Draw a zero line
         TLine *line = new TLine(xMin, 0, xMax, 0);
         line->SetLineStyle(2);
         line->SetLineColor(kBlack);
@@ -481,12 +485,36 @@ void efficiency_correction(
         TLegend* leg7 = new TLegend(0.6, 0.78, 0.9, 0.9);
         leg7->SetFillStyle(0);
         leg7->SetBorderSize(0);
-        leg7->AddEntry(hDiff, "Corr - Truth", "lp");
+        leg7->AddEntry(hDiffReco, "RecoEff - Truth", "lp");
         leg7->Draw();
     }
 
-    // Pad 8: 统计信息输出
+    // Pad 8: Difference (Hybrid Corrected - Truth)
     c1->cd(8);
+    if (hDataGen) {
+        TH1F* hDiffHybrid = (TH1F*)hCorrectedHybrid->Clone("hDiffHybrid");
+        hDiffHybrid->SetTitle("Diff (Hybrid Corr - Truth);Z (cm);#Delta Events");
+        hDiffHybrid->Add(hDataGen, -1.0); 
+        hDiffHybrid->SetLineColor(kOrange+1);
+        hDiffHybrid->SetLineWidth(2);
+        hDiffHybrid->SetMarkerStyle(21);
+        hDiffHybrid->SetMarkerColor(kOrange+1);
+        hDiffHybrid->Draw("E");
+        
+        TLine *line = new TLine(xMin, 0, xMax, 0);
+        line->SetLineStyle(2);
+        line->SetLineColor(kBlack);
+        line->Draw();
+        
+        TLegend* leg8 = new TLegend(0.6, 0.78, 0.9, 0.9);
+        leg8->SetFillStyle(0);
+        leg8->SetBorderSize(0);
+        leg8->AddEntry(hDiffHybrid, "Hybrid - Truth", "lp");
+        leg8->Draw();
+    }
+
+    // Pad 9: 统计信息输出
+    c1->cd(9);
     TPaveText *pt = new TPaveText(0.1, 0.3, 0.9, 0.7, "NDC");
     pt->SetFillColor(kWhite);
     pt->SetBorderSize(1);
@@ -500,28 +528,41 @@ void efficiency_correction(
     double nRaw = hDataRaw->IntegralAndError(1, hDataRaw->GetNbinsX(), errRaw);
     pt->AddText(Form("N_{RealData} (Raw): %.1f #pm %.1f", nRaw, errRaw));
     
+    double nGen = 0;
     if (hDataGen) {
-        double nGen = hDataGen->IntegralAndError(1, hDataGen->GetNbinsX(), errGen);
+        nGen = hDataGen->IntegralAndError(1, hDataGen->GetNbinsX(), errGen);
         pt->AddText(Form("N_{Truth} (Gen): %.1f #pm %.1f", nGen, errGen));
     } else {
         pt->AddText("N_{Truth}: N/A");
     }
     
     pt->AddText("--------------------------------");
-    double nHybrid = hCorrectedHybrid->IntegralAndError(1, hCorrectedHybrid->GetNbinsX(), errHybrid);
-    pt->AddText(Form("N_{Corr} (Hybrid): %.1f #pm %.1f", nHybrid, errHybrid));
-    
     double nRecoEff = hCorrectedRecoEff->IntegralAndError(1, hCorrectedRecoEff->GetNbinsX(), errRecoEff);
     pt->AddText(Form("N_{Corr} (RecoEff): %.1f #pm %.1f", nRecoEff, errRecoEff));
+    if (nGen > 0) {
+        double ratioReco = nRecoEff / nGen;
+        double relDevReco = (ratioReco - 1.0) * 100.0;
+        double errRelDevReco = 100.0 * (1.0/nGen) * sqrt(errRecoEff*errRecoEff + ratioReco*ratioReco*errGen*errGen);
+        pt->AddText(Form("  Rel. Dev: %.2f #pm %.2f %%", relDevReco, errRelDevReco));
+    }
+
+    double nHybrid = hCorrectedHybrid->IntegralAndError(1, hCorrectedHybrid->GetNbinsX(), errHybrid);
+    pt->AddText(Form("N_{Corr} (Hybrid): %.1f #pm %.1f", nHybrid, errHybrid));
+    if (nGen > 0) {
+        double ratioHybrid = nHybrid / nGen;
+        double relDevHybrid = (ratioHybrid - 1.0) * 100.0;
+        double errRelDevHybrid = 100.0 * (1.0/nGen) * sqrt(errHybrid*errHybrid + ratioHybrid*ratioHybrid*errGen*errGen);
+        pt->AddText(Form("  Rel. Dev: %.2f #pm %.2f %%", relDevHybrid, errRelDevHybrid));
+    }
     
     pt->Draw();
 
     gPad->RedrawAxis();
 
     // 保存结果
-    c1->SaveAs("efficiency_correction_result.png");
+    c1->SaveAs(outputName + ".png");
     
-    TFile* fOut = new TFile("corrected_data_output.root", "RECREATE");
+    TFile* fOut = new TFile(outputName + ".root", "RECREATE");
     hDataRaw->Write("hDataRaw");
     hMCRec->Write();
     hMCRecReco->Write();
@@ -538,6 +579,6 @@ void efficiency_correction(
     fOut->Close();
 
     std::cout << "Analysis Complete." << std::endl;
-    std::cout << "Plot saved to efficiency_correction_result.png" << std::endl;
-    std::cout << "Root file saved to corrected_data_output.root" << std::endl;
+    std::cout << "Plot saved to " << outputName << ".png" << std::endl;
+    std::cout << "Root file saved to " << outputName << ".root" << std::endl;
 }
