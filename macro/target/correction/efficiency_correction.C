@@ -496,7 +496,7 @@ void efficiency_correction(
     pt->AddText("Event Statistics (Integral):");
     pt->AddText("--------------------------------");
     
-    double errRaw, errGen, errHybrid;
+    double errRaw, errGen, errHybrid, errRecoEff;
     double nRaw = hDataRaw->IntegralAndError(1, hDataRaw->GetNbinsX(), errRaw);
     pt->AddText(Form("N_{RealData} (Raw): %.1f #pm %.1f", nRaw, errRaw));
     
