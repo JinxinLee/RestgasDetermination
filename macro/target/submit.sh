@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name=pnd_sim
 #SBATCH --partition=long
-#SBATCH --time=08:00:00
+#SBATCH --time=20:00:00
 #SBATCH --output=/lustre/panda/jili/oct19/macro/target/data/slurmlog/pnd_sim_%A_%a.log
 #SBATCH --error=/lustre/panda/jili/oct19/macro/target/data/slurmlog/pnd_sim_%A_%a.err
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=2  # <--apply cores for parallel jobs
-#SBATCH --mem=4G
-#SBATCH --array=1-1
+#SBATCH --cpus-per-task=1  # <--apply cores for parallel jobs
+#SBATCH --mem=24G
+#SBATCH --array=1-500
 #SBATCH --singularity-container=/cvmfs/vae.gsi.de/vae23/containers/user_container-develop.sif
 
 # Setup PandaRoot environment
@@ -26,4 +26,5 @@ cd /lustre/panda/jili/oct19/macro/target
 
 # Run the python orchestrator with the -u flag for real-time output
 # and -j2 for 2 parallel jobs, matching the --cpus-per-task=2 request.
-python3 -u runall_prod_hvmaps.py configs/ -j 2
+#python3 -u runall_prod_hvmaps.py configs/restgas -j 2
+python3 -u runall_prod_hvmaps.py acc_fullgas.json

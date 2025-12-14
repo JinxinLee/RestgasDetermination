@@ -72,7 +72,7 @@ int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="",
   fRun->SetInput(inputGen);
   fRun->SetDpmFlag(genflag);
   fRun->SetFtfFlag(genflag);
-  fRun->SetTargetMode(use_restgas ? 6 : 0);
+  fRun->SetTargetMode(use_restgas ? 8 : 0);
   fRun->SetName(SimEngine);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->SetNumberOfEvents(nEvents);
