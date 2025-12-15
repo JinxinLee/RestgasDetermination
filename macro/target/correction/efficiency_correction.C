@@ -309,7 +309,7 @@ void efficiency_correction(
         double eff = 0;
         double eff_err = 0;
 
-        if (center >= -10.0 && center <= 10.0) {
+        if (center >= -1.50 && center <= 1.50) {
              // Use Truth Eff (hEff)
              int binEff = hEff->FindBin(center);
              eff = hEff->GetBinContent(binEff);
@@ -465,21 +465,23 @@ void efficiency_correction(
         leg6->Draw();
     }
 
-    // Pad 7: Ratio (RecoEff Corrected / Truth)
+    // Pad 7: Relative Difference ((RecoEff Corrected - Truth) / Truth)
     c1->cd(7);
     if (hDataGen) {
-        TH1F* hRatioReco = (TH1F*)hCorrectedRecoEff->Clone("hRatioReco");
-        hRatioReco->SetTitle("Ratio (RecoEff Corr / Truth);Z (cm);Ratio");
-        hRatioReco->Divide(hDataGen); 
-        hRatioReco->SetLineColor(kAzure+7);
-        hRatioReco->SetLineWidth(2);
-        hRatioReco->SetMarkerStyle(20);
-        hRatioReco->SetMarkerColor(kAzure+7);
-        hRatioReco->SetMinimum(0.0);
-        hRatioReco->SetMaximum(2.0);
-        hRatioReco->Draw("E");
+        TH1F* hRelDiffReco = (TH1F*)hCorrectedRecoEff->Clone("hRelDiffReco");
+        hRelDiffReco->SetTitle("Rel. Diff ((RecoEff - Truth) / Truth);Z (cm);Rel. Diff");
+        hRelDiffReco->Add(hDataGen, -1.0); // RecoEff - Truth
+        hRelDiffReco->Divide(hDataGen);    // (RecoEff - Truth) / Truth
         
-        TLine *line = new TLine(xMin, 1.0, xMax, 1.0);
+        hRelDiffReco->SetLineColor(kAzure+7);
+        hRelDiffReco->SetLineWidth(2);
+        hRelDiffReco->SetMarkerStyle(20);
+        hRelDiffReco->SetMarkerColor(kAzure+7);
+        hRelDiffReco->SetMinimum(-1.0);
+        hRelDiffReco->SetMaximum(1.0);
+        hRelDiffReco->Draw("E");
+        
+        TLine *line = new TLine(xMin, 0.0, xMax, 0.0);
         line->SetLineStyle(2);
         line->SetLineColor(kBlack);
         line->Draw();
@@ -487,25 +489,27 @@ void efficiency_correction(
         TLegend* leg7 = new TLegend(0.6, 0.78, 0.9, 0.9);
         leg7->SetFillStyle(0);
         leg7->SetBorderSize(0);
-        leg7->AddEntry(hRatioReco, "RecoEff / Truth", "lp");
+        leg7->AddEntry(hRelDiffReco, "(Reco - Truth)/Truth", "lp");
         leg7->Draw();
     }
 
-    // Pad 8: Ratio (Hybrid Corrected / Truth)
+    // Pad 8: Relative Difference ((Hybrid Corrected - Truth) / Truth)
     c1->cd(8);
     if (hDataGen) {
-        TH1F* hRatioHybrid = (TH1F*)hCorrectedHybrid->Clone("hRatioHybrid");
-        hRatioHybrid->SetTitle("Ratio (Hybrid Corr / Truth);Z (cm);Ratio");
-        hRatioHybrid->Divide(hDataGen); 
-        hRatioHybrid->SetLineColor(kOrange+1);
-        hRatioHybrid->SetLineWidth(2);
-        hRatioHybrid->SetMarkerStyle(21);
-        hRatioHybrid->SetMarkerColor(kOrange+1);
-        hRatioHybrid->SetMinimum(0.0);
-        hRatioHybrid->SetMaximum(2.0);
-        hRatioHybrid->Draw("E");
+        TH1F* hRelDiffHybrid = (TH1F*)hCorrectedHybrid->Clone("hRelDiffHybrid");
+        hRelDiffHybrid->SetTitle("Rel. Diff ((Hybrid - Truth) / Truth);Z (cm);Rel. Diff");
+        hRelDiffHybrid->Add(hDataGen, -1.0); // Hybrid - Truth
+        hRelDiffHybrid->Divide(hDataGen);    // (Hybrid - Truth) / Truth
         
-        TLine *line = new TLine(xMin, 1.0, xMax, 1.0);
+        hRelDiffHybrid->SetLineColor(kOrange+1);
+        hRelDiffHybrid->SetLineWidth(2);
+        hRelDiffHybrid->SetMarkerStyle(21);
+        hRelDiffHybrid->SetMarkerColor(kOrange+1);
+        hRelDiffHybrid->SetMinimum(-1.0);
+        hRelDiffHybrid->SetMaximum(1.0);
+        hRelDiffHybrid->Draw("E");
+        
+        TLine *line = new TLine(xMin, 0.0, xMax, 0.0);
         line->SetLineStyle(2);
         line->SetLineColor(kBlack);
         line->Draw();
@@ -513,7 +517,7 @@ void efficiency_correction(
         TLegend* leg8 = new TLegend(0.6, 0.78, 0.9, 0.9);
         leg8->SetFillStyle(0);
         leg8->SetBorderSize(0);
-        leg8->AddEntry(hRatioHybrid, "Hybrid / Truth", "lp");
+        leg8->AddEntry(hRelDiffHybrid, "(Hybrid - Truth)/Truth", "lp");
         leg8->Draw();
     }
 
