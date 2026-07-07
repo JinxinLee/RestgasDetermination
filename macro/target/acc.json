@@ -1,0 +1,16 @@
+{
+    "prefix": "acc_poca",
+    "nevts": 10000,
+    "njobs": 500,
+    "dec": "DPM2",
+    "mom": 4.06,
+    "use_mvd_hvmaps": "false",
+    "ipx": 0.0,
+    "ipy": 0.0,
+    "ipz": 0.0,
+    "use_restgas": "true",
+    "theta_min": 22.0,
+    "theta_max": 150.0,
+    "back_prop_vertex": "poca",
+    "output_path": "/lustre/panda/jili/oct19/macro/target/data/"
+}

@@ -29,9 +29,71 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
 
   // *** some variables
   int i = 0, j = 0, k = 0, l = 0, m = 0, n = 0;
-  gStyle->SetOptFit(1011);
+   gStyle->SetFrameBorderMode(0);
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetPadBorderMode(0);
+    // 设置全局图例无边框
+    gStyle->SetLegendBorderSize(0);
+    // (可选) 设置全局图例背景透明 (实测某些ROOT版本对Legend的全局FillStyle支持不稳定，建议用方法1手动设透明)
+    gStyle->SetLegendFillColor(0);
 
-  /*  gStyle -> SetOptFit(1011);
+    // ---------------------------------------------------------
+    // 关键：线宽与点大小 (针对 5000px 宽度优化)
+    // ---------------------------------------------------------
+    // 默认线宽通常是 1px，在 5000px 图上几乎不可见。建议设为 3 到 5。
+    gStyle->SetLineWidth(4);      
+    gStyle->SetFrameLineWidth(4); // 坐标轴边框
+    gStyle->SetHistLineWidth(6);  // 直方图线条
+    gStyle->SetFuncWidth(6);      // 函数/拟合曲线
+    gStyle->SetGridWidth(2);      // 网格线（如果开启）
+
+    // 标记点 (Marker) 大小，默认是 1.0，建议放大到 2.0 - 3.0
+    gStyle->SetMarkerSize(2.5);
+    gStyle->SetMarkerStyle(20);   // 推荐使用实心圆点，在大图上最清晰
+
+    // ---------------------------------------------------------
+    // 字体设置 (ROOT字体大小是占 Pad 高度的百分比)
+    // ---------------------------------------------------------
+    // 5000x2500 是 2:1 的宽图。
+    // 0.05 的意思是占高度的 5%，即 2500 * 0.05 = 125 像素高（非常清晰）。
+    
+    // 坐标轴刻度数值 (Label)
+    gStyle->SetLabelSize(0.04, "XY"); 
+    gStyle->SetLabelFont(42, "XY");   // 42号字体 (Helvetica) 比默认的 62号更标准
+
+    // 坐标轴标题 (Title)
+    gStyle->SetTitleSize(0.06, "XY"); 
+    gStyle->SetTitleFont(42, "XY");
+
+    // 顶部图表标题
+    gStyle->SetTitleSize(0.06, "t");  
+    gStyle->SetTitleFont(42, "t");
+
+    // ---------------------------------------------------------
+    // 布局微调
+    // ---------------------------------------------------------
+    // 调整标题与轴的距离。由于画布很宽，Y轴标题可能会离轴太远，需适当减小 Offset
+    gStyle->SetTitleOffset(0.95, "X");
+    gStyle->SetTitleOffset(1.2, "Y"); // 宽画幅下，Y轴标题贴近一点更好看
+
+    // 刻度线长度 (增加一点长度，更有质感)
+    gStyle->SetTickLength(0.02, "XY");
+    
+    // 统计框 (StatBox) - 如果需要显示，必须调整字体和位置，否则会很丑
+    gStyle->SetStatFont(42);
+    gStyle->SetStatFontSize(0.06); // 调大字体
+    gStyle->SetStatBorderSize(2); // 边框加粗
+    // 设置绘图风格
+    // 1111 表示: 1(显示名字)-1(显示Entries)-1(显示Mean)-1(显示Std Dev)
+    // 也可以用 1110 只显示 Entries, Mean, Std Dev
+    gStyle->SetOptStat(1110); 
+    gStyle->SetOptTitle(1);
+    gStyle->SetPadBottomMargin(0.15); // 底部留白给 X 轴标题 (默认约 0.1)
+    gStyle->SetPadLeftMargin(0.15);   // 左侧留白给 Y 轴标题 (默认约 0.1)
+    gStyle->SetPadRightMargin(0.05);  // 右侧稍微紧凑点
+    gStyle->SetPadTopMargin(0.08);
+
+  /*  gStyle->SetOptFit(11);
 
   TString OutFile = "out_dummy.root";
   
@@ -629,7 +691,7 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
   TCut valid_data = "proton_pbar_vtx_x != -999.0";
 
   // Create a TCanvas for display
-  TCanvas *c1 = new TCanvas("c1", "Vertex Fitting", 1200, 400);
+  TCanvas *c1 = new TCanvas("c1", "Vertex Fitting", 6000, 1800);
   c1->Divide(3, 1);
 
   // --- Fit X coordinate (Iterative Robust Range) ---
@@ -650,7 +712,7 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
     Double_t max_x_robust = mean_x_stat + 3 * rms_x_stat;
 
     // 4. Create the final histogram using the robust range
-    h_vtx_x = new TH1F("h_vtx_x", "Proton-Pbar Vertex X;X (cm);Events", 100, min_x_robust, max_x_robust);
+    h_vtx_x = new TH1F("h_vtx_x", ";#font[132]{#it{x} (cm)};#font[132]{#Events}", 100, min_x_robust, max_x_robust);
     tree->Draw("proton_pbar_vtx_x>>h_vtx_x", valid_data, "goff");
     
     // 5. First fit (wider range)
@@ -666,8 +728,26 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
     fit2_x->SetParameters(fit1_x->GetParameter(0), mean1_x, sigma1_x, 1, 0, 0); // Initialize parameters
     h_vtx_x->Fit(fit2_x, "R"); // "R" to fit in range
 
+    h_vtx_x->GetXaxis()->CenterTitle();
+    h_vtx_x->GetYaxis()->CenterTitle();
     h_vtx_x->Draw();
+    
+    // 手动调整统计框的位置，否则在大字体下可能会超出边界
+    gPad->Update(); // 必须先Update，否则找不到TPaveStats
+    TPaveStats *st_x = (TPaveStats*)h_vtx_x->FindObject("stats");
+    if(st_x) {
+       st_x->SetX1NDC(0.65);
+       st_x->SetX2NDC(0.95);
+       st_x->SetY1NDC(0.65);
+       st_x->SetY2NDC(0.90);
+    }
+    
     fit2_x->Draw("same"); // Draw the final fit on the histogram
+
+    TLatex *latex_x = new TLatex();
+    latex_x->SetNDC();
+    latex_x->SetTextSize(0.06);
+    latex_x->DrawLatex(0.58, 0.60, Form("#font[132]{#it{v_{x}} = %.2g #pm %.2g}", fit2_x->GetParameter(1), fit2_x->GetParError(1)));
 
     if (fit2_x) {
       cout << "********* Vertex X Fit Result (Iterative) *********" << endl;
@@ -689,7 +769,7 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
     Double_t min_y_robust = mean_y_stat - 3 * rms_y_stat;
     Double_t max_y_robust = mean_y_stat + 3 * rms_y_stat;
 
-    h_vtx_y = new TH1F("h_vtx_y", "Proton-Pbar Vertex Y;Y (cm);Events", 100, min_y_robust, max_y_robust);
+    h_vtx_y = new TH1F("h_vtx_y", ";#font[132]{#it{y} (cm)};#font[132]{#Events}", 100, min_y_robust, max_y_robust);
     tree->Draw("proton_pbar_vtx_y>>h_vtx_y", valid_data, "goff");
     
     double mean_y_h = h_vtx_y->GetMean();
@@ -704,8 +784,25 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
     fit2_y->SetParameters(fit1_y->GetParameter(0), mean1_y, sigma1_y, 1, 0, 0);
     h_vtx_y->Fit(fit2_y, "R");
 
+    h_vtx_y->GetXaxis()->CenterTitle();
+    h_vtx_y->GetYaxis()->CenterTitle();
     h_vtx_y->Draw();
+    
+    gPad->Update();
+    TPaveStats *st_y = (TPaveStats*)h_vtx_y->FindObject("stats");
+    if(st_y) {
+       st_y->SetX1NDC(0.65);
+       st_y->SetX2NDC(0.95);
+       st_y->SetY1NDC(0.65);
+       st_y->SetY2NDC(0.90);
+    }
+    
     fit2_y->Draw("same");
+
+    TLatex *latex_y = new TLatex();
+    latex_y->SetNDC();
+    latex_y->SetTextSize(0.06);
+    latex_y->DrawLatex(0.58, 0.60, Form("#font[132]{#it{v_{y}} = %.2g #pm %.1g}", fit2_y->GetParameter(1), fit2_y->GetParError(1)));
 
     if (fit2_y) {
       cout << "********* Vertex Y Fit Result (Iterative) *********" << endl;
@@ -727,7 +824,7 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
     Double_t min_z_robust = mean_z_stat - 3 * rms_z_stat;
     Double_t max_z_robust = mean_z_stat + 3 * rms_z_stat;
 
-    h_vtx_z = new TH1F("h_vtx_z", "Proton-Pbar Vertex Z;Z (cm);Events", 100, min_z_robust, max_z_robust);
+    h_vtx_z = new TH1F("h_vtx_z", ";#font[132]{#it{z} (cm)};#font[132]{#Events}", 100, min_z_robust, max_z_robust);
     tree->Draw("proton_pbar_vtx_z>>h_vtx_z", valid_data, "goff");
 
     double mean_z_h = h_vtx_z->GetMean();
@@ -742,7 +839,25 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
     fit2_z->SetParameters(fit1_z->GetParameter(0), mean1_z, sigma1_z, 1, 0, 0);
     h_vtx_z->Fit(fit2_z, "R");
 
+    h_vtx_z->GetXaxis()->CenterTitle();
+    h_vtx_z->GetYaxis()->CenterTitle();
     h_vtx_z->Draw();
+    
+    gPad->Update();
+    TPaveStats *st_z = (TPaveStats*)h_vtx_z->FindObject("stats");
+    if(st_z) {
+       st_z->SetX1NDC(0.65);
+       st_z->SetX2NDC(0.95);
+       st_z->SetY1NDC(0.65);
+       st_z->SetY2NDC(0.90);
+    }
+    
+    fit2_z->Draw("same");
+
+    TLatex *latex_z = new TLatex();
+    latex_z->SetNDC();
+    latex_z->SetTextSize(0.06);
+    latex_z->DrawLatex(0.58, 0.60, Form("#font[132]{#it{v_{z}} = %.3g #pm %.1g}", fit2_z->GetParameter(1), fit2_z->GetParError(1)));
 
     if (fit2_z) {
       cout << "********* Vertex Z Fit Result (Iterative) *********" << endl;

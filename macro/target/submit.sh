@@ -27,4 +27,4 @@ cd /lustre/panda/jili/oct19/macro/target
 # Run the python orchestrator with the -u flag for real-time output
 # and -j2 for 2 parallel jobs, matching the --cpus-per-task=2 request.
 #python3 -u runall_prod_hvmaps.py configs/restgas -j 2
-python3 -u runall_prod_hvmaps.py acc_fullgas.json
+python3 -u runall_prod_hvmaps.py acc_p20.json

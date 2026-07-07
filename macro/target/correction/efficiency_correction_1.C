@@ -29,7 +29,7 @@
  * root -l 'efficiency_correction.C("data_ana.root", "mc_ana.root", "mc_sim.root")'
  * root -b -q -l 'efficiency_correction.C("../data/test_poca/reco/test_poca_*_ana_final.root", "../data/acc_fullgas/reco/acc_fullgas_*_ana_final.root", "../data/acc_fullgas/reco/acc_fullgas_*_sim.root", "../data/test_poca/reco/test_poca_*_sim.root","10percent_fullgas")'
  */
-void efficiency_correction(
+void efficiency_correction_1(
     TString realDataFile = "data_ana_final.root", // 真实数据文件 (经过ana)
     TString mcRecFile = "mc_ana_final.root",      // MC重建数据文件 (经过ana)
     TString mcGenFile = "mc_sim.root",            // MC生成数据文件 (sim输出，包含MCTrack)
@@ -40,9 +40,9 @@ void efficiency_correction(
     TString genVar = "MCTrack.fStartZ",           // 对应的生成级变量 (在sim文件的pndsim树中)
     TString recCut = "pvz != -999.0",             // 重建数据的筛选条件
     TString genCut = "MCTrack.fMotherID==-1&&MCTrack.fPdgCode==2212", // 生成级粒子的筛选条件
-    int nBins = 200,
-    double xMin = -30.0,
-    double xMax = 30.0,
+    int nBins = 300,
+    double xMin = -600.0,
+    double xMax = 1100.0,
     double devMin = -1.0,
     double devMax = 1.0
 )
@@ -130,13 +130,17 @@ void efficiency_correction(
         return; 
     }
 
+    // High granularity histograms for Efficiency plot (1000 bins)
+    int nBinsEff = 300;
+
     // MC Rec (Truth Variable) - 用于标准效率计算
-    TH1F* hMCRec = new TH1F("hMCRec", "MC Reconstructed (Truth Var);Z (cm);#Events", nBins, xMin, xMax);
+    // Standard bins (kept if needed for consistency checks, though mostly using high res for Eff now)
+    TH1F* hMCRec = new TH1F("hMCRec", "MC Rec (Truth Var);Z (cm);#Events", nBinsEff, xMin, xMax);
     tMCRec->Draw(mcRecVar + ">>hMCRec", recCut);
     hMCRec->SetDirectory(0);
 
     // MC Rec (Reco Variable) - 用于Reco-based效率计算
-    TH1F* hMCRecReco = new TH1F("hMCRecReco", "MC Reconstructed (Reco Var);Z (cm);#Events", nBins, xMin, xMax);
+    TH1F* hMCRecReco = new TH1F("hMCRecReco", "MC Rec (Reco Var);Z (cm);#Events", nBinsEff, xMin, xMax);
     tMCRec->Draw(plotVar + ">>hMCRecReco", recCut);
     hMCRecReco->SetDirectory(0);
 
@@ -148,7 +152,8 @@ void efficiency_correction(
     double globalBias = hDev->GetMean();
 
     // 2. 偏差随Z的变化 (Profile) - 用于动态修正
-    TProfile* pBias = new TProfile("pBias", "Bias vs Z (Profile);Z_{reco} (cm);<Bias> (cm)", nBins, xMin, xMax);
+    // Use nBinsEff for profile to match efficiency granularity
+    TProfile* pBias = new TProfile("pBias", "Bias vs Z (Profile);Z_{reco} (cm);<Bias> (cm)", nBinsEff, xMin, xMax);
     // Draw y:x >> profile
     tMCRec->Draw(Form("%s - %s : %s >> pBias", plotVar.Data(), mcRecVar.Data(), plotVar.Data()), recCut, "prof");
     pBias->SetDirectory(0);
@@ -203,7 +208,8 @@ void efficiency_correction(
         return; 
     }
 
-    TH1F* hMCGen = new TH1F("hMCGen", "MC Generated;Z (cm);#Events", nBins, xMin, xMax);
+    // Use nBinsEff (1000) for Efficiency calculation
+    TH1F* hMCGen = new TH1F("hMCGen", "MC Generated;Z (cm);#Events", nBinsEff, xMin, xMax);
     
     std::cout << "Drawing Gen variable: " << genVar << " with cut: " << genCut << std::endl;
     // 注意：这里假设genVar可以直接访问。如果是TClonesArray，可能需要更复杂的Draw语法
@@ -225,6 +231,7 @@ void efficiency_correction(
         }
 
         if (tDataGen->GetEntries() > 0) {
+            // Keep DataGen at standard nBins (200) for comparison with DataRaw
             hDataGen = new TH1F("hDataGen", "Real Data Generated (Truth);Z (cm);#Events", nBins, xMin, xMax);
             std::cout << "Drawing Real Data Gen variable..." << std::endl;
             tDataGen->Draw(genVar + ">>hDataGen", genCut);
@@ -310,7 +317,7 @@ void efficiency_correction(
         double eff = 0;
         double eff_err = 0;
 
-        if (center >= -1.50 && center <= 1.50) {
+        if (center >= -2.0 && center <= 2.0) {
              // Use Truth Eff (hEff)
              int binEff = hEff->FindBin(center);
              eff = hEff->GetBinContent(binEff);
@@ -337,242 +344,267 @@ void efficiency_correction(
     // ---------------------------------------------------------
     // 6. 绘图与保存
     // ---------------------------------------------------------
-    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 5000, 5000);
-    c1->Divide(3, 3); // 3列3行
+    // 修改：只保留原Pad 6(Hybrid Correction)和Pad 8(Rel Diff)
+    // 采用左右布局 (Left: Correction Result, Right: Relative Difference)
+    TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 6000, 3000);
+    c1->Divide(2, 1); 
 
-    // Pad 1: 原始数据(Raw) vs MC重建(Reco Var) - 形状对比
+    // ------------------------------------------
+    // New Pad 1 (Left): Hybrid Correction vs Truth
+    // ------------------------------------------
     c1->cd(1);
-    hDataRaw->SetLineColor(kBlack);
-    hDataRaw->SetMarkerStyle(20);
-    hDataRaw->Draw("E");
-    
-    TH1F* hMCRecRecoScaled = (TH1F*)hMCRecReco->Clone("hMCRecRecoScaled");
-    if (hMCRecReco->Integral() > 0) hMCRecRecoScaled->Scale(hDataRaw->Integral() / hMCRecReco->Integral());
-    hMCRecRecoScaled->SetLineColor(kRed);
-    hMCRecRecoScaled->Draw("HIST SAME");
-    
-    TLegend* leg1 = new TLegend(0.6, 0.78, 0.9, 0.9);
-    leg1->SetFillStyle(0);
-    leg1->SetBorderSize(0);
-    leg1->AddEntry(hDataRaw, "Data (Raw)", "lp");
-    leg1->AddEntry(hMCRecRecoScaled, "MC Rec (RecoVar)", "l");
-    leg1->Draw();
+    gPad->SetLeftMargin(0.12);
+    gPad->SetRightMargin(0.04);
+    gPad->SetBottomMargin(0.12);
+    gPad->SetTopMargin(0.08); 
+    gPad->SetTicks(1, 1);
+    gPad->SetLogy();
 
-    // Pad 2: MC 生成 vs MC 重建 (Truth Var)
-    c1->cd(2);
-    hMCGen->SetLineColor(kBlue);
-    hMCGen->Draw("HIST");
-    hMCRec->SetLineColor(kRed);
-    hMCRec->Draw("HIST SAME");
-    
-    TLegend* leg2 = new TLegend(0.6, 0.78, 0.9, 0.9);
-    leg2->SetFillStyle(0);
-    leg2->SetBorderSize(0);
-    leg2->AddEntry(hMCGen, "MC Gen", "l");
-    leg2->AddEntry(hMCRec, "MC Rec (TruthVar)", "l");
-    leg2->Draw();
-
-    // Pad 3: 偏差直方图 (Global Resolution)
-    c1->cd(3);
-    hDev->SetLineColor(kBlue);
-    //hDev->SetLineWidth(3);
-    hDev->Draw();
-    
-    TLegend* leg3 = new TLegend(0.6, 0.78, 0.9, 0.9);
-    leg3->SetFillStyle(0);
-    leg3->SetBorderSize(0);
-    leg3->AddEntry(hDev, "Bias Distribution", "l");
-    leg3->Draw();
-
-    // Pad 4: 效率曲线对比
-    c1->cd(4);
-    hEff->SetLineColor(kGreen+2);
-    //hEff->SetLineWidth(3);
-    hEff->SetMarkerColor(kGreen+2);
-    hEff->SetMarkerStyle(21);
-    hEff->SetMinimum(0.0);
-    hEff->SetMaximum(1.2);
-    hEff->Draw("E");
-    
-    hEffReco->SetLineColor(kOrange+7);
-    //hEffReco->SetLineWidth(3);
-    hEffReco->SetMarkerColor(kOrange+7);
-    hEffReco->SetMarkerStyle(22);
-    hEffReco->Draw("E SAME");
-
-    /*
-    hEffBiasCorr->SetLineColor(kMagenta+2);
-    hEffBiasCorr->SetMarkerStyle(23);
-    hEffBiasCorr->Draw("E SAME");
-    */
-
-    TLegend* leg4 = new TLegend(0.6, 0.78, 0.9, 0.9);
-    leg4->SetFillStyle(0);
-    leg4->SetBorderSize(0);
-    leg4->AddEntry(hEff, "Eff (Truth Var)", "lp");
-    leg4->AddEntry(hEffReco, "Eff (Reco Var)", "lp");
-    // leg4->AddEntry(hEffBiasCorr, "Eff (Bias Corr)", "lp");
-    leg4->Draw();
-
-    // 统一纵坐标范围 (以Truth为标准，忽略修正后的异常高点)
+    // 统一纵坐标范围
     double yMax = 0;
     if (hDataGen) {
-        yMax = hDataGen->GetMaximum() * 1.2;
+        yMax = hDataGen->GetMaximum() * 5.0; // Increased for Log scale
     } else {
-        // 如果没有Truth，则使用修正数据的最大值
-        if (hCorrectedNoBias->GetMaximum() > yMax) yMax = hCorrectedNoBias->GetMaximum();
-        if (hCorrectedRecoEff->GetMaximum() > yMax) yMax = hCorrectedRecoEff->GetMaximum();
-        if (hCorrectedHybrid->GetMaximum() > yMax) yMax = hCorrectedHybrid->GetMaximum();
-        yMax *= 1.2;
+        yMax = hDataRaw->GetMaximum() * 5.0; // fallback
+        if (hCorrectedHybrid && hCorrectedHybrid->GetMaximum() > yMax) yMax = hCorrectedHybrid->GetMaximum() * 5.0;
     }
 
-    // Pad 5: Reco Efficiency Correction (Raw / RecoEff) vs Truth
-    c1->cd(5);
-    hCorrectedRecoEff->SetLineColor(kAzure+7);
-    hCorrectedRecoEff->SetLineWidth(3);
-    hCorrectedRecoEff->SetMarkerColor(kAzure+7);
-    hCorrectedRecoEff->SetMarkerStyle(20);
-    hCorrectedRecoEff->SetMinimum(0.0);
-    hCorrectedRecoEff->SetMaximum(yMax);
-    hCorrectedRecoEff->Draw("E");
-
-    if (hDataGen) {
-        hDataGen->Draw("HIST SAME");
-        TLegend* leg5 = new TLegend(0.6, 0.78, 0.9, 0.9);
-        leg5->SetFillStyle(0);
-        leg5->SetBorderSize(0);
-        leg5->AddEntry(hCorrectedRecoEff, "Corr (RecoEff)", "lp");
-        leg5->AddEntry(hDataGen, "Truth", "l");
-        leg5->Draw();
+    // 绘制 Frame
+    if (hCorrectedHybrid) {
+        hCorrectedHybrid->SetTitle(""); // 移除标题
+        hCorrectedHybrid->SetLineColor(kOrange+1);
+        hCorrectedHybrid->SetLineWidth(5);     // 加粗线
+        hCorrectedHybrid->SetMarkerColor(kOrange+1);
+        hCorrectedHybrid->SetMarkerStyle(21);
+        hCorrectedHybrid->SetMarkerSize(2.5);  // 加大点
+        hCorrectedHybrid->SetMinimum(0.5);     // Log scale minimum
+        hCorrectedHybrid->SetMaximum(yMax);
+        
+        // 恢复轴标签 - 字体调小
+        hCorrectedHybrid->GetXaxis()->SetLabelSize(0.035); 
+        hCorrectedHybrid->GetXaxis()->SetTitle("#font[132]{#it{z}} (cm)"); // change title
+        hCorrectedHybrid->GetXaxis()->SetTitleSize(0.045);
+        hCorrectedHybrid->GetXaxis()->SetTitleOffset(1.1);
+        hCorrectedHybrid->GetXaxis()->CenterTitle(); // 居中
+        
+        hCorrectedHybrid->GetYaxis()->SetLabelSize(0.035);
+        hCorrectedHybrid->GetYaxis()->SetTitle("#font[132]{#Events}"); // 更改为数学字体
+        hCorrectedHybrid->GetYaxis()->SetTitleSize(0.045);
+        hCorrectedHybrid->GetYaxis()->SetTitleOffset(1.3);
+        hCorrectedHybrid->GetYaxis()->CenterTitle(); // 居中
+        
+        hCorrectedHybrid->Draw("E");
     }
 
-    // Pad 6: Hybrid Correction (Raw / HybridEff) vs Truth
-    c1->cd(6);
-    hCorrectedHybrid->SetLineColor(kOrange+1);
-    hCorrectedHybrid->SetLineWidth(3);
-    hCorrectedHybrid->SetMarkerColor(kOrange+1);
-    hCorrectedHybrid->SetMarkerStyle(21);
-    hCorrectedHybrid->SetMinimum(0.0);
-    hCorrectedHybrid->SetMaximum(yMax);
-    hCorrectedHybrid->Draw("E");
+    TLegend* leg6 = new TLegend(0.6, 0.75, 0.9, 0.9);
+    leg6->SetFillStyle(0);
+    leg6->SetBorderSize(0);
+    leg6->SetTextSize(0.035); 
+    if (hCorrectedHybrid) leg6->AddEntry(hCorrectedHybrid, "Corrected", "lp");
 
     if (hDataGen) {
+        hDataGen->SetLineColor(kAzure+2);
+        hDataGen->SetLineWidth(5); // 加粗线
         hDataGen->Draw("HIST SAME");
-        TLegend* leg6 = new TLegend(0.6, 0.78, 0.9, 0.9);
-        leg6->SetFillStyle(0);
-        leg6->SetBorderSize(0);
-        leg6->AddEntry(hCorrectedHybrid, "Corr (Hybrid)", "lp");
         leg6->AddEntry(hDataGen, "Truth", "l");
-        leg6->Draw();
-    }
 
-    // Pad 7: Relative Difference ((RecoEff Corrected - Truth) / Truth)
-    c1->cd(7);
-    if (hDataGen) {
-        TH1F* hRelDiffReco = (TH1F*)hCorrectedRecoEff->Clone("hRelDiffReco");
-        hRelDiffReco->SetTitle("Rel. Diff ((RecoEff - Truth) / Truth);Z (cm);Rel. Diff");
-        hRelDiffReco->Add(hDataGen, -1.0); // RecoEff - Truth
-        hRelDiffReco->Divide(hDataGen);    // (RecoEff - Truth) / Truth
+        // 计算 Delta N / N
+        double errHybrid, errGen;
+        double nHybrid = hCorrectedHybrid->IntegralAndError(1, hCorrectedHybrid->GetNbinsX(), errHybrid);
+        double nGen = hDataGen->IntegralAndError(1, hDataGen->GetNbinsX(), errGen);
         
-        hRelDiffReco->SetLineColor(kAzure+7);
-        hRelDiffReco->SetLineWidth(2);
-        hRelDiffReco->SetMarkerStyle(20);
-        hRelDiffReco->SetMarkerColor(kAzure+7);
-        hRelDiffReco->SetMinimum(-1.0);
-        hRelDiffReco->SetMaximum(1.0);
-        hRelDiffReco->Draw("E");
-        
-        TLine *line = new TLine(xMin, 0.0, xMax, 0.0);
-        line->SetLineStyle(2);
-        line->SetLineColor(kBlack);
-        line->Draw();
-        
-        TLegend* leg7 = new TLegend(0.6, 0.78, 0.9, 0.9);
-        leg7->SetFillStyle(0);
-        leg7->SetBorderSize(0);
-        leg7->AddEntry(hRelDiffReco, "(Reco - Truth)/Truth", "lp");
-        leg7->Draw();
+        if (nGen > 0) {
+            double ratioHybrid = nHybrid / nGen;
+            double relDevHybrid = (ratioHybrid - 1.0) * 100.0;
+            // 计算相对误差: dR = (N_h/N_g) * sqrt( (dN_h/N_h)^2 + (dN_g/N_g)^2 )
+            double errRelDevHybrid = 100.0 * ratioHybrid * sqrt(pow(errHybrid/nHybrid, 2) + pow(errGen/nGen, 2));
+            
+            TLatex* latex = new TLatex();
+            latex->SetNDC();
+            latex->SetTextSize(0.04); 
+            latex->SetTextColor(kBlack);
+            latex->SetTextAlign(12);
+            // 在图上添加文字 (带误差)
+            latex->DrawLatex(0.18, 0.85, Form("#font[132]{#Delta#it{N}/#it{N} = %.2f #pm %.2f %%}", relDevHybrid, errRelDevHybrid));
+        }
     }
+    leg6->Draw();
 
-    // Pad 8: Relative Difference ((Hybrid Corrected - Truth) / Truth)
-    c1->cd(8);
-    if (hDataGen) {
+    // ------------------------------------------
+    // New Pad 2 (Right): Relative Difference
+    // ------------------------------------------
+    c1->cd(2);
+    gPad->SetLeftMargin(0.18); // Increased to avoid overlap
+    gPad->SetRightMargin(0.04);
+    gPad->SetBottomMargin(0.12);
+    gPad->SetTopMargin(0.08); 
+    gPad->SetTicks(1, 1);
+    gPad->SetGridy();
+
+    if (hDataGen && hCorrectedHybrid) {
         TH1F* hRelDiffHybrid = (TH1F*)hCorrectedHybrid->Clone("hRelDiffHybrid");
-        hRelDiffHybrid->SetTitle("Rel. Diff ((Hybrid - Truth) / Truth);Z (cm);Rel. Diff");
+        hRelDiffHybrid->SetTitle(""); 
         hRelDiffHybrid->Add(hDataGen, -1.0); // Hybrid - Truth
-        hRelDiffHybrid->Divide(hDataGen);    // (Hybrid - Truth) / Truth
+        //hRelDiffHybrid->Divide(hDataGen);    // (Hybrid - Truth) / Truth
         
-        hRelDiffHybrid->SetLineColor(kOrange+1);
-        hRelDiffHybrid->SetLineWidth(2);
-        hRelDiffHybrid->SetMarkerStyle(21);
-        hRelDiffHybrid->SetMarkerColor(kOrange+1);
-        hRelDiffHybrid->SetMinimum(-1.0);
-        hRelDiffHybrid->SetMaximum(1.0);
-        hRelDiffHybrid->Draw("E");
+        hRelDiffHybrid->SetLineColor(kBlack);
+        hRelDiffHybrid->SetMarkerStyle(20);
+        hRelDiffHybrid->SetMarkerColor(kBlack);
+        hRelDiffHybrid->SetMarkerSize(2.3); // 加大点
+        
+        hRelDiffHybrid->SetMinimum(-1000); // 根据需要调整范围
+        hRelDiffHybrid->SetMaximum(1000);
+
+        // 恢复正常轴属性 - 字体调小
+        hRelDiffHybrid->GetXaxis()->SetLabelSize(0.035);
+        hRelDiffHybrid->GetXaxis()->SetTitle("#font[132]{#it{z}} (cm)"); // change title
+        hRelDiffHybrid->GetXaxis()->SetTitleSize(0.045);
+        hRelDiffHybrid->GetXaxis()->SetTitleOffset(1.1);
+        hRelDiffHybrid->GetXaxis()->CenterTitle(); // 居中
+        hRelDiffHybrid->GetXaxis()->SetTickLength(0.03);
+
+        hRelDiffHybrid->GetYaxis()->SetLabelSize(0.035);
+        hRelDiffHybrid->GetYaxis()->SetTitle("#font[132]{#frac{#Delta#it{N}}{#it{N}}}"); // 更改为数学公式字体
+        hRelDiffHybrid->GetYaxis()->SetTitleSize(0.045);
+        hRelDiffHybrid->GetYaxis()->SetTitleOffset(1.3);
+        hRelDiffHybrid->GetYaxis()->CenterTitle(); // 居中
+        hRelDiffHybrid->GetYaxis()->SetNdivisions(505);
+
+        // 绘制：只显示点，不显示误差棒
+        // 方法：克隆一个直方图并将误差设为0，然后用 "P" 绘制
+        TH1F* hRelDiffDraw = (TH1F*)hRelDiffHybrid->Clone("hRelDiffDraw");
+        for (int i=0; i<=hRelDiffDraw->GetNbinsX()+1; ++i) hRelDiffDraw->SetBinError(i, 0.0);
+        
+        // 分离正负值，使用不同颜色
+        // 正值用图1的橙色 (kOrange+1), 负值用图1的蓝色 (kAzure+2)
+        TH1F* hRelDiffPos = (TH1F*)hRelDiffDraw->Clone("hRelDiffPos");
+        TH1F* hRelDiffNeg = (TH1F*)hRelDiffDraw->Clone("hRelDiffNeg");
+        
+        hRelDiffPos->SetMarkerColor(kOrange+1);
+        hRelDiffNeg->SetMarkerColor(kAzure+2);
+        
+        // 遍历所有Bin，将不需要显示的Bin设为极小值(超出绘图范围)
+        for (int i=1; i<=hRelDiffDraw->GetNbinsX(); ++i) {
+             double val = hRelDiffDraw->GetBinContent(i);
+             if (val >= 0) {
+                 hRelDiffNeg->SetBinContent(i, -9999999.0); // Neg图隐藏正值
+             } else {
+                 hRelDiffPos->SetBinContent(i, -9999999.0); // Pos图隐藏负值
+             }
+        }
+
+        hRelDiffPos->Draw("P");      // 绘制坐标轴和正值点
+        hRelDiffNeg->Draw("P SAME"); // 叠加负值点
         
         TLine *line = new TLine(xMin, 0.0, xMax, 0.0);
         line->SetLineStyle(2);
-        line->SetLineColor(kBlack);
+        line->SetLineColor(kRed);
+        line->SetLineWidth(4); // 加粗
         line->Draw();
-        
-        TLegend* leg8 = new TLegend(0.6, 0.78, 0.9, 0.9);
-        leg8->SetFillStyle(0);
-        leg8->SetBorderSize(0);
-        leg8->AddEntry(hRelDiffHybrid, "(Hybrid - Truth)/Truth", "lp");
-        leg8->Draw();
     }
 
-    // Pad 9: 统计信息输出
-    c1->cd(9);
-    TPaveText *pt = new TPaveText(0.1, 0.3, 0.9, 0.7, "NDC");
-    pt->SetFillColor(kWhite);
-    pt->SetBorderSize(1);
-    pt->SetTextAlign(12); // Left-Center
-    pt->SetTextSize(0.05);
-    
-    int binStatsMin = hDataRaw->FindBin(-30.0);
-    int binStatsMax = hDataRaw->FindBin(30.0);
-
-    pt->AddText("Event Statistics (-30 < Z < 30 cm):");
-    pt->AddText("--------------------------------");
-    
-    double errRaw, errGen, errHybrid, errRecoEff;
-    double nRaw = hDataRaw->IntegralAndError(binStatsMin, binStatsMax, errRaw);
-    pt->AddText(Form("N_{RealData} (Raw): %.1f #pm %.1f", nRaw, errRaw));
-    
-    double nGen = 0;
-    if (hDataGen) {
-        nGen = hDataGen->IntegralAndError(binStatsMin, binStatsMax, errGen);
-        pt->AddText(Form("N_{Truth} (Gen): %.1f #pm %.1f", nGen, errGen));
-    } else {
-        pt->AddText("N_{Truth}: N/A");
-    }
-    
-    pt->AddText("--------------------------------");
-    double nRecoEff = hCorrectedRecoEff->IntegralAndError(binStatsMin, binStatsMax, errRecoEff);
-    pt->AddText(Form("N_{Corr} (RecoEff): %.1f #pm %.1f", nRecoEff, errRecoEff));
-    if (nGen > 0) {
-        double ratioReco = nRecoEff / nGen;
-        double relDevReco = (ratioReco - 1.0) * 100.0;
-        double errRelDevReco = 100.0 * (1.0/nGen) * sqrt(errRecoEff*errRecoEff + ratioReco*ratioReco*errGen*errGen);
-        pt->AddText(Form("  Rel. Dev: %.2f #pm %.2f %%", relDevReco, errRelDevReco));
-    }
-
-    double nHybrid = hCorrectedHybrid->IntegralAndError(binStatsMin, binStatsMax, errHybrid);
-    pt->AddText(Form("N_{Corr} (Hybrid): %.1f #pm %.1f", nHybrid, errHybrid));
-    if (nGen > 0) {
-        double ratioHybrid = nHybrid / nGen;
-        double relDevHybrid = (ratioHybrid - 1.0) * 100.0;
-        double errRelDevHybrid = 100.0 * (1.0/nGen) * sqrt(errHybrid*errHybrid + ratioHybrid*ratioHybrid*errGen*errGen);
-        pt->AddText(Form("  Rel. Dev: %.2f #pm %.2f %%", relDevHybrid, errRelDevHybrid));
-    }
-    
-    pt->Draw();
-
-    gPad->RedrawAxis();
-
-    // 保存结果
     c1->SaveAs(outputName + ".png");
+
+    // ---------------------------------------------------------
+    // 7. 新Canvas绘制效率对比 (Truth vs Reco)
+    // ---------------------------------------------------------
+    TCanvas* c2 = new TCanvas("c2", "Efficiency Comparison", 3000, 3000);
+    c2->SetLeftMargin(0.12);
+    c2->SetRightMargin(0.04);
+    c2->SetBottomMargin(0.12);
+    c2->SetTopMargin(0.08); 
+    c2->SetTicks(1, 1);
+    c2->SetGrid();
+    
+    // 设置样式
+    hEff->SetLineColor(kGreen+2);
+    hEff->SetMarkerColor(kGreen+2);
+    hEff->SetMarkerStyle(20);
+    hEff->SetMarkerSize(2.5); // Increase from 2.0 to 2.5
+    hEff->SetLineWidth(4);
+    hEff->SetTitle(""); // Remove title
+    
+    // Axis styles similar to c1
+    hEff->GetXaxis()->SetLabelSize(0.035);
+    hEff->GetXaxis()->SetTitle("#font[132]{#it{z}} (cm)");
+    hEff->GetXaxis()->SetTitleSize(0.045);
+    hEff->GetXaxis()->SetTitleOffset(1.1);
+    hEff->GetXaxis()->CenterTitle();
+
+    hEff->GetYaxis()->SetLabelSize(0.035);
+    hEff->GetYaxis()->SetTitle("#font[132]{Efficiency}"); // Styled Y title
+    hEff->GetYaxis()->SetTitleSize(0.045);
+    hEff->GetYaxis()->SetTitleOffset(1.3);
+    hEff->GetYaxis()->CenterTitle();
+    
+    hEff->SetMinimum(0.0);
+    hEff->SetMaximum(1.2);
+
+    hEffReco->SetLineColor(kOrange+7);
+    hEffReco->SetMarkerColor(kOrange+7);
+    hEffReco->SetMarkerStyle(21);
+    hEffReco->SetMarkerSize(2.5); // Increase from 2.0 to 2.5
+    hEffReco->SetLineWidth(4);
+
+    hEff->Draw("E");
+    hEffReco->Draw("E SAME");
+
+    TLegend* legEff = new TLegend(0.7, 0.75, 0.9, 0.9); // 放在右下角
+    legEff->SetFillStyle(0);
+    legEff->SetBorderSize(0);
+    legEff->SetTextSize(0.035); // Adjust text size
+    legEff->AddEntry(hEff, "Truth Eff", "lp");
+    legEff->AddEntry(hEffReco, "Reco Eff", "lp");
+    legEff->Draw();
+
+    c2->SaveAs(outputName + "_eff.png");
+
+    // ---------------------------------------------------------
+    // 8. 打印统计信息
+    // ---------------------------------------------------------
+    std::cout << "========================================" << std::endl;
+    std::cout << "          Final Statistics              " << std::endl;
+    std::cout << "========================================" << std::endl;
+
+    double errData, errTruth, errCorr;
+    // N_data (Raw)
+    double nData = hDataRaw->IntegralAndError(1, hDataRaw->GetNbinsX(), errData);
+    
+    // N_truth (Gen)
+    double nTruth = 0;
+    if(hDataGen) {
+        // Truth assumes no error for the ratio denominator in user request context ("except truth others with error")
+        // But IntegralAndError calculates sqrt(N). We'll capture it but might not print it if requested.
+        nTruth = hDataGen->IntegralAndError(1, hDataGen->GetNbinsX(), errTruth);
+    }
+
+    // N_corrected (Hybrid)
+    double nCorr = hCorrectedHybrid->IntegralAndError(1, hCorrectedHybrid->GetNbinsX(), errCorr);
+
+    // Print N_data / N_truth
+    if (nTruth > 0) {
+        double ratio = nData / nTruth;
+        // Error propagation for Ratio = Data/Truth. 
+        // User said "except truth others with error", implying Truth is constant? 
+        // If Truth has no error: errRatio = errData / Truth.
+        // If Truth is MC/Gen count, it usually has Poisson error.
+        // Assuming Truth is fixed reference:
+        double errRatio = errData / nTruth; 
+        // If we want to include Truth error: 
+        // double errRatio = ratio * sqrt( pow(errData/nData, 2) + pow(errTruth/nTruth, 2) );
+        
+        // Interpreting "except truth others with error" as: Print Data(w/ err)/Truth(no err)
+        std::cout << "N_data / N_truth : " << ratio << " +/- " << errRatio << std::endl;
+        std::cout << "(N_data: " << nData << " +/- " << errData << ", N_truth: " << nTruth << ")" << std::endl;
+    } else {
+        std::cout << "N_data / N_truth : Undefined (N_truth missing)" << std::endl;
+        std::cout << "N_data: " << nData << " +/- " << errData << std::endl;
+    }
+
+    // Print N_corrected
+    std::cout << "N_corrected      : " << nCorr << " +/- " << errCorr << std::endl;
+    std::cout << "========================================" << std::endl;
+
     
     TFile* fOut = new TFile(outputName + ".root", "RECREATE");
     hDataRaw->Write("hDataRaw");
