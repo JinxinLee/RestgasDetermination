@@ -41,11 +41,11 @@ The purpose of this repository is to reconstruct the interaction vertex for off-
 
 The final quantity of interest is the longitudinal interaction-density shape
 
-\[
+$$
 \rho_{\mathrm{gas}}(z),
-\]
+$$
 
-or, in binned form, the generated number of interactions \(N_{\mathrm{true},i}\) in each longitudinal bin.
+or, in binned form, the generated number of interactions $N_{\mathrm{true},i}$ in each longitudinal bin.
 
 ---
 
@@ -57,22 +57,22 @@ The complete physics method consists of five stages:
 2. **Reconstruct tracks without imposing the nominal interaction point.**
 3. **Estimate the interaction vertex from the track-pair POCA.**
 4. **Back-propagate tracks to that vertex and perform the final vertex fit.**
-5. **Correct the reconstructed \(z\) distribution with a profile-dependent efficiency map.**
+5. **Correct the reconstructed $z$ distribution with a profile-dependent efficiency map.**
 
 ```mermaid
 flowchart TD
-    A[Input target / Restgas profile rho_in(z)]
-    B[Simulation and digitization]
-    C[Apollonius displaced-track finding]
-    D[Skewed-STT z reconstruction and Kalman fit]
-    E[Initial PID without back-propagation]
-    F[p-pbar POCA vertex estimate]
-    G[Second PID with back-propagation to POCA]
-    H[Final event vertex fit]
-    I[Raw reconstructed z spectrum]
-    J[Profile-dependent MC efficiency epsilon_reco(z)]
-    K[Corrected Restgas profile]
-    L[Optional iteration with corrected profile]
+    A["Input target / Restgas profile rho_in(z)"]
+    B["Simulation and digitization"]
+    C["Apollonius displaced-track finding"]
+    D["Skewed-STT z reconstruction and Kalman fit"]
+    E["Initial PID without back-propagation"]
+    F["p-pbar POCA vertex estimate"]
+    G["Second PID with back-propagation to POCA"]
+    H["Final event vertex fit"]
+    I["Raw reconstructed z spectrum"]
+    J["Profile-dependent MC efficiency epsilon_reco(z)"]
+    K["Corrected Restgas profile"]
+    L["Optional iteration with corrected profile"]
 
     A --> B --> C --> D --> E --> F --> G --> H --> I
     A --> J
@@ -125,17 +125,17 @@ The current implementation is based on:
 
 Schematically,
 
-\[
+$$
 z \sim \rho_{\mathrm{in}}(z),
 \qquad
 r_\perp \sim \mathcal{G}(0,\sigma_r(z)),
-\]
+$$
 
 with the current Restgas target mode using a nominal beam radius of
 
-\[
+$$
 \sigma_r = 0.1\ \mathrm{cm}.
-\]
+$$
 
 Outside the constant-width beam region, the code can increase the transverse width according to a configurable beam-divergence slope.
 
@@ -168,7 +168,7 @@ The current repository contains two principal profile files:
 | `input/restgas_16012024_with_cryopump.txt` | Default profile; includes the cryopump contribution |
 | `input/restgas_16012024_no_cryopump.txt` | Alternative profile for studies without the cryopump contribution |
 
-Both files use the longitudinal coordinate in **cm** and tabulate the density in units indicated by the file header as \(10^{12}\) atoms/cm\(^2\). The covered beam-line interval is approximately \(-570\) to \(+1100\) cm.
+Both files use the longitudinal coordinate in **cm** and tabulate the density in units indicated by the file header as $10^{12}$ atoms/cm$^2$. The covered beam-line interval is approximately $-570$ to $+1100$ cm.
 
 Select the alternative profile directly in JSON:
 
@@ -191,7 +191,7 @@ ysum += density;
 
 without multiplying by the local bin width. Consequently:
 
-- use **uniformly spaced \(z\) points**, or
+- use **uniformly spaced $z$ points**, or
 - store an already bin-width-weighted value in the second column.
 
 The active `PndTargetGenerator` labels its longitudinal coordinate in **cm**. An older `README_RestGas` mentions mm; for this branch, use cm and verify the profile range before large production.
@@ -335,12 +335,12 @@ The final analysis is implemented in:
 
 Both `ana_dpm.C` and `ana_complete.C` receive the configured antiproton beam momentum through `mom`. They construct the initial-state four-vector dynamically as
 
-\[
+$$
 p_{\mathrm{initial}}
 =
 \left(0,0,p_{\bar p},
 \sqrt{p_{\bar p}^{2}+m_{p}^{2}}+m_{p}\right),
-\]
+$$
 
 so changing the beam momentum does not require editing either macro.
 
@@ -379,30 +379,30 @@ The raw reconstructed spectrum is related to the true profile through acceptance
 
 A simple “truth-coordinate” efficiency is
 
-\[
+$$
 \varepsilon_{\mathrm{truth},i}
 =
 \frac{N_{\mathrm{MC,rec}}(z_{\mathrm{true}}\in i)}
      {N_{\mathrm{MC,gen}}(z_{\mathrm{true}}\in i)}.
-\]
+$$
 
 For Restgas determination, the more useful profile-dependent reconstructed-coordinate efficiency is
 
-\[
+$$
 \varepsilon_{\mathrm{reco},i}
 =
 \frac{N_{\mathrm{MC,rec}}(z_{\mathrm{reco}}\in i)}
      {N_{\mathrm{MC,gen}}(z_{\mathrm{true}}\in i)}.
-\]
+$$
 
 Because its numerator is filled in reconstructed coordinates, this map includes both geometrical efficiency and migration caused by finite vertex resolution. The corrected profile is then estimated bin-by-bin as
 
-\[
+$$
 N_{\mathrm{corr},i}
 =
 \frac{N_{\mathrm{data,rec},i}}
      {\varepsilon_{\mathrm{reco},i}}.
-\]
+$$
 
 This is a forward-model correction rather than an explicit deconvolution. If the MC input profile resembles the physical profile sufficiently well, the migration present in the measured numerator is compensated by the migration encoded in the efficiency map.
 
@@ -418,7 +418,7 @@ Recommended interpretation:
 
 | File | Role |
 |---|---|
-| `efficiency_correction.C` | Central-region diagnostic, default range \([-30,+30]\) cm |
+| `efficiency_correction.C` | Central-region diagnostic, default range $[-30,+30]$ cm |
 | `efficiency_correction_1.C` | Earlier wide-range version |
 | `efficiency_correction_2.C` | Current wide-range analysis used by `run_efficiency_batch.py`; supports file-index ranges and non-uniform binning |
 | `efficiency_correction_steps.C` | Method/debug study with explicit intermediate steps |
@@ -434,7 +434,7 @@ is the direct implementation of the profile-dependent reconstructed-coordinate c
 
 The macro also contains a **hybrid analysis variant**:
 
-- in the current `efficiency_correction_2.C`, use truth-coordinate efficiency for \(-2 \le z \le 2\) cm;
+- in the current `efficiency_correction_2.C`, use truth-coordinate efficiency for $-2 \le z \le 2$ cm;
 - use reconstructed-coordinate efficiency outside this central interval.
 
 Earlier correction variants use slightly different central boundaries, so the numerical cut should be checked in the selected macro before comparing results. This hybrid definition is an analysis choice and should not be confused with the general correction formula.
@@ -449,10 +449,10 @@ The efficiency depends weakly on the profile used in the MC because resolution m
 
 The intended solution is iterative:
 
-1. Start from the nominal Target Group profile \(\rho_0(z)\).
-2. Generate MC and calculate \(\varepsilon_{\mathrm{reco},0}(z)\).
-3. Correct the measured spectrum to obtain \(\rho_1(z)\).
-4. Use \(\rho_1(z)\) as the next MC input.
+1. Start from the nominal Target Group profile $\rho_0(z)$.
+2. Generate MC and calculate $\varepsilon_{\mathrm{reco},0}(z)$.
+3. Correct the measured spectrum to obtain $\rho_1(z)$.
+4. Use $\rho_1(z)$ as the next MC input.
 5. Repeat until the profile or integrated correction changes negligibly.
 
 The thesis robustness study tests mismatches between the “true” pseudo-data profile and the profile used for the efficiency MC. The method substantially reduces the initial model bias, especially in the central high-statistics region.
@@ -463,7 +463,7 @@ The thesis robustness study tests mismatches between the “true” pseudo-data 
 
 | Physics operation | Main code |
 |---|---|
-| Select elastic \(\bar pp\) generation | `macro/target/prod_sim_hvmaps.C`, generator `DPM2` |
+| Select elastic $\bar pp$ generation | `macro/target/prod_sim_hvmaps.C`, generator `DPM2` |
 | Load the longitudinal target/Restgas profile | `tools/MasterTasks/PndMasterRunSim.cxx` |
 | Sample the 3D interaction vertex | `pgenerators/Target/PndTargetGenerator.{h,cxx}` |
 | Select standard or HV-MAPS MVD geometry | `prod_sim_hvmaps.C`, `all.par` / `all_hvmaps.par` |
