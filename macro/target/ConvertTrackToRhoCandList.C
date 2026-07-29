@@ -19,14 +19,14 @@ void ConvertTrackToRhoCandList(TString prefix = "barrel") {
     }
 
     // get the TTree
-    TTree* tree = (TTree*)file->Get("pndsim");  // 根据你的文件结构修改
+    TTree* tree = (TTree*)file->Get("pndsim");  // Modify according to your file structure
     TClonesArray* finalGenTrackArray = new TClonesArray("PndTrack");
     tree->SetBranchAddress("FinalGenTrack", &finalGenTrackArray);
 
-    // 创建 RhoCandList
+    // Create RhoCandList
     RhoCandList trackList;
 
-    // 遍历事件
+    // Loop over events
     Long64_t nEvents = tree->GetEntries();
     for (Long64_t i = 0; i < nEvents; ++i) {
         tree->GetEntry(i);
@@ -36,30 +36,30 @@ void ConvertTrackToRhoCandList(TString prefix = "barrel") {
             PndTrack* track = (PndTrack*)finalGenTrackArray->At(j);
             if (!track) continue;
 
-            // 提取轨迹参数
-            FairTrackParP par = track->GetParamFirst();  // 使用起始点
+            // Extract track parameters
+            FairTrackParP par = track->GetParamFirst();  // Use starting point
             TVector3 pos(par.GetX(), par.GetY(), par.GetZ());
             TVector3 mom(par.GetPx(), par.GetPy(), par.GetPz());
             Double_t charge = par.GetQ();
 
-            // 构造动量四矢量
-            Double_t mass = 0.13957;  // 假设是 π⁺，根据实际情况修改
+            // Construct 4-momentum
+            Double_t mass = 0.13957;  // Assume pi+, modify as needed
             Double_t energy = sqrt(mom.Mag2() + mass * mass);
             TLorentzVector p4(mom, energy);
 
-            // 构造 RhoCandidate
+            // Construct RhoCandidate
             RhoCandidate* cand = new RhoCandidate(p4, charge);
             cand->SetPos(pos);
-            cand->SetType(211);  // 设置为 π⁺，根据需要修改
+            cand->SetType(211);  // Set as pi+, modify as needed
 
-            // 可选：设置协方差矩阵（如果你有）
+            // Optional: set covariance matrix if available
             // cand->SetCov7(...);
 
-            // 加入列表
+            // Add to list
             trackList.Put(cand);
         }
 
-        // 顶点估计
+        // Vertex estimation
         TVector3 vertex;
         RhoVtxPoca pocaTool;
         Double_t quality = pocaTool.GetPocaVtx(vertex, trackList);
@@ -68,7 +68,7 @@ void ConvertTrackToRhoCandList(TString prefix = "barrel") {
                   << vertex.X() << ", " << vertex.Y() << ", " << vertex.Z() 
                   << "), quality = " << quality << std::endl;
 
-        trackList.Clear();  // 清空列表准备下一个事件
+        trackList.Clear();  // Clear list for next event
     }
 
     file->Close();
