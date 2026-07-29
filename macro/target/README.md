@@ -61,8 +61,8 @@ Designed for real data and realistic vertex-unconstrained scenarios:
 
 - **Pass 2: Vertex-Constrained Refinement**
   1. `runall_prod_hvmaps.py` parses `<prefix>_vtx_fit.json`.
-  2. Exports environment variables: `FIT_VERTEX_X`, `FIT_VERTEX_Y`, `FIT_VERTEX_Z`.
-  3. `prod_aod_complete.C`: Re-runs Digi + Reco + PID using option `"fitvertex"`. This signals `PndPidCorrelator` to propagate tracks to the fitted vertex axis instead of $(0,0,0)$.
+  2. Passes the `event_poca` tree in `<prefix>_boost.root` to the second pass using `POCA_VERTEX_FILE`.
+  3. `prod_aod_complete.C`: Re-runs Digi + Reco + PID using option `"fitvertex"`. `PndPidCorrelator` reads the matching event ID and propagates each event's tracks to its own POCA.
   4. `ana_complete.C`: Generates final NTuples (`*_ana_final.root`) and verification plots.
 
 ### 2. MC Workflow (`"back_prop_vertex": "mc"`) — Single-Pass Analysis
@@ -93,6 +93,7 @@ All parameters are specified in JSON configuration files, with a 3-tier preceden
 | `use_mvd_hvmaps` | string | `"false"` | `"true"` to use HVMAPS MVD parameter file (`all_hvmaps.par`) |
 | `ipx`, `ipy`, `ipz` | float | `0.0` | Target Interaction Point coordinates (cm) |
 | `use_restgas` | string | `"false"` | `"true"` to enable rest gas density profile (`TargetMode=8`) |
+| `restgas_profile` | string | `"restgas_16012024_with_cryopump.txt"` | Profile basename under `input/`, or an absolute path |
 | `theta_min` | float | `0.0` | Minimum polar angle for DPM generator (degrees) |
 | `theta_max` | float | `180.0` | Maximum polar angle for DPM generator (degrees) |
 | `back_prop_vertex` | string | `"poca"` | Workflow selector: `"poca"` (two-pass) or `"mc"` (single-pass) |
@@ -230,9 +231,9 @@ Produces:
     │   ├── <prefix>_<job_id>_digi.root      # Digitized detector hits
     │   ├── <prefix>_<job_id>_reco.root      # Reconstructed tracks
     │   ├── <prefix>_<job_id>_pid.root       # Pass 1 PID output
-    │   ├── <prefix>_<job_id>_boost.root     # Pass 1 POCA vertex NTuples
+    │   ├── <prefix>_<job_id>_boost.root     # Pass 1 NTuples plus event_poca tree
     │   ├── <prefix>_<job_id>_vtx_fit.json   # Pass 1 fitted vertex (X, Y, Z mean & sigma)
-    │   ├── <prefix>_<job_id>_pid_poca.root  # Pass 2 vertex-constrained PID output
+    │   ├── <prefix>_<job_id>_pid_final.root # Pass 2 vertex-constrained PID output
     │   └── <prefix>_<job_id>_ana_final.root # Pass 2 final NTuples (ntpDp tree)
     └── figure/
         ├── <prefix>_<job_id>_vtx_fit.png    # Pass 1 Gaussian vertex fit plots

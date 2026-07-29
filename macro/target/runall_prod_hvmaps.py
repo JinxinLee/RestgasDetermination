@@ -90,7 +90,7 @@ def run_poca_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_pa
     sim_output = os.path.join(reco_path, f"{out_prefix}_sim.root")
     sim_command = (
         f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
-        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
+        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max}, \\"{p.restgas_profile}\\")"'
     )
     if not run_command(sim_command, sim_log, sim_output):
         sys.exit(1)
@@ -125,7 +125,7 @@ def run_poca_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_pa
     # Analysis for Vertex Fitting
     ana_log = os.path.join(log_path, f"{out_prefix}_ana.log")
     ana_output = os.path.join(reco_path, f"{out_prefix}_vtx_fit.json")
-    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\")"'
+    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\", {p.mom})"'
     if not run_command(ana_dpm_cmd, ana_log, ana_output):
         sys.exit(1)
     append_nevents(ana_log)
@@ -149,7 +149,8 @@ def run_poca_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_pa
         fit_env = {
             'FIT_VERTEX_X': str(vtx_x),
             'FIT_VERTEX_Y': str(vtx_y),
-            'FIT_VERTEX_Z': str(vtx_z)
+            'FIT_VERTEX_Z': str(vtx_z),
+            'POCA_VERTEX_FILE': os.path.join(reco_path, f"{out_prefix}_boost.root")
         }
         print(f"Setting environment variables for fitted vertex.")
 
@@ -161,15 +162,15 @@ def run_poca_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_pa
 
     # Re-run combined Reco and PID
     aod_complete_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
-    aod_complete_output = os.path.join(reco_path, f"{out_prefix}_pid_poca.root")
+    aod_complete_output = os.path.join(reco_path, f"{out_prefix}_pid_final.root")
     if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(reco_path, out_prefix)}\\", \\"fitvertex\\", {use_mvd_str})"', aod_complete_log, aod_complete_output, env=fit_env):
         sys.exit(1)
     append_nevents(aod_complete_log)
 
     # Re-run final analysis
     ana_complete_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
-    ana_complete_output = os.path.join(reco_path, f"{out_prefix}_poca.root")
-    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\")"'
+    ana_complete_output = os.path.join(reco_path, f"{out_prefix}_ana_final.root")
+    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\", 0., 0., 0., \\".\\", {p.mom})"'
     if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output, env=fit_env):
         sys.exit(1)
     append_nevents(ana_complete_log)
@@ -183,7 +184,7 @@ def run_mc_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path
     sim_output = os.path.join(reco_path, f"{out_prefix}_sim.root")
     sim_command = (
         f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
-        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
+        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max}, \\"{p.restgas_profile}\\")"'
     )
     if not run_command(sim_command, sim_log, sim_output):
         sys.exit(1)
@@ -198,15 +199,15 @@ def run_mc_workflow(p, use_mvd_str, out_prefix, log_path, reco_path, figure_path
     
     # Run combined Reco and PID using MC vertex
     aod_complete_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
-    aod_complete_output = os.path.join(reco_path, f"{out_prefix}_pid_poca.root")
+    aod_complete_output = os.path.join(reco_path, f"{out_prefix}_pid_final.root")
     if not run_command(f'root -l -b -q "prod_aod_complete.C(\\"{os.path.join(reco_path, out_prefix)}\\", \\"mcvertex\\", {use_mvd_str})"', aod_complete_log, aod_complete_output):
         sys.exit(1)
     append_nevents(aod_complete_log)
 
     # Run final analysis
     ana_complete_log = os.path.join(log_path, f"{out_prefix}_ana_complete.log")
-    ana_complete_output = os.path.join(reco_path, f"{out_prefix}_poca.root")
-    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\")"'
+    ana_complete_output = os.path.join(reco_path, f"{out_prefix}_ana_final.root")
+    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(reco_path, out_prefix)}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{out_prefix}\\", 0., 0., 0., \\".\\", {p.mom})"'
     if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output):
         sys.exit(1)
     append_nevents(ana_complete_log)
@@ -290,6 +291,7 @@ def main():
     parser.add_argument('--use_restgas', choices=['true', 'false'], help='Set to "true" to use restgas target.')
     parser.add_argument('--theta_min', type=float, help='Theta min for DPM generator.')
     parser.add_argument('--theta_max', type=float, help='Theta max for DPM generator.')
+    parser.add_argument('--restgas_profile', type=str, help='Density profile basename in input/ or an absolute path.')
     parser.add_argument('--back_prop_vertex', choices=['poca', 'mc'], help='Vertex source for back propagation.')
     parser.add_argument('--output_path', type=str, help='Base path for output files.')
 
@@ -322,6 +324,7 @@ def main():
             'prefix': 'test', 'nevts': 1000, 'dec': 'pp_dd', 'mom': 4.06,
             'use_mvd_hvmaps': 'false', 'ipx': 0.0, 'ipy': 0.0, 'ipz': 0.0,
             'use_restgas': 'false', 'theta_min': 0.0, 'theta_max': 180.0,
+            'restgas_profile': 'restgas_16012024_with_cryopump.txt',
             'back_prop_vertex': 'poca', 'output_path': 'data'
         }
 

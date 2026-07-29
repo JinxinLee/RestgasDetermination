@@ -33,6 +33,9 @@
 #include "TGeoMatrix.h"
 #include "TGeoManager.h"
 #include "TSystem.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TDirectory.h"
 
 #include <cmath>
 
@@ -47,6 +50,11 @@ PndPidCorrelator::~PndPidCorrelator()
   FairRootManager *fManager =FairRootManager::Instance();
   fManager->Write();
   delete fEmcErrorMatrix;
+  if (fEventVertexFile) {
+    fEventVertexFile->Close();
+    delete fEventVertexFile;
+    fEventVertexFile = NULL;
+  }
 }
 
 //___________________________________________________________
@@ -97,7 +105,15 @@ PndPidCorrelator::PndPidCorrelator() :
   sFile(""),
   fDoNeutralCand(kFALSE),
   fUseMcTruthForTarget(kTRUE),
-  fUseFittedVertex(kFALSE)
+  fUseFittedVertex(kFALSE),
+  fEventVertexFileName(""),
+  fEventVertexFile(NULL),
+  fEventVertexTree(NULL),
+  fEventVertexId(-1),
+  fEventVertexX(0.),
+  fEventVertexY(0.),
+  fEventVertexZ(0.),
+  fEventVertexValid(kFALSE)
 {
   //---
   sDir = "./";
@@ -170,7 +186,15 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   sFile(""),
   fDoNeutralCand(kFALSE),
   fUseMcTruthForTarget(kTRUE),
-  fUseFittedVertex(kFALSE)
+  fUseFittedVertex(kFALSE),
+  fEventVertexFileName(""),
+  fEventVertexFile(NULL),
+  fEventVertexTree(NULL),
+  fEventVertexId(-1),
+  fEventVertexX(0.),
+  fEventVertexY(0.),
+  fEventVertexZ(0.),
+  fEventVertexValid(kFALSE)
 {
   //---
   sDir = "./";
@@ -202,6 +226,30 @@ InitStatus PndPidCorrelator::Init() {
   //  cout << "InitStatus PndPidCorrelator::Init()" << endl;
 
   FairRootManager *fManager =FairRootManager::Instance();
+
+  if (fUseFittedVertex && !fEventVertexFileName.IsNull()) {
+    TDirectory* savedDirectory = gDirectory;
+    fEventVertexFile = TFile::Open(fEventVertexFileName, "READ");
+    if (savedDirectory) savedDirectory->cd();
+    if (!fEventVertexFile || fEventVertexFile->IsZombie()) {
+      cout << "-E- PndPidCorrelator::Init: Cannot open event POCA file "
+           << fEventVertexFileName << endl;
+      return kERROR;
+    }
+    fEventVertexTree = dynamic_cast<TTree*>(fEventVertexFile->Get("event_poca"));
+    if (!fEventVertexTree) {
+      cout << "-E- PndPidCorrelator::Init: Tree 'event_poca' is missing in "
+           << fEventVertexFileName << endl;
+      return kERROR;
+    }
+    fEventVertexTree->SetBranchAddress("event_id", &fEventVertexId);
+    fEventVertexTree->SetBranchAddress("x", &fEventVertexX);
+    fEventVertexTree->SetBranchAddress("y", &fEventVertexY);
+    fEventVertexTree->SetBranchAddress("z", &fEventVertexZ);
+    fEventVertexTree->SetBranchAddress("valid", &fEventVertexValid);
+    cout << "-I- PndPidCorrelator::Init: Using event-level POCA vertices from "
+         << fEventVertexFileName << endl;
+  }
 
   fTrack = dynamic_cast<TClonesArray *> (fManager->GetObject(fTrackBranch));
   if ( ! fTrack ) {
@@ -725,6 +773,15 @@ void PndPidCorrelator::Exec(Option_t *) {
   //-
   Reset();
   cout << " =====   PndPidCorrelator - Event: " << fEventCounter;
+  if (fEventVertexTree) {
+    const Long64_t entry = fEventCounter - 1;
+    fEventVertexValid = kFALSE;
+    if (entry >= fEventVertexTree->GetEntries() || fEventVertexTree->GetEntry(entry) <= 0 ||
+        fEventVertexId != entry) {
+      cout << " - WARNING: no matching event-level POCA for event " << entry;
+      fEventVertexValid = kFALSE;
+    }
+  }
   Int_t nTracksTot=0;
   if (fTrack)
   {

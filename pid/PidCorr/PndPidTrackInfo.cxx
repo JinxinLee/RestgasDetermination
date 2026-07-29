@@ -52,8 +52,22 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     bool targetSet = false;
     bool useFittedVertexAxis = false; // Flag to indicate if we should use axis propagation
 
-    // 1. Try to get vertex from environment variables if fUseFittedVertex is true
+    // 1. Prefer the event-level POCA loaded by Exec(). The environment
+    // variables remain as a backwards-compatible fallback for fixed-IP jobs.
     if (fUseFittedVertex) {
+      if (fEventVertexTree) {
+        if (!fEventVertexValid || !std::isfinite(fEventVertexX) ||
+            !std::isfinite(fEventVertexY) || !std::isfinite(fEventVertexZ)) {
+          std::cout << "-W- PndPidTrackInfo::GetIP: No valid POCA for event "
+                    << (fEventCounter - 1) << "; skipping this track." << std::endl;
+          return kFALSE;
+        }
+        targetPoint.SetXYZ(fEventVertexX, fEventVertexY, fEventVertexZ);
+        targetSet = true;
+        useFittedVertexAxis = true;
+      }
+
+      if (!targetSet) {
         const char* vtx_x_str = std::getenv("FIT_VERTEX_X");
         const char* vtx_y_str = std::getenv("FIT_VERTEX_Y");
         const char* vtx_z_str = std::getenv("FIT_VERTEX_Z");
@@ -76,6 +90,7 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
         } else {
             std::cout << "-W- PndPidTrackInfo::GetIP: fUseFittedVertex is true, but one or more FIT_VERTEX environment variables are not set." << std::endl;
         }
+      }
     }
 
     // 2. If not set, fall back to MC truth if fUseMcTruthForTarget is true

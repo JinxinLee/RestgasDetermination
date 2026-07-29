@@ -58,6 +58,7 @@ def get_default_params():
         'prefix': 'test', 'nevts': 1000, 'dec': 'pp_dd', 'mom': 4.06,
         'use_mvd_hvmaps': 'false', 'ipx': 0.0, 'ipy': 0.0, 'ipz': 0.0,
         'use_restgas': 'false', 'theta_min': 0.0, 'theta_max': 180.0,
+        'restgas_profile': 'restgas_16012024_with_cryopump.txt',
         'back_prop_vertex': 'poca', 'output_path': 'data',
         'njobs': 10
     }
@@ -138,7 +139,9 @@ def parse_arguments(description, is_workflow_runner=False):
             print(f"Error: Config file '{args.config}' not found or is empty.", file=sys.stderr)
             sys.exit(1)
 
-        # Create a namespace object from the config params
-        p = argparse.Namespace(**config_params)
+        # Keep older config files compatible when new optional fields are added.
+        params = get_default_params()
+        params.update(config_params)
+        p = argparse.Namespace(**params)
         p.config = args.config # Keep the original path
         return p

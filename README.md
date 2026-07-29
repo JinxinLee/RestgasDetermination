@@ -133,7 +133,7 @@ The primary vertex of a rest gas interaction is **unknown a priori** (unlike the
 │                                          (fitted vertex X,Y,Z)       │
 └──────────────────────────────────────────────────────────────────────┘
                                     │
-                    FIT_VERTEX_X/Y/Z env vars
+                    event_poca tree keyed by event_id
                                     │
                                     ▼
 ┌─────────────────────── PASS 2: Refined Analysis ────────────────────┐
@@ -166,9 +166,10 @@ The primary vertex of a rest gas interaction is **unknown a priori** (unlike the
    - Exports the fitted vertex mean coordinates to a JSON file (`_vtx_fit.json`)
 
 **Pass 2** details:
-1. The orchestrator reads the JSON vertex file and exports `FIT_VERTEX_X`, `FIT_VERTEX_Y`, `FIT_VERTEX_Z` as environment variables.
-2. `prod_aod_complete.C` is called with the `"fitvertex"` suffix. This triggers `PndPidCorrelator::SetUseFittedVertex(kTRUE)`, causing the track back-propagation in `PndPidTrackInfo::GetTrackInfo()` to propagate tracks to the fitted vertex axis rather than the default (0,0,0).
-3. The final analysis (`ana_complete.C`) runs with the improved track parameters, producing validation histograms and vertex statistics.
+1. `ana_dpm.C` writes an `event_poca` tree with one POCA and validity flag per input event into `*_boost.root`.
+2. The orchestrator passes that ROOT file to the second PID pass through `POCA_VERTEX_FILE`. The fitted-mean `FIT_VERTEX_X/Y/Z` variables remain only as a backwards-compatible fixed-IP fallback.
+3. `prod_aod_complete.C` is called with the `"fitvertex"` suffix. This triggers `PndPidCorrelator::SetUseFittedVertex(kTRUE)`, causing `PndPidTrackInfo::GetTrackInfo()` to propagate tracks directly to the event POCA.
+4. The final analysis (`ana_complete.C`) runs with the improved track parameters, producing validation histograms and vertex statistics.
 
 ### Single-Pass MC Workflow
 
@@ -193,7 +194,7 @@ graph TD
         C2 --> C3[reco_complete.C]
         C3 --> C4[pid_complete.C]
         C4 --> C5["ana_dpm.C → _vtx_fit.json"]
-        C5 -->|FIT_VERTEX env vars| C6["prod_aod_complete.C (fitvertex)"]
+        C5 -->|event_poca tree| C6["prod_aod_complete.C (fitvertex)"]
         C6 --> C7[ana_complete.C]
     end
 
@@ -235,7 +236,7 @@ These modifications to the PandaRoot framework (all commits after `ef9a564`) ena
 **File**: [`pid/PidCorr/PndPidTrackInfo.cxx`](pid/PidCorr/PndPidTrackInfo.cxx)
 
 The `GetTrackInfo()` method was extended with a three-tier propagation target selection:
-1. **Fitted Vertex** (`fUseFittedVertex=true`): Reads `FIT_VERTEX_X/Y/Z` environment variables and propagates tracks to the axis through that point.
+1. **Fitted Vertex** (`fUseFittedVertex=true`): Reads the current event's POCA from the `event_poca` tree and propagates tracks to that point. Invalid or missing entries are rejected explicitly. `FIT_VERTEX_X/Y/Z` remains available only for legacy fixed-IP runs.
 2. **MC Truth Vertex** (`fUseMcTruthForTarget=true`): Reads the MC truth start vertex of the associated MCTrack.
 3. **Default**: Falls back to (0, 0, 0).
 
@@ -475,6 +476,7 @@ All parameters can be set in JSON config files, overridden by command-line argum
 | `use_mvd_hvmaps` | string | `"false"` | `"true"` to use HVMAPS MVD geometry (`all_hvmaps.par`) |
 | `ipx`, `ipy`, `ipz` | float | `0.0` | Interaction point coordinates (cm) |
 | `use_restgas` | string | `"false"` | `"true"` to enable rest gas target profile (`TargetMode=8`) |
+| `restgas_profile` | string | `"restgas_16012024_with_cryopump.txt"` | Profile basename under `input/`, or an absolute path |
 | `theta_min` | float | `0.0` | Minimum theta angle for DPM generator (degrees) |
 | `theta_max` | float | `180.0` | Maximum theta angle for DPM generator (degrees) |
 | `back_prop_vertex` | string | `"poca"` | Workflow mode: `"poca"` (two-pass) or `"mc"` (single-pass with MC truth) |
@@ -492,6 +494,7 @@ Example JSON config:
     "ipy": 0.0,
     "ipz": 0.0,
     "use_restgas": "true",
+    "restgas_profile": "restgas_16012024_no_cryopump.txt",
     "theta_min": 0.5,
     "theta_max": 140.0,
     "back_prop_vertex": "poca",
@@ -520,9 +523,9 @@ Example JSON config:
     │   ├── <prefix>_<job_id>_digi.root      # Digitized hits
     │   ├── <prefix>_<job_id>_reco.root      # Reconstructed tracks
     │   ├── <prefix>_<job_id>_pid.root       # PID output (Pass 1)
-    │   ├── <prefix>_<job_id>_boost.root     # Vertex fitting NTuples (ana_dpm)
+    │   ├── <prefix>_<job_id>_boost.root     # Analysis NTuples plus event_poca tree
     │   ├── <prefix>_<job_id>_vtx_fit.json   # Fitted vertex coordinates
-    │   ├── <prefix>_<job_id>_pid_poca.root  # PID output (Pass 2, vertex-aware)
+    │   ├── <prefix>_<job_id>_pid_final.root # PID output (Pass 2, vertex-aware)
     │   └── <prefix>_<job_id>_ana_final.root # Final analysis NTuples
     └── figure/
         ├── <prefix>_<job_id>_vtx_fit.png    # Vertex fit plots (X, Y, Z)
@@ -537,10 +540,10 @@ Two rest gas density profiles are included in `input/`:
 
 | File | Description |
 | --- | --- |
-| `restgas_16012024_with_cryopump.txt` | Profile with cryopump effect (default, used by `TargetMode=8`) |
+| `restgas_16012024_with_cryopump.txt` | Profile with cryopump effect (default) |
 | `restgas_16012024_no_cryopump.txt` | Profile without cryopump |
 
-These text files cover the range **$z = -570\text{ cm}$ to $+1100\text{ cm}$** (the full beamline extent), with densities given in units of $10^{12}\text{ atoms/cm}^2$. The profiles show a flat background level ($\sim 0.03 \times 10^{12}\text{ atoms/cm}^2$) far from the target with higher density features near pumping stations. They are read by `PndTargetGenerator::ReadDensityFile()` and provide the $z$-dependent density used to sample interaction vertices during simulation.
+These text files cover the range **$z = -570\text{ cm}$ to $+1100\text{ cm}$** (the full beamline extent), with densities given in units of $10^{12}\text{ atoms/cm}^2$. Select either file with `restgas_profile`; changing profiles no longer requires a source edit or rebuild. They are read by `PndTargetGenerator::ReadDensityFile()` and provide the $z$-dependent density used to sample interaction vertices during simulation.
 
 ---
 

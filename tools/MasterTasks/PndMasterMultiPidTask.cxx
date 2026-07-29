@@ -12,6 +12,7 @@
 #include "PndMcCloner.h"
 #include "PndMcCloner2.h"
 #include "PndPidIdealAssociatorTask.h"
+#include <cstdlib>
 #include "PndPidMvdAssociatorTask.h"
 #include "PndPidMdtHCAssociatorTask.h"
 #include "PndPidDrcAssociatorTask.h"
@@ -113,6 +114,10 @@ PndMasterMultiPidTask::PndMasterMultiPidTask(TString options) :
     if (fOptions.Contains("fitvertex")) {
       correlator->SetUseFittedVertex(kTRUE);
       correlator->SetUseMcTruthForTarget(kFALSE);
+      const char* eventVertexFile = std::getenv("POCA_VERTEX_FILE");
+      if (eventVertexFile && eventVertexFile[0] != '\0') {
+        correlator->SetEventVertexFile(eventVertexFile);
+      }
     }
     if (fOptions.Contains("mcvertex")) {
       correlator->SetUseFittedVertex(kFALSE);

@@ -78,7 +78,7 @@ def poca_workflow_worker(p, use_mvd_str, out_prefix, log_path, reco_path, nevts_
     print(f"\n--- Running POCA WORKER (Pass 1) for sub-job: {out_prefix} ---")
     sim_log, sim_output = os.path.join(log_path, f"{out_prefix}_sim.log"), os.path.join(reco_path, f"{out_prefix}_sim.root")
     sim_cmd = (f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {nevts_per_job}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
-               f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"')
+               f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max}, \\"{p.restgas_profile}\\")"')
     if not run_command(sim_cmd, sim_log, sim_output): return False
 
     digi_log, digi_output = os.path.join(log_path, f"{out_prefix}_digi.log"), os.path.join(reco_path, f"{out_prefix}_digi.root")
@@ -102,7 +102,7 @@ def poca_merger_stage1(p, use_mvd_str, log_path, reco_path, figure_path):
     ana_log = os.path.join(log_path, f"{p.prefix}_ana_vtx.log")
     ana_output = os.path.join(reco_path, f"{p.prefix}_vtx_fit.json")
     merged_prefix_path = os.path.join(reco_path, f"{p.prefix}_pid_merged")
-    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{merged_prefix_path}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{p.prefix}\\")"'
+    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{merged_prefix_path}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{p.prefix}\\", {p.mom})"'
     if not run_command(ana_dpm_cmd, ana_log, ana_output): return False
     return True
     
@@ -146,7 +146,7 @@ def poca_merger_stage2(p, use_mvd_str, log_path, reco_path, figure_path):
     ana_complete_log = os.path.join(log_path, f"{p.prefix}_ana_complete.log")
     ana_complete_output = os.path.join(reco_path, f"{p.prefix}_poca.root")
     merged_final_prefix_path = os.path.join(reco_path, f"{p.prefix}_pid_poca_merged")
-    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{merged_final_prefix_path}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{p.prefix}\\")"'
+    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{merged_final_prefix_path}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{p.prefix}\\", 0., 0., 0., \\".\\", {p.mom})"'
     if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output, env=fit_env): return False
     return True
 
@@ -155,7 +155,7 @@ def mc_workflow_worker(p, use_mvd_str, out_prefix, log_path, reco_path, nevts_pe
     print(f"\n--- Running MC WORKER for sub-job: {out_prefix} ---")
     sim_log, sim_output = os.path.join(log_path, f"{out_prefix}_sim.log"), os.path.join(reco_path, f"{out_prefix}_sim.root")
     sim_cmd = (f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(reco_path, out_prefix)}\\", {nevts_per_job}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
-               f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"')
+               f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max}, \\"{p.restgas_profile}\\")"')
     if not run_command(sim_cmd, sim_log, sim_output): return False
     
     aod_complete_log = os.path.join(log_path, f"{out_prefix}_aod_complete.log")
@@ -175,7 +175,7 @@ def mc_workflow_merger(p, use_mvd_str, log_path, reco_path, figure_path):
     ana_complete_log = os.path.join(log_path, f"{p.prefix}_ana_complete.log")
     ana_complete_output = os.path.join(reco_path, f"{p.prefix}_poca.root")
     merged_prefix_path = os.path.join(reco_path, f"{p.prefix}_pid_poca_merged")
-    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{merged_prefix_path}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{p.prefix}\\")"'
+    ana_complete_cmd = f'root -l -b -q "ana_complete.C({p.nevts}, \\"{merged_prefix_path}\\", {use_mvd_str}, \\"{figure_path}\\", \\"{p.prefix}\\", 0., 0., 0., \\".\\", {p.mom})"'
     if not run_command(ana_complete_cmd, ana_complete_log, ana_complete_output): return False
     return True
 
@@ -236,6 +236,7 @@ def main():
     parser.add_argument('--ipx', type=float); parser.add_argument('--ipy', type=float); parser.add_argument('--ipz', type=float)
     parser.add_argument('--use_restgas', choices=['true', 'false']); parser.add_argument('--theta_min', type=float)
     parser.add_argument('--theta_max', type=float); parser.add_argument('--back_prop_vertex', choices=['poca', 'mc'])
+    parser.add_argument('--restgas_profile', type=str)
     parser.add_argument('--output_path', type=str)
 
     config_path = conf_args.configfiles[0] if conf_args.configfiles else 'config.json'
@@ -249,6 +250,7 @@ def main():
     params = {
         'prefix': 'test', 'nevts': 1000, 'dec': 'pp_dd', 'mom': 4.06, 'use_mvd_hvmaps': 'false',
         'ipx': 0.0, 'ipy': 0.0, 'ipz': 0.0, 'use_restgas': 'false', 'theta_min': 0.0, 'theta_max': 180.0,
+        'restgas_profile': 'restgas_16012024_with_cryopump.txt',
         'back_prop_vertex': 'poca', 'output_path': 'data'
     }
     config = load_config(config_file)

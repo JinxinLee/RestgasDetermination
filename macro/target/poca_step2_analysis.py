@@ -11,7 +11,7 @@ def check_and_run(command, log_file, temp_output_file, final_output_file, env=No
         return True
     return run_command(command, log_file, temp_output_file, env=env)
 
-def get_vertex_from_file(json_file):
+def get_vertex_from_file(json_file, poca_file):
     """
     Reads vertex position from a single JSON file and returns it as a dictionary
     for environment variables.
@@ -30,7 +30,8 @@ def get_vertex_from_file(json_file):
         fit_env = {
             'FIT_VERTEX_X': str(vtx_x),
             'FIT_VERTEX_Y': str(vtx_y),
-            'FIT_VERTEX_Z': str(vtx_z)
+            'FIT_VERTEX_Z': str(vtx_z),
+            'POCA_VERTEX_FILE': poca_file
         }
         return fit_env
 
@@ -44,7 +45,10 @@ def run_poca_analysis_steps(p, use_mvd_str, out_prefix, unified_log, temp_reco_p
     
     # --- Step 1: Get vertex environment ---
     final_vtx_json = os.path.join(final_reco_path, f"{out_prefix}_vtx_fit.json")
-    fit_env = get_vertex_from_file(final_vtx_json)
+    fit_env = get_vertex_from_file(
+        final_vtx_json,
+        os.path.join(final_reco_path, f"{out_prefix}_boost.root")
+    )
     if not fit_env:
         print("Error: Failed to get fitted vertex. Aborting.", file=sys.stderr)
         sys.exit(1)
@@ -77,11 +81,11 @@ def run_poca_analysis_steps(p, use_mvd_str, out_prefix, unified_log, temp_reco_p
             print(f"Copying required input file {final_file} to {temp_file} for analysis")
             shutil.copy2(final_file, temp_file)
     
-    temp_ana_output, final_ana_output = get_paths("poca.root")
+    temp_ana_output, final_ana_output = get_paths("ana_final.root")
     ana_cmd = (
         f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", '
         f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\", '
-        f'{p.ipx}, {p.ipy}, {p.ipz}, \\"{final_reco_path}/..\\\")"'
+        f'{p.ipx}, {p.ipy}, {p.ipz}, \\"{final_reco_path}/..\\", {p.mom})"'
     )
     # Use run_command directly instead of check_and_run to force execution
     if not run_command(ana_cmd, unified_log, temp_ana_output, env=fit_env):

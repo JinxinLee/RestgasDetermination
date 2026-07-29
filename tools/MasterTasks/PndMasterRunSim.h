@@ -278,6 +278,9 @@ class PndMasterRunSim : public FairRunSim {
    */
   void SetTargetMode(Short_t par) { fTargetMode = par; }
 
+  /** Select the density profile used by distributed restgas target modes. */
+  void SetRestGasProfile(TString par) { fRestGasProfile = par; }
+
   /**
    * @brief Getter for the primary generator, e.g. to configure the event filter
    */
@@ -309,6 +312,7 @@ class PndMasterRunSim : public FairRunSim {
   Int_t fNEvents;          ///< Number of events
   Int_t fEventCounterRate; ///< After how many events the counter will print
   Short_t fTargetMode;     ///< Target mode
+  TString fRestGasProfile; ///< Restgas profile basename or absolute path
 
   FairRuntimeDb *fRtdb; ///< Runtime DB
   TStopwatch fTimer;    ///< Timer
@@ -323,7 +327,7 @@ class PndMasterRunSim : public FairRunSim {
   Double_t ftarget_width_Z;
 
   /** @cond CLASSIMP */
-  ClassDef(PndMasterRunSim, 2); ///< 1st Implementation -> 1; Added day1 options -> 2
+  ClassDef(PndMasterRunSim, 3); ///< Added configurable restgas density profile -> 3
                                 /** @endcond */
 };
 

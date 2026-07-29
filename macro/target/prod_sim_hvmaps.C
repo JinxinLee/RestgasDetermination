@@ -10,7 +10,7 @@
 // root -l -b -q 'prod_sim.C("DpmInel",  100, "DPM",                      12.)'
 // root -l -b -q 'prod_sim.C("Box1Kp",   100, "BOX:type(321,1):p(0.1,10):tht(22,140):phi(0,360)",1.)'
 
-int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0., Bool_t use_mvd_hvmaps = false, Float_t ipx = 0.2, Float_t ipy = 0.3, Float_t ipz = -5.0, Bool_t use_restgas = false, Float_t theta_min = 22.0, Float_t theta_max = 140.0)
+int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0., Bool_t use_mvd_hvmaps = false, Float_t ipx = 0.2, Float_t ipy = 0.3, Float_t ipz = -5.0, Bool_t use_restgas = false, Float_t theta_min = 22.0, Float_t theta_max = 140.0, TString restgas_profile = "restgas_16012024_with_cryopump.txt")
 {
   if (prefix=="" || inputGen=="" || pbeam==0.) 
   {
@@ -30,6 +30,7 @@ int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="",
     cout << "   <use_restgas>    : boolean (true/false) to use restgas generator\n";
     cout << "   <theta_min>      : theta min for DPM generator\n";
     cout << "   <theta_max>      : theta max for DPM generator\n\n";
+    cout << "   <restgas_profile>: profile basename in $VMCWORKDIR/input or an absolute path\n\n";
     //    cout << "   <opt>      : option string for PndRunAna (e.g. \"day1\")\n\n";
     cout << "Example 1 : root -l -b -q 'prod_sim_hvmaps.C(\"EvtD0D0b\", 100, \"D0toKpi.dec:pbarpSystem0\", 12., false)'\n";
     cout << "Example 2 : root -l -b -q 'prod_sim_hvmaps.C(\"DpmInel\",  100, \"DPM\", 12., true, 0.2, 0.3, -5.0, false, 22.0, 140.0)'\n";
@@ -61,6 +62,15 @@ int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="",
   TString  Workdir        = gSystem->Getenv("VMCWORKDIR");
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
 
+  if (use_restgas) {
+    TString profilePath = restgas_profile;
+    if (!profilePath.BeginsWith("/")) profilePath = Workdir + "/input/" + profilePath;
+    if (gSystem->AccessPathName(profilePath)) {
+      cerr << "Restgas density profile does not exist: " << profilePath << endl;
+      return 1;
+    }
+  }
+
   // ---- check flag for DPM/FTF -------------------------------------
   Int_t    genflag = 0;
   if (inputGen=="DPM1" || inputGen=="FTF1") genflag=1;
@@ -73,6 +83,7 @@ int prod_sim_hvmaps(TString prefix="", Int_t nEvents = 100, TString inputGen="",
   fRun->SetDpmFlag(genflag);
   fRun->SetFtfFlag(genflag);
   fRun->SetTargetMode(use_restgas ? 8 : 0);
+  fRun->SetRestGasProfile(restgas_profile);
   fRun->SetName(SimEngine);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->SetNumberOfEvents(nEvents);

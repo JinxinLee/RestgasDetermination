@@ -23,7 +23,7 @@ def run_poca_worker_step1(p, use_mvd_str, out_prefix, unified_log, temp_reco_pat
     temp_sim_output, final_sim_output = get_paths("sim.root")
     sim_command = (
         f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
-        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
+        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max}, \\"{p.restgas_profile}\\")"'
     )
     if not check_and_run(sim_command, unified_log, temp_sim_output, final_sim_output):
         sys.exit(1)
@@ -48,7 +48,7 @@ def run_poca_worker_step1(p, use_mvd_str, out_prefix, unified_log, temp_reco_pat
 
     # --- Analysis for Vertex Fitting (ana_dpm.C) ---
     temp_ana_output, final_ana_output = get_paths("vtx_fit.json")
-    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\")"'
+    ana_dpm_cmd = f'root -l -b -q "ana_dpm.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", {use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\", {p.mom})"'
     if not check_and_run(ana_dpm_cmd, unified_log, temp_ana_output, final_ana_output):
         sys.exit(1)
     

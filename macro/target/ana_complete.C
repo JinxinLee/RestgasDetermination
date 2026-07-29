@@ -4,7 +4,7 @@ class PndAnaPidSelector;
 class PndAnaPidCombiner;
 class PndAnalysis;
 
-void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".", TString figure_name = "figure", Double_t config_x = 0.0, Double_t config_y = 0.0, Double_t config_z = 0.0, TString stats_output_dir = ".")
+void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".", TString figure_name = "figure", Double_t config_x = 0.0, Double_t config_y = 0.0, Double_t config_z = 0.0, TString stats_output_dir = ".", Double_t pbarmom = 4.06)
 {
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
@@ -68,12 +68,9 @@ void ana_complete(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_
   if (nevts == 0)
   nevts = theAnalysis->GetEntries();
 
-  double pbarmom = 4.06;
-  TLorentzVector ini( 0, 0, 4.060, 5.105 );
-  //TLorentzVector ini( 0, 0, 8.9, 9.888 );
   double mp = 0.938272;
-  //TLorentzVector ini;
-  //ini.SetXYZT(0, 0, pbarmom, sqrt(pbarmom * pbarmom + mp * mp) + mp);
+  TLorentzVector ini(0., 0., pbarmom,
+                     sqrt(pbarmom * pbarmom + mp * mp) + mp);
 
   RhoCandList Proton, Proton_match, Pbar, Pbar_match, All, pbarp;
 

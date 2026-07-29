@@ -56,7 +56,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndMasterRunSim::PndMasterRunSim()
   : FairRunSim(), fInput(), fInputDir(""), fOutFile(), fParamRootFile(), fParamAsciiFile(), fOptions(), fDpmFlag(1), fFtfFlag(0), fNEvents(0), fEventCounterRate(100),
-    fTargetMode(0), fRtdb(), fTimer(), fDpmTheta_min(0.), fDpmTheta_max(180.), fbeam_X0(0.0), fbeam_Y0(0.0), fbeam_width_sigma_X(0.0), fbeam_width_sigma_Y(0.0), ftarget_Z0(0.0), ftarget_width_Z(0.0)
+    fTargetMode(0), fRestGasProfile("restgas_16012024_with_cryopump.txt"), fRtdb(), fTimer(), fDpmTheta_min(0.), fDpmTheta_max(180.), fbeam_X0(0.0), fbeam_Y0(0.0), fbeam_width_sigma_X(0.0), fbeam_width_sigma_Y(0.0), ftarget_Z0(0.0), ftarget_width_Z(0.0)
 {
   fTimer.Start();
 }
@@ -530,9 +530,12 @@ void PndMasterRunSim::SetGenerator()
   } break;
   case 8: {
     // pencil beam with a gaussian target and 10% restgas profile for testing
-    tgtfile += "/input/restgas_16012024_with_cryopump.txt";
-    //tgtfile += "/input/restgas_p20.txt";
-    //tgtfile += "/input/H_flatprofile.txt";
+    if (fRestGasProfile.BeginsWith("/")) {
+      tgtfile = fRestGasProfile;
+    } else {
+      tgtfile += "/input/";
+      tgtfile += fRestGasProfile;
+    }
     LOG(info) << "Using distributed Beam-Target profile " << tgtfile.Data();
     TObjArray *genList = fGen->GetListOfGenerators();
     for (int i = 0; i < genList->GetEntriesFast(); i++) {

@@ -24,7 +24,7 @@ def run_mc_worker(p, use_mvd_str, out_prefix, unified_log, temp_reco_path, temp_
     temp_sim_output, final_sim_output = get_paths("sim.root")
     sim_command = (
         f'root -l -q -b "prod_sim_hvmaps.C(\\"{os.path.join(temp_reco_path, out_prefix)}\\", {p.nevts}, \\"{p.dec}\\", {p.mom}, {use_mvd_str}, '
-        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max})"'
+        f'{p.ipx}, {p.ipy}, {p.ipz}, {p.use_restgas}, {p.theta_min}, {p.theta_max}, \\"{p.restgas_profile}\\")"'
     )
     if not check_and_run(sim_command, unified_log, temp_sim_output, final_sim_output):
         print(f"Error: MC simulation (prod_sim_hvmaps.C) for {out_prefix} failed.", file=sys.stderr)
@@ -53,11 +53,11 @@ def run_mc_worker(p, use_mvd_str, out_prefix, unified_log, temp_reco_path, temp_
             print(f"Copying required input file {final_file} to {temp_file} for analysis")
             shutil.copy2(final_file, temp_file)
     
-    temp_ana_output, final_ana_output = get_paths("poca.root")
+    temp_ana_output, final_ana_output = get_paths("ana_final.root")
     ana_cmd = (
         f'root -l -b -q "ana_complete.C({p.nevts}, \\"{os.path.join(temp_reco_path, out_prefix)}\\", '
         f'{use_mvd_str}, \\"{temp_figure_path}\\", \\"{out_prefix}\\", '
-        f'{p.ipx}, {p.ipy}, {p.ipz}, \\"{final_reco_path}/..\\\")"'
+        f'{p.ipx}, {p.ipy}, {p.ipz}, \\"{final_reco_path}/..\\", {p.mom})"'
     )
     # Use run_command directly instead of check_and_run to force execution
     if not run_command(ana_cmd, unified_log, temp_ana_output):

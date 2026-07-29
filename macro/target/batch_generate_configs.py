@@ -47,6 +47,9 @@ def main():
                         help='Minimum theta angle (default: 22.0)')
     parser.add_argument('--theta_max', type=float, default=150.0,
                         help='Maximum theta angle (default: 150.0)')
+    parser.add_argument('--restgas-profile', type=str,
+                        default='restgas_16012024_with_cryopump.txt',
+                        help='Restgas density profile basename in input/ or an absolute path')
     parser.add_argument('--output-path', type=str, 
                         default='/lustre/panda/jili/oct19/macro/target/data/',
                         help='Simulation data output path')
@@ -77,6 +80,7 @@ def main():
         '--use_mvd_hvmaps', args.use_mvd_hvmaps,
         '--theta_min', str(args.theta_min),
         '--theta_max', str(args.theta_max),
+        '--restgas-profile', args.restgas_profile,
         '--output-path', args.output_path,
         '--output-dir', args.output_dir
     ]

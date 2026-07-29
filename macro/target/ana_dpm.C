@@ -4,7 +4,7 @@ class PndAnaPidSelector;
 class PndAnaPidCombiner;
 class PndAnalysis;
 
-void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".", TString figure_name = "figure")
+void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmaps = false, TString figure_path = ".", TString figure_name = "figure", Double_t pbarmom = 4.06)
 {
   //-----User Settings:------------------------------------------------------
   TString parAsciiFile = use_mvd_hvmaps ? "all_hvmaps.par" : "all.par";
@@ -32,65 +32,65 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
    gStyle->SetFrameBorderMode(0);
     gStyle->SetCanvasBorderMode(0);
     gStyle->SetPadBorderMode(0);
-    // 设置全局图例无边框
+    // Set global legend borderless
     gStyle->SetLegendBorderSize(0);
-    // (可选) 设置全局图例背景透明 (实测某些ROOT版本对Legend的全局FillStyle支持不稳定，建议用方法1手动设透明)
+    // (Optional) Set global legend background transparent (Manual transparency is recommended as Legend FillStyle support varies across ROOT versions)
     gStyle->SetLegendFillColor(0);
 
     // ---------------------------------------------------------
-    // 关键：线宽与点大小 (针对 5000px 宽度优化)
+    // Key: Line width and marker size (Optimized for 5000px width)
     // ---------------------------------------------------------
-    // 默认线宽通常是 1px，在 5000px 图上几乎不可见。建议设为 3 到 5。
+    // Default line width is usually 1px, almost invisible on a 5000px plot. Recommend 3 to 5.
     gStyle->SetLineWidth(4);      
-    gStyle->SetFrameLineWidth(4); // 坐标轴边框
-    gStyle->SetHistLineWidth(6);  // 直方图线条
-    gStyle->SetFuncWidth(6);      // 函数/拟合曲线
-    gStyle->SetGridWidth(2);      // 网格线（如果开启）
+    gStyle->SetFrameLineWidth(4); // Frame line width
+    gStyle->SetHistLineWidth(6);  // Histogram line width
+    gStyle->SetFuncWidth(6);      // Function/fitting curve width
+    gStyle->SetGridWidth(2);      // Grid line width (if enabled)
 
-    // 标记点 (Marker) 大小，默认是 1.0，建议放大到 2.0 - 3.0
+    // Marker size, default 1.0, recommend enlarge to 2.0 - 3.0
     gStyle->SetMarkerSize(2.5);
-    gStyle->SetMarkerStyle(20);   // 推荐使用实心圆点，在大图上最清晰
+    gStyle->SetMarkerStyle(20);   // Solid circle marker, clearest on large plots
 
     // ---------------------------------------------------------
-    // 字体设置 (ROOT字体大小是占 Pad 高度的百分比)
+    // Font settings (ROOT font size is percentage of Pad height)
     // ---------------------------------------------------------
-    // 5000x2500 是 2:1 的宽图。
-    // 0.05 的意思是占高度的 5%，即 2500 * 0.05 = 125 像素高（非常清晰）。
+    // 5000x2500 is 2:1 wide plot.
+    // 0.05 means 5% of height, i.e., 2500 * 0.05 = 125 pixels high (very clear).
     
-    // 坐标轴刻度数值 (Label)
+    // Axis scale numerical labels
     gStyle->SetLabelSize(0.04, "XY"); 
-    gStyle->SetLabelFont(42, "XY");   // 42号字体 (Helvetica) 比默认的 62号更标准
+    gStyle->SetLabelFont(42, "XY");   // Font 42 (Helvetica) is more standard than default 62
 
-    // 坐标轴标题 (Title)
+    // Axis title
     gStyle->SetTitleSize(0.06, "XY"); 
     gStyle->SetTitleFont(42, "XY");
 
-    // 顶部图表标题
+    // Top chart title
     gStyle->SetTitleSize(0.06, "t");  
     gStyle->SetTitleFont(42, "t");
 
     // ---------------------------------------------------------
-    // 布局微调
+    // Layout fine-tuning
     // ---------------------------------------------------------
-    // 调整标题与轴的距离。由于画布很宽，Y轴标题可能会离轴太远，需适当减小 Offset
+    // Adjust distance between title and axis. Decrease Offset since canvas is very wide
     gStyle->SetTitleOffset(0.95, "X");
-    gStyle->SetTitleOffset(1.2, "Y"); // 宽画幅下，Y轴标题贴近一点更好看
+    gStyle->SetTitleOffset(1.2, "Y"); // Y axis title closer looks better on wide canvas
 
-    // 刻度线长度 (增加一点长度，更有质感)
+    // Tick length (slightly longer for better texture)
     gStyle->SetTickLength(0.02, "XY");
     
-    // 统计框 (StatBox) - 如果需要显示，必须调整字体和位置，否则会很丑
+    // StatBox - Adjust font and position if display is needed
     gStyle->SetStatFont(42);
-    gStyle->SetStatFontSize(0.06); // 调大字体
-    gStyle->SetStatBorderSize(2); // 边框加粗
-    // 设置绘图风格
-    // 1111 表示: 1(显示名字)-1(显示Entries)-1(显示Mean)-1(显示Std Dev)
-    // 也可以用 1110 只显示 Entries, Mean, Std Dev
+    gStyle->SetStatFontSize(0.06); // Enlarge font
+    gStyle->SetStatBorderSize(2); // Thicken border
+    // Set drawing style
+    // 1111: 1(Name)-1(Entries)-1(Mean)-1(Std Dev)
+    // Option 1110 displays Entries, Mean, Std Dev
     gStyle->SetOptStat(1110); 
     gStyle->SetOptTitle(1);
-    gStyle->SetPadBottomMargin(0.15); // 底部留白给 X 轴标题 (默认约 0.1)
-    gStyle->SetPadLeftMargin(0.15);   // 左侧留白给 Y 轴标题 (默认约 0.1)
-    gStyle->SetPadRightMargin(0.05);  // 右侧稍微紧凑点
+    gStyle->SetPadBottomMargin(0.15); // Bottom margin for X axis title (default approx 0.1)
+    gStyle->SetPadLeftMargin(0.15);   // Left margin for Y axis title (default approx 0.1)
+    gStyle->SetPadRightMargin(0.05);  // Right side slightly compact
     gStyle->SetPadTopMargin(0.08);
 
   /*  gStyle->SetOptFit(11);
@@ -126,16 +126,26 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
 
   RhoTuple *ntpDp = new RhoTuple("ntpDp","Dp Analysis");
 
+  // One entry per input event, consumed by the second PID pass.
+  TTree *eventPocaTree = new TTree("event_poca", "Event-level proton-antiproton POCA");
+  Int_t eventPocaId = -1;
+  Double_t eventPocaX = 0.;
+  Double_t eventPocaY = 0.;
+  Double_t eventPocaZ = 0.;
+  Bool_t eventPocaValid = kFALSE;
+  eventPocaTree->Branch("event_id", &eventPocaId, "event_id/I");
+  eventPocaTree->Branch("x", &eventPocaX, "x/D");
+  eventPocaTree->Branch("y", &eventPocaY, "y/D");
+  eventPocaTree->Branch("z", &eventPocaZ, "z/D");
+  eventPocaTree->Branch("valid", &eventPocaValid, "valid/O");
+
   PndAnalysis* theAnalysis = new PndAnalysis();
   if (nevts == 0)
   nevts = theAnalysis->GetEntries();
 
-  double pbarmom = 4.06;
-  TLorentzVector ini( 0, 0, 4.060, 5.105 );
-  //TLorentzVector ini( 0, 0, 8.9, 9.888 );
   double mp = 0.938272;
-  //TLorentzVector ini;
-  //ini.SetXYZT(0, 0, pbarmom, sqrt(pbarmom * pbarmom + mp * mp) + mp);
+  TLorentzVector ini(0., 0., pbarmom,
+                     sqrt(pbarmom * pbarmom + mp * mp) + mp);
 
   RhoCandList Proton, Proton_match, Pbar, Pbar_match, All, pbarp;
 
@@ -154,6 +164,10 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
   while (theAnalysis->GetEvent() && i++<nevts)
      {
        if ((i%100)==0) cout<<"evt "<<i<<endl;
+
+       eventPocaId = i - 1;
+       eventPocaX = eventPocaY = eventPocaZ = 0.;
+       eventPocaValid = kFALSE;
 
        Proton.Cleanup();
        Pbar.Cleanup();
@@ -180,10 +194,16 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
        }
 
        // 4. Use the combined list to calculate the total POCA vertex
-       if (ProtonAndPbar.GetLength() >= 2) {
+       if (Proton.GetLength() > 0 && Pbar.GetLength() > 0) {
            RhoVtxPoca pocaProtonPbar;
            TVector3 vtxProtonPbar;
            Double_t docaProtonPbar = pocaProtonPbar.GetPocaVtx(vtxProtonPbar, ProtonAndPbar);
+
+           eventPocaX = vtxProtonPbar.X();
+           eventPocaY = vtxProtonPbar.Y();
+           eventPocaZ = vtxProtonPbar.Z();
+           eventPocaValid = std::isfinite(eventPocaX) && std::isfinite(eventPocaY) &&
+                            std::isfinite(eventPocaZ) && std::isfinite(docaProtonPbar);
 
            ntpDp->Column("proton_pbar_vtx_x", (Float_t)vtxProtonPbar.X(), -999.0f);
            ntpDp->Column("proton_pbar_vtx_y", (Float_t)vtxProtonPbar.Y(), -999.0f);
@@ -191,6 +211,7 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
            ntpDp->Column("proton_pbar_doca", (Float_t)docaProtonPbar, -999.0f);
            ntpDp->DumpData();
        }
+       eventPocaTree->Fill();
        // --- END OF CHANGE ---
 
        RhoVtxPoca pocaAllCharged;
@@ -684,6 +705,7 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
      }
   out->cd();
   ntpDp->GetInternalTree()->Write();
+  eventPocaTree->Write();
   out->Save();
 
   // --- START OF ANALYSIS SCRIPT ---
@@ -732,8 +754,8 @@ void ana_dpm(int nevts = 100000, TString prefix = "barrel", Bool_t use_mvd_hvmap
     h_vtx_x->GetYaxis()->CenterTitle();
     h_vtx_x->Draw();
     
-    // 手动调整统计框的位置，否则在大字体下可能会超出边界
-    gPad->Update(); // 必须先Update，否则找不到TPaveStats
+    // Manually adjust stat box position to avoid overflowing under large fonts
+    gPad->Update(); // Must call Update() first to locate TPaveStats
     TPaveStats *st_x = (TPaveStats*)h_vtx_x->FindObject("stats");
     if(st_x) {
        st_x->SetX1NDC(0.65);

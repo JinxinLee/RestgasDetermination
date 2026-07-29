@@ -8,6 +8,7 @@
     "ipy": 0.0,
     "ipz": 0.0,
     "use_restgas": "false",
+    "restgas_profile": "restgas_16012024_with_cryopump.txt",
     "theta_min": 0.0,
     "theta_max": 180.0,
     "back_prop_vertex": "poca",

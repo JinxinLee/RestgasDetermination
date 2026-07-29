@@ -39,6 +39,8 @@ using std::map;
 using std::vector;
 
 class TGeant3;
+class TFile;
+class TTree;
 class PndPidCorrelator : public FairTask {
 
 protected:
@@ -139,6 +141,14 @@ protected:
   TNtuple *richCorr;                 // Debug ntuple for rich correlation
   Bool_t fUseMcTruthForTarget;      // Use MC vertex for propagation
   Bool_t fUseFittedVertex;          // Use fitted vertex information
+  TString fEventVertexFileName;     // ROOT file containing one POCA vertex per event
+  TFile* fEventVertexFile;          //! event-level POCA input file
+  TTree* fEventVertexTree;          //! event-level POCA input tree
+  Int_t fEventVertexId;             //! event id read from the POCA tree
+  Double_t fEventVertexX;           //! current event POCA x
+  Double_t fEventVertexY;           //! current event POCA y
+  Double_t fEventVertexZ;           //! current event POCA z
+  Bool_t fEventVertexValid;         //! current event has a valid POCA
 
   TString sDir;                      // Ntuple output directory
   TString sFile;                     // Ntuple output file
@@ -206,6 +216,7 @@ public:
   void SetBackPropagate(Bool_t val=kTRUE) {fBackPropagate=val;};
   void SetUseMcTruthForTarget(Bool_t val=kTRUE) {fUseMcTruthForTarget=val;};
   void SetUseFittedVertex(Bool_t val=kTRUE) {fUseFittedVertex=val;};
+  void SetEventVertexFile(TString filename) {fEventVertexFileName=filename;};
 
  private:
   
@@ -223,7 +234,7 @@ public:
   virtual void SetParContainers();
   virtual void Finish();
 
-ClassDef(PndPidCorrelator,3)   // PndPidCorrelator
+ClassDef(PndPidCorrelator,4)   // PndPidCorrelator
 
 };
 
