@@ -41,9 +41,9 @@ The purpose of this repository is to reconstruct the interaction vertex for off-
 
 The final quantity of interest is the longitudinal interaction-density shape
 
-$$
+```math
 \rho_{\mathrm{gas}}(z),
-$$
+```
 
 or, in binned form, the generated number of interactions $N_{\mathrm{true},i}$ in each longitudinal bin.
 
@@ -125,17 +125,17 @@ The current implementation is based on:
 
 Schematically,
 
-$$
+```math
 z \sim \rho_{\mathrm{in}}(z),
 \qquad
 r_\perp \sim \mathcal{G}(0,\sigma_r(z)),
-$$
+```
 
 with the current Restgas target mode using a nominal beam radius of
 
-$$
+```math
 \sigma_r = 0.1\ \mathrm{cm}.
-$$
+```
 
 Outside the constant-width beam region, the code can increase the transverse width according to a configurable beam-divergence slope.
 
@@ -335,12 +335,12 @@ The final analysis is implemented in:
 
 Both `ana_dpm.C` and `ana_complete.C` receive the configured antiproton beam momentum through `mom`. They construct the initial-state four-vector dynamically as
 
-$$
+```math
 p_{\mathrm{initial}}
 =
 \left(0,0,p_{\bar p},
 \sqrt{p_{\bar p}^{2}+m_{p}^{2}}+m_{p}\right),
-$$
+```
 
 so changing the beam momentum does not require editing either macro.
 
@@ -379,30 +379,30 @@ The raw reconstructed spectrum is related to the true profile through acceptance
 
 A simple “truth-coordinate” efficiency is
 
-$$
+```math
 \varepsilon_{\mathrm{truth},i}
 =
 \frac{N_{\mathrm{MC,rec}}(z_{\mathrm{true}}\in i)}
      {N_{\mathrm{MC,gen}}(z_{\mathrm{true}}\in i)}.
-$$
+```
 
 For Restgas determination, the more useful profile-dependent reconstructed-coordinate efficiency is
 
-$$
+```math
 \varepsilon_{\mathrm{reco},i}
 =
 \frac{N_{\mathrm{MC,rec}}(z_{\mathrm{reco}}\in i)}
      {N_{\mathrm{MC,gen}}(z_{\mathrm{true}}\in i)}.
-$$
+```
 
 Because its numerator is filled in reconstructed coordinates, this map includes both geometrical efficiency and migration caused by finite vertex resolution. The corrected profile is then estimated bin-by-bin as
 
-$$
+```math
 N_{\mathrm{corr},i}
 =
 \frac{N_{\mathrm{data,rec},i}}
      {\varepsilon_{\mathrm{reco},i}}.
-$$
+```
 
 This is a forward-model correction rather than an explicit deconvolution. If the MC input profile resembles the physical profile sufficiently well, the migration present in the measured numerator is compensated by the migration encoded in the efficiency map.
 
@@ -487,47 +487,11 @@ The thesis robustness study tests mismatches between the “true” pseudo-data 
 
 ### 5.1 Prerequisites
 
-Use a FairSoft/FairRoot environment compatible with PandaRoot `oct19`.
-
-The repository requires:
-
-- a UNIX-like system;
-- CMake (the top-level file enforces at least 3.13.4 and warns below 3.16.1);
-- C++14;
-- ROOT and PyROOT;
-- FairRoot through `FAIRROOTPATH`;
-- a Fortran compiler;
-- Python 3;
-- SLURM only for cluster production.
+For the required software environment and prerequisites, refer to the official [PandaRoot installation documentation](https://webdocs.gsi.de/~pandacc/documentation/2023-08-25-dev/sphinx/Installation/Install_PandaRoot.html).
 
 ### 5.2 Build
 
-```bash
-git clone --branch oct19 https://github.com/JinxinLee/RestgasDetermination.git
-cd RestgasDetermination
-
-mkdir -p build
-cd build
-
-cmake ..
-cmake --build . -j8
-```
-
-Load the generated environment before running macros:
-
-```bash
-cd /path/to/RestgasDetermination
-source build/config.sh -p
-```
-
-Confirm:
-
-```bash
-echo "$VMCWORKDIR"
-which root
-```
-
-`VMCWORKDIR` should point to the repository source tree for the non-modular build.
+For PandaRoot installation, compilation, and environment setup instructions, refer to the official [PandaRoot installation documentation](https://webdocs.gsi.de/~pandacc/documentation/2023-08-25-dev/sphinx/Installation/Install_PandaRoot.html).
 
 ### 5.3 Verify or select the Restgas profile
 
