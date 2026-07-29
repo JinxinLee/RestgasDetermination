@@ -1,552 +1,867 @@
 # RestgasDetermination
 
-A PandaRoot-based simulation and analysis framework for determining the **rest gas density profile** along the beam pipe of the PANDA experiment at FAIR. This project extends the [PandaRoot](https://github.com/JinxinLee/PandaRoot.git) framework (tag `oct19`) with a complete workflow for simulating antiproton–rest-gas interactions, reconstructing the primary vertex, and extracting the longitudinal target density profile with efficiency correction.
+A PandaRoot-based research branch for reconstructing and correcting the longitudinal residual-gas (“Restgas”) interaction profile in the PANDA target region.
 
-> **Reference**: The theoretical foundations and methodology are detailed in Chapters 7 and 8 of [thesis.pdf](thesis.pdf).
+This repository is based on the PandaRoot `oct19` tag. The Restgas-specific development starts after commit `ef9a564`. The principal analysis code is located in [`macro/target`](macro/target). This document describes the current `oct19` workflow, including the event-by-event POCA hand-off, configurable beam momentum and Restgas profile, and profile-dependent efficiency correction.
 
----
+> **Scope and maturity**
+>
+> The current repository is a **Monte Carlo research implementation used for the studies in Chapters 7 and 8 of the associated thesis**. It contains the main ingredients of the Restgas-determination method, including distributed target generation, displaced-track reconstruction, POCA-based back-propagation, vertex reconstruction, and profile-dependent efficiency correction.
+>
+> The analysis and correction macros are designed primarily for Monte Carlo closure, efficiency, and systematic studies corresponding to the thesis workflow.
 
-## Table of Contents
 
-- [Physics Motivation](#physics-motivation)
-- [Theoretical Overview](#theoretical-overview)
-  - [Rest Gas in the PANDA Beam Pipe](#rest-gas-in-the-panda-beam-pipe)
-  - [Determination Methodology](#determination-methodology)
-  - [Efficiency Correction](#efficiency-correction)
-  - [Iterative Reweighting (Advanced)](#iterative-reweighting-advanced)
-- [Architecture & Workflow](#architecture--workflow)
-  - [Two-Pass POCA Workflow](#two-pass-poca-workflow)
-  - [Single-Pass MC Workflow](#single-pass-mc-workflow)
-  - [Workflow Diagram](#workflow-diagram)
-- [Code Structure](#code-structure)
-  - [Core Workflow Scripts (`macro/target/`)](#core-workflow-scripts-macrotarget)
-  - [Key PandaRoot Modifications](#key-pandaroot-modifications)
-  - [Cluster Execution Scripts](#cluster-execution-scripts)
-  - [Deprecated / Auxiliary Scripts](#deprecated--auxiliary-scripts)
-- [Prerequisites](#prerequisites)
-- [Building](#building)
-- [Usage](#usage)
-  - [1. Generate Configuration Files](#1-generate-configuration-files)
-  - [2. Run the Workflow Locally](#2-run-the-workflow-locally)
-  - [3. Run on a SLURM Cluster](#3-run-on-a-slurm-cluster)
-  - [4. Merge Parallel Job Outputs](#4-merge-parallel-job-outputs)
-  - [5. Apply Efficiency Correction](#5-apply-efficiency-correction)
-- [Configuration Reference](#configuration-reference)
-- [Output Structure](#output-structure)
-- [Rest Gas Density Profile Files](#rest-gas-density-profile-files)
-- [License](#license)
+### Repository state covered by this README
+
+The current workflow includes:
+
+- distributed target generation with selectable cryopump or no-cryopump profiles;
+- displaced-track reconstruction using the Apollonius triplet finder;
+- an event-level `event_poca` data product keyed by `event_id`;
+- second-pass GEANE propagation to the matching event POCA;
+- beam-momentum propagation from JSON configuration into both analysis macros;
+- consistent `*_pid_final.root` and `*_ana_final.root` completion sentinels;
+- profile-dependent efficiency correction and robustness studies.
 
 ---
 
-## Physics Motivation
+## 1. Physics goal
 
-The **PANDA** (anti-**P**roton **AN**nihilation at **DA**rmstadt) experiment at FAIR uses a cooled antiproton beam colliding with a fixed hydrogen target. However, **residual gas molecules** (H₂, N₂, etc.) remain in the beam pipe despite ultra-high vacuum conditions. Antiproton interactions with this rest gas produce background events whose interaction vertices are distributed along the beam axis according to the rest gas density profile.
+PANDA determines luminosity from a reference reaction with a known cross section, primarily elastic antiproton-proton scattering. In the fixed-target geometry, hydrogen from the cluster-jet target and residual gas in the beam pipe form an interaction region that is extended along the beam axis.
 
-Determining this density profile is crucial because:
+The measured vertex spectrum is therefore not simply the physical gas-density profile. It is modified by:
 
-1. **Background characterisation**: Rest gas interactions constitute an irreducible background to physics channels. Knowing their spatial distribution allows effective subtraction.
-2. **Luminosity determination**: The rest gas interaction rate depends on the integrated density, enabling an independent luminosity measurement complementary to the primary target.
-3. **Beam pipe vacuum quality**: The reconstructed profile maps the vacuum conditions along the beam pipe, including the effect of cryopumps and other pumping sections.
+- detector acceptance;
+- tracking and PID efficiency;
+- displaced-vertex reconstruction efficiency;
+- position-dependent resolution and migration between longitudinal bins;
+- event-selection cuts.
 
----
+The purpose of this repository is to reconstruct the interaction vertex for off-IP events and recover the underlying Restgas profile through a profile-dependent efficiency correction.
 
-## Theoretical Overview
+The final quantity of interest is the longitudinal interaction-density shape
 
-### Rest Gas in the PANDA Beam Pipe
+\[
+\rho_{\mathrm{gas}}(z),
+\]
 
-Residual gas in the beam pipe has a **non-uniform density profile** along the beam axis ($z$-direction). The density $\rho(z)$ is determined by the balance between:
-- **Outgassing** from beam pipe walls and detector materials
-- **Pumping** by various vacuum pump stations (especially cryopumps)
-- **Beam-induced desorption**
-
-The profile is typically described by a text file (e.g., `input/restgas_16012024_with_cryopump.txt`) that provides a tabulated $\rho(z)$ read by the `PndTargetGenerator`.
-
-### Determination Methodology
-
-The rest gas density profile is determined through the following principle:
-
-$$N_{\text{reconstructed}}(z) = \rho(z) \cdot \sigma_{\bar{p}p} \cdot L \cdot \varepsilon(z)$$
-
-where:
-- $N_{\text{reconstructed}}(z)$ is the number of reconstructed interactions at position $z$
-- $\rho(z)$ is the rest gas density to be determined
-- $\sigma_{\bar{p}p}$ is the antiproton-proton interaction cross-section
-- $L$ is the integrated luminosity
-- $\varepsilon(z)$ is the position-dependent reconstruction efficiency
-
-To extract $\rho(z)$, we invert this relation:
-
-$$\rho(z) \propto \frac{N_{\text{reconstructed}}(z)}{\varepsilon(z)}$$
-
-The efficiency $\varepsilon(z)$ is determined from Monte Carlo simulation, and the corrected distribution $N_{\text{corrected}}(z) = N_{\text{reconstructed}}(z) / \varepsilon(z)$ recovers the true rest gas profile.
-
-### Efficiency Correction
-
-The efficiency correction is a critical step implemented in [`correction/efficiency_correction.C`](macro/target/correction/efficiency_correction.C). It proceeds as follows:
-
-1. **MC Generated distribution** ($h_{\text{gen}}$): The true vertex-$z$ distribution of all generated primary protons from the MC simulation file (`pndsim` tree, selecting `MCTrack.fMotherID==-1 && MCTrack.fPdgCode==2212`).
-2. **MC Reconstructed distribution** ($h_{\text{rec}}$): The vertex-$z$ of successfully reconstructed proton–antiproton pairs from the MC analysis output, using either:
-   - **Truth variable** (`pvz_mc`): Uses the MC-truth $z$-position of reconstructed tracks $\rightarrow$ gives the "true" efficiency
-   - **Reco variable** (`pvz`): Uses the reconstructed $z$-position $\rightarrow$ automatically incorporates resolution smearing and bias
-3. **Efficiency** is computed bin-by-bin with Bayesian errors:
-
-$$\varepsilon(z_i) = \frac{h_{\text{rec}}(z_i)}{h_{\text{gen}}(z_i)}$$
-
-4. **Corrected data** (the rest gas profile estimate):
-
-$$N_{\text{corrected}}(z_i) = \frac{N_{\text{data}}(z_i)}{\varepsilon(z_i)}$$
-
-The script implements multiple correction strategies:
-- **Truth-Eff correction**: $N_{\text{data}} / \varepsilon_{\text{truth}}$ — uses the MC truth positions for efficiency
-- **Reco-Eff correction**: $N_{\text{data}} / \varepsilon_{\text{reco}}$ — uses reconstructed positions, automatically absorbing resolution and bias effects
-- **Hybrid correction**: Uses Truth-Eff in the central region ($|z| < 1.5\text{ cm}$) and Reco-Eff in the tails
-
-The quality of the correction is validated by comparing the corrected distribution to the known input (truth) profile and computing the relative deviation.
-
-#### Iterative Reweighting (Advanced)
-
-An advanced iterative efficiency correction is implemented in [`correction/efficiency_correction_steps.C`](macro/target/correction/efficiency_correction_steps.C) to account for the fact that the MC acceptance sample may have a different $z$-distribution than the data:
-
-1. **Iteration 0**: Compute initial efficiency from unweighted MC and apply hybrid correction $\rightarrow \text{Result}_0$
-2. **Iteration 1**: Compute per-bin weights $w(z) = \text{Result}_0(z) / h_{\text{gen}}(z)$, reweight MC gen/rec histograms, compute new efficiency, apply correction $\rightarrow \text{Result}_1$
-
-This converges rapidly (typically 1–2 iterations) because the efficiency varies slowly with $z$.
+or, in binned form, the generated number of interactions \(N_{\mathrm{true},i}\) in each longitudinal bin.
 
 ---
 
-## Architecture & Workflow
+## 2. Method overview
 
-The primary vertex of a rest gas interaction is **unknown a priori** (unlike the fixed PANDA pellet target). This necessitates a **two-pass** approach:
+The complete physics method consists of five stages:
 
-### Two-Pass POCA Workflow
-
-> Controlled by `"back_prop_vertex": "poca"` in the configuration.
-
-```text
-┌─────────────────────── PASS 1: Vertex Finding ──────────────────────┐
-│                                                                      │
-│  prod_sim_hvmaps.C → digi → reco_complete.C → pid_complete.C        │
-│                                                       │              │
-│                                                 ana_dpm.C            │
-│                                                       │              │
-│                                              _vtx_fit.json           │
-│                                          (fitted vertex X,Y,Z)       │
-└──────────────────────────────────────────────────────────────────────┘
-                                    │
-                    event_poca tree keyed by event_id
-                                    │
-                                    ▼
-┌─────────────────────── PASS 2: Refined Analysis ────────────────────┐
-│                                                                      │
-│  prod_aod_complete.C (suffix="fitvertex")                            │
-│    → Digi + Reco + PID (back-propagation to fitted vertex)           │
-│                          │                                           │
-│                    ana_complete.C                                     │
-│                          │                                           │
-│               Final NTuples + Validation Plots                       │
-└──────────────────────────────────────────────────────────────────────┘
-```
-
-**Pass 1** details:
-1. **Simulation** (`prod_sim_hvmaps.C`): Generates $\bar{p}p$ events using the DPM (Dual Parton Model) generator with a rest gas target profile (`TargetMode=8`). The interaction vertices are sampled from the density profile file.
-2. **Digitization**: Converts MC hits into realistic detector responses.
-3. **Reconstruction** (`reco_complete.C`): Performs pattern recognition (STT track finding via `PndTrkTracking2` + `PndApolloniusTripletTrackFinderTask`) and Kalman filtering (`PndRecoKalmanTask2`).
-4. **PID** (`pid_complete.C`): Runs the PID correlator (`PndPidCorrelator`) **without** back-propagation (since the vertex is unknown).
-5. **Vertex Fitting** (`ana_dpm.C`):
-   - Identifies proton and antiproton candidates using PID
-   - Calculates the **POCA vertex** for all proton+antiproton track combinations using `RhoVtxPoca::GetPocaVtx()`. The algorithm:
-     - For each pair of tracks, models them as helices in the magnetic field with radius $\rho = p_\perp / (0.003 \cdot B_z)$
-     - Projects helices to the x-y plane and finds circle intersections
-     - Propagates to $z$ via $z_{\text{new}} = z_0 + \rho \cdot \alpha / p_\perp \cdot p_z$
-     - For multiple tracks, computes a DOCA-weighted average vertex: $\mathbf{V} = \sum_i (\mathbf{V}_i / \text{DOCA}_i) \;/\; \sum_i (1 / \text{DOCA}_i)$
-   - Performs kinematic vertex fitting (`RhoKinVtxFitter`) and 4-momentum constrained fitting (`RhoKinFitter`)
-   - Selects the best proton-antiproton pair via minimum $|\Delta E| = |p_{\bar{p}p} - p_{\text{beam}}|$
-   - Histograms the fitted vertex X, Y, Z distributions
-   - Applies an iterative Gaussian fit (two passes: first a plain Gaussian within $\pm 2\sigma$, then Gaussian + pol1 background within $\pm 1\sigma$)
-   - Exports the fitted vertex mean coordinates to a JSON file (`_vtx_fit.json`)
-
-**Pass 2** details:
-1. `ana_dpm.C` writes an `event_poca` tree with one POCA and validity flag per input event into `*_boost.root`.
-2. The orchestrator passes that ROOT file to the second PID pass through `POCA_VERTEX_FILE`. The fitted-mean `FIT_VERTEX_X/Y/Z` variables remain only as a backwards-compatible fixed-IP fallback.
-3. `prod_aod_complete.C` is called with the `"fitvertex"` suffix. This triggers `PndPidCorrelator::SetUseFittedVertex(kTRUE)`, causing `PndPidTrackInfo::GetTrackInfo()` to propagate tracks directly to the event POCA.
-4. The final analysis (`ana_complete.C`) runs with the improved track parameters, producing validation histograms and vertex statistics.
-
-### Single-Pass MC Workflow
-
-> Controlled by `"back_prop_vertex": "mc"` in the configuration.
-
-A simplified workflow that uses the **MC truth vertex** for back-propagation. Useful for performance studies where the vertex finding step is not the subject of investigation.
-
-1. **Simulation** (`prod_sim_hvmaps.C`)
-2. `prod_aod_complete.C` with `"mcvertex"` suffix $\rightarrow$ `PndPidCorrelator::SetUseMcTruthForTarget(kTRUE)`
-3. **Analysis** (`ana_complete.C`)
-
-### Workflow Diagram
+1. **Generate or read an extended target profile.**
+2. **Reconstruct tracks without imposing the nominal interaction point.**
+3. **Estimate the interaction vertex from the track-pair POCA.**
+4. **Back-propagate tracks to that vertex and perform the final vertex fit.**
+5. **Correct the reconstructed \(z\) distribution with a profile-dependent efficiency map.**
 
 ```mermaid
-graph TD
-    A[generate_configs.py] -->|Creates .json files| B[runall_prod_hvmaps.py]
-    B -->|POCA mode| C[POCA Workflow]
-    B -->|MC mode| D[MC Workflow]
+flowchart TD
+    A[Input target / Restgas profile rho_in(z)]
+    B[Simulation and digitization]
+    C[Apollonius displaced-track finding]
+    D[Skewed-STT z reconstruction and Kalman fit]
+    E[Initial PID without back-propagation]
+    F[p-pbar POCA vertex estimate]
+    G[Second PID with back-propagation to POCA]
+    H[Final event vertex fit]
+    I[Raw reconstructed z spectrum]
+    J[Profile-dependent MC efficiency epsilon_reco(z)]
+    K[Corrected Restgas profile]
+    L[Optional iteration with corrected profile]
 
-    subgraph POCA["POCA Workflow (Two-Pass)"]
-        C1[prod_sim_hvmaps.C] --> C2[Digitization]
-        C2 --> C3[reco_complete.C]
-        C3 --> C4[pid_complete.C]
-        C4 --> C5["ana_dpm.C → _vtx_fit.json"]
-        C5 -->|event_poca tree| C6["prod_aod_complete.C (fitvertex)"]
-        C6 --> C7[ana_complete.C]
-    end
-
-    subgraph MC["MC Workflow (Single-Pass)"]
-        D1[prod_sim_hvmaps.C] --> D2["prod_aod_complete.C (mcvertex)"]
-        D2 --> D3[ana_complete.C]
-    end
-
-    C7 --> E[merge.py]
-    D3 --> E
-    E --> F["efficiency_correction.C"]
+    A --> B --> C --> D --> E --> F --> G --> H --> I
+    A --> J
+    B --> J
+    I --> K
+    J --> K
+    K --> L --> J
 ```
+
+The thesis-level target workflow is **event-by-event**:
+
+```text
+raw hits
+  -> Apollonius track candidates
+  -> Kalman-fitted tracks
+  -> PID without back-propagation
+  -> event POCA
+  -> reuse the original Kalman tracks
+  -> PID with back-propagation to the event POCA
+  -> final vertex fit
+  -> reconstructed Restgas profile
+```
+
+The repository implements this event-by-event chain for both fixed-vertex and continuously distributed Restgas samples. It also provides an MC-truth control mode for closure studies.
 
 ---
 
-## Code Structure
+## 3. Theoretical and numerical implementation
 
-### Core Workflow Scripts (`macro/target/`)
+### 3.1 Distributed beam-target vertex generation
 
-| File | Role | Description |
-| --- | --- | --- |
-| [`runall_prod_hvmaps.py`](macro/target/runall_prod_hvmaps.py) | **Orchestrator** | Main entry point. Reads JSON configs, dispatches the POCA or MC workflow, manages parallel execution. |
-| [`prod_sim_hvmaps.C`](macro/target/prod_sim_hvmaps.C) | **Simulation** | Geant4 MC simulation. Configures the PANDA detector geometry (including HVMAPS MVD), event generators (DPM/FTF/BOX), and rest gas target profile (`TargetMode=8`). |
-| [`reco_complete.C`](macro/target/reco_complete.C) | **Reconstruction** | Track finding (STT Hough + Apollonius triplet) and Kalman fitting. Produces reconstructed tracks (`FinalGenTrack`). |
-| [`pid_complete.C`](macro/target/pid_complete.C) | **PID (Pass 1)** | Runs `PndPidCorrelator` with back-propagation disabled. Initial particle identification used for vertex finding. |
-| [`ana_dpm.C`](macro/target/ana_dpm.C) | **Vertex Finding** | Calculates POCA vertex from p/p̄ track pairs, performs iterative Gaussian fits, exports fitted vertex to JSON. The core of Pass 1 analysis. |
-| [`prod_aod_complete.C`](macro/target/prod_aod_complete.C) | **AOD Production (Pass 2)** | Combined digi+reco+PID with vertex-aware back-propagation. Accepts `"fitvertex"` or `"mcvertex"` suffix to control the propagation target. |
-| [`ana_complete.C`](macro/target/ana_complete.C) | **Final Analysis** | Produces final NTuples with POCA vertex, kinematic vertex fit, and 4C fit results. Generates validation plots and vertex statistics. |
-| [`generate_configs.py`](macro/target/generate_configs.py) | **Config Generator** | Creates a Cartesian product of parameter combinations (momenta, IP positions, etc.) as JSON config files. |
-| [`shared_utils.py`](macro/target/shared_utils.py) | **Utilities** | Shared Python helper functions (command execution, config loading, log parsing). |
-| [`merge.py`](macro/target/merge.py) | **File Merger** | Merges ROOT output files from parallel jobs using `hadd`. |
-| [`correction/efficiency_correction_2.C`](macro/target/correction/efficiency_correction_2.C) | **Efficiency Correction** | Enhanced efficiency & rest gas profile correction macro supporting custom binning and range strings. |
+The longitudinal density is supplied as a two-column ASCII file:
 
-### Key PandaRoot Modifications
-
-These modifications to the PandaRoot framework (all commits after `ef9a564`) enable the rest gas determination functionality:
-
-#### 1. Track Back-Propagation to Fitted Vertex
-**File**: [`pid/PidCorr/PndPidTrackInfo.cxx`](pid/PidCorr/PndPidTrackInfo.cxx)
-
-The `GetTrackInfo()` method was extended with a three-tier propagation target selection:
-1. **Fitted Vertex** (`fUseFittedVertex=true`): Reads the current event's POCA from the `event_poca` tree and propagates tracks to that point. Invalid or missing entries are rejected explicitly. `FIT_VERTEX_X/Y/Z` remains available only for legacy fixed-IP runs.
-2. **MC Truth Vertex** (`fUseMcTruthForTarget=true`): Reads the MC truth start vertex of the associated MCTrack.
-3. **Default**: Falls back to (0, 0, 0).
-
-This is the most critical modification — it closes the loop between the vertex finding (Pass 1) and the refined reconstruction (Pass 2).
-
-#### 2. PID Correlator Vertex Mode Flags
-**File**: [`pid/PidCorr/PndPidCorrelator.h`](pid/PidCorr/PndPidCorrelator.h)
-
-Added `fUseFittedVertex` and `fUseMcTruthForTarget` boolean flags with setters:
-```cpp
-void SetUseFittedVertex(Bool_t val=kTRUE);
-void SetUseMcTruthForTarget(Bool_t val=kTRUE);
+```text
+# position [cm]    density or bin weight [10^12 atoms/cm^2]
+-570.1             ...
+-570.0             ...
+...
+1100.0             ...
 ```
 
-#### 3. Option String Handling in Master PID Task
-**File**: [`tools/MasterTasks/PndMasterMultiPidTask.cxx`](tools/MasterTasks/PndMasterMultiPidTask.cxx)
+The current implementation is based on:
 
-Routes the `"fitvertex"` and `"mcvertex"` option strings to the appropriate correlator flags:
+- `pgenerators/Target/PndTargetGenerator.h`
+- `pgenerators/Target/PndTargetGenerator.cxx`
+- `tools/MasterTasks/PndMasterRunSim.cxx`
+- `macro/target/prod_sim_hvmaps.C`
+
+`PndTargetGenerator` reads the density points into a `TGraph`, constructs an inverted cumulative distribution, and samples the longitudinal interaction position from it. The transverse beam position is sampled with a radial Gaussian width and is restricted by the beam-pipe radius.
+
+Schematically,
+
+\[
+z \sim \rho_{\mathrm{in}}(z),
+\qquad
+r_\perp \sim \mathcal{G}(0,\sigma_r(z)),
+\]
+
+with the current Restgas target mode using a nominal beam radius of
+
+\[
+\sigma_r = 0.1\ \mathrm{cm}.
+\]
+
+Outside the constant-width beam region, the code can increase the transverse width according to a configurable beam-divergence slope.
+
+#### Current target modes
+
+`prod_sim_hvmaps.C` maps
+
 ```cpp
-if (fOptions.Contains("fitvertex")) {
-    correlator->SetUseFittedVertex(kTRUE);
-    correlator->SetUseMcTruthForTarget(kFALSE);
-}
-if (fOptions.Contains("mcvertex")) {
-    correlator->SetUseFittedVertex(kFALSE);
-    correlator->SetUseMcTruthForTarget(kTRUE);
-}
+use_restgas == true
 ```
 
-#### 4. Rest Gas Target Mode (TargetMode=8)
-**File**: [`tools/MasterTasks/PndMasterRunSim.cxx`](tools/MasterTasks/PndMasterRunSim.cxx)
+to
 
-Added `case 8` to the target mode switch, which configures a pencil beam with a rest gas density profile read from `input/restgas_16012024_with_cryopump.txt`:
 ```cpp
-case 8: {
-    tgtfile += "/input/restgas_16012024_with_cryopump.txt";
-    aGen->SetDensityProfile(tgtfile);
-    aGen->SetBeamRadius(0.1);  // 1mm beam spot sigma
-    aGen->ReadDensityFile();
-}
+PndMasterRunSim::SetTargetMode(8);
 ```
 
-#### 5. DPM Generator Theta Minimum Adjustment
-**File**: [`pgenerators/Direct/PndDpmDirect.cxx`](pgenerators/Direct/PndDpmDirect.cxx)
+Target mode 8 loads the profile selected by the `restgas_profile` configuration field. A basename is resolved below `$VMCWORKDIR/input`; an absolute path may also be supplied. The default is:
 
-Added a logarithmic scaling formula to compute a momentum-dependent minimum theta angle for the DPM generator, preventing generation of particles at unphysically small forward angles for given beam momenta:
-```cpp
-Double_t logangle = TMath::Log(0.4) + (TMath::Log(15.) - TMath::Log(Mom))
-                    * (TMath::Log(4) - TMath::Log(0.4)) / (TMath::Log(15) - TMath::Log(1.5));
-Double_t CalThtMin = TMath::Exp(logangle);
-if (CalThtMin > ThtMin) ThtMin = CalThtMin;
+```text
+$VMCWORKDIR/input/restgas_16012024_with_cryopump.txt
 ```
 
-#### 6. Kalman Fit NaN Guard
-**File**: [`tracking/GenfitTools/recotasks2/PndRecoKalmanFit2.cxx`](tracking/GenfitTools/recotasks2/PndRecoKalmanFit2.cxx)
+The transverse beam-radius parameter is `0.1 cm`.
 
-Added a check for NaN values in track parameters before attempting the Kalman fit, preventing crashes when processing tracks from rest gas interactions at extreme positions:
-```cpp
-if (std::isnan(tBefore->GetParamFirst().GetPz()) || std::isnan(tBefore->GetParamFirst().GetZ())) {
-    tAfter->SetFlag(-11);  // flag -11: NaN in parameters
-    return tAfter;
+The current repository contains two principal profile files:
+
+| File | Intended use |
+|---|---|
+| `input/restgas_16012024_with_cryopump.txt` | Default profile; includes the cryopump contribution |
+| `input/restgas_16012024_no_cryopump.txt` | Alternative profile for studies without the cryopump contribution |
+
+Both files use the longitudinal coordinate in **cm** and tabulate the density in units indicated by the file header as \(10^{12}\) atoms/cm\(^2\). The covered beam-line interval is approximately \(-570\) to \(+1100\) cm.
+
+Select the alternative profile directly in JSON:
+
+```json
+{
+  "use_restgas": "true",
+  "restgas_profile": "restgas_16012024_no_cryopump.txt"
 }
 ```
 
-### Cluster Execution Scripts
+Changing profiles does not require a source edit or rebuild. The simulation macro validates that the selected file exists before starting.
 
-| File | Description |
-| --- | --- |
-| [`submit.sh`](macro/target/submit.sh) | Primary SLURM `sbatch` job array submission script. |
-| [`merge.py`](macro/target/merge.py) | Merges ROOT output files from parallel array tasks using `hadd`. |
+#### Profile-file constraints
 
-### Deprecated / Auxiliary Scripts
+The current cumulative implementation performs
 
-| File | Status |
-| --- | --- |
-| `digi_complete.C` | Standalone digitization — superseded by `prod_aod_complete.C` in the automated workflow |
-| `pid_new.C` | Experimental PID variant — not used in the main workflow |
-| `prod_aod_hvmaps.C` | Earlier AOD production script — replaced by `prod_aod_complete.C` |
-| `prod_pid.C` | Standalone PID production — not used |
-| `runall_sbatch.py.bak` | Backup of an earlier cluster script |
-| `runall_test.py` | Test/debugging version of the orchestrator |
-| `run_workflow.py` | Earlier workflow runner — superseded by `runall_prod_hvmaps.py` |
-| `houghPlusApolloniusTripletTrackFinder.C` | Custom tracking macro for testing |
-| `standardPlusApolloniusTripletTrackFinder.C` | Custom tracking macro for testing |
-| `ConvertTrackToRhoCandList.C` | Utility for track conversion — used in development |
+```cpp
+ysum += density;
+```
+
+without multiplying by the local bin width. Consequently:
+
+- use **uniformly spaced \(z\) points**, or
+- store an already bin-width-weighted value in the second column.
+
+The active `PndTargetGenerator` labels its longitudinal coordinate in **cm**. An older `README_RestGas` mentions mm; for this branch, use cm and verify the profile range before large production.
 
 ---
 
-## Prerequisites
+### 3.2 Displaced-track reconstruction
 
-- **PandaRoot** (oct19 tag) compiled with all dependencies (FairRoot, Geant4, ROOT 6.x, etc.)
-- **Python 3.6+** (for the orchestrator scripts)
-- **ROOT** accessible from the command line (`root` command in PATH)
-- Access to the rest gas density profile files in `input/`
+Standard primary-track finders often assume that tracks originate close to the nominal beam axis. This is inappropriate for Restgas interactions distributed over a long region.
+
+The dedicated reconstruction chain is configured in:
+
+- `macro/target/reco_complete.C`
+
+Its relevant stages are:
+
+1. `PndTrkTracking2` performs the standard reconstruction.
+2. `PndUnassignedHitsTask` collects hits not assigned by the standard track finder.
+3. `PndApolloniusTripletTrackFinderTask` reconstructs displaced trajectories using STT drift-circle triplets and MVD/GEM information.
+4. `PndSttSkewStrawPzFinderTask` recovers the longitudinal track component from skewed STT layers.
+5. `PndRecoKalmanTask2` fits the resulting tracks with `SetPropagateToIP(kFALSE)`.
+
+#### Apollonius track finding
+
+Three STT drift measurements define three circles in the transverse plane. The classical Apollonius problem asks for circles tangent to all three. Up to eight geometric solutions can exist because of the internal/external tangency combinations.
+
+The track finder reduces combinatorics by:
+
+- choosing spatially separated inner, middle, and outer hit rows;
+- requiring neighbor/topological compatibility;
+- imposing azimuthal compatibility;
+- growing each candidate with additional compatible hits;
+- selecting the populated trajectory that best matches the complete hit pattern.
+
+This avoids a hard nominal-IP constraint and preserves efficiency for displaced vertices.
 
 ---
 
-## Building
+### 3.3 First PID pass and POCA determination
 
-This project is built as part of the PandaRoot framework:
+The first PID pass is implemented by:
+
+- `macro/target/pid_complete.C`
+
+It configures `PndPidCorrelator` with:
+
+```cpp
+SetBackPropagate(kFALSE);
+```
+
+so the initial candidate construction uses the first fitted track parameters and does not force the track back to the origin.
+
+The initial proton and antiproton candidates are then analyzed by:
+
+- `macro/target/ana_dpm.C`
+
+`ana_dpm.C` combines the proton and antiproton candidates and evaluates their geometric point of closest approach using:
+
+```cpp
+RhoVtxPoca::GetPocaVtx(...)
+```
+
+The resulting coordinates and distance of closest approach are stored as:
+
+```text
+proton_pbar_vtx_x
+proton_pbar_vtx_y
+proton_pbar_vtx_z
+proton_pbar_doca
+```
+
+For the two-pass workflow, `ana_dpm.C` writes two complementary products:
+
+- `<prefix>_boost.root`, containing an `event_poca` tree with exactly one entry per input event;
+- `<prefix>_vtx_fit.json`, containing fitted sample-level means and widths for diagnostics and legacy fixed-IP compatibility.
+
+The event-level tree stores:
+
+```text
+event_id
+x
+y
+z
+valid
+```
+
+The `valid` flag is set only when the event contains at least one proton and one antiproton candidate and the POCA result is finite.
+
+---
+
+### 3.4 POCA-first back-propagation
+
+The second PID pass is started through:
+
+- `macro/target/prod_aod_complete.C`
+- `tools/MasterTasks/PndMasterMultiPidTask.cxx`
+- `pid/PidCorr/PndPidTrackInfo.cxx`
+
+The Python runner passes the first-pass ROOT file to the second PID pass through:
+
+```text
+POCA_VERTEX_FILE=<prefix>_boost.root
+```
+
+The fitted means are still exported through `FIT_VERTEX_X/Y/Z` as a backwards-compatible fallback for legacy fixed-IP inputs. It then calls:
+
+```cpp
+prod_aod_complete.C(prefix, "fitvertex", use_mvd_hvmaps)
+```
+
+The `"fitvertex"` option activates:
+
+```cpp
+correlator->SetUseFittedVertex(kTRUE);
+```
+
+`PndPidCorrelator` opens the `event_poca` tree and loads entry `event_id` before constructing candidates. `PndPidTrackInfo.cxx` uses that event's `x,y,z` as the GEANE target and performs point propagation:
+
+```cpp
+fGeanePropagator->SetPoint(targetPoint);
+fGeanePropagator->PropagateToPCA(1, -1);
+```
+
+This is the essential POCA-first operation. Track momentum, position, covariance, path length, and subsequent PID inputs are evaluated at the estimated physical interaction point instead of the nominal beam axis. A missing, mismatched, or invalid event POCA causes the affected track to be rejected explicitly rather than propagated to a job-wide mean or to the origin.
+
+The MC control mode uses:
+
+```cpp
+prod_aod_complete.C(prefix, "mcvertex", use_mvd_hvmaps)
+```
+
+which obtains the target point from each track's MC start vertex.
+
+---
+
+### 3.5 Final event vertex reconstruction
+
+The final analysis is implemented in:
+
+- `macro/target/ana_complete.C`
+
+Both `ana_dpm.C` and `ana_complete.C` receive the configured antiproton beam momentum through `mom`. They construct the initial-state four-vector dynamically as
+
+\[
+p_{\mathrm{initial}}
+=
+\left(0,0,p_{\bar p},
+\sqrt{p_{\bar p}^{2}+m_{p}^{2}}+m_{p}\right),
+\]
+
+so changing the beam momentum does not require editing either macro.
+
+It reads the second-pass `pid_final` output, builds proton-antiproton candidates, performs the final event-level vertex fit, and stores the reconstructed and MC quantities in:
+
+```text
+<prefix>_ana_final.root
+```
+
+Important branches used by the correction macros include:
+
+```text
+pvx, pvy, pvz
+pvx_mc, pvy_mc, pvz_mc
+```
+
+For fixed-position efficiency scans, the macro also appends:
+
+```text
+config_x config_y config_z reconstructed_entries
+```
+
+to:
+
+```text
+vtx_stats.txt
+```
+
+This file can be used to construct a longitudinal efficiency scan.
+
+---
+
+### 3.6 Profile-dependent efficiency correction
+
+The raw reconstructed spectrum is related to the true profile through acceptance, selection efficiency, and resolution migration.
+
+A simple “truth-coordinate” efficiency is
+
+\[
+\varepsilon_{\mathrm{truth},i}
+=
+\frac{N_{\mathrm{MC,rec}}(z_{\mathrm{true}}\in i)}
+     {N_{\mathrm{MC,gen}}(z_{\mathrm{true}}\in i)}.
+\]
+
+For Restgas determination, the more useful profile-dependent reconstructed-coordinate efficiency is
+
+\[
+\varepsilon_{\mathrm{reco},i}
+=
+\frac{N_{\mathrm{MC,rec}}(z_{\mathrm{reco}}\in i)}
+     {N_{\mathrm{MC,gen}}(z_{\mathrm{true}}\in i)}.
+\]
+
+Because its numerator is filled in reconstructed coordinates, this map includes both geometrical efficiency and migration caused by finite vertex resolution. The corrected profile is then estimated bin-by-bin as
+
+\[
+N_{\mathrm{corr},i}
+=
+\frac{N_{\mathrm{data,rec},i}}
+     {\varepsilon_{\mathrm{reco},i}}.
+\]
+
+This is a forward-model correction rather than an explicit deconvolution. If the MC input profile resembles the physical profile sufficiently well, the migration present in the measured numerator is compensated by the migration encoded in the efficiency map.
+
+The main correction code is located in:
+
+- `macro/target/correction/efficiency_correction.C`
+- `macro/target/correction/efficiency_correction_1.C`
+- `macro/target/correction/efficiency_correction_2.C`
+- `macro/target/correction/efficiency_correction_steps.C`
+- `macro/target/correction/run_efficiency_batch.py`
+
+Recommended interpretation:
+
+| File | Role |
+|---|---|
+| `efficiency_correction.C` | Central-region diagnostic, default range \([-30,+30]\) cm |
+| `efficiency_correction_1.C` | Earlier wide-range version |
+| `efficiency_correction_2.C` | Current wide-range analysis used by `run_efficiency_batch.py`; supports file-index ranges and non-uniform binning |
+| `efficiency_correction_steps.C` | Method/debug study with explicit intermediate steps |
+| `run_efficiency_batch.py` | Runs the true-profile versus input-profile robustness matrix |
+
+`efficiency_correction_2.C` calculates both `hEff` and `hEffReco`. The histogram
+
+```text
+hCorrected_RecoEff
+```
+
+is the direct implementation of the profile-dependent reconstructed-coordinate correction above.
+
+The macro also contains a **hybrid analysis variant**:
+
+- in the current `efficiency_correction_2.C`, use truth-coordinate efficiency for \(-2 \le z \le 2\) cm;
+- use reconstructed-coordinate efficiency outside this central interval.
+
+Earlier correction variants use slightly different central boundaries, so the numerical cut should be checked in the selected macro before comparing results. This hybrid definition is an analysis choice and should not be confused with the general correction formula.
+
+The correction macros use English comments and plotting annotations; these presentation changes do not alter the numerical correction logic.
+
+---
+
+### 3.7 Iterative removal of input-profile dependence
+
+The efficiency depends weakly on the profile used in the MC because resolution migration is profile dependent. This appears to create a circular problem: the profile is needed to calculate the efficiency used to measure the profile.
+
+The intended solution is iterative:
+
+1. Start from the nominal Target Group profile \(\rho_0(z)\).
+2. Generate MC and calculate \(\varepsilon_{\mathrm{reco},0}(z)\).
+3. Correct the measured spectrum to obtain \(\rho_1(z)\).
+4. Use \(\rho_1(z)\) as the next MC input.
+5. Repeat until the profile or integrated correction changes negligibly.
+
+The thesis robustness study tests mismatches between the “true” pseudo-data profile and the profile used for the efficiency MC. The method substantially reduces the initial model bias, especially in the central high-statistics region.
+
+---
+
+## 4. Theory-to-code map
+
+| Physics operation | Main code |
+|---|---|
+| Select elastic \(\bar pp\) generation | `macro/target/prod_sim_hvmaps.C`, generator `DPM2` |
+| Load the longitudinal target/Restgas profile | `tools/MasterTasks/PndMasterRunSim.cxx` |
+| Sample the 3D interaction vertex | `pgenerators/Target/PndTargetGenerator.{h,cxx}` |
+| Select standard or HV-MAPS MVD geometry | `prod_sim_hvmaps.C`, `all.par` / `all_hvmaps.par` |
+| Digitization | `macro/target/prod_aod_hvmaps.C` |
+| Collect unassigned hits | `PndUnassignedHitsTask` in `reco_complete.C` |
+| Displaced-track pattern recognition | `PndApolloniusTripletTrackFinderTask` |
+| Recover longitudinal track information | `PndSttSkewStrawPzFinderTask` |
+| Kalman fit without nominal-IP propagation | `PndRecoKalmanTask2` in `reco_complete.C` |
+| Initial PID without back-propagation | `pid_complete.C` |
+| Proton-antiproton POCA | `ana_dpm.C`, `RhoVtxPoca` |
+| Transfer event POCA to second pass | `runall_prod_hvmaps.py`, `POCA_VERTEX_FILE`, `event_poca` |
+| Activate fitted-vertex or MC-vertex mode | `PndMasterMultiPidTask.cxx` |
+| GEANE propagation to a 3D point | `PndPidTrackInfo.cxx` |
+| Final event vertex fit and output tree | `ana_complete.C` |
+| Efficiency and profile correction | `macro/target/correction/efficiency_correction_2.C` |
+| Robustness matrix | `macro/target/correction/run_efficiency_batch.py` |
+
+---
+
+## 5. Build and environment
+
+### 5.1 Prerequisites
+
+Use a FairSoft/FairRoot environment compatible with PandaRoot `oct19`.
+
+The repository requires:
+
+- a UNIX-like system;
+- CMake (the top-level file enforces at least 3.13.4 and warns below 3.16.1);
+- C++14;
+- ROOT and PyROOT;
+- FairRoot through `FAIRROOTPATH`;
+- a Fortran compiler;
+- Python 3;
+- SLURM only for cluster production.
+
+### 5.2 Build
 
 ```bash
-# Clone the repository
-git clone https://github.com/JinxinLee/RestgasDetermination.git
+git clone --branch oct19 https://github.com/JinxinLee/RestgasDetermination.git
 cd RestgasDetermination
 
-# Standard PandaRoot build procedure
-mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=<install_path>
-make -j$(nproc)
-source config.sh  # Set up environment variables (VMCWORKDIR, etc.)
+mkdir -p build
+cd build
+
+cmake ..
+cmake --build . -j8
 ```
+
+Load the generated environment before running macros:
+
+```bash
+cd /path/to/RestgasDetermination
+source build/config.sh -p
+```
+
+Confirm:
+
+```bash
+echo "$VMCWORKDIR"
+which root
+```
+
+`VMCWORKDIR` should point to the repository source tree for the non-modular build.
+
+### 5.3 Verify or select the Restgas profile
+
+The repository already contains the default profile required by target mode 8:
+
+```text
+/path/to/RestgasDetermination/input/restgas_16012024_with_cryopump.txt
+```
+
+Verify that it is present after cloning:
+
+```bash
+test -f input/restgas_16012024_with_cryopump.txt
+```
+
+The alternative profile is:
+
+```text
+input/restgas_16012024_no_cryopump.txt
+```
+
+Select a profile with the JSON field:
+
+```json
+"restgas_profile": "restgas_16012024_no_cryopump.txt"
+```
+
+Basenames are read from `$VMCWORKDIR/input`. Absolute paths are accepted for site-specific or generated profiles.
 
 ---
 
-## Usage
+## 6. Recommended usage
 
-All workflow scripts are located in `macro/target/`. The working directory should be set to this path, or an absolute path to the scripts should be used.
-
-### 1. Generate Configuration Files
-
-Use `generate_configs.py` to create JSON configuration files for parameter scans:
+Run the workflow from:
 
 ```bash
-# Generate configs for two beam momenta and three IP Z-positions
-python3 macro/target/generate_configs.py \
-    --type point \
-    --vertex poca \
-    --moms 8.9 4.06 \
-    --ipzs -10.0 0.0 10.0 \
-    --nevts 10000 \
-    --output-dir configs/my_scan
+cd /path/to/RestgasDetermination/macro/target
 ```
 
-This creates files like `configs/my_scan/point_poca_8.9_0.0_0.0_-10.0.json`.
+### 6.1 Configuration reference
 
-### 2. Run the Workflow Locally
+The main runner combines built-in defaults, a JSON file, and command-line overrides in that order. The principal fields are:
+
+| Field | Type | Default | Purpose |
+|---|---:|---|---|
+| `prefix` | string | `"test"` | Dataset name and output subdirectory |
+| `nevts` | integer | `1000` | Events generated by each job |
+| `dec` | string | `"pp_dd"` | DPM/FTF/BOX mode or EvtGen input |
+| `mom` | number | `4.06` | Antiproton beam momentum in GeV/c |
+| `use_mvd_hvmaps` | string | `"false"` | Select `all_hvmaps.par` when `"true"` |
+| `ipx`, `ipy`, `ipz` | number | `0.0` | Fixed interaction point in cm |
+| `use_restgas` | string | `"false"` | Enable distributed `TargetMode=8` |
+| `restgas_profile` | string | `"restgas_16012024_with_cryopump.txt"` | Profile basename below `input/`, or an absolute path |
+| `theta_min`, `theta_max` | number | `0.0`, `180.0` | Generator polar-angle range in degrees |
+| `back_prop_vertex` | string | `"poca"` | Select event POCA or MC-truth propagation |
+| `output_path` | string | `"data"` | Base output directory |
+
+### 6.2 Fixed-vertex POCA validation
+
+This validates the complete two-pass POCA chain at a known interaction point.
+
+Create a configuration:
+
+```json
+{
+  "prefix": "point_poca_4p06_z0",
+  "nevts": 10000,
+  "dec": "DPM2",
+  "mom": 4.06,
+  "use_mvd_hvmaps": "true",
+  "ipx": 0.0,
+  "ipy": 0.0,
+  "ipz": 0.0,
+  "use_restgas": "false",
+  "restgas_profile": "restgas_16012024_with_cryopump.txt",
+  "theta_min": 22.0,
+  "theta_max": 150.0,
+  "back_prop_vertex": "poca",
+  "output_path": "/absolute/path/to/data"
+}
+```
+
+Run:
 
 ```bash
-cd macro/target
-
-# Run with a single configuration file
-python3 runall_prod_hvmaps.py configs/point_poca_8.9_0.0_0.0_0.0.json
-
-# Run all configs in a directory
-python3 runall_prod_hvmaps.py configs/my_scan/
-
-# Run in parallel with 4 cores
-python3 runall_prod_hvmaps.py configs/my_scan/ -j 4
-
-# Override parameters via command line
-python3 runall_prod_hvmaps.py configs/my_scan/ --nevts 5000 --back_prop_vertex mc
+python3 runall_prod_hvmaps.py point_poca_4p06_z0.json
 ```
 
-### 3. Run on a SLURM Cluster
+The executed chain is:
 
-For large-scale production, submit array jobs using `submit.sh`:
+```text
+prod_sim_hvmaps.C
+  -> prod_aod_hvmaps.C
+  -> reco_complete.C
+  -> pid_complete.C
+  -> ana_dpm.C
+  -> prod_aod_complete.C(..., "fitvertex", ...)
+  -> ana_complete.C
+```
+
+### 6.3 Generate a fixed-IP scan
 
 ```bash
-sbatch submit.sh
+python3 generate_configs.py \
+  --type point \
+  --vertex poca \
+  --moms 4.06 \
+  --ipxs 0.0 \
+  --ipys 0.0 \
+  --ipzs -10.0 -7.5 -5.0 -2.5 0.0 2.5 5.0 7.5 10.0 \
+  --nevts 10000 \
+  --use_mvd_hvmaps true \
+  --output-path /absolute/path/to/data \
+  --output-dir configs/efficiency_scan
 ```
 
-Example `submit.sh`:
+Run several configurations locally:
+
+```bash
+python3 runall_prod_hvmaps.py configs/efficiency_scan -j 4
+```
+
+The `-j` option parallelizes **different configuration files**. It does not split the events in one configuration.
+
+### 6.4 SLURM array production
+
+A minimal site-independent template is:
+
 ```bash
 #!/bin/bash
-#SBATCH --job-name=pnd_sim
-#SBATCH --partition=long
-#SBATCH --time=20:00:00
-#SBATCH --output=/lustre/panda/jili/oct19/macro/target/data/slurmlog/pnd_sim_%A_%a.log
-#SBATCH --error=/lustre/panda/jili/oct19/macro/target/data/slurmlog/pnd_sim_%A_%a.err
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
+#SBATCH --job-name=restgas
+#SBATCH --array=0-99
+#SBATCH --time=08:00:00
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=24G
-#SBATCH --array=1-500
-#SBATCH --singularity-container=/cvmfs/vae.gsi.de/vae23/containers/user_container-develop.sif
+#SBATCH --mem=4G
+#SBATCH --output=/absolute/path/to/log/%A_%a.out
+#SBATCH --error=/absolute/path/to/log/%A_%a.err
 
-# Setup PandaRoot environment
-source /lustre/panda/jili/oct19/build/config.sh -p
+cd /path/to/RestgasDetermination
+source build/config.sh -p
 
-cd /lustre/panda/jili/oct19/macro/target
-python3 -u runall_prod_hvmaps.py acc_p20.json
+cd macro/target
+python3 runall_prod_hvmaps.py /absolute/path/to/config.json
 ```
 
-Each array task receives a unique `SLURM_ARRAY_TASK_ID` which `runall_prod_hvmaps.py` automatically uses to format output filenames.
+Each array task receives a distinct file prefix from `SLURM_ARRAY_TASK_ID`.
 
-### 4. Merge Parallel Job Outputs
+### 6.5 MC-truth control for a distributed Restgas profile
 
-After all SLURM jobs complete, merge the ROOT files:
+For a closure test with a fully distributed profile:
+
+```json
+{
+  "prefix": "restgas_mc_control",
+  "nevts": 10000,
+  "dec": "DPM2",
+  "mom": 4.06,
+  "use_mvd_hvmaps": "true",
+  "ipx": 0.0,
+  "ipy": 0.0,
+  "ipz": 0.0,
+  "use_restgas": "true",
+  "restgas_profile": "restgas_16012024_with_cryopump.txt",
+  "theta_min": 22.0,
+  "theta_max": 150.0,
+  "back_prop_vertex": "mc",
+  "output_path": "/absolute/path/to/data"
+}
+```
+
+Run:
 
 ```bash
-python3 macro/target/merge.py /path/to/output/prefix/reco/
+python3 runall_prod_hvmaps.py restgas_mc_control.json
 ```
 
-### 5. Apply Efficiency Correction (`efficiency_correction_2.C`)
+This uses the per-track MC start vertex for back-propagation and is therefore suitable for validating the ideal reconstruction and efficiency-correction chain.
 
-With both "data" (rest gas simulation) and "acceptance MC" (full-gas/uniform simulation) outputs merged, run `efficiency_correction_2.C`:
+> Do not interpret `back_prop_vertex: "mc"` as an experimental-data workflow. It is a closure/reference mode only.
+
+### 6.6 Profile-dependent efficiency correction
+
+Example using indexed file ranges:
 
 ```bash
 cd macro/target/correction
 
-# Basic usage with wildcard patterns:
-root -b -q -l 'efficiency_correction_2.C( \
-    "../data/restgas/reco/restgas_*_ana_final.root", \
-    "../data/uniform_mc/reco/uniform_*_ana_final.root", \
-    "../data/uniform_mc/reco/uniform_*_sim.root", \
-    "../data/restgas/reco/restgas_*_sim.root", \
-    "restgas_profile_corrected" \
-)'
-
-# Usage with explicit file range strings (e.g., files 1 to 100):
-root -b -q -l 'efficiency_correction_2.C( \
-    "../data/restgas/reco/restgas_%d_ana_final.root,1,100", \
-    "../data/uniform_mc/reco/uniform_%d_ana_final.root,1,500", \
-    "../data/uniform_mc/reco/uniform_%d_sim.root,1,500", \
-    "../data/restgas/reco/restgas_%d_sim.root,1,100", \
-    "restgas_profile_corrected" \
+root -b -q -l \
+'efficiency_correction_2.C(
+  "../data/pseudo_data/reco/pseudo_data_%d_ana_final.root,1,100",
+  "../data/efficiency_mc/reco/efficiency_mc_%d_ana_final.root,1,500",
+  "../data/efficiency_mc/reco/efficiency_mc_%d_sim.root,1,500",
+  "../data/pseudo_data/reco/pseudo_data_%d_sim.root,1,100",
+  "pseudo_data_corrected"
 )'
 ```
 
-This produces:
-- `restgas_profile_corrected.png` — Diagnostic plots
-- `restgas_profile_corrected.root` — Saved ROOT histograms and profiles
+Main outputs:
 
----
-
-## Configuration Reference
-
-All parameters can be set in JSON config files, overridden by command-line arguments:
-
-| Parameter | Type | Default | Description |
-| --- | --- | --- | --- |
-| `prefix` | string | `"test"` | Name for the job; creates a subdirectory under `output_path` |
-| `nevts` | int | `1000` | Number of events to simulate per job |
-| `dec` | string | `"pp_dd"` | Generator type: `DPM`, `DPM1`, `DPM2`, `FTF`, `FTF1`, `BOX`, or EvtGen decay file |
-| `mom` | float | `4.06` | Antiproton beam momentum in GeV/c |
-| `use_mvd_hvmaps` | string | `"false"` | `"true"` to use HVMAPS MVD geometry (`all_hvmaps.par`) |
-| `ipx`, `ipy`, `ipz` | float | `0.0` | Interaction point coordinates (cm) |
-| `use_restgas` | string | `"false"` | `"true"` to enable rest gas target profile (`TargetMode=8`) |
-| `restgas_profile` | string | `"restgas_16012024_with_cryopump.txt"` | Profile basename under `input/`, or an absolute path |
-| `theta_min` | float | `0.0` | Minimum theta angle for DPM generator (degrees) |
-| `theta_max` | float | `180.0` | Maximum theta angle for DPM generator (degrees) |
-| `back_prop_vertex` | string | `"poca"` | Workflow mode: `"poca"` (two-pass) or `"mc"` (single-pass with MC truth) |
-| `output_path` | string | `"data"` | Base path for all output files |
-
-Example JSON config:
-```json
-{
-    "prefix": "restgas_8.9GeV_z0",
-    "nevts": 10000,
-    "dec": "DPM",
-    "mom": 8.9,
-    "use_mvd_hvmaps": "true",
-    "ipx": 0.0,
-    "ipy": 0.0,
-    "ipz": 0.0,
-    "use_restgas": "true",
-    "restgas_profile": "restgas_16012024_no_cryopump.txt",
-    "theta_min": 0.5,
-    "theta_max": 140.0,
-    "back_prop_vertex": "poca",
-    "output_path": "/lustre/panda/user/restgas_output"
-}
+```text
+pseudo_data_corrected.png
+pseudo_data_corrected_eff.png
+pseudo_data_corrected.root
 ```
 
+Relevant ROOT histograms:
+
+```text
+hDataRaw
+hMCGen
+hMCRec
+hMCRecReco
+hEff
+hEffReco
+hCorrected_NoBias
+hCorrected_RecoEff
+```
+
+For pseudo-data closure tests, the optional fourth input supplies the generated truth profile.
+
+### 6.7 Robustness matrix
+
+Edit the dataset tags and file ranges in:
+
+```text
+macro/target/correction/run_efficiency_batch.py
+```
+
+then run:
+
+```bash
+python3 run_efficiency_batch.py
+```
+
+The script evaluates combinations such as nominal, `+5%`, `-5%`, `+10%`, `-10%`, `+20%`, and `-20%` Restgas profiles, reproducing the Chapter 8 input-versus-truth stress tests.
+
 ---
 
-## Output Structure
+## 7. Output structure
+
+The main Python runner creates:
 
 ```text
 <output_path>/
 └── <prefix>/
-    ├── config.json                          # Saved configuration for this run
+    ├── config.json
     ├── log/
-    │   ├── <prefix>_<job_id>_sim.log        # Simulation log
-    │   ├── <prefix>_<job_id>_digi.log       # Digitization log
-    │   ├── <prefix>_<job_id>_reco.log       # Reconstruction log
-    │   ├── <prefix>_<job_id>_pid.log        # PID log (Pass 1)
-    │   ├── <prefix>_<job_id>_ana.log        # Vertex fitting log
-    │   ├── <prefix>_<job_id>_aod_complete.log  # AOD production log (Pass 2)
-    │   └── <prefix>_<job_id>_ana_complete.log  # Final analysis log
+    │   ├── <job>_sim.log
+    │   ├── <job>_digi.log
+    │   ├── <job>_reco.log
+    │   ├── <job>_pid.log
+    │   ├── <job>_ana.log
+    │   └── ...
     ├── reco/
-    │   ├── <prefix>_<job_id>_sim.root       # MC simulation output
-    │   ├── <prefix>_<job_id>_digi.root      # Digitized hits
-    │   ├── <prefix>_<job_id>_reco.root      # Reconstructed tracks
-    │   ├── <prefix>_<job_id>_pid.root       # PID output (Pass 1)
-    │   ├── <prefix>_<job_id>_boost.root     # Analysis NTuples plus event_poca tree
-    │   ├── <prefix>_<job_id>_vtx_fit.json   # Fitted vertex coordinates
-    │   ├── <prefix>_<job_id>_pid_final.root # PID output (Pass 2, vertex-aware)
-    │   └── <prefix>_<job_id>_ana_final.root # Final analysis NTuples
-    └── figure/
-        ├── <prefix>_<job_id>_vtx_fit.png    # Vertex fit plots (X, Y, Z)
-        └── <prefix>_<job_id>_vtx_verification.png  # Validation plots
+    │   ├── <job>_sim.root
+    │   ├── <job>_par.root
+    │   ├── <job>_digi.root
+    │   ├── <job>_reco.root
+    │   ├── <job>_pid.root
+    │   ├── <job>_boost.root       # ntpDp plus event_poca
+    │   ├── <job>_vtx_fit.json
+    │   ├── <job>_pid_final.root
+    │   └── <job>_ana_final.root
+    ├── figure/
+    │   ├── <job>_vtx_fit.png
+    │   └── <job>_vtx_verification.png
+    └── vtx_stats.txt
 ```
 
----
-
-## Rest Gas Density Profile Files
-
-Two rest gas density profiles are included in `input/`:
-
-| File | Description |
-| --- | --- |
-| `restgas_16012024_with_cryopump.txt` | Profile with cryopump effect (default) |
-| `restgas_16012024_no_cryopump.txt` | Profile without cryopump |
-
-These text files cover the range **$z = -570\text{ cm}$ to $+1100\text{ cm}$** (the full beamline extent), with densities given in units of $10^{12}\text{ atoms/cm}^2$. Select either file with `restgas_profile`; changing profiles no longer requires a source edit or rebuild. They are read by `PndTargetGenerator::ReadDensityFile()` and provide the $z$-dependent density used to sample interaction vertices during simulation.
+Exact auxiliary files depend on the selected workflow and whether a macro was already completed.
 
 ---
 
-## License
+## 8. Script triage
 
-This project is distributed under the **GNU General Public License (GPL) version 3**, as part of the PandaRoot framework. See [COPYING](COPYING) for details.
+The repository now also contains two maintained documentation entry points:
+
+- `README.md` — project-level overview;
+- `macro/target/README.md` — concise execution-oriented description of the target workflow.
+
+This README remains the more detailed theory-to-code and usage reference.
+
+### Recommended core
+
+- `runall_prod_hvmaps.py`
+- `generate_configs.py`
+- `prod_sim_hvmaps.C`
+- `prod_aod_hvmaps.C`
+- `reco_complete.C`
+- `pid_complete.C`
+- `ana_dpm.C`
+- `prod_aod_complete.C`
+- `ana_complete.C`
+- `correction/efficiency_correction_2.C`
+- `correction/run_efficiency_batch.py`
+
+### Useful diagnostics or earlier analysis variants
+
+- `correction/efficiency_correction.C`
+- `correction/efficiency_correction_1.C`
+- `correction/efficiency_correction_steps.C`
+- geometry-drawing and plotting helpers
+- fixed-position scan/configuration helpers
+
+### Experimental or incomplete orchestration
+
+The following files represent a newer modular SLURM rewrite but should not currently be used as the reference production workflow without fixes:
+
+- `run_workflow.py`
+- `poca_step1_worker.py`
+- `poca_step2_analysis.py`
+- `mc_step_worker.py`
+- `merge.py`
+
+The current modular POCA sequence submits an array for step 1, merges ROOT files, and then submits one step-2 job. However:
+
+- the POCA JSON files are not merged;
+- step 2 derives one `out_prefix` and therefore does not clearly process all array tasks;
+- the dependency uses `afterany`, so a downstream job may run even after failed workers.
+
+Site-specific or legacy wrappers such as `submit_prod_hvmaps.py`, `.bak` files, and test scripts should be reviewed before use. Some contain hard-coded Virgo paths or descriptions that do not match their actual call path.
+
+---
+
+## 9. Reference
+
+The physics method and validation are described in:
+
+> Jinxin Li, *Luminosity Determination with Restgas Background from the Target for the PANDA Experiment*, doctoral dissertation, Ruhr University Bochum, 2026.
+>
+> Relevant sections: Chapter 7, “Precise Measurement of the Restgas Distribution”, and Chapter 8, “Determination of the Restgas Profile”.
+
+---
+
+## 10. License
+
+This repository is derived from PandaRoot. Refer to the repository `LICENSE`, `COPYRIGHTHOLDERS`, and `AUTHORS` files for the applicable licensing and attribution terms.
