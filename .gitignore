@@ -15,3 +15,4 @@ macro/target/gphysi.dat
 macro/target/vtx_stats.txt
 input/restgas_*.txt
 macro/target/acc_*.json
+thesis.pdf

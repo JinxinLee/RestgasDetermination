@@ -530,8 +530,8 @@ void PndMasterRunSim::SetGenerator()
   } break;
   case 8: {
     // pencil beam with a gaussian target and 10% restgas profile for testing
-    //tgtfile += "/input/restgas_16012024_with_cryopump.txt";
-    tgtfile += "/input/restgas_p20.txt";
+    tgtfile += "/input/restgas_16012024_with_cryopump.txt";
+    //tgtfile += "/input/restgas_p20.txt";
     //tgtfile += "/input/H_flatprofile.txt";
     LOG(info) << "Using distributed Beam-Target profile " << tgtfile.Data();
     TObjArray *genList = fGen->GetListOfGenerators();

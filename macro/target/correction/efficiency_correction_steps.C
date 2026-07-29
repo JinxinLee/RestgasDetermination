@@ -16,7 +16,7 @@
 #include "TLatex.h"
 
 // -------------------------------------------------------------------
-// 辅助函数部分 (保持不变)
+// Helper function section (unchanged)
 // -------------------------------------------------------------------
 
 void AddToChain(TChain* chain, TString input) {
@@ -56,7 +56,7 @@ void FillWeightedHisto(TChain* tree, TString varToFill, TString varForWeight, TS
 TH1F* ApplyHybridCorrection(TH1F* hDataRaw, TH1F* hEffTruth, TH1F* hEffReco, double biasScaleFactor) {
     TH1F* hCorrected = (TH1F*)hDataRaw->Clone();
     hCorrected->Reset();
-    double scale = 1.0 / biasScaleFactor; // 如果 biasScaleFactor=1.0，则不缩放
+    double scale = 1.0 / biasScaleFactor; // Do not scale if biasScaleFactor=1.0
 
     for (int i = 1; i <= hDataRaw->GetNbinsX(); ++i) {
         double content = hDataRaw->GetBinContent(i);
@@ -89,7 +89,7 @@ TH1F* ApplyHybridCorrection(TH1F* hDataRaw, TH1F* hEffTruth, TH1F* hEffReco, dou
 }
 
 // -------------------------------------------------------------------
-// 主程序
+// Main program
 // -------------------------------------------------------------------
 void efficiency_correction_steps(
     TString realDataFile = "data_ana_final.root", 
@@ -107,7 +107,7 @@ void efficiency_correction_steps(
     double xMax = 1100.0
 )
 {
-    // [MODIFICATION 1] 强制关闭 Bias 修正
+    // [MODIFICATION 1] Force the bias correction off
     double globalBiasFactor = 1.0; 
     std::cout << ">>> WARNING: Systematic Bias Correction is set to " << globalBiasFactor << " (OFF) <<<" << std::endl;
 
@@ -141,7 +141,7 @@ void efficiency_correction_steps(
     if (!tMCRec->GetEntries() || !tData->GetEntries() || !tMCGen->GetEntries()) return;
 
     // ---------------------------------------------------------
-    // [ITER 0] 初始猜测 (No Weighting)
+    // [ITER 0] Initial guess (no weighting)
     // ---------------------------------------------------------
     std::cout << "\n=== Iteration 0 ===\n";
     TH1F* hMCRec_Truth_0 = new TH1F("hMCRec_Truth_0", "MC Rec Truth Iter0", nBinsVar, xBinsVar);
@@ -185,7 +185,7 @@ void efficiency_correction_steps(
     hResult_1->SetName("hResult_1");
 
     // ---------------------------------------------------------
-    // [PLOTTING] 可视化每一步的结果
+    // [PLOTTING] Visualize the result of each step
     // ---------------------------------------------------------
     TCanvas* c1 = new TCanvas("c1", "Step by Step Results", 2400, 1200);
     c1->Divide(2, 1);
@@ -193,7 +193,7 @@ void efficiency_correction_steps(
     // --- Pad 1: IP Distribution Evolution ---
     c1->cd(1); gPad->SetLogy(); gPad->SetGrid(); gPad->SetLeftMargin(0.12);
     
-    // 准备 Truth (如果存在)
+    // Prepare the truth histogram if it exists
     TH1F* hTruth = nullptr;
     if (realDataGenFile != "") {
         TChain* tDataGen = new TChain("pndsim"); AddToChain(tDataGen, realDataGenFile);
@@ -204,13 +204,13 @@ void efficiency_correction_steps(
         }
     }
 
-    // 设置最大值
+    // Set the maximum value
     double yMax = hResult_1->GetMaximum();
     if(hTruth && hTruth->GetMaximum() > yMax) yMax = hTruth->GetMaximum();
     hResult_0->SetMaximum(yMax * 20.0); // Log scale space
     hResult_0->SetMinimum(0.5);
 
-    // 样式设置
+    // Style settings
     hResult_0->SetTitle("IP Reconstruction Evolution;z (cm);Events");
     hResult_0->SetLineColor(kAzure+1);
     hResult_0->SetLineStyle(2); // Dash
@@ -226,7 +226,7 @@ void efficiency_correction_steps(
     hDataRaw->SetLineColor(kGray+1);
     hDataRaw->SetLineWidth(2);
     
-    // 绘制顺序
+    // Draw order
     hResult_0->Draw("HIST");       // Iter 0 (Blue Dash)
     hDataRaw->Draw("HIST SAME");   // Raw Data (Gray)
     hResult_1->Draw("E SAME");     // Iter 1 (Orange Points)
@@ -266,7 +266,7 @@ void efficiency_correction_steps(
     leg2->AddEntry(hEff_Reco_1, "Eff Iter 1 (Reweighted)", "l");
     leg2->Draw();
 
-    // 绘制 Hybrid 区域线
+    // Draw the hybrid-region lines
     TLine* l1 = new TLine(-2, 0, -2, 1.1); l1->SetLineStyle(2); l1->Draw();
     TLine* l2 = new TLine(2, 0, 2, 1.1); l2->SetLineStyle(2); l2->Draw();
     TLatex* tex = new TLatex(); tex->SetTextSize(0.04);
@@ -275,7 +275,7 @@ void efficiency_correction_steps(
 
     c1->SaveAs(outputName + ".png");
 
-    // 保存文件
+    // Save the files
     TFile* fOut = new TFile(outputName + ".root", "RECREATE");
     hResult_0->Write("hResult_Iter0");
     hResult_1->Write("hResult_Final");

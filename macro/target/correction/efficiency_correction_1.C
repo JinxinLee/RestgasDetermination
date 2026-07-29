@@ -16,30 +16,30 @@
 #include "TLine.h"
 
 /**
- * 效率修正脚本
+ * Efficiency correction script
  * 
- * 功能：
- * 1. 读取真实数据 (Data Rec)
- * 2. 读取MC重建数据 (MC Rec)
- * 3. 读取MC生成数据 (MC Gen) - 用于计算分母
- * 4. 计算效率 Efficiency = MC Rec / MC Gen
- * 5. 对真实数据进行修正 Corrected Data = Data Rec / Efficiency
+ * Features:
+ * 1. Read real data (Data Rec)
+ * 2. Read MC reconstructed data (MC Rec)
+ * 3. Read MC generated data (MC Gen) - used to compute the denominator
+ * 4. Compute the efficiency: Efficiency = MC Rec / MC Gen
+ * 5. Correct the real data: Corrected Data = Data Rec / Efficiency
  * 
- * 使用方法：
+ * Usage:
  * root -l 'efficiency_correction.C("data_ana.root", "mc_ana.root", "mc_sim.root")'
  * root -b -q -l 'efficiency_correction.C("../data/test_poca/reco/test_poca_*_ana_final.root", "../data/acc_fullgas/reco/acc_fullgas_*_ana_final.root", "../data/acc_fullgas/reco/acc_fullgas_*_sim.root", "../data/test_poca/reco/test_poca_*_sim.root","10percent_fullgas")'
  */
 void efficiency_correction_1(
-    TString realDataFile = "data_ana_final.root", // 真实数据文件 (经过ana)
-    TString mcRecFile = "mc_ana_final.root",      // MC重建数据文件 (经过ana)
-    TString mcGenFile = "mc_sim.root",            // MC生成数据文件 (sim输出，包含MCTrack)
-    TString realDataGenFile = "",                 // 真实数据对应的生成文件 (可选，用于验证)
-    TString outputName = "efficiency_correction_result", // 输出文件名前缀
-    TString plotVar = "pvz",                      // 需要修正的变量名 (在ana文件的ntpDp树中)
-    TString mcRecVar = "pvz_mc",                  // MC重建变量 (用于效率分子，通常使用MC真值)
-    TString genVar = "MCTrack.fStartZ",           // 对应的生成级变量 (在sim文件的pndsim树中)
-    TString recCut = "pvz != -999.0",             // 重建数据的筛选条件
-    TString genCut = "MCTrack.fMotherID==-1&&MCTrack.fPdgCode==2212", // 生成级粒子的筛选条件
+    TString realDataFile = "data_ana_final.root", // Real data file (after ana processing)
+    TString mcRecFile = "mc_ana_final.root",      // MC reconstructed data file (after ana processing)
+    TString mcGenFile = "mc_sim.root",            // MC generated data file (sim output, containing MCTrack)
+    TString realDataGenFile = "",                 // Corresponding generated file for the real data (optional, for validation)
+    TString outputName = "efficiency_correction_result", // Output filename prefix
+    TString plotVar = "pvz",                      // Variable name to correct (in the ntpDp tree of the ana file)
+    TString mcRecVar = "pvz_mc",                  // MC reconstructed variable (used as the efficiency numerator, usually the MC truth value)
+    TString genVar = "MCTrack.fStartZ",           // Corresponding generated-level variable (in the pndsim tree of the sim file)
+    TString recCut = "pvz != -999.0",             // Selection cut for reconstructed data
+    TString genCut = "MCTrack.fMotherID==-1&&MCTrack.fPdgCode==2212", // Selection cut for generated particles
     int nBins = 300,
     double xMin = -600.0,
     double xMax = 1100.0,
@@ -48,70 +48,70 @@ void efficiency_correction_1(
 )
 {
     // ---------------------------------------------------------
-    // 基础设置
+    // Basic setup
     // ---------------------------------------------------------
-    // 强制使用纯白色背景
+    // Force a pure white background
     //gStyle->SetCanvasColor(kWhite);
     gStyle->SetFrameBorderMode(0);
     gStyle->SetCanvasBorderMode(0);
     gStyle->SetPadBorderMode(0);
-    // 设置全局图例无边框
+    // Remove the global legend border
     gStyle->SetLegendBorderSize(0);
-    // (可选) 设置全局图例背景透明 (实测某些ROOT版本对Legend的全局FillStyle支持不稳定，建议用方法1手动设透明)
+    // (Optional) Make the global legend background transparent (in some ROOT versions, the global FillStyle support for Legend is unstable, so method 1 is recommended)
     gStyle->SetLegendFillColor(0);
 
     // ---------------------------------------------------------
-    // 关键：线宽与点大小 (针对 5000px 宽度优化)
+    // Key: line width and marker size (optimized for 5000 px width)
     // ---------------------------------------------------------
-    // 默认线宽通常是 1px，在 5000px 图上几乎不可见。建议设为 3 到 5。
+    // The default line width is usually 1 px, which is nearly invisible on a 5000 px plot. A value of 3 to 5 is recommended.
     gStyle->SetLineWidth(4);      
-    gStyle->SetFrameLineWidth(4); // 坐标轴边框
-    gStyle->SetHistLineWidth(4);  // 直方图线条
-    gStyle->SetFuncWidth(4);      // 函数/拟合曲线
-    gStyle->SetGridWidth(2);      // 网格线（如果开启）
+    gStyle->SetFrameLineWidth(4); // Axis frame line width
+    gStyle->SetHistLineWidth(4);  // Histogram line width
+    gStyle->SetFuncWidth(4);      // Function/fitting curve width
+    gStyle->SetGridWidth(2);      // Grid line width (if enabled)
 
-    // 标记点 (Marker) 大小，默认是 1.0，建议放大到 2.0 - 3.0
+    // Marker size (default 1.0; recommended to enlarge to 2.0–3.0)
     gStyle->SetMarkerSize(2.5);
-    gStyle->SetMarkerStyle(20);   // 推荐使用实心圆点，在大图上最清晰
+    gStyle->SetMarkerStyle(20);   // Solid circles are recommended because they are clearest on large plots
 
     // ---------------------------------------------------------
-    // 字体设置 (ROOT字体大小是占 Pad 高度的百分比)
+    // Font settings (ROOT font sizes are percentages of pad height)
     // ---------------------------------------------------------
-    // 5000x2500 是 2:1 的宽图。
-    // 0.05 的意思是占高度的 5%，即 2500 * 0.05 = 125 像素高（非常清晰）。
+    // 5000x2500 is a wide 2:1 plot.
+    // 0.05 means 5% of the height, i.e. 2500 × 0.05 = 125 pixels, which is very clear.
     
-    // 坐标轴刻度数值 (Label)
+    // Axis tick labels
     gStyle->SetLabelSize(0.05, "XY"); 
-    gStyle->SetLabelFont(42, "XY");   // 42号字体 (Helvetica) 比默认的 62号更标准
+    gStyle->SetLabelFont(42, "XY");   // Font 42 (Helvetica) is more standard than the default font 62
 
-    // 坐标轴标题 (Title)
+    // Axis titles
     gStyle->SetTitleSize(0.06, "XY"); 
     gStyle->SetTitleFont(42, "XY");
 
-    // 顶部图表标题
+    // Top chart title
     gStyle->SetTitleSize(0.06, "t");  
     gStyle->SetTitleFont(42, "t");
 
     // ---------------------------------------------------------
-    // 布局微调
+    // Layout fine-tuning
     // ---------------------------------------------------------
-    // 调整标题与轴的距离。由于画布很宽，Y轴标题可能会离轴太远，需适当减小 Offset
+    // Adjust the spacing between the title and axes. Since the canvas is very wide, the Y-axis title may be too far from the axis, so the offset should be reduced slightly
     gStyle->SetTitleOffset(0.95, "X");
-    gStyle->SetTitleOffset(1.2, "Y"); // 宽画幅下，Y轴标题贴近一点更好看
+    gStyle->SetTitleOffset(1.2, "Y"); // Wide canvas, Y axis title closer looks better
 
-    // 刻度线长度 (增加一点长度，更有质感)
+    // Tick length (slightly longer for a more refined look)
     gStyle->SetTickLength(0.02, "XY");
     
-    // 统计框 (StatBox) - 如果需要显示，必须调整字体和位置，否则会很丑
+    // Statistics box (StatBox) – if shown, the font and position must be adjusted, otherwise it looks ugly
     gStyle->SetStatFont(42);
     gStyle->SetStatFontSize(0.04);
-    gStyle->SetStatBorderSize(2); // 边框加粗
-    // 设置绘图风格
+    gStyle->SetStatBorderSize(2); // Thicken the border
+    // Set the plotting style
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(1);
-    gStyle->SetPadBottomMargin(0.15); // 底部留白给 X 轴标题 (默认约 0.1)
-    gStyle->SetPadLeftMargin(0.15);   // 左侧留白给 Y 轴标题 (默认约 0.1)
-    gStyle->SetPadRightMargin(0.05);  // 右侧稍微紧凑点
+    gStyle->SetPadBottomMargin(0.15); // Leave bottom padding for the X-axis title (default about 0.1)
+    gStyle->SetPadLeftMargin(0.15);   // Leave left padding for the Y-axis title (default about 0.1)
+    gStyle->SetPadRightMargin(0.05);  // Make the right side slightly tighter
     gStyle->SetPadTopMargin(0.08);
     // gStyle->SetTextSize(0.05);
     // gStyle->SetLabelSize(0.05, "XYZ");
@@ -121,7 +121,7 @@ void efficiency_correction_1(
     // gStyle->SetPadBottomMargin(0.15);
 
     // ---------------------------------------------------------
-    // 1. 获取MC重建分布 (Numerator for Efficiency) & 计算偏差
+    // 1. Get the MC reconstructed distribution (numerator for efficiency) and compute the bias
     // ---------------------------------------------------------
     TChain* tMCRec = new TChain("ntpDp");
     tMCRec->Add(mcRecFile);
@@ -133,32 +133,32 @@ void efficiency_correction_1(
     // High granularity histograms for Efficiency plot (1000 bins)
     int nBinsEff = 300;
 
-    // MC Rec (Truth Variable) - 用于标准效率计算
+    // MC Rec (truth variable) – used for the standard efficiency calculation
     // Standard bins (kept if needed for consistency checks, though mostly using high res for Eff now)
     TH1F* hMCRec = new TH1F("hMCRec", "MC Rec (Truth Var);Z (cm);#Events", nBinsEff, xMin, xMax);
     tMCRec->Draw(mcRecVar + ">>hMCRec", recCut);
     hMCRec->SetDirectory(0);
 
-    // MC Rec (Reco Variable) - 用于Reco-based效率计算
+    // MC Rec (reco variable) – used for the reco-based efficiency calculation
     TH1F* hMCRecReco = new TH1F("hMCRecReco", "MC Rec (Reco Var);Z (cm);#Events", nBinsEff, xMin, xMax);
     tMCRec->Draw(plotVar + ">>hMCRecReco", recCut);
     hMCRecReco->SetDirectory(0);
 
-    // 计算偏差 (Reco - Truth)
-    // 1. 全局偏差分布 (1D)
+    // Compute the bias (reco - truth)
+    // 1. Global bias distribution (1D)
     TH1F* hDev = new TH1F("hDev", "Global Resolution;Rec - Truth (cm);#Events", 100, devMin, devMax);
     tMCRec->Draw(Form("%s - %s >> hDev", plotVar.Data(), mcRecVar.Data()), recCut);
     hDev->SetDirectory(0);
     double globalBias = hDev->GetMean();
 
-    // 2. 偏差随Z的变化 (Profile) - 用于动态修正
+    // 2. Variation of the bias with Z (profile) – used for dynamic correction
     // Use nBinsEff for profile to match efficiency granularity
     TProfile* pBias = new TProfile("pBias", "Bias vs Z (Profile);Z_{reco} (cm);<Bias> (cm)", nBinsEff, xMin, xMax);
     // Draw y:x >> profile
     tMCRec->Draw(Form("%s - %s : %s >> pBias", plotVar.Data(), mcRecVar.Data(), plotVar.Data()), recCut, "prof");
     pBias->SetDirectory(0);
 
-    // 3. 拟合偏差曲线 (使用线性函数 pol1)
+    // 3. Fit the bias curve (using the linear function pol1)
     /*
     TF1* fBias = new TF1("fBias", "pol1", xMin, xMax);
     pBias->Fit(fBias, "Q"); // Q for quiet
@@ -173,7 +173,7 @@ void efficiency_correction_1(
     std::cout << "------------------------------------------------" << std::endl;
 
     // ---------------------------------------------------------
-    // 2. 获取真实数据分布 (Numerator for Data)
+    // 2. Get the real data distribution (numerator for data)
     // ---------------------------------------------------------
     TChain* tData = new TChain("ntpDp");
     tData->Add(realDataFile);
@@ -182,19 +182,19 @@ void efficiency_correction_1(
         return; 
     }
 
-    // Data (Raw) - 保持原始数据，不直接修正Bias
+    // Data (raw) – keep the original data and do not directly correct the bias
     TH1F* hDataRaw = new TH1F("hDataRaw", "Real Data (Raw);Z (cm);#Events", nBins, xMin, xMax);
     tData->Draw(plotVar + ">>hDataRaw", recCut);
     hDataRaw->SetDirectory(0);
 
     // ---------------------------------------------------------
-    // 3. 获取MC生成分布 (Denominator for Efficiency)
+    // 3. Get the MC generated distribution (denominator for efficiency)
     // --------------------------------------------------------- 
 
     // ---------------------------------------------------------
-    // 3. 获取MC生成分布 (Denominator for Efficiency)
+    // 3. Get the MC generated distribution (denominator for efficiency)
     // ---------------------------------------------------------
-    // 注意：这是计算绝对效率的关键。必须使用包含所有生成粒子的sim文件。
+    // Note: this is the key step for computing the absolute efficiency. The sim file must contain all generated particles.
     TChain* tMCGen = new TChain("pndsim");
     tMCGen->Add(mcGenFile);
     if (tMCGen->GetEntries() == 0) {
@@ -212,13 +212,13 @@ void efficiency_correction_1(
     TH1F* hMCGen = new TH1F("hMCGen", "MC Generated;Z (cm);#Events", nBinsEff, xMin, xMax);
     
     std::cout << "Drawing Gen variable: " << genVar << " with cut: " << genCut << std::endl;
-    // 注意：这里假设genVar可以直接访问。如果是TClonesArray，可能需要更复杂的Draw语法
-    // 例如 "MCTrack.fP" 或 "MCTrack[0].fP"
+    // Note: this assumes that genVar is directly accessible. If it is a TClonesArray, a more complex Draw syntax may be required.
+    // For example, "MCTrack.fP" or "MCTrack[0].fP"
     tMCGen->Draw(genVar + ">>hMCGen", genCut); 
     hMCGen->SetDirectory(0);
 
     // ---------------------------------------------------------
-    // 3.5 获取真实数据的生成分布 (Optional Truth for Verification)
+    // 3.5 Get the generated distribution of the real data (optional truth for verification)
     // ---------------------------------------------------------
     TH1F* hDataGen = nullptr;
     if (realDataGenFile != "") {
@@ -242,21 +242,21 @@ void efficiency_correction_1(
     }
 
     // ---------------------------------------------------------
-    // 4. 计算效率 (Efficiency)
+    // 4. Compute the efficiency
     // ---------------------------------------------------------
-    // 4.1 标准效率 (Truth Variable based)
+    // 4.1 Standard efficiency (truth-variable based)
     TH1F* hEff = (TH1F*)hMCRec->Clone("hEff");
     hEff->SetTitle("Efficiency (Truth Var);Z (cm);Efficiency");
     hEff->Divide(hMCRec, hMCGen, 1, 1, "B"); 
 
-    // 4.2 Reco效率 (Reco Variable based)
+    // 4.2 Reco efficiency (reco-variable based)
     TH1F* hEffReco = (TH1F*)hMCRecReco->Clone("hEffReco");
     hEffReco->SetTitle("Efficiency (Reco Var);Z (cm);Efficiency");
     hEffReco->Divide(hMCRecReco, hMCGen, 1, 1, "B");
 
-    // 4.3 Bias-Corrected Efficiency (Shifted Lookup)
-    // 构造一个考虑了Bias的效率曲线：Eff_corr(z_rec) = Eff_std(z_rec - Bias(z_rec))
-    // 这样在修正 Data(z_rec) 时，使用的是其对应真值位置 z_true 的效率
+    // 4.3 Bias-corrected efficiency (shifted lookup)
+    // Construct an efficiency curve that accounts for the bias: Eff_corr(z_rec) = Eff_std(z_rec - Bias(z_rec))
+    // In this way, when correcting Data(z_rec), the efficiency at the corresponding true position z_true is used
     /*
     TH1F* hEffBiasCorr = (TH1F*)hEff->Clone("hEffBiasCorr");
     hEffBiasCorr->SetTitle("Efficiency (Bias Corrected);Z_{reco} (cm);Efficiency");
@@ -264,16 +264,16 @@ void efficiency_correction_1(
     
     for (int i = 1; i <= hEffBiasCorr->GetNbinsX(); ++i) {
         double z_rec = hEffBiasCorr->GetBinCenter(i);
-        // 计算对应的真值位置: z_true = z_rec - Bias(z_rec)
+        // Compute the corresponding true position: z_true = z_rec - Bias(z_rec)
         double bias_val = p0 + p1 * z_rec;
         double z_true = z_rec - bias_val;
         
-        // 查找 z_true 在标准效率曲线(hEff)中的值
+        // Find the value of z_true in the standard efficiency curve (hEff)
         int bin_true = hEff->FindBin(z_true);
         double eff_val = 0.0;
         double eff_err = 0.0;
         
-        // 确保在范围内
+        // Ensure it is within range
         if (bin_true >= 1 && bin_true <= hEff->GetNbinsX()) {
             eff_val = hEff->GetBinContent(bin_true);
             eff_err = hEff->GetBinError(bin_true);
@@ -285,27 +285,27 @@ void efficiency_correction_1(
     */
 
     // ---------------------------------------------------------
-    // 5. 修正真实数据 (Correction)
+    // 5. Correct the real data
     // ---------------------------------------------------------
-    // 5.1 标准修正 (新): Raw Data / Bias-Corrected Eff
-    // 这保留了 Data 的 Reco 坐标，但使用了正确的(偏移后的)效率值进行归一化
+    // 5.1 Standard correction (new): raw data / bias-corrected efficiency
+    // This preserves the reco coordinate of the data but normalizes it with the correct (shifted) efficiency value
     /*
     TH1F* hCorrected = (TH1F*)hDataRaw->Clone("hCorrected");
     hCorrected->SetTitle("Corrected (Raw / BiasCorrEff);Variable;#Events");
     hCorrected->Divide(hEffBiasCorr);
     */
 
-    // 5.2 无Bias修正: Raw Data / Standard Truth Eff (忽略Bias)
+    // 5.2 No-bias correction: raw data / standard truth efficiency (ignore the bias)
     TH1F* hCorrectedNoBias = (TH1F*)hDataRaw->Clone("hCorrectedNoBias");
     hCorrectedNoBias->SetTitle("Corrected (Raw / TruthEff);Z (cm);#Events");
     hCorrectedNoBias->Divide(hEff);
 
-    // 5.3 Reco效率修正: Raw Data / Reco Eff (自动包含Bias和Smearing)
+    // 5.3 Reco-efficiency correction: raw data / reco efficiency (automatically includes bias and smearing)
     TH1F* hCorrectedRecoEff = (TH1F*)hDataRaw->Clone("hCorrectedRecoEff");
     hCorrectedRecoEff->SetTitle("Corrected (Raw / RecoEff);Z (cm);#Events");
     hCorrectedRecoEff->Divide(hEffReco);
 
-    // 5.4 Hybrid Correction: (-2, 2) uses Truth Eff (pvz_mc), others use Reco Eff (pvz)
+    // 5.4 Hybrid correction: (-2, 2) uses truth efficiency (pvz_mc), others use reco efficiency (pvz)
     TH1F* hCorrectedHybrid = (TH1F*)hDataRaw->Clone("hCorrectedHybrid");
     hCorrectedHybrid->SetTitle("Corrected (Hybrid);Z (cm);#Events");
     hCorrectedHybrid->Reset(); // Clear content to fill manually
@@ -342,10 +342,10 @@ void efficiency_correction_1(
     }
 
     // ---------------------------------------------------------
-    // 6. 绘图与保存
+    // 6. Plotting and saving
     // ---------------------------------------------------------
-    // 修改：只保留原Pad 6(Hybrid Correction)和Pad 8(Rel Diff)
-    // 采用左右布局 (Left: Correction Result, Right: Relative Difference)
+    // Update: keep only the original Pad 6 (hybrid correction) and Pad 8 (relative difference)
+    // Use a left-right layout (left: correction result, right: relative difference)
     TCanvas* c1 = new TCanvas("c1", "Efficiency Correction Analysis", 6000, 3000);
     c1->Divide(2, 1); 
 
@@ -360,7 +360,7 @@ void efficiency_correction_1(
     gPad->SetTicks(1, 1);
     gPad->SetLogy();
 
-    // 统一纵坐标范围
+    // Unify the vertical-axis range
     double yMax = 0;
     if (hDataGen) {
         yMax = hDataGen->GetMaximum() * 5.0; // Increased for Log scale
@@ -369,29 +369,29 @@ void efficiency_correction_1(
         if (hCorrectedHybrid && hCorrectedHybrid->GetMaximum() > yMax) yMax = hCorrectedHybrid->GetMaximum() * 5.0;
     }
 
-    // 绘制 Frame
+    // Draw the frame
     if (hCorrectedHybrid) {
-        hCorrectedHybrid->SetTitle(""); // 移除标题
+        hCorrectedHybrid->SetTitle(""); // Remove the title
         hCorrectedHybrid->SetLineColor(kOrange+1);
-        hCorrectedHybrid->SetLineWidth(5);     // 加粗线
+        hCorrectedHybrid->SetLineWidth(5);     // Thicken the line
         hCorrectedHybrid->SetMarkerColor(kOrange+1);
         hCorrectedHybrid->SetMarkerStyle(21);
-        hCorrectedHybrid->SetMarkerSize(2.5);  // 加大点
+        hCorrectedHybrid->SetMarkerSize(2.5);  // Increase marker size
         hCorrectedHybrid->SetMinimum(0.5);     // Log scale minimum
         hCorrectedHybrid->SetMaximum(yMax);
         
-        // 恢复轴标签 - 字体调小
+        // Restore axis labels – reduce the font size
         hCorrectedHybrid->GetXaxis()->SetLabelSize(0.035); 
         hCorrectedHybrid->GetXaxis()->SetTitle("#font[132]{#it{z}} (cm)"); // change title
         hCorrectedHybrid->GetXaxis()->SetTitleSize(0.045);
         hCorrectedHybrid->GetXaxis()->SetTitleOffset(1.1);
-        hCorrectedHybrid->GetXaxis()->CenterTitle(); // 居中
+        hCorrectedHybrid->GetXaxis()->CenterTitle(); // Center
         
         hCorrectedHybrid->GetYaxis()->SetLabelSize(0.035);
-        hCorrectedHybrid->GetYaxis()->SetTitle("#font[132]{#Events}"); // 更改为数学字体
+        hCorrectedHybrid->GetYaxis()->SetTitle("#font[132]{#Events}"); // Switch to a mathematical font
         hCorrectedHybrid->GetYaxis()->SetTitleSize(0.045);
         hCorrectedHybrid->GetYaxis()->SetTitleOffset(1.3);
-        hCorrectedHybrid->GetYaxis()->CenterTitle(); // 居中
+        hCorrectedHybrid->GetYaxis()->CenterTitle(); // Center
         
         hCorrectedHybrid->Draw("E");
     }
@@ -404,11 +404,11 @@ void efficiency_correction_1(
 
     if (hDataGen) {
         hDataGen->SetLineColor(kAzure+2);
-        hDataGen->SetLineWidth(5); // 加粗线
+        hDataGen->SetLineWidth(5); // Thicken the line
         hDataGen->Draw("HIST SAME");
         leg6->AddEntry(hDataGen, "Truth", "l");
 
-        // 计算 Delta N / N
+        // Compute Delta N / N
         double errHybrid, errGen;
         double nHybrid = hCorrectedHybrid->IntegralAndError(1, hCorrectedHybrid->GetNbinsX(), errHybrid);
         double nGen = hDataGen->IntegralAndError(1, hDataGen->GetNbinsX(), errGen);
@@ -416,7 +416,7 @@ void efficiency_correction_1(
         if (nGen > 0) {
             double ratioHybrid = nHybrid / nGen;
             double relDevHybrid = (ratioHybrid - 1.0) * 100.0;
-            // 计算相对误差: dR = (N_h/N_g) * sqrt( (dN_h/N_h)^2 + (dN_g/N_g)^2 )
+            // Compute the relative error: dR = (N_h/N_g) * sqrt( (dN_h/N_h)^2 + (dN_g/N_g)^2 )
             double errRelDevHybrid = 100.0 * ratioHybrid * sqrt(pow(errHybrid/nHybrid, 2) + pow(errGen/nGen, 2));
             
             TLatex* latex = new TLatex();
@@ -424,7 +424,7 @@ void efficiency_correction_1(
             latex->SetTextSize(0.04); 
             latex->SetTextColor(kBlack);
             latex->SetTextAlign(12);
-            // 在图上添加文字 (带误差)
+            // Add text to the plot (with errors)
             latex->DrawLatex(0.18, 0.85, Form("#font[132]{#Delta#it{N}/#it{N} = %.2f #pm %.2f %%}", relDevHybrid, errRelDevHybrid));
         }
     }
@@ -450,63 +450,63 @@ void efficiency_correction_1(
         hRelDiffHybrid->SetLineColor(kBlack);
         hRelDiffHybrid->SetMarkerStyle(20);
         hRelDiffHybrid->SetMarkerColor(kBlack);
-        hRelDiffHybrid->SetMarkerSize(2.3); // 加大点
+        hRelDiffHybrid->SetMarkerSize(2.3); // Increase marker size
         
-        hRelDiffHybrid->SetMinimum(-1000); // 根据需要调整范围
+        hRelDiffHybrid->SetMinimum(-1000); // Adjust range as needed
         hRelDiffHybrid->SetMaximum(1000);
 
-        // 恢复正常轴属性 - 字体调小
+        // Restore the normal axis properties – reduce the font size
         hRelDiffHybrid->GetXaxis()->SetLabelSize(0.035);
         hRelDiffHybrid->GetXaxis()->SetTitle("#font[132]{#it{z}} (cm)"); // change title
         hRelDiffHybrid->GetXaxis()->SetTitleSize(0.045);
         hRelDiffHybrid->GetXaxis()->SetTitleOffset(1.1);
-        hRelDiffHybrid->GetXaxis()->CenterTitle(); // 居中
+        hRelDiffHybrid->GetXaxis()->CenterTitle(); // Center
         hRelDiffHybrid->GetXaxis()->SetTickLength(0.03);
 
         hRelDiffHybrid->GetYaxis()->SetLabelSize(0.035);
-        hRelDiffHybrid->GetYaxis()->SetTitle("#font[132]{#frac{#Delta#it{N}}{#it{N}}}"); // 更改为数学公式字体
+        hRelDiffHybrid->GetYaxis()->SetTitle("#font[132]{#frac{#Delta#it{N}}{#it{N}}}"); // Change to math formula font
         hRelDiffHybrid->GetYaxis()->SetTitleSize(0.045);
         hRelDiffHybrid->GetYaxis()->SetTitleOffset(1.3);
-        hRelDiffHybrid->GetYaxis()->CenterTitle(); // 居中
+        hRelDiffHybrid->GetYaxis()->CenterTitle(); // Center
         hRelDiffHybrid->GetYaxis()->SetNdivisions(505);
 
-        // 绘制：只显示点，不显示误差棒
-        // 方法：克隆一个直方图并将误差设为0，然后用 "P" 绘制
+        // Draw: show only points, not error bars
+        // Method: clone a histogram and set its errors to zero, then draw it with "P"
         TH1F* hRelDiffDraw = (TH1F*)hRelDiffHybrid->Clone("hRelDiffDraw");
         for (int i=0; i<=hRelDiffDraw->GetNbinsX()+1; ++i) hRelDiffDraw->SetBinError(i, 0.0);
         
-        // 分离正负值，使用不同颜色
-        // 正值用图1的橙色 (kOrange+1), 负值用图1的蓝色 (kAzure+2)
+        // Separate positive and negative values using different colors
+        // Positive values use the orange color from plot 1 (kOrange+1), negative values use the blue color from plot 1 (kAzure+2)
         TH1F* hRelDiffPos = (TH1F*)hRelDiffDraw->Clone("hRelDiffPos");
         TH1F* hRelDiffNeg = (TH1F*)hRelDiffDraw->Clone("hRelDiffNeg");
         
         hRelDiffPos->SetMarkerColor(kOrange+1);
         hRelDiffNeg->SetMarkerColor(kAzure+2);
         
-        // 遍历所有Bin，将不需要显示的Bin设为极小值(超出绘图范围)
+        // Loop over all bins and set the bins that should not be displayed to a very small value (outside the plotting range)
         for (int i=1; i<=hRelDiffDraw->GetNbinsX(); ++i) {
              double val = hRelDiffDraw->GetBinContent(i);
              if (val >= 0) {
-                 hRelDiffNeg->SetBinContent(i, -9999999.0); // Neg图隐藏正值
+                 hRelDiffNeg->SetBinContent(i, -9999999.0); // Hide positive values in Neg plot
              } else {
-                 hRelDiffPos->SetBinContent(i, -9999999.0); // Pos图隐藏负值
+                 hRelDiffPos->SetBinContent(i, -9999999.0); // Hide negative values in Pos plot
              }
         }
 
-        hRelDiffPos->Draw("P");      // 绘制坐标轴和正值点
-        hRelDiffNeg->Draw("P SAME"); // 叠加负值点
+        hRelDiffPos->Draw("P");      // Draw axes and positive values
+        hRelDiffNeg->Draw("P SAME"); // Overlay negative values
         
         TLine *line = new TLine(xMin, 0.0, xMax, 0.0);
         line->SetLineStyle(2);
         line->SetLineColor(kRed);
-        line->SetLineWidth(4); // 加粗
+        line->SetLineWidth(4); // Thicken
         line->Draw();
     }
 
     c1->SaveAs(outputName + ".png");
 
     // ---------------------------------------------------------
-    // 7. 新Canvas绘制效率对比 (Truth vs Reco)
+    // 7. Draw an efficiency comparison on a new canvas (truth vs reco)
     // ---------------------------------------------------------
     TCanvas* c2 = new TCanvas("c2", "Efficiency Comparison", 3000, 3000);
     c2->SetLeftMargin(0.12);
@@ -516,7 +516,7 @@ void efficiency_correction_1(
     c2->SetTicks(1, 1);
     c2->SetGrid();
     
-    // 设置样式
+    // Set the style
     hEff->SetLineColor(kGreen+2);
     hEff->SetMarkerColor(kGreen+2);
     hEff->SetMarkerStyle(20);
@@ -549,7 +549,7 @@ void efficiency_correction_1(
     hEff->Draw("E");
     hEffReco->Draw("E SAME");
 
-    TLegend* legEff = new TLegend(0.7, 0.75, 0.9, 0.9); // 放在右下角
+    TLegend* legEff = new TLegend(0.7, 0.75, 0.9, 0.9); // Put in bottom right corner
     legEff->SetFillStyle(0);
     legEff->SetBorderSize(0);
     legEff->SetTextSize(0.035); // Adjust text size
@@ -560,7 +560,7 @@ void efficiency_correction_1(
     c2->SaveAs(outputName + "_eff.png");
 
     // ---------------------------------------------------------
-    // 8. 打印统计信息
+    // 8. Print statistics
     // ---------------------------------------------------------
     std::cout << "========================================" << std::endl;
     std::cout << "          Final Statistics              " << std::endl;
@@ -613,7 +613,7 @@ void efficiency_correction_1(
     hMCGen->Write();
     hEff->Write();
     hEffReco->Write();
-    // hEffBiasCorr->Write(); // 保存Bias修正后的效率
+    // hEffBiasCorr->Write(); // Save efficiency after bias correction
     // hCorrected->Write("hCorrected_BiasCorrEff");
     hCorrectedNoBias->Write("hCorrected_NoBias");
     hCorrectedRecoEff->Write("hCorrected_RecoEff");
